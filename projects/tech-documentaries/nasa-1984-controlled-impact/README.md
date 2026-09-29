@@ -1,207 +1,140 @@
-# NASA / FAA 1984 Controlled Impact Demonstration
+# NASA / FAA 1984 Controlled Impact Demonstration — V4.2 Takeover
 
-Status: FINISHED V4 HYBRID DOCUMENTARY
+Status: **IMPROVED / RENDERED / QA PASSED**
 
-This folder is the takeover handoff for the 26.6 second vertical documentary about NASA / FAA's 1984 Boeing 720 Controlled Impact Demonstration.
+This folder is the source + handoff for the improved 26.6 second vertical documentary about NASA / FAA's 1984 Boeing 720 Controlled Impact Demonstration.
 
-## Final render
+## Current master
 
-Filename: NASA_FAA_1984_Controlled_Impact_Demonstration_V4.mp4
+`NASA_FAA_1984_Controlled_Impact_Demonstration_V4_2.mp4`
 
-Specs:
-- 1080x1920
+- 1080 × 1920
 - 9:16
 - 30 FPS
 - H.264 / yuv420p
 - AAC 48 kHz
-- duration: 26.602 s
-- size: 53,294,838 bytes
-- SHA-256: 18df956ad7c523f9b99417a4df5e3defafec12dfe01ff253900ad9e6884d0af2
+- duration: 26.600 s container duration (VO remains the original 26.568 s)
+- size: 63,299,053 bytes
+- SHA-256: `9f04eb71df1107fdeea70a8f7cab972f2dbe3497f3c2fbdef9a089aab449f855`
 
-The ChatGPT GitHub connector cannot upload the 51 MB local binary directly. The exact final MP4 has therefore also been persisted in the user's ChatGPT Library at:
+The render itself remains outside Git. Source footage/audio is stored in ChatGPT Library at:
 
-/Video Projects/NASA FAA 1984 Controlled Impact/NASA_FAA_1984_Controlled_Impact_Demonstration_V4.mp4
+`/Video Projects/NASA FAA 1984 Controlled Impact/`
 
-A future ChatGPT agent on this account should search the Library for that exact filename instead of rebuilding unless edits are requested.
+## What changed from V4
 
-## Creative north star
+This is a targeted upgrade, not a rebuild.
 
-REAL EVENT -> REAL PROOF -> STEP INSIDE IT WITH PS1 -> BACK TO REALITY -> VIOLENT REAL PAYOFF.
+- Kept the real fireball as the first frame and hero payoff.
+- Removed the weak early black test-site wall from the first five seconds.
+- First five seconds now progress: **fireball → clean Boeing profile → low rear approach → real crash-test dummies**.
+- Replaced the old `NO CREW ABOARD` aerial shot with actual dummy/cabin footage from CID #2.
+- Rebuilt the PS1 cabin as a deeper Boeing-style interior with authored seat rows, instrumented dummy forms, X harnesses, cables, tags, window light, dust and inertia-driven secondary motion.
+- Rebuilt the failure insert so the Boeing silhouette is much more readable: long fuselage, swept wings, four nacelles, tailplane, red cheatline/windows, visible yaw, cutter entry, contact flash, fragments and fuel/dust spray.
+- Kept camera motion restrained. Energy comes from the world: straps, tags, dummies, dust, cutter vibration, fragments and fire.
+- The failure insert hard-cuts back to the real crash.
+- Strengthened the ending with real wing-in-fire / burning wreckage / smoke instead of an interior or graphic ending.
+- Simplified the cutter sound to one readable transient, then used a separate crash impact transient when reality resumes.
+- Fire ambience now continues underneath the real crash/fire/aftermath sequence.
 
-Real archival footage remains the majority. V4-style reconstruction is used only where the real cameras cannot clearly show the event: the uncrewed cabin and the yaw / wing-cutter failure. The real fireball is never replaced by CGI.
+## Exact voiceover — unchanged
 
-## Exact voiceover
+> NASA did this on purpose.
+>
+> In 1984, NASA and the FAA remotely flew an uncrewed Boeing 720 into a prepared crash site.
+>
+> They were testing a fuel additive designed to suppress post-crash fires.
+>
+> But seconds before impact, the jet yawed off line.
+>
+> A steel wing cutter smashed into an engine, fuel erupted, and the aircraft vanished inside a massive fireball.
+>
+> The additive was never adopted.
 
-NASA did this on purpose.
+Master VO: `openai-fm-alloy-audio.mp3`
 
-In 1984, NASA and the FAA remotely flew an uncrewed Boeing 720 into a prepared crash site.
+## V4.2 timeline
 
-They were testing a fuel additive designed to suppress post-crash fires.
+- 00.00–01.25 — CID #1 real fireball hook
+- 01.25–02.70 — long NASA archive, clean Boeing side profile
+- 02.70–04.15 — long NASA archive, low rear approach
+- 04.15–05.75 — CID #2 real instrumented crash-test dummies
+- 05.75–07.35 — long NASA archive, technical cabin / instrumentation
+- 07.35–10.20 — CID #1 real low approach
+- 10.20–12.95 — improved PS1 cabin reconstruction
+- 12.95–15.65 — long NASA archive, return to real approach
+- 15.65–18.45 — improved PS1 yaw / cutter / engine-contact reconstruction
+- 18.45–21.30 — CID #1 real crash angle
+- 21.30–22.45 — CID #3 real tail-camera crash/fireball angle
+- 22.45–24.25 — long NASA archive, real expanding fireball
+- 24.25–25.50 — long NASA archive, wing inside burning wreckage
+- 25.50–26.568 — long NASA archive, real burning/smoking consequence
 
-But seconds before impact, the jet yawed off line.
+All four supplied archival videos remain used.
 
-A steel wing cutter smashed into an engine, fuel erupted, and the aircraft vanished inside a massive fireball.
+## Archive presentation
 
-The additive was never adopted.
+Low-resolution CID material uses the established treatment:
 
-Master VO file: openai-fm-alloy-audio.mp3
-VO duration: 26.568 s
+**original synchronized clip in the foreground** over **a large synchronized blurred copy of the same clip**.
 
-## Final edit structure
+No fake monitors, borders or unrelated decorative backgrounds are added. Strong archive moments remain recognisably authentic.
 
-00_hook.mp4
-- Controlled_Impact_Demonstration clip
-- source 10.0s for 1.25s
-- real fireball cold open
+## Reconstruction direction
 
-01_intact.mp4
-- long NASA archive
-- source 26.5s for 2.90s
-- intact Boeing 720
-
-02_dummy.mp4
-- Controlled_Impact_Demonstration_2
-- source 8.0s for 1.60s
-- unique dummy / test imagery
-- minimal text: NO CREW ABOARD
-
-03_engineer.mp4
-- long NASA archive
-- source 68.0s for 1.60s
-- engineer / technical context
-
-04_approach.mp4
-- long NASA archive
-- source 90.5s for 2.85s
-- real approach
-
-05_cabin.mp4
-- generated V4-style PS1 cabin
-- 2.75s
-- instrumented crash-test dummies, no real people
-- secondary motion: harnesses, cables, sunlight, vibration, roll
-
-06_realapproach.mp4
-- Controlled_Impact_Demonstration
-- source 4.5s for 2.70s
-- return to reality
-
-07_failure.mp4
-- generated V4-style PS1 failure reconstruction
-- 2.80s
-- wing drop / yaw / dust / cutter / right inboard engine contact
-- no CGI final explosion
-
-08_impact1.mp4
-- Controlled_Impact_Demonstration
-- source 7.1s for 2.85s
-- main real impact angle
-
-09_impact2.mp4
-- Controlled_Impact_Demonstration_3
-- source 8.0s for 1.15s
-- brief second real impact angle
-
-10_fire.mp4
-- long NASA archive
-- source 102.2s for 1.80s
-- real expanding fire
-
-11_aftermath.mp4
-- long NASA archive
-- source 133.5s for 2.318s
-- real aftermath / consequence
-
-## Mandatory source use
-
-All four supplied videos are used:
-- From the NASA Archives: The Crash in the Desert [HcRyVEFDgGM].webm
-- Controlled_Impact_Demonstration.ogv.240p.vp9.webm
-- Controlled_Impact_Demonstration_2.ogv.240p.vp9.webm
-- Controlled_Impact_Demonstration_3.ogv.240p.vp9.webm
-
-CID #2 is NOT treated as an exterior crash angle. It is used for its unique dummy/test imagery.
-
-## Archival presentation
-
-The 320x240 CID clips use the user's preferred low-resolution presentation:
-- original clip in the foreground
-- enlarged synchronized copy of the exact same clip behind it
-- soft blur on background
-- no fake monitor frame
-- no decorative unrelated background
-
-Where a shot survives a vertical crop, full-frame presentation is preferred.
-
-## V4 / PS1 direction
-
-The actual repository engine-v4 folder currently contains the engine design README rather than a complete runnable package, so this project preserves the exact reconstruction generator used for this render in make_ps1_sequences.py.
+The project remains Engine V4, not V5.
 
 Target look:
-- low internal resolution
-- nearest upscale
+- low internal resolution + nearest-neighbour upscale
 - authored angular geometry
-- low-res textures
-- affine / scan-strip instability
-- subtle vertex / image wobble
-- dithering
-- posterisation
-- color quantisation
-- hard desert light
-- deep cabin shadows
-- dirty surfaces
-- analogue softness
-- subtle chromatic bleed
-- no clean generic Three.js look
+- dirty low-resolution surfaces
+- posterised hard light
+- crushed shadows
+- ordered dithering / colour quantisation
+- affine strip instability / texture wobble
+- subtle chromatic bleed and analogue softness
+- physical secondary motion
 
-Important direction rule:
-MORE WORLD EVENTS, NOT MORE CAMERA MOVEMENT.
+Direction rule: **CAMERA CONTROLLED. WORLD ACTIVE.**
 
-## Sound decisions
+## Sound design
 
 Used:
-- tanweraman-big-plane-sound-effect-247601.mp3
-- freesound_community-metal-impact-30254.mp3
-- soumages-iron-smash-with-debris-351841.mp3
-- freesound_community-grand-feu-big-fire-gran-incendio-81140.mp3
+- `openai-fm-alloy-audio.mp3` — master VO
+- `tanweraman-big-plane-sound-effect-247601.mp3` — restrained aircraft bed / cabin rumble
+- `soumages-iron-smash-with-debris-351841.mp3` — single cutter-contact transient
+- `freesound_community-metal-impact-30254.mp3` — separate real-crash impact transient
+- `freesound_community-grand-feu-big-fire-gran-incendio-81140.mp3` — hook + sustained fire bed
 
-Intentionally excluded:
-- freesound_community-180218-airplane-in-flight-cabin-rumble-tone-voices-loop-bahamas-23090.mp3
-Reason: contains intelligible modern passenger voices; the 1984 aircraft was uncrewed.
+Not used:
+- `freesound_community-180218-airplane-in-flight-cabin-rumble-tone-voices-loop-bahamas-23090.mp3` — contains passenger voices; aircraft was uncrewed.
 
-Not available in mounted inputs:
-- u_xg7ssi08yr-jet-plane-fly-by-369631.mp3
-No substitute was downloaded or fabricated.
+Final mix QA measured approximately `-15.35 LUFS` integrated with `-0.51 dBTP` peak before any platform loudness adjustment.
 
 ## Rebuild
 
-Place all named source media in /mnt/data, then run:
+Place all source assets in `/mnt/data/cid_assets/`, then run:
 
-python /mnt/data/make_ps1_sequences.py
-bash /mnt/data/build_cid_video.sh
+```bash
+python make_ps1_sequences.py
+bash build_cid_video.sh
+```
 
-For another workspace, update the absolute /mnt/data paths in the scripts or mirror the same filenames.
+The scripts create the reconstruction frames, archival cuts, synchronized blurred-background presentation, audio mix and final H.264 master.
 
-## QA already passed
+## QA completed
 
-Checked representative frames for:
-- real cold-open fireball
-- intact aircraft
-- real dummy / technical context
-- PS1 cabin
-- real final approach
-- PS1 failure / cutter contact
-- first real crash angle
-- second real crash angle
-- real aftermath
+Checked:
+- first frame / first 5 seconds
+- archive-to-PS1 transitions
+- cabin depth and secondary motion
+- yaw → cutter → contact readability
+- hard cut to real crash
+- two real crash angles
+- fire continuation
+- final burning wreckage / smoke consequence
+- 1080×1920 / 30 FPS / H.264
+- full decode
+- audio loudness / peak
 
-The final MP4 fully decoded without frame errors.
-
-## Files in this folder
-
-- README.md — this takeover handoff
-- build_cid_video.sh — exact archival cut, concat and audio mix
-- make_ps1_sequences.py — exact PS1/V4-style reconstruction generator
-- asset-manifest.json — filenames, hashes, durations and final-render verification
-
-Do not make V5 for this project unless the user explicitly changes direction.
+Do not build Engine V5 for this project unless explicitly requested.
