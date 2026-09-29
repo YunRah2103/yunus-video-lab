@@ -1,58 +1,90 @@
+#!/usr/bin/env bash
 set -euo pipefail
-OUT=/mnt/data/cid_build
+ROOT=/mnt/data/cid_assets
+OUT=/mnt/data/cid_build_v2
+PS1=/mnt/data/cid_ps1_v2
 mkdir -p "$OUT"
-LONG='/mnt/data/From the NASA Archives： The Crash in the Desert [HcRyVEFDgGM].webm'
-C1='/mnt/data/Controlled_Impact_Demonstration.ogv.240p.vp9.webm'
-C2='/mnt/data/Controlled_Impact_Demonstration_2.ogv.240p.vp9.webm'
-C3='/mnt/data/Controlled_Impact_Demonstration_3.ogv.240p.vp9.webm'
-FONT='/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf'
+LONG="$ROOT/From the NASA Archives： The Crash in the Desert [HcRyVEFDgGM].webm"
+C1="$ROOT/Controlled_Impact_Demonstration.ogv.240p.vp9.webm"
+C2="$ROOT/Controlled_Impact_Demonstration_2.ogv.240p.vp9.webm"
+C3="$ROOT/Controlled_Impact_Demonstration_3.ogv.240p.vp9.webm"
 
 arch(){
-  in="$1"; ss="$2"; dur="$3"; out="$4"; fgwidth="${5:-1080}"; text="${6:-}"
-  if [ -n "$text" ]; then
-    txt=",drawtext=fontfile=${FONT}:text='${text}':fontcolor=white:fontsize=52:borderw=3:bordercolor=black@0.65:x=(w-text_w)/2:y=250:enable='between(t,0.08,${dur})'"
-  else txt=""; fi
-  ffmpeg -y -hide_banner -loglevel error -ss "$ss" -t "$dur" -i "$in"    -filter_complex "[0:v]fps=30,split=2[bg][fg];[bg]scale=1080:1920:force_original_aspect_ratio=increase,crop=1080:1920,gblur=sigma=35,eq=brightness=-0.10:saturation=0.78[bgv];[fg]scale=${fgwidth}:-2:flags=lanczos,eq=contrast=1.08:brightness=0.01:saturation=0.92,unsharp=5:5:0.6[fgv];[bgv][fgv]overlay=(W-w)/2:(H-h)/2${txt},setsar=1,format=yuv420p[v]"    -map "[v]" -an -r 30 -c:v libx264 -preset medium -crf 12 -pix_fmt yuv420p "$out"
+  local in="$1" ss="$2" dur="$3" out="$4" fgwidth="\${5:-1120}" sat="\${6:-0.94}"
+  ffmpeg -y -hide_banner -loglevel error -ss "$ss" -t "$dur" -i "$in" \
+    -filter_complex "[0:v]fps=30,split=2[bg][fg];[bg]scale=1080:1920:force_original_aspect_ratio=increase,crop=1080:1920,gblur=sigma=34,eq=brightness=-0.13:saturation=0.72[bgv];[fg]scale=\${fgwidth}:-2:flags=lanczos,eq=contrast=1.08:brightness=0.005:saturation=\${sat},unsharp=5:5:0.45[fgv];[bgv][fgv]overlay=(W-w)/2:(H-h)/2,setsar=1,format=yuv420p[v]" \
+    -map "[v]" -an -r 30 -c:v libx264 -preset veryfast -crf 13 -pix_fmt yuv420p "$out"
 }
 
-arch "$C1" 10.0 1.25 "$OUT/00_hook.mp4" 1180
-arch "$LONG" 26.5 2.90 "$OUT/01_intact.mp4" 1080
-arch "$C2" 8.0 1.60 "$OUT/02_dummy.mp4" 1080 'NO CREW ABOARD'
-arch "$LONG" 68.0 1.60 "$OUT/03_engineer.mp4" 1080
-arch "$LONG" 90.5 2.85 "$OUT/04_approach.mp4" 1080
+# 0.00-1.25: real fireball hero, no graphics.
+arch "$C1" 9.20 1.25 "$OUT/00_hook.mp4" 1250 1.00
+# 1.25-4.15: two real Boeing shots so the first five seconds keep progressing.
+arch "$LONG" 59.80 1.45 "$OUT/01_intact_side.mp4" 1160 0.96
+arch "$LONG" 56.70 1.45 "$OUT/02_intact_rear.mp4" 1120 0.94
+# 4.15-5.75: actual instrumented crash-test dummies, not a generic aerial shot.
+arch "$C2" 4.10 1.60 "$OUT/03_dummy.mp4" 1120 0.93
+# 5.75-7.35: real technical cabin / instrumentation context.
+arch "$LONG" 70.00 1.60 "$OUT/04_technical.mp4" 1110 0.92
+# 7.35-10.20: real low approach.
+arch "$C1" 1.00 2.85 "$OUT/05_approach.mp4" 1150 0.95
 
-ffmpeg -y -hide_banner -loglevel error -framerate 30 -i /mnt/data/ps1/cabin/%04d.png -t 2.75  -vf "scale=1080:1920:flags=neighbor,gblur=sigma=0.22,noise=alls=2.2:allf=t+u,setsar=1,format=yuv420p"  -an -r 30 -c:v libx264 -preset medium -crf 10 -pix_fmt yuv420p "$OUT/05_cabin.mp4"
+# 10.20-12.95: authored PS1/Puppet Combo cabin reconstruction.
+ffmpeg -y -hide_banner -loglevel error -framerate 30 -i "$PS1/cabin/%04d.png" -t 2.75 \
+  -vf "scale=1080:1920:flags=neighbor,gblur=sigma=0.20,noise=alls=1.8:allf=t+u,eq=contrast=1.05:saturation=0.94,setsar=1,format=yuv420p" \
+  -an -r 30 -c:v libx264 -preset veryfast -crf 11 -pix_fmt yuv420p "$OUT/06_cabin_ps1.mp4"
 
-arch "$C1" 4.5 2.70 "$OUT/06_realapproach.mp4" 1080
+# 12.95-15.65: back to real approach before explaining failure.
+arch "$LONG" 57.10 2.70 "$OUT/07_real_approach.mp4" 1140 0.95
 
-ffmpeg -y -hide_banner -loglevel error -framerate 30 -i /mnt/data/ps1/failure/%04d.png -t 2.80  -vf "scale=1080:1920:flags=neighbor,gblur=sigma=0.22,noise=alls=2.5:allf=t+u,setsar=1,format=yuv420p"  -an -r 30 -c:v libx264 -preset medium -crf 10 -pix_fmt yuv420p "$OUT/07_failure.mp4"
+# 15.65-18.45: clearer PS1 failure reconstruction; contact lands at the very end.
+ffmpeg -y -hide_banner -loglevel error -framerate 30 -i "$PS1/failure/%04d.png" -t 2.80 \
+  -vf "scale=1080:1920:flags=neighbor,gblur=sigma=0.18,noise=alls=2.0:allf=t+u,eq=contrast=1.07:saturation=0.92,setsar=1,format=yuv420p" \
+  -an -r 30 -c:v libx264 -preset veryfast -crf 11 -pix_fmt yuv420p "$OUT/08_failure_ps1.mp4"
 
-arch "$C1" 7.1 2.85 "$OUT/08_impact1.mp4" 1140
-arch "$C3" 8.0 1.15 "$OUT/09_impact2.mp4" 1140
-arch "$LONG" 102.2 1.80 "$OUT/10_fire.mp4" 1140
-arch "$LONG" 133.5 2.318 "$OUT/11_aftermath.mp4" 1080
+# 18.45 onward: hard return to reality and stay there.
+arch "$C1" 7.00 2.85 "$OUT/09_impact_side.mp4" 1210 1.00
+arch "$C3" 17.25 1.15 "$OUT/10_impact_tail.mp4" 1120 0.98
+arch "$LONG" 110.00 1.80 "$OUT/11_fireball.mp4" 1190 1.00
+arch "$LONG" 152.50 1.25 "$OUT/12_burning_wreckage.mp4" 1180 1.00
+arch "$LONG" 162.40 1.068 "$OUT/13_aftermath.mp4" 1140 0.96
 
 cat > "$OUT/list.txt" <<EOF
 file '$OUT/00_hook.mp4'
-file '$OUT/01_intact.mp4'
-file '$OUT/02_dummy.mp4'
-file '$OUT/03_engineer.mp4'
-file '$OUT/04_approach.mp4'
-file '$OUT/05_cabin.mp4'
-file '$OUT/06_realapproach.mp4'
-file '$OUT/07_failure.mp4'
-file '$OUT/08_impact1.mp4'
-file '$OUT/09_impact2.mp4'
-file '$OUT/10_fire.mp4'
-file '$OUT/11_aftermath.mp4'
+file '$OUT/01_intact_side.mp4'
+file '$OUT/02_intact_rear.mp4'
+file '$OUT/03_dummy.mp4'
+file '$OUT/04_technical.mp4'
+file '$OUT/05_approach.mp4'
+file '$OUT/06_cabin_ps1.mp4'
+file '$OUT/07_real_approach.mp4'
+file '$OUT/08_failure_ps1.mp4'
+file '$OUT/09_impact_side.mp4'
+file '$OUT/10_impact_tail.mp4'
+file '$OUT/11_fireball.mp4'
+file '$OUT/12_burning_wreckage.mp4'
+file '$OUT/13_aftermath.mp4'
 EOF
-
 ffmpeg -y -hide_banner -loglevel error -f concat -safe 0 -i "$OUT/list.txt" -c copy "$OUT/video_silent.mp4"
 
-VO='/mnt/data/openai-fm-alloy-audio.mp3'
-PLANE='/mnt/data/tanweraman-big-plane-sound-effect-247601.mp3'
-METAL='/mnt/data/freesound_community-metal-impact-30254.mp3'
-SMASH='/mnt/data/soumages-iron-smash-with-debris-351841.mp3'
-FIRE='/mnt/data/freesound_community-grand-feu-big-fire-gran-incendio-81140.mp3'
+VO="$ROOT/openai-fm-alloy-audio.mp3"
+PLANE="$ROOT/tanweraman-big-plane-sound-effect-247601.mp3"
+METAL="$ROOT/freesound_community-metal-impact-30254.mp3"
+SMASH="$ROOT/soumages-iron-smash-with-debris-351841.mp3"
+FIRE="$ROOT/freesound_community-grand-feu-big-fire-gran-incendio-81140.mp3"
+FINAL=/mnt/data/NASA_FAA_1984_Controlled_Impact_Demonstration_V4_2.mp4
 
-ffmpeg -y -hide_banner -loglevel error  -i "$OUT/video_silent.mp4" -i "$VO" -i "$PLANE" -i "$METAL" -i "$SMASH" -i "$FIRE"  -filter_complex " [1:a]aresample=48000,loudnorm=I=-15:TP=-1.2:LRA=7[vo]; [2:a]aresample=48000,atrim=start=1.5:end=10.5,asetpts=PTS-STARTPTS,volume=0.12,afade=t=in:st=0:d=0.25,afade=t=out:st=8.2:d=0.8,adelay=1100|1100[plane1]; [2:a]aresample=48000,atrim=start=7:end=11,asetpts=PTS-STARTPTS,volume=0.13,afade=t=in:st=0:d=0.15,afade=t=out:st=3.1:d=0.7,adelay=12800|12800[plane2]; [3:a]aresample=48000,atrim=start=0:end=1.0,asetpts=PTS-STARTPTS,volume=0.22,afade=t=out:st=0.45:d=0.5,adelay=18180|18180[metal]; [4:a]aresample=48000,atrim=start=0:end=2.2,asetpts=PTS-STARTPTS,volume=0.23,afade=t=out:st=1.0:d=1.1,adelay=18420|18420[smash]; [5:a]aresample=48000,atrim=start=0:end=1.3,asetpts=PTS-STARTPTS,volume=0.16,afade=t=out:st=0.8:d=0.45[firehook]; [5:a]aresample=48000,atrim=start=0:end=7.8,asetpts=PTS-STARTPTS,volume=0.15,afade=t=in:st=0:d=0.15,afade=t=out:st=7.1:d=0.6,adelay=18750|18750[fireend]; [vo][plane1][plane2][metal][smash][firehook][fireend]amix=inputs=7:duration=longest:normalize=0,alimiter=limit=0.94[a]"  -map 0:v -map "[a]" -t 26.568 -c:v libx264 -preset slow -crf 16 -pix_fmt yuv420p -profile:v high -level 4.2 -r 30 -c:a aac -b:a 192k -movflags +faststart  /mnt/data/NASA_FAA_1984_Controlled_Impact_Demonstration_V4.mp4
+ffmpeg -y -hide_banner -loglevel error \
+  -i "$OUT/video_silent.mp4" -i "$VO" -i "$PLANE" -i "$METAL" -i "$SMASH" -i "$FIRE" \
+  -filter_complex "\
+[1:a]aresample=48000,loudnorm=I=-15.5:TP=-1.3:LRA=6[vo];\
+[2:a]aresample=48000,atrim=start=1.0:end=15.6,asetpts=PTS-STARTPTS,volume='0.040+0.050*(t/14.6)':eval=frame,afade=t=in:st=0:d=0.35,afade=t=out:st=13.8:d=0.8,adelay=1000|1000,lowpass=f=5200[plane];\
+[2:a]aresample=48000,atrim=start=4.5:end=7.5,asetpts=PTS-STARTPTS,volume=.055,lowpass=f=260,highpass=f=45,afade=t=in:st=0:d=0.25,afade=t=out:st=2.5:d=0.45,adelay=10200|10200[cabinrumble];\
+[4:a]aresample=48000,atrim=start=0:end=0.85,asetpts=PTS-STARTPTS,volume=.23,afade=t=out:st=0.34:d=0.5,adelay=17980|17980[cutter];\
+[3:a]aresample=48000,atrim=start=0.05:end=0.80,asetpts=PTS-STARTPTS,volume=.14,afade=t=out:st=0.30:d=0.45,adelay=18450|18450[impact];\
+[5:a]aresample=48000,atrim=start=0:end=1.20,asetpts=PTS-STARTPTS,volume=.20,afade=t=out:st=0.75:d=0.40[firehook];\
+[5:a]aresample=48000,atrim=start=0:end=7.80,asetpts=PTS-STARTPTS,volume=.145,afade=t=in:st=0:d=0.22,afade=t=out:st=7.25:d=0.45,adelay=18850|18850[firemain];\
+[vo][plane][cabinrumble][cutter][impact][firehook][firemain]amix=inputs=7:duration=longest:normalize=0,alimiter=limit=.95[a]" \
+  -map 0:v -map "[a]" -t 26.568 -c:v copy \
+  -c:a aac -ar 48000 -b:a 192k -movflags +faststart "$FINAL"
+
+echo "$FINAL"
