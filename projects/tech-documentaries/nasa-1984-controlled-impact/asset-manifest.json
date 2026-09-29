@@ -8,6 +8,7 @@
     "size_bytes": 63299053,
     "sha256": "9f04eb71df1107fdeea70a8f7cab972f2dbe3497f3c2fbdef9a089aab449f855",
     "specs": "1080x1920, 30fps, H.264/yuv420p, AAC 48kHz",
+    "library_path": "/Video Projects/NASA FAA 1984 Controlled Impact/NASA_FAA_1984_Controlled_Impact_Demonstration_V4_2.mp4",
     "qa": {
       "full_decode": true,
       "audio_integrated_lufs": -15.35,
