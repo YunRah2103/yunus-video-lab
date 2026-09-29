@@ -1,6 +1,6 @@
 # Rally Finland 2024 — Cinematic TikTok Edit
 
-Status: **approved strong base / ready for refinement**
+Status: **approved strong base / V2 refinement branch available**
 
 This project is a premium 9:16 rally TikTok edit built from:
 
@@ -30,10 +30,24 @@ This project is a premium 9:16 rally TikTok edit built from:
 - Real source engine audio is layered under the reference music.
 - The final jump is held longer as the hero payoff.
 
-## Rules for the next agent
+## V2 refinement
+
+The approved V1 build remains untouched in `build_rally.sh`.
+
+`build_rally_v2.sh` is the surgical refinement candidate. It keeps the exact concept and shot progression while tightening:
+
+- action-shot vertical framing
+- monochrome detail retention
+- source-faithful pass / landing physical sound
+- encode quality
+- render QA
+
+See `V2_REFINEMENT_NOTES.md` for the exact changes.
+
+## Rules for further work
 
 **Do not rebuild from scratch.**
-Treat the current render and `build_rally.sh` as the base.
+Treat the current render and `build_rally.sh` as the approved base.
 
 Preserve:
 - crash → freeze → rewind concept
@@ -49,18 +63,23 @@ Improve surgically:
 - stronger natural occlusion/dust transitions where available
 - more precise impact/landing sound accents
 - slightly more premium B&W grade while retaining road, tyre and dust detail
-- micro-adjust shot lengths against the music if a cut can land harder
+- micro-adjust shot lengths against the music only when a cut can land harder
 - maintain realistic rally engine character
 
 The base is already good. Changes should have a clear visual or rhythmic reason.
 
 ## Build
 
-Run:
+Approved V1:
 
 ```bash
 bash build_rally.sh
 ```
 
-The script expects the three source files at the paths defined at its top. Update those paths if needed.
+V2 refinement candidate:
 
+```bash
+bash build_rally_v2.sh
+```
+
+Both scripts expect the three source files at the paths defined at their top.
