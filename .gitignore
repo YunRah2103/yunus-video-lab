@@ -1,0 +1,43 @@
+# Dependencies
+node_modules/
+
+# Remotion / build output
+out/
+build/
+dist/
+.cache/
+.remotion/
+
+# Rendered video
+*.mp4
+*.mov
+*.mkv
+*.webm
+*.avi
+
+# Large audio/media
+*.wav
+*.flac
+*.opus
+*.m4a
+
+# Temporary files
+*.tmp
+*.temp
+*.log
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Environment
+.env
+.env.*
+!.env.example
+
+# Archives / handoffs
+*.zip
+*.7z
+*.rar
