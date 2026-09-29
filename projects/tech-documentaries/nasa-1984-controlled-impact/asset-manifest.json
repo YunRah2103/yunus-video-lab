@@ -1,0 +1,74 @@
+{
+  "project": "NASA FAA 1984 Controlled Impact Demonstration",
+  "final_render": {
+    "name": "NASA_FAA_1984_Controlled_Impact_Demonstration_V4.mp4",
+    "duration_seconds": 26.602,
+    "size_bytes": 53294838,
+    "sha256": "18df956ad7c523f9b99417a4df5e3defafec12dfe01ff253900ad9e6884d0af2",
+    "library_path": "/Video Projects/NASA FAA 1984 Controlled Impact/NASA_FAA_1984_Controlled_Impact_Demonstration_V4.mp4"
+  },
+  "assets": [
+    {
+      "name": "From the NASA Archives： The Crash in the Desert [HcRyVEFDgGM].webm",
+      "size_bytes": 8765789,
+      "duration_seconds": 185.268,
+      "sha256": "56c6f8ea71add6db8df059329bdbee0d91ae6978595a9f3b1584c4c565288e51"
+    },
+    {
+      "name": "Controlled_Impact_Demonstration.ogv.240p.vp9.webm",
+      "size_bytes": 448127,
+      "duration_seconds": 28.4,
+      "sha256": "abc609079b8ae22ce58dd25db3c63d7ace6cb804ef442a55dd65ee7897fa3453"
+    },
+    {
+      "name": "Controlled_Impact_Demonstration_2.ogv.240p.vp9.webm",
+      "size_bytes": 1805525,
+      "duration_seconds": 47.8,
+      "sha256": "4692ee94d0ed9cf6521b84e704ab8c510d157cf0925d470f7cb4a4b5915a726b"
+    },
+    {
+      "name": "Controlled_Impact_Demonstration_3.ogv.240p.vp9.webm",
+      "size_bytes": 606429,
+      "duration_seconds": 27.1,
+      "sha256": "3481020ebf5a11730432c1936fe11d776fbacc76aaeaa19d3f5077b7d1ecb3f0"
+    },
+    {
+      "name": "openai-fm-alloy-audio.mp3",
+      "size_bytes": 425088,
+      "duration_seconds": 26.568,
+      "sha256": "12dd194099657f73c6a9330fb44804a1fe719a6755f3a4070fffb86956bc6bc6"
+    },
+    {
+      "name": "soumages-iron-smash-with-debris-351841.mp3",
+      "size_bytes": 162168,
+      "duration_seconds": 5.06775,
+      "sha256": "871511e7b966de823c871facaf859f9b02b0fef0736e54c165179f9b89592a01"
+    },
+    {
+      "name": "freesound_community-grand-feu-big-fire-gran-incendio-81140.mp3",
+      "size_bytes": 257462,
+      "duration_seconds": 8.045688,
+      "sha256": "01019509fdcfaef49c2b8fcacea8dfb6b78de2e44ecf84cc2ed608568684c78b"
+    },
+    {
+      "name": "freesound_community-metal-impact-30254.mp3",
+      "size_bytes": 416640,
+      "duration_seconds": 20.832,
+      "sha256": "20d7efeaeadbcc228565a53b79ba7ef2f73334354bb8d31c420df5692f2ac40a"
+    },
+    {
+      "name": "freesound_community-180218-airplane-in-flight-cabin-rumble-tone-voices-loop-bahamas-23090.mp3",
+      "size_bytes": 1848000,
+      "duration_seconds": 92.4,
+      "sha256": "d9e719a2109130eebd0a5fd12d917f417ad8835f472c429fd8d21dec956eab8e",
+      "used": false,
+      "reason": "Contains intelligible passenger voices."
+    },
+    {
+      "name": "tanweraman-big-plane-sound-effect-247601.mp3",
+      "size_bytes": 648192,
+      "duration_seconds": 20.256,
+      "sha256": "0fdd992195e9c1ee8abfb70d0ba6c9ed9a898b1d14e1fec203454a6583d19cb1"
+    }
+  ]
+}
