@@ -6,13 +6,23 @@ You are taking over a **good existing base**, not starting a new edit.
 
 `Rally_Finland_Cinematic_TikTok_Edit_BASE_NO_ISLE_OF_MAN.mp4`
 
+ChatGPT Library:
+`/Video Projects/Rally Finland 2024/Rally_Finland_Cinematic_TikTok_Edit_BASE_NO_ISLE_OF_MAN.mp4`
+
 The matching build source is:
 
 `build_rally.sh`
 
-The user's supplied pacing/style reference is:
+The user's supplied pacing/style reference is stored at:
 
-`190804.mp4`
+`/Video Projects/Rally Finland 2024/190804_REFERENCE.mp4`
+
+The two original source videos already exist in the user's ChatGPT Library as:
+
+- `/WRC Rally Finland 2024 ｜ Flat Out & Big Jumps ｜ 4K [QyOQq-rZxP4].webm`
+- `/WRC2 Rally Highlights Day 2 with Oliver Solberg CRASH! ： Secto Rally Finland 2021 [pHKZQEAZ37k].webm`
+
+Do not ask the user to re-upload these before searching the Library.
 
 ## Read first
 
@@ -20,7 +30,7 @@ The user's supplied pacing/style reference is:
 2. `README.md`
 3. `build_rally.sh`
 4. Watch the full current base render
-5. Watch `190804.mp4`
+5. Watch `190804_REFERENCE.mp4`
 
 ## User feedback that must be respected
 
@@ -43,7 +53,7 @@ Therefore:
 - physical rewind
 - calm cinematic buildup until ~9.5 s
 - hard switch to monochrome
-- fast post-drop cadence inspired by `190804.mp4`
+- fast post-drop cadence inspired by `190804_REFERENCE.mp4`
 - many ~0.3–0.6 s action hits
 - no constant shake
 - no text / HUD / generic transition pack
