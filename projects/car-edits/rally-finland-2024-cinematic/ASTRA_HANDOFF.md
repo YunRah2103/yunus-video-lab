@@ -27,6 +27,26 @@ ChatGPT Library:
 
 Search the Library for these exact names before asking the user for anything.
 
+## Critical music clarification
+
+The user does **not** want the music concept removed.
+
+What they disliked was the **Isle of Man man speaking over the song** in the reference audio.
+
+Preferred audio hierarchy:
+
+1. **Best:** use the exact clean underlying song from `190804_REFERENCE.mp4`, with NO Isle of Man speech.
+2. **Fallback:** if the user has not supplied or identified that clean song, keep the source-audio-only base.
+3. Do **not** guess a random replacement song.
+
+The current build already supports an optional clean song through:
+- `MUSIC=/path/to/song`
+- `MUSIC_OFFSET=<seconds>`
+- `MUSIC_GAIN=<gain>`
+- `RALLY_GAIN=<gain>`
+
+So if the user supplies the song, align it to the same musical moment as the reference and use the existing build rather than rewriting the audio pipeline.
+
 ## Locked creative decisions
 
 KEEP:
@@ -42,10 +62,11 @@ KEEP:
 - no constant shake
 - no glitch / transition-pack spam
 - no deliberate shot reuse
-- real rally engine/gravel audio as the backbone
+- real rally engine/gravel audio underneath the music
 
-DO NOT restore:
-- Isle of Man / superbike audio
+DO NOT use:
+- Isle of Man spoken narration
+- superbike engine audio
 - generic replacement music
 - supercar engine sounds
 - extra crash footage
@@ -58,13 +79,14 @@ History: a previous V2 was rejected. The current base is the version to preserve
 Spend effort on sound design + micro-polish.
 
 Highest-value improvements:
-1. Strengthen real pass-bys, gravel spray and jump landings.
-2. Keep added SFX quieter than authentic rally source audio.
-3. Refine only genuinely weak crops/cut points.
-4. Optionally add 1–2 very short genuine Rally Finland onboard inserts (~0.2–0.4 s) if they materially improve shot variety.
-5. Preserve the reference-inspired fast second-half rhythm.
+1. If the clean reference song is available, sync it precisely to the edit and preserve rally-source audio underneath.
+2. Strengthen real pass-bys, gravel spray and jump landings.
+3. Keep added SFX quieter than authentic rally source audio.
+4. Refine only genuinely weak crops/cut points.
+5. Optionally add 1–2 very short genuine Rally Finland onboard inserts (~0.2–0.4 s) if they materially improve shot variety.
+6. Preserve the reference-inspired fast second-half rhythm.
 
-Current clean mix is about -13.5 LUFS. Do not crush transients.
+Current source-only mix is about -13.5 LUFS. Do not crush transients.
 
 ## Pre-researched optional assets — do not search unless these fail
 
@@ -93,13 +115,14 @@ Do not spend tokens finding alternatives unless a listed asset is unavailable or
 ## Efficient execution order
 
 1. Read this file.
-2. Read `build_rally.sh` — it contains exact source timestamps, durations, crops and audio trims.
+2. Read `build_rally.sh`.
 3. Load/watch the current base and `190804_REFERENCE.mp4`.
-4. Identify only concrete weak points.
-5. Use existing source footage first.
-6. Use the pre-researched optional assets only where they solve a specific weakness.
-7. Render and judge the full video.
-8. Keep a change only if the finished edit is visibly/audibly better.
+4. If the user supplied the clean song, align it first.
+5. Identify only concrete remaining weak points.
+6. Use existing source footage first.
+7. Use optional assets only where they solve a specific weakness.
+8. Render and judge the full video.
+9. Keep a change only if the finished edit is visibly/audibly better.
 
 ## Deliverable
 
