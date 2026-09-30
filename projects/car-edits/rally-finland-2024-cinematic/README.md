@@ -1,15 +1,16 @@
 # Rally Finland 2024 — Cinematic TikTok Edit
 
-Status: **approved strong base / ready for refinement**
+Status: **V3 reference-informed refinement complete**
 
 This project is a premium 9:16 rally TikTok edit built from:
 
 - **Main footage:** `WRC Rally Finland 2024 | Flat Out & Big Jumps | 4K`
 - **Crash hook:** `WRC2 Rally Highlights Day 2 with Oliver Solberg CRASH! | Secto Rally Finland 2021`
-- **Music / pacing reference:** `Pure Speed junky’s ... #isleofmantt ...`
-- **Current approved render:** `Rally_Finland_Cinematic_TikTok_Edit.mp4`
-- **Runtime:** ~19.278 s
-- **Output:** 1080x1920, 60 fps, H.264/AAC
+- **Music:** `Pure Speed junky’s ... #isleofmantt ...`
+- **Pacing/style reference:** user-supplied `190804.mp4` (~19.3 s)
+- **Current render:** `Rally_Finland_Cinematic_TikTok_Edit_V3.mp4`
+- **Runtime:** ~19.3 s
+- **Output:** 1080x1920, ~60 fps, H.264/AAC
 
 ## Creative structure
 
@@ -17,42 +18,41 @@ This project is a premium 9:16 rally TikTok edit built from:
 2. **0.90–0.98:** impact freeze
 3. **0.98–1.50:** physical rewind using the crash itself
 4. **1.50–9.50:** restrained cinematic Rally Finland buildup
-5. **~9.50:** hard visual transformation into high-contrast monochrome
-6. **9.50–19.28:** varied aggressive rally montage, saving a major jump for the end
+5. **~9.50:** hard monochrome transformation with one very short reference-style exposure flash
+6. **9.50–17.14:** rapid motion-led B&W rally montage
+7. **~17.14–19.28:** longer final hero jump payoff
 
-## What already works
+## What V3 changes
 
-- The crash is a hook, not the subject.
-- The rewind clearly turns the crash into a story setup.
-- Calm-to-brutal pacing contrast is strong.
-- Main drop commits to a premium monochrome motorsport identity.
-- Action types vary instead of repeating the same corner/jump.
-- Real source engine audio is layered under the reference music.
-- The final jump is held longer as the hero payoff.
+The previous approved base was already strong, so the opening and calm buildup are intentionally preserved.
 
-## Rules for the next agent
+The main change comes directly from the supplied `190804.mp4` reference: after its monochrome switch, the reference cuts extremely quickly, usually around 0.3–0.6 seconds, while keeping the subject in active motion. V3 applies that editing language to the rally footage rather than adding transition-pack effects.
+
+V3 therefore:
+- replaces the slower ~0.8–1.1 s post-drop rhythm with many shorter motion-led hits
+- uses 17 distinct post-drop rally shots with no deliberate shot reuse
+- uses hard cuts rather than shakes/glitch spam
+- adds gentle shot-specific horizontal reframing instead of artificial camera shake
+- preserves the long final jump as the payoff
+- softens the monochrome grade slightly so tyre, gravel, dust and road detail survive
+- syncs real rally engine/gravel audio to the exact new visual source moments while keeping the supplied reference music dominant
+
+## Rules for future refinement
 
 **Do not rebuild from scratch.**
-Treat the current render and `build_rally.sh` as the base.
 
 Preserve:
 - crash → freeze → rewind concept
 - ~9.5 s drop timing
 - calm buildup
-- black-and-white drop identity
+- monochrome post-drop identity
+- fast post-drop cadence inspired by `190804.mp4`
 - final hero jump
-- no text / HUD / glitch spam / constant shake
-- no repeated rally shots
+- no text / HUD / transition-pack effects / glitch spam / constant shake
+- no deliberate repeated shots
+- realistic rally engine character
 
-Improve surgically:
-- better vertical reframing where the car can be larger without clipping
-- stronger natural occlusion/dust transitions where available
-- more precise impact/landing sound accents
-- slightly more premium B&W grade while retaining road, tyre and dust detail
-- micro-adjust shot lengths against the music if a cut can land harder
-- maintain realistic rally engine character
-
-The base is already good. Changes should have a clear visual or rhythmic reason.
+Only change something if the full rendered result is clearly stronger.
 
 ## Build
 
@@ -62,5 +62,4 @@ Run:
 bash build_rally.sh
 ```
 
-The script expects the three source files at the paths defined at its top. Update those paths if needed.
-
+The script accepts optional `MAIN`, `CRASH`, `REF`, `WORK` and `FINAL` environment overrides; otherwise it uses the default `/mnt/data` paths.
