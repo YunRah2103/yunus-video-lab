@@ -1,65 +1,75 @@
 # Rally Finland 2024 — Cinematic TikTok Edit
 
-Status: **V3 reference-informed refinement complete**
+Status: **approved base — no unrelated music**
 
-This project is a premium 9:16 rally TikTok edit built from:
+This is the current base for future improvement.
 
-- **Main footage:** `WRC Rally Finland 2024 | Flat Out & Big Jumps | 4K`
-- **Crash hook:** `WRC2 Rally Highlights Day 2 with Oliver Solberg CRASH! | Secto Rally Finland 2021`
-- **Music:** `Pure Speed junky’s ... #isleofmantt ...`
-- **Pacing/style reference:** user-supplied `190804.mp4` (~19.3 s)
-- **Current render:** `Rally_Finland_Cinematic_TikTok_Edit_V3.mp4`
+## Current base
+
+- **Render:** `Rally_Finland_Cinematic_TikTok_Edit_BASE_NO_ISLE_OF_MAN.mp4`
 - **Runtime:** ~19.3 s
 - **Output:** 1080x1920, ~60 fps, H.264/AAC
+- **Main footage:** `WRC Rally Finland 2024 | Flat Out & Big Jumps | 4K`
+- **Crash hook:** `WRC2 Rally Highlights Day 2 with Oliver Solberg CRASH! | Secto Rally Finland 2021`
+- **Pacing/style reference:** user-supplied `190804.mp4`
 
-## Creative structure
+## Critical audio decision
+
+The Isle of Man / superbike reference audio has been **removed completely**.
+
+It did not match the rally footage.
+
+The base soundtrack now uses only:
+- real Solberg crash audio for the hook
+- a short physical impact tail during the freeze
+- reversed crash audio during the rewind
+- exact Rally Finland source engine / gravel / pass audio from the corresponding visual shot
+
+Do **not** restore the Isle of Man audio.
+
+Do **not** substitute supercar, superbike or unrelated engine audio.
+
+The current source-only mix is already around -13.5 LUFS and is intended as a clean foundation for better sound design.
+
+## Visual structure
 
 1. **0.00–0.90:** exterior Solberg crash hook
 2. **0.90–0.98:** impact freeze
-3. **0.98–1.50:** physical rewind using the crash itself
-4. **1.50–9.50:** restrained cinematic Rally Finland buildup
-5. **~9.50:** hard monochrome transformation with one very short reference-style exposure flash
+3. **0.98–1.50:** physical rewind
+4. **1.50–9.50:** restrained cinematic buildup
+5. **~9.50:** hard monochrome transformation
 6. **9.50–17.14:** rapid motion-led B&W rally montage
 7. **~17.14–19.28:** longer final hero jump payoff
 
-## What V3 changes
+## What is already working
 
-The previous approved base was already strong, so the opening and calm buildup are intentionally preserved.
-
-The main change comes directly from the supplied `190804.mp4` reference: after its monochrome switch, the reference cuts extremely quickly, usually around 0.3–0.6 seconds, while keeping the subject in active motion. V3 applies that editing language to the rally footage rather than adding transition-pack effects.
-
-V3 therefore:
-- replaces the slower ~0.8–1.1 s post-drop rhythm with many shorter motion-led hits
-- uses 17 distinct post-drop rally shots with no deliberate shot reuse
-- uses hard cuts rather than shakes/glitch spam
-- adds gentle shot-specific horizontal reframing instead of artificial camera shake
-- preserves the long final jump as the payoff
-- softens the monochrome grade slightly so tyre, gravel, dust and road detail survive
-- syncs real rally engine/gravel audio to the exact new visual source moments while keeping the supplied reference music dominant
-
-## Rules for future refinement
-
-**Do not rebuild from scratch.**
-
-Preserve:
-- crash → freeze → rewind concept
-- ~9.5 s drop timing
-- calm buildup
-- monochrome post-drop identity
-- fast post-drop cadence inspired by `190804.mp4`
-- final hero jump
-- no text / HUD / transition-pack effects / glitch spam / constant shake
+- crash is only the hook, not the subject
+- calm → aggressive pacing contrast
+- post-drop cuts are mostly ~0.3–0.6 s, matching the editing language of `190804.mp4`
+- no constant shake
+- no text / HUD / glitch spam
 - no deliberate repeated shots
-- realistic rally engine character
+- premium monochrome identity
+- final jump is allowed to breathe
+- authentic rally sound now follows the visuals
 
-Only change something if the full rendered result is clearly stronger.
+## Files to read before editing
+
+1. `ASTRA_HANDOFF.md`
+2. `ASSET_OPTIONS.md`
+3. `build_rally.sh`
+4. `NEXT_AGENT_PROMPT.md`
 
 ## Build
-
-Run:
 
 ```bash
 bash build_rally.sh
 ```
 
-The script accepts optional `MAIN`, `CRASH`, `REF`, `WORK` and `FINAL` environment overrides; otherwise it uses the default `/mnt/data` paths.
+Optional environment overrides:
+- `MAIN`
+- `CRASH`
+- `WORK`
+- `FINAL`
+
+There is intentionally **no REF/music input** anymore.
