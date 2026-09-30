@@ -5,19 +5,21 @@
 Improve the existing approved base. Do not redesign or rebuild it.
 
 Start from:
-`Rally_Finland_Cinematic_TikTok_Edit_BASE_NO_ISLE_OF_MAN.mp4`
+`Rally_Finland_Cinematic_TikTok_Edit_CLEAN_RICK_OWENS.mp4`
 
 Matching source:
 `build_rally.sh`
 
-Only read this file + `build_rally.sh` before working. README is optional background.
+Read only this file + `build_rally.sh` before working.
 
 ## Assets already available — do not ask for re-uploads
 
 ChatGPT Library:
 
-- Base render:
-  `/Video Projects/Rally Finland 2024/Rally_Finland_Cinematic_TikTok_Edit_BASE_NO_ISLE_OF_MAN.mp4`
+- Current base:
+  `/Video Projects/Rally Finland 2024/Rally_Finland_Cinematic_TikTok_Edit_CLEAN_RICK_OWENS.mp4`
+- Clean music clip:
+  `/Video Projects/Rally Finland 2024/RICK_OWENS_CLEAN_REFERENCE_AUDIO.mp3`
 - Style/pacing reference:
   `/Video Projects/Rally Finland 2024/190804_REFERENCE.mp4`
 - Main footage:
@@ -27,25 +29,29 @@ ChatGPT Library:
 
 Search the Library for these exact names before asking the user for anything.
 
-## Critical music clarification
+## Music is solved
 
-The user does **not** want the music concept removed.
+The clean track is:
+**Ufo361 — RICK OWENS (feat. Ken Carson)**
 
-What they disliked was the **Isle of Man man speaking over the song** in the reference audio.
+The user wanted this music, but NOT the Isle of Man man speaking over it.
 
-Preferred audio hierarchy:
+The supplied clean TikTok audio has its strongest energy/drop transition at ~7.323 s.
 
-1. **Best:** use the exact clean underlying song from `190804_REFERENCE.mp4`, with NO Isle of Man speech.
-2. **Fallback:** if the user has not supplied or identified that clean song, keep the source-audio-only base.
-3. Do **not** guess a random replacement song.
+The edit's monochrome/action drop is at ~9.500 s.
 
-The current build already supports an optional clean song through:
-- `MUSIC=/path/to/song`
-- `MUSIC_OFFSET=<seconds>`
-- `MUSIC_GAIN=<gain>`
-- `RALLY_GAIN=<gain>`
+Therefore the clean song starts at:
+**2.177 s**
 
-So if the user supplies the song, align it to the same musical moment as the reference and use the existing build rather than rewriting the audio pipeline.
+This is already locked in `build_rally.sh`.
+
+Current mix values:
+- `MUSIC_DELAY=2.177`
+- `MUSIC_GAIN=0.86`
+- `RALLY_GAIN=0.58`
+- finished mix ≈ **-13.2 LUFS / -1.0 dBTP**
+
+Do not spend tokens re-identifying or re-aligning the song unless you find a concrete sync problem in the rendered base.
 
 ## Locked creative decisions
 
@@ -54,15 +60,16 @@ KEEP:
 - 0.00–0.90 Solberg exterior crash hook
 - 0.90–0.98 freeze
 - 0.98–1.50 physical rewind
+- crash/engine audio exposed before music enters
 - calm cinematic buildup until ~9.5 s
-- hard monochrome switch at ~9.5 s
+- music drop + hard monochrome switch at ~9.5 s
 - rapid ~0.3–0.6 s post-drop motion-led cuts
 - long final hero jump payoff
+- real rally engine/gravel underneath the song
 - no text / HUD
 - no constant shake
 - no glitch / transition-pack spam
 - no deliberate shot reuse
-- real rally engine/gravel audio underneath the music
 
 DO NOT use:
 - Isle of Man spoken narration
@@ -70,62 +77,54 @@ DO NOT use:
 - generic replacement music
 - supercar engine sounds
 - extra crash footage
-- random clips just to increase shot count
+- random clips merely to increase shot count
 
-History: a previous V2 was rejected. The current base is the version to preserve.
+A previous V2 was rejected. Preserve this base.
 
 ## What to improve
 
-Spend effort on sound design + micro-polish.
+Spend effort on **sound design + micro-polish**, not reconstruction.
 
-Highest-value improvements:
-1. If the clean reference song is available, sync it precisely to the edit and preserve rally-source audio underneath.
-2. Strengthen real pass-bys, gravel spray and jump landings.
-3. Keep added SFX quieter than authentic rally source audio.
-4. Refine only genuinely weak crops/cut points.
-5. Optionally add 1–2 very short genuine Rally Finland onboard inserts (~0.2–0.4 s) if they materially improve shot variety.
-6. Preserve the reference-inspired fast second-half rhythm.
+Highest-value opportunities:
+1. Strengthen real pass-bys, gravel spray and genuine jump landings.
+2. Keep any added SFX below the real rally source and music.
+3. Refine only genuinely weak crops/cut points.
+4. Optionally add 1–2 very short genuine Rally Finland onboard inserts (~0.2–0.4 s) if they clearly improve shot variety.
+5. Preserve the fast reference-inspired second-half rhythm.
 
-Current source-only mix is about -13.5 LUFS. Do not crush transients.
-
-## Pre-researched optional assets — do not search unless these fail
+## Pre-researched optional assets — use before searching for alternatives
 
 Audio:
-- Rally rev/backfire texture:
+- Rally rev/backfire:
   https://pixabay.com/sound-effects/rally-car-idle-loop-14-32339/
-- Gravel-road car pass:
+- Gravel-road pass:
   https://pixabay.com/sound-effects/film-special-effects-car-pass-gravel-road-far-blyth-21-6-12-62008/
-- Short near-camera pass:
+- Near-camera pass:
   https://pixabay.com/sound-effects/film-special-effects-racecar-rushing-by-386164/
 - Subtle landing thud:
   https://pixabay.com/sound-effects/film-special-effects-ground-impact-352053/
-- Alternate field-recorded pass:
-  https://pixabay.com/sound-effects/car-passing-sound-soundque-field-recording-442774/
 
-Footage — only if an onboard insert is genuinely useful:
-- Official WRC Rovanperä / Halttunen Ouninpohja onboard:
+Optional onboard footage:
+- Official WRC Rovanperä / Halttunen Ouninpohja:
   https://www.youtube.com/watch?v=ZRA6ySltVI0
-- Official WRC Neuville / Wydaeghe Ouninpohja onboard:
+- Official WRC Neuville / Wydaeghe Ouninpohja:
   https://www.youtube.com/watch?v=aqc-DyJR4qQ
-- Extra exterior footage, lower priority:
-  https://www.youtube.com/watch?v=8JMFB204THc
 
-Do not spend tokens finding alternatives unless a listed asset is unavailable or clearly unsuitable.
+Do not research more assets unless these are unavailable or a specific weakness genuinely requires something else.
 
 ## Efficient execution order
 
 1. Read this file.
 2. Read `build_rally.sh`.
-3. Load/watch the current base and `190804_REFERENCE.mp4`.
-4. If the user supplied the clean song, align it first.
-5. Identify only concrete remaining weak points.
-6. Use existing source footage first.
-7. Use optional assets only where they solve a specific weakness.
-8. Render and judge the full video.
-9. Keep a change only if the finished edit is visibly/audibly better.
+3. Watch the full current base once.
+4. Watch `190804_REFERENCE.mp4` only for pacing/style comparison.
+5. Identify concrete weaknesses.
+6. Make only justified changes.
+7. Render the complete video.
+8. Compare against the current base and keep changes only if clearly better.
 
 ## Deliverable
 
-Render one finished 1080x1920 H.264 MP4.
+Render one finished **1080x1920 H.264 MP4**.
 
-Do not stop at analysis, source code, or a handoff.
+Do not stop at analysis, source code, or another handoff.
