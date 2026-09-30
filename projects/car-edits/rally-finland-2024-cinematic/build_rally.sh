@@ -3,6 +3,14 @@ set -euo pipefail
 
 MAIN="${MAIN:-/mnt/data/WRC Rally Finland 2024 ｜ Flat Out & Big Jumps ｜ 4K [QyOQq-rZxP4].webm}"
 CRASH="${CRASH:-/mnt/data/WRC2 Rally Highlights Day 2 with Oliver Solberg CRASH! ： Secto Rally Finland 2021 [pHKZQEAZ37k].webm}"
+
+# Optional: exact underlying song from the 190804 reference, WITHOUT the Isle of Man speech.
+# Leave MUSIC empty for the safe source-audio-only base.
+MUSIC="${MUSIC:-}"
+MUSIC_OFFSET="${MUSIC_OFFSET:-0}"
+MUSIC_GAIN="${MUSIC_GAIN:-0.78}"
+RALLY_GAIN="${RALLY_GAIN:-0.72}"
+
 WORK="${WORK:-/mnt/data/rally_base_nomusic_work}"
 FINAL="${FINAL:-/mnt/data/Rally_Finland_Cinematic_TikTok_Edit_BASE_NO_ISLE_OF_MAN.mp4}"
 OUT="$WORK/segments"
@@ -74,8 +82,10 @@ for name in "${ACTION_NAMES[@]}"; do printf "file '%s.mp4'\n" "$name" >> "$OUT/l
 ffmpeg -y -hide_banner -loglevel error -f concat -safe 0 -i "$OUT/list.txt" -c copy "$WORK/video_silent.mp4"
 
 # ---------------------------------------------------------------------------
-# AUDIO RULE: NO ISLE OF MAN / NO REFERENCE MUSIC.
-# The base soundtrack is built only from the exact rally source moments.
+# AUDIO:
+# - authentic rally source audio is always the backbone
+# - Isle of Man speech is NEVER used
+# - if MUSIC is supplied, it should be the exact clean song from 190804
 # ---------------------------------------------------------------------------
 
 CALM_SS=(38.20 84.00 124.00 108.00)
@@ -105,9 +115,16 @@ done
 
 CONCAT=""
 for ((i=0;i<idx;i++)); do CONCAT+="[s${i}]"; done
-FC+="${CONCAT}concat=n=${idx}:v=0:a=1,acompressor=threshold=-15dB:ratio=2.2:attack=8:release=70:makeup=1.6,alimiter=limit=0.97:attack=4:release=60,atrim=0:${TOTAL}[aout]"
+FC+="${CONCAT}concat=n=${idx}:v=0:a=1,acompressor=threshold=-15dB:ratio=2.2:attack=8:release=70:makeup=1.6,alimiter=limit=0.97:attack=4:release=60,atrim=0:${TOTAL}[rally]"
 
-ffmpeg -y -hide_banner -loglevel error -i "$CRASH" -i "$MAIN"   -filter_complex "$FC" -map '[aout]' -ar 48000 -c:a aac -b:a 320k "$WORK/audio.m4a"
+ffmpeg -y -hide_banner -loglevel error -i "$CRASH" -i "$MAIN"   -filter_complex "$FC" -map '[rally]' -ar 48000 -c:a aac -b:a 320k "$WORK/rally_audio.m4a"
+
+if [[ -n "$MUSIC" ]]; then
+  # MUSIC_OFFSET lets the clean full song be aligned to the same musical moment used in 190804.
+  ffmpeg -y -hide_banner -loglevel error     -i "$WORK/rally_audio.m4a" -ss "$MUSIC_OFFSET" -i "$MUSIC"     -filter_complex "[0:a]volume=${RALLY_GAIN}[r];[1:a]atrim=0:${TOTAL},asetpts=PTS-STARTPTS,volume=${MUSIC_GAIN}[m];[m][r]amix=inputs=2:normalize=0:dropout_transition=0,alimiter=limit=0.97:attack=4:release=60,atrim=0:${TOTAL}[aout]"     -map '[aout]' -ar 48000 -c:a aac -b:a 320k "$WORK/audio.m4a"
+else
+  cp "$WORK/rally_audio.m4a" "$WORK/audio.m4a"
+fi
 
 ffmpeg -y -hide_banner -loglevel error -i "$WORK/video_silent.mp4" -i "$WORK/audio.m4a"   -map 0:v:0 -map 1:a:0 -c:v copy -c:a copy -t "$TOTAL" -movflags +faststart "$FINAL"
 
