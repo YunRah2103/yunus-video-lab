@@ -4,15 +4,18 @@ set -euo pipefail
 MAIN="${MAIN:-/mnt/data/WRC Rally Finland 2024 ｜ Flat Out & Big Jumps ｜ 4K [QyOQq-rZxP4].webm}"
 CRASH="${CRASH:-/mnt/data/WRC2 Rally Highlights Day 2 with Oliver Solberg CRASH! ： Secto Rally Finland 2021 [pHKZQEAZ37k].webm}"
 
-# Optional: exact underlying song from the 190804 reference, WITHOUT the Isle of Man speech.
-# Leave MUSIC empty for the safe source-audio-only base.
-MUSIC="${MUSIC:-}"
+# Clean song from the 190804 reference: Ufo361 - RICK OWENS (feat. Ken Carson).
+# The supplied clean TikTok clip has its major drop at ~7.323s.
+# Delaying it by 2.177s lands that drop exactly on the edit's 9.500s monochrome switch.
+# If the file is unavailable, the script safely falls back to rally-source audio only.
+MUSIC="${MUSIC:-/mnt/data/RICK_OWENS_CLEAN_REFERENCE_AUDIO.mp3}"
 MUSIC_OFFSET="${MUSIC_OFFSET:-0}"
-MUSIC_GAIN="${MUSIC_GAIN:-0.78}"
-RALLY_GAIN="${RALLY_GAIN:-0.72}"
+MUSIC_DELAY="${MUSIC_DELAY:-2.177}"
+MUSIC_GAIN="${MUSIC_GAIN:-0.86}"
+RALLY_GAIN="${RALLY_GAIN:-0.58}"
 
-WORK="${WORK:-/mnt/data/rally_base_nomusic_work}"
-FINAL="${FINAL:-/mnt/data/Rally_Finland_Cinematic_TikTok_Edit_BASE_NO_ISLE_OF_MAN.mp4}"
+WORK="${WORK:-/mnt/data/rally_music_sync_work}"
+FINAL="${FINAL:-/mnt/data/Rally_Finland_Cinematic_TikTok_Edit_CLEAN_RICK_OWENS.mp4}"
 OUT="$WORK/segments"
 mkdir -p "$OUT"
 
@@ -119,10 +122,11 @@ FC+="${CONCAT}concat=n=${idx}:v=0:a=1,acompressor=threshold=-15dB:ratio=2.2:atta
 
 ffmpeg -y -hide_banner -loglevel error -i "$CRASH" -i "$MAIN"   -filter_complex "$FC" -map '[rally]' -ar 48000 -c:a aac -b:a 320k "$WORK/rally_audio.m4a"
 
-if [[ -n "$MUSIC" ]]; then
-  # MUSIC_OFFSET lets the clean full song be aligned to the same musical moment used in 190804.
-  ffmpeg -y -hide_banner -loglevel error     -i "$WORK/rally_audio.m4a" -ss "$MUSIC_OFFSET" -i "$MUSIC"     -filter_complex "[0:a]volume=${RALLY_GAIN}[r];[1:a]atrim=0:${TOTAL},asetpts=PTS-STARTPTS,volume=${MUSIC_GAIN}[m];[m][r]amix=inputs=2:normalize=0:dropout_transition=0,alimiter=limit=0.97:attack=4:release=60,atrim=0:${TOTAL}[aout]"     -map '[aout]' -ar 48000 -c:a aac -b:a 320k "$WORK/audio.m4a"
+if [[ -n "$MUSIC" && -f "$MUSIC" ]]; then
+  # Keep the crash/rewind fully physical before the song enters, then duck rally audio under music.
+  ffmpeg -y -hide_banner -loglevel error     -i "$WORK/rally_audio.m4a" -ss "$MUSIC_OFFSET" -i "$MUSIC"     -filter_complex "[0:a]volume='if(lt(t,${MUSIC_DELAY}),1.0,${RALLY_GAIN})':eval=frame[r];[1:a]atrim=0:16.7706,asetpts=PTS-STARTPTS,volume=${MUSIC_GAIN},adelay=${MUSIC_DELAY}s:all=1,afade=t=in:st=0:d=0.05,afade=t=out:st=16.48:d=0.29[m];[r][m]amix=inputs=2:normalize=0:dropout_transition=0,alimiter=limit=0.965:attack=4:release=60,atrim=0:${TOTAL}[aout]"     -map '[aout]' -ar 48000 -c:a aac -b:a 320k "$WORK/audio.m4a"
 else
+  echo "Clean RICK OWENS audio not found; rendering source-audio-only fallback." >&2
   cp "$WORK/rally_audio.m4a" "$WORK/audio.m4a"
 fi
 
