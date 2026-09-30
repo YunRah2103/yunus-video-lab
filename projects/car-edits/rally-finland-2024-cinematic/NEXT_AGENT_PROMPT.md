@@ -3,47 +3,68 @@
 Take over the existing Rally Finland cinematic TikTok edit in this folder.
 
 ## First
+
 Read:
 - README.md
 - build_rally.sh
 
-The current render is named:
-`Rally_Finland_Cinematic_TikTok_Edit.mp4`
+The current version is:
+`Rally_Finland_Cinematic_TikTok_Edit_V3.mp4`
 
-Treat that render as the visual reference and **do not rebuild from scratch**.
+The important visual/pacing reference supplied by the user is:
+`190804.mp4`
 
-## Current quality
-The base edit is already very good. Preserve its identity:
+## Important history
+
+The original base edit was already very good.
+
+A separate V2 attempt was rejected by the user. Do **not** treat that rejected V2 as the creative target.
+
+V3 returns to the approved base and uses `190804.mp4` for the specific thing the previous attempt missed: its post-drop rhythm and editing language.
+
+## Preserve the identity
 
 - ~19.3 s runtime
 - exterior Oliver Solberg crash as a sub-1-second cold open
 - very short freeze
 - physical rewind through the crash footage
 - restrained cinematic build until ~9.5 s
-- hard switch to premium high-contrast black-and-white
-- varied rally action after the drop
-- realistic source engine audio layered beneath the supplied reference music
+- hard switch to premium monochrome
+- real rally audio underneath the supplied reference music
 - strongest jump saved for the final payoff
 - no text, HUD, transition-pack effects, glitch spam or constant shake
 
+## Reference lesson from 190804.mp4
+
+The reference does **not** become impressive by shaking everything.
+
+Its second half becomes exciting because:
+- cuts accelerate sharply after the monochrome switch
+- many visual hits last only ~0.3–0.6 s
+- the subject is usually already moving when the cut happens
+- close passes, approaches and directional changes create natural transitions
+- occasional exposure/white-frame punctuation is brief and rare
+- hard cuts do most of the work
+
+V3 applies that principle with a rapid run of distinct rally shots after 9.5 s, then lets the final jump breathe.
+
 ## Your job
-Watch the full current render before changing anything.
+
+Watch the complete current render before changing anything.
 
 Only make changes that are visibly or rhythmically better.
 
 Priorities:
-1. Improve vertical framing on any shot where the car can be larger without clipping.
-2. Make natural transitions even stronger using dust, car passes, occlusion and directional motion.
-3. Tighten individual cut points against the music without flattening the deliberate calm → fast rhythm.
-4. Refine the B&W grade so blacks feel rich but tyres, gravel, road and dust retain detail.
-5. Improve physical sound accents for impact, landing, gravel and near-camera passes while keeping music dominant.
-6. Preserve realistic rally engine character. Do not substitute supercar engine audio.
-7. Do not reuse shots.
-8. Keep the crash short; this is a rally-driving film, not a crash compilation.
+1. Preserve the successful opening and calm buildup unless there is a concrete problem.
+2. Keep the post-drop montage fast, motion-led and readable.
+3. Improve any crop only when the car becomes more powerful in frame without awkward clipping.
+4. Prefer natural dust, occlusion, near-camera passes and directional motion over digital transitions.
+5. Keep the B&W grade rich while retaining tyre, gravel, road and dust detail.
+6. Keep physical engine/gravel/landing accents synced to the exact shot.
+7. Never replace rally engine character with supercar audio.
+8. Do not reuse a shot merely to fill time.
+9. Keep the crash short; the film is about rally driving.
 
-## Important
-Do not change something merely because you can.
-
-The goal is an upgraded V2 of this exact edit, not a different concept.
+Do not change things merely because you can.
 
 Render a finished 1080x1920 H.264 MP4 when done.
