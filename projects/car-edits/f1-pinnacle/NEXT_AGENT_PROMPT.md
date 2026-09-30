@@ -121,26 +121,72 @@ Keep real F1 colour:
 
 Normalise exposure/contrast enough for continuity, but preserve location identity. Do not slap one LUT over every source. Do not make the whole edit monochrome. REF's monochrome-heavy treatment is **not** to be copied.
 
-### Sound
+### Sound — final reviewed plan
 
-MUSIC always remains the master.
+**Priority order: MUSIC → clean authentic source F1 audio → only then the two external fallback SFX below.**
 
-Layer authentic source sound only where it adds physicality:
-- AUS: engine / pass ambience
-- PIT/RBP: pit ambience, wheel gun, mechanical contact, launch
-- HEL: real engine/transmission texture
-- MON: aggressive real pass-by
-- BHR: engine + floor/spark-strike texture if clean
+Do not waste time searching for more sounds unless one of these assets is inaccessible. Most of the edit should use the real sound already inside the supplied footage.
 
-At **7.192**, let the MON pass-by momentarily punch through enough to make the drop physical.
+#### Exact sound map
 
-At the final BHR spark sequence, retain genuine engine/floor texture under MUSIC.
+- **0.000–1.498 AUS:** low authentic engine / track ambience. Keep subtle; the sparse music opening stays dominant.
+- **1.498–2.444 PIT:** quiet pit-box ambience only.
+- **2.444–3.402 RBP:** use the real wheel-gun / tyre-operation sound from the same source range if clean. This is the primary mechanical transient.
+- **3.402–4.325 PIT:** genuine release / engine bite from the same source range.
+- **4.325–7.192 HEL:** low onboard engine/transmission texture that gradually becomes more present toward the drop.
+- **7.192–7.674 MON:** strongest real pass-by in the edit. Let it punch through briefly at the exact drop.
+- **8.510–9.102 AUS:** short authentic pass-by, clearly quieter than the 7.192 MON hit.
+- **9.102–10.019 HEL:** subtle onboard engine / shift texture.
+- **11.000–11.906 RBP:** real pit-release / acceleration sound.
+- **12.922–14.350 AUS:** low pack engines / race ambience for scale.
+- **14.350–15.302 MON:** second close pass-by; strong, but leave headroom for the finale.
+- **15.302–16.758 BHR:** real engine + floor-contact/scrape texture if the source audio is usable.
 
-Do not use fake supercar audio. Do not put a generic whoosh on every cut. Do not stack unnecessary bass impacts on already-strong music hits.
+#### Only two external fallback SFX
 
-If source audio contains conflicting baked-in music, mute or isolate only usable physical audio.
+**Fallback A — pneumatic wheel gun**
+Use only if the RBP wheel-gun audio is weak, contaminated or inaudible.
 
-No clipping.
+Preferred:
+Pneumatic Impact Wrench - Tightening - Bolt Torque Sounds — SoundEffectsParty, Pixabay  
+https://pixabay.com/sound-effects/technology-pneumatic-impact-wrench-tightening-bolt-torque-sounds-503076/
+
+Alternate shorter recording:
+Air Impact Wrench — freesound_community / sevenbsb, Pixabay  
+https://pixabay.com/sound-effects/film-special-effects-air-impact-wrench-82141/
+
+Use a very short useful burst, tightly aligned to visible gun engagement around **2.444–3.402**. Do not let a 16-second stock recording play underneath the scene.
+
+**Fallback B — floor scrape / spark contact**
+Use only if BHR does not contain a convincing real floor-contact texture.
+
+Metal Scrape — dslrguide / freesound_community, Pixabay  
+https://pixabay.com/sound-effects/film-special-effects-metal-scrape-103668/
+
+This is a short ~1-second steel/metal drag recording. Layer it quietly only around the visible bottoming/spark contact inside **15.302–16.758**. It must feel like chassis/floor contact, not a sword scrape or cinematic transition.
+
+The listed Pixabay pages state the sounds are free for use under the Pixabay Content License. Preserve any required project/license notes if your workflow records asset provenance.
+
+#### Mix hierarchy
+
+- MUSIC remains clearly intelligible at all times.
+- At the wheel-gun moment, a tiny ~1 dB music dip for roughly 100–150 ms is acceptable if needed for definition.
+- At **7.192**, a short ~1–2 dB music dip around the real MON pass-by is acceptable; recover immediately.
+- The 14.350 MON pass should be slightly less dominant than the 7.192 drop.
+- Finale scrape is a texture, not a giant impact. Keep it underneath BHR engine/music.
+- Prefer clip gain + short fades over aggressive compression.
+- Final master must not clip; peak at or below roughly **-1 dBTP**.
+
+Do **not** use:
+- generic whooshes on cuts
+- cinematic booms/braams
+- camera shutters
+- fake supercar engines
+- tyre-screech samples when no visible tyre scrub exists
+- synthetic crowd swells
+- extra transition SFX just to fill space
+
+If source audio contains conflicting baked-in music, mute that source audio or isolate only usable physical effects.
 
 ---
 
