@@ -1,110 +1,108 @@
-# GPT-6 Astra Handoff — Rally Finland
+# GPT-6 Astra — Rally Finland takeover
 
-You are taking over a **good existing base**, not starting a new edit.
+## Mission
 
-## The base to improve
+Improve the existing approved base. Do not redesign or rebuild it.
 
+Start from:
 `Rally_Finland_Cinematic_TikTok_Edit_BASE_NO_ISLE_OF_MAN.mp4`
 
-ChatGPT Library:
-`/Video Projects/Rally Finland 2024/Rally_Finland_Cinematic_TikTok_Edit_BASE_NO_ISLE_OF_MAN.mp4`
-
-The matching build source is:
-
+Matching source:
 `build_rally.sh`
 
-The user's supplied pacing/style reference is stored at:
+Only read this file + `build_rally.sh` before working. README is optional background.
 
-`/Video Projects/Rally Finland 2024/190804_REFERENCE.mp4`
+## Assets already available — do not ask for re-uploads
 
-The two original source videos already exist in the user's ChatGPT Library as:
+ChatGPT Library:
 
-- `/WRC Rally Finland 2024 ｜ Flat Out & Big Jumps ｜ 4K [QyOQq-rZxP4].webm`
-- `/WRC2 Rally Highlights Day 2 with Oliver Solberg CRASH! ： Secto Rally Finland 2021 [pHKZQEAZ37k].webm`
+- Base render:
+  `/Video Projects/Rally Finland 2024/Rally_Finland_Cinematic_TikTok_Edit_BASE_NO_ISLE_OF_MAN.mp4`
+- Style/pacing reference:
+  `/Video Projects/Rally Finland 2024/190804_REFERENCE.mp4`
+- Main footage:
+  `/WRC Rally Finland 2024 ｜ Flat Out & Big Jumps ｜ 4K [QyOQq-rZxP4].webm`
+- Crash footage:
+  `/WRC2 Rally Highlights Day 2 with Oliver Solberg CRASH! ： Secto Rally Finland 2021 [pHKZQEAZ37k].webm`
 
-Do not ask the user to re-upload these before searching the Library.
+Search the Library for these exact names before asking the user for anything.
 
-## Read first
+## Locked creative decisions
 
-1. `ASSET_OPTIONS.md`
-2. `README.md`
-3. `build_rally.sh`
-4. Watch the full current base render
-5. Watch `190804_REFERENCE.mp4`
-
-## User feedback that must be respected
-
-The user likes this visual base.
-
-The previous V2 was rejected.
-
-The user specifically said the Isle of Man audio makes no sense because it does not match rally footage.
-
-Therefore:
-
-**KEEP THIS VISUAL VERSION AS THE BASE.**
-
-**DO NOT BRING BACK THE ISLE OF MAN / SUPERBIKE AUDIO.**
-
-## What the current base already does well
-
-- sub-1-second exterior Solberg crash hook
-- impact freeze
-- physical rewind
+KEEP:
+- ~19.3 s runtime
+- 0.00–0.90 Solberg exterior crash hook
+- 0.90–0.98 freeze
+- 0.98–1.50 physical rewind
 - calm cinematic buildup until ~9.5 s
-- hard switch to monochrome
-- fast post-drop cadence inspired by `190804_REFERENCE.mp4`
-- many ~0.3–0.6 s action hits
+- hard monochrome switch at ~9.5 s
+- rapid ~0.3–0.6 s post-drop motion-led cuts
+- long final hero jump payoff
+- no text / HUD
 - no constant shake
-- no text / HUD / generic transition pack
+- no glitch / transition-pack spam
 - no deliberate shot reuse
-- final jump held longer as the payoff
-- authentic source audio follows the exact visual shots
+- real rally engine/gravel audio as the backbone
 
-## The real improvement task
+DO NOT restore:
+- Isle of Man / superbike audio
+- generic replacement music
+- supercar engine sounds
+- extra crash footage
+- random clips just to increase shot count
 
-Do the hard creative work on **sound design and micro-polish**, not a redesign.
+History: a previous V2 was rejected. The current base is the version to preserve.
 
-### Highest-value audio work
+## What to improve
 
-Use the existing real source audio as the backbone.
+Spend effort on sound design + micro-polish.
 
-You may selectively layer:
-- one strong rally pass-by
-- gravel spray / gravel road texture
-- a short low landing thud on genuine jump landings
-- a subtle engine-rev/backfire layer only where it matches the visible car motion
+Highest-value improvements:
+1. Strengthen real pass-bys, gravel spray and jump landings.
+2. Keep added SFX quieter than authentic rally source audio.
+3. Refine only genuinely weak crops/cut points.
+4. Optionally add 1–2 very short genuine Rally Finland onboard inserts (~0.2–0.4 s) if they materially improve shot variety.
+5. Preserve the reference-inspired fast second-half rhythm.
 
-Keep all synthetic/stock accents underneath the real rally source. They should add physicality, not replace it.
+Current clean mix is about -13.5 LUFS. Do not crush transients.
 
-### Highest-value visual work
+## Pre-researched optional assets — do not search unless these fail
 
-Only if clearly better:
-- improve one or two weak crops
-- make car scale slightly stronger in portrait
-- exploit dust / foreground occlusion / near-camera passes
-- optionally add 1–2 very short genuine WRC onboard inserts for shot-type variety
+Audio:
+- Rally rev/backfire texture:
+  https://pixabay.com/sound-effects/rally-car-idle-loop-14-32339/
+- Gravel-road car pass:
+  https://pixabay.com/sound-effects/film-special-effects-car-pass-gravel-road-far-blyth-21-6-12-62008/
+- Short near-camera pass:
+  https://pixabay.com/sound-effects/film-special-effects-racecar-rushing-by-386164/
+- Subtle landing thud:
+  https://pixabay.com/sound-effects/film-special-effects-ground-impact-352053/
+- Alternate field-recorded pass:
+  https://pixabay.com/sound-effects/car-passing-sound-soundque-field-recording-442774/
 
-Do not add footage merely because it exists.
+Footage — only if an onboard insert is genuinely useful:
+- Official WRC Rovanperä / Halttunen Ouninpohja onboard:
+  https://www.youtube.com/watch?v=ZRA6ySltVI0
+- Official WRC Neuville / Wydaeghe Ouninpohja onboard:
+  https://www.youtube.com/watch?v=aqc-DyJR4qQ
+- Extra exterior footage, lower priority:
+  https://www.youtube.com/watch?v=8JMFB204THc
 
-## Audio target
+Do not spend tokens finding alternatives unless a listed asset is unavailable or clearly unsuitable.
 
-The clean base is approximately -13.5 LUFS already.
+## Efficient execution order
 
-Do not crush it.
-
-Preserve engine transient detail and gravel texture.
-
-## Decision rule
-
-For every proposed change ask:
-
-> Is the full edit visibly or audibly better than the current base?
-
-If not, keep the base.
+1. Read this file.
+2. Read `build_rally.sh` — it contains exact source timestamps, durations, crops and audio trims.
+3. Load/watch the current base and `190804_REFERENCE.mp4`.
+4. Identify only concrete weak points.
+5. Use existing source footage first.
+6. Use the pre-researched optional assets only where they solve a specific weakness.
+7. Render and judge the full video.
+8. Keep a change only if the finished edit is visibly/audibly better.
 
 ## Deliverable
 
 Render one finished 1080x1920 H.264 MP4.
 
-Do not stop at source code.
+Do not stop at analysis, source code, or a handoff.
