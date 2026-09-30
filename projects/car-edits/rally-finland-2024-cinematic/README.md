@@ -1,15 +1,16 @@
 # Rally Finland 2024 — Cinematic TikTok Edit
 
-**Current approved base:** `Rally_Finland_Cinematic_TikTok_Edit_BASE_NO_ISLE_OF_MAN.mp4`
+**Current approved base:** `Rally_Finland_Cinematic_TikTok_Edit_CLEAN_RICK_OWENS.mp4`
 
-The rejected Isle of Man / superbike soundtrack has been removed. The base now uses authentic Solberg crash + Rally Finland source audio only.
+Music is now solved:
+**Ufo361 — RICK OWENS (feat. Ken Carson)**, using the clean user-supplied TikTok audio with **no Isle of Man speech**.
+
+The clean track starts at **2.177 s** so its major drop at ~7.323 s lands on the edit's **9.500 s** monochrome/action switch.
 
 For agent takeover, read only:
 
 1. `ASTRA_HANDOFF.md`
 2. `build_rally.sh`
-
-`ASTRA_HANDOFF.md` contains the locked creative direction, Library paths, pre-researched optional assets, and execution order.
 
 Build:
 
