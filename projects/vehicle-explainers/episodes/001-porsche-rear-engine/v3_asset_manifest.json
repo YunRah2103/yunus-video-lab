@@ -45,7 +45,8 @@
     "classic0.webp": {
       "source": "https://newsroom.porsche.com/dam/jcr:0868df5e-4e85-4783-ac3e-64af81924028/b-P13_0198.jpg",
       "credit": "Porsche AG / Porsche Newsroom",
-      "processing": "foreground mask; scaled WebP"
+      "processing": "foreground mask; scaled WebP",
+      "usage": "Historical V3 asset; removed from active visual-polish composition"
     },
     "classic1.webp": {
       "source": "https://newsroom.porsche.com/dam/jcr:34735f96-5180-40a3-b8e2-7a826a0e87c9/b-S12_0215.jpg",
@@ -83,5 +84,41 @@
     "transparent": true,
     "consumer": "src/components/PacketGuyRework.tsx",
     "prompts": "public/presenter/rework/generation-prompts.json"
-  }
+  },
+  "visual_revision": "V3 visual polish",
+  "footage_punches": [
+    {
+      "file": "media/punches/advantage.mp4",
+      "timeline": [
+        12.02,
+        13.1
+      ],
+      "source_in": 110.3,
+      "source": "Supplied Green Hornet Porsche 992 GT3 RS video",
+      "muted": true,
+      "crop_center_fraction": 0.57
+    },
+    {
+      "file": "media/punches/traction.mp4",
+      "timeline": [
+        16.42,
+        17.72
+      ],
+      "source_in": 26.2,
+      "source": "Supplied Green Hornet Porsche 992 GT3 RS video",
+      "muted": true,
+      "crop_center_fraction": 0.49
+    },
+    {
+      "file": "media/punches/chassis.mp4",
+      "timeline": [
+        44.3,
+        45.7
+      ],
+      "source_in": 114.1,
+      "source": "Supplied Green Hornet Porsche 992 GT3 RS video",
+      "muted": true,
+      "crop_center_fraction": 0.42
+    }
+  ]
 }

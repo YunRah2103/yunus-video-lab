@@ -1,195 +1,208 @@
 import React from 'react';
 import {AbsoluteFill, Audio, Img, OffthreadVideo, Sequence, interpolate, spring, staticFile, useCurrentFrame} from 'remotion';
 import {cues, shots} from './data/porscheV3';
+import {displayAdvance} from './data/displayAdvance';
 import {PacketGuyRework as Guy} from './components/PacketGuyRework';
-
-const ink='#131b20', cyan='#008d9f', red='#e93243';
+const ink='#131b20',cyan='#008d9f',red='#e93243';
 const clamp={extrapolateLeft:'clamp',extrapolateRight:'clamp'} as const;
 const Picture:React.FC<{name:string,x:number,y:number,w:number,rotate?:number,scale?:number,opacity?:number}>=({name,x,y,w,rotate=0,scale=1,opacity=1})=><Img src={staticFile(`photo/${name}`)} style={{position:'absolute',left:x,top:y,width:w,rotate:`${rotate}deg`,scale,opacity,filter:'drop-shadow(0px 22px 18px #00000022)'}}/>;
-const Type:React.FC<{text:string,x:number,y:number,size?:number,color?:string,angle?:number,scale?:number,width?:number}>=({text,x,y,size=145,color=ink,angle=0,scale=1,width})=><div style={{position:'absolute',left:x,top:y,fontFamily:'Display',fontWeight:900,fontSize:size,lineHeight:.92,letterSpacing:-2,color,rotate:`${angle}deg`,scale,width,whiteSpace:'pre-line',WebkitTextStroke:'2px #f5f5ef',paintOrder:'stroke fill',textShadow:'4px 5px 0px #ffffff',transformOrigin:'left center'}}>{text}</div>;
+const Type:React.FC<{text:string,x:number,y:number,size?:number,color?:string,angle?:number,scale?:number,fit?:number}>=({text,x,y,size=145,color=ink,angle=0,scale=1,fit})=>{
+ const advance=Math.max(...text.split('\n').map(line=>[...line].reduce((v,c)=>v+(displayAdvance[c]??.5),0)),1);
+ const fontSize=Math.min(size,(fit??(1080-Math.max(0,x)-30))/advance);
+ return <div style={{position:'absolute',left:x,top:y,fontFamily:'Display',fontWeight:900,fontSize,lineHeight:.92,letterSpacing:-2,color,rotate:`${angle}deg`,scale,whiteSpace:'pre',WebkitTextStroke:'2px #f5f5ef',paintOrder:'stroke fill',textShadow:'3px 4px 0px #fff',transformOrigin:'left center'}}>{text}</div>;
+};
 const Arrow:React.FC<{x1:number,y1:number,x2:number,y2:number,color?:string}>=({x1,y1,x2,y2,color=cyan})=><svg style={{position:'absolute',inset:0,width:1080,height:1920}}><defs><marker id={`a${x1}${y1}`} markerWidth="9" markerHeight="9" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8" fill="none" stroke={color} strokeWidth="2"/></marker></defs><path d={`M${x1},${y1} Q${(x1+x2)/2+25},${(y1+y2)/2-20} ${x2},${y2}`} stroke={color} strokeWidth="12" fill="none" strokeLinecap="round" markerEnd={`url(#a${x1}${y1})`}/></svg>;
-const Arc:React.FC<{angle:number}>=({angle})=><svg style={{position:'absolute',inset:0,width:1080,height:1920}}><path d="M150 750 Q420 260 900 690" fill="none" stroke="#e9324355" strokeWidth="16" strokeDasharray="22 18"/><path d="M670 720 Q880 900 950 600" fill="none" stroke={red} strokeWidth="14"/><path d="M918 650 L950 598 L980 650" fill="none" stroke={red} strokeWidth="14"/></svg>;
-
+const Arc=()=> <svg style={{position:'absolute',inset:0,width:1080,height:1920}}><path d="M150 750 Q420 260 900 690" fill="none" stroke="#e9324355" strokeWidth="16" strokeDasharray="22 18"/><path d="M670 720 Q880 900 950 600 M918 650 L950 598 L980 650" fill="none" stroke={red} strokeWidth="14"/></svg>;
 export const PorscheV3:React.FC=()=>{
- const frame=useCurrentFrame(),t=frame/60;
- const shot=shots.find(s=>t>=s.start&&t<s.end)??shots[shots.length-1];
- const q=t-shot.start;
+ const frame=useCurrentFrame(),t=frame/60,shot=shots.find(s=>t>=s.start&&t<s.end)??shots[shots.length-1],q=t-shot.start;
  const enter=spring({frame:Math.round(q*60),fps:60,config:{damping:18,stiffness:260}});
- const drift=Math.sin(frame/29)*5;
- const cue=[...cues].reverse().find(c=>t>=c.start);
- const cp=cue?spring({frame:frame-Math.round(cue.start*60),fps:60,config:{damping:20,stiffness:400}}):1;
+ const cue=[...cues].reverse().find(c=>t>=c.start), cp=cue?spring({frame:frame-Math.round(cue.start*60),fps:60,config:{damping:20,stiffness:400}}):1;
+ const color=cue?.color==='red'?red:cue?.color==='cyan'?cyan:ink;
+ // Each caption is authored against its physical subject; source word timings stay fixed.
+ let caption:React.ReactNode=cue&&<Type text={cue.text} x={cue.x} y={cue.y} size={cue.size} color={t>=53.9?'#fff':color} angle={cue.angle??0} scale={.94+.06*cp}/>;
  let content:React.ReactNode;
  switch(shot.id){
  case 'hook': content=<>
-  <Type text="PORSCHE" x={65} y={110} size={190} color="#aebdc0"/>
-  <Picture name="modern-user.webp" x={-130+(1-enter)*170} y={340} w={1380} scale={t>.88?1.055:1}/>
-  <Guy pose={t<1.24?'05-confused':'talk'} head x={-120} y={1060} w={800} rotate={-14}/>
-  <Type text="NORMAL?" x={540} y={1360} size={100} color={cyan} angle={9}/>
- </>;break;
- case 'wrong': content=<>
-  <Picture name="classic0.webp" x={-75} y={175} w={1140} scale={1+q*.009}/>
-  <svg style={{position:'absolute',inset:0}} width="1080" height="1920"><ellipse cx="780" cy="670" rx="150" ry="80" fill="#e932431b" stroke={red} strokeWidth="12" rotate="-15"/></svg>
-  <Arrow x1={880} y1={910} x2={790} y2={670} color={red}/>
-  <Guy pose={t<3.72?'08-thinking':'05-confused'} head x={600} y={1100} w={650} rotate={12}/>
-  {t>=3.94&&<Type text="HERE?" x={90} y={1240} size={210} color={red} angle={-9}/>}
- </>;break;
+  <Type text="PORSCHE" x={-12} y={60} size={255} color="#afbec0"/>
+  <Picture name="modern-user.webp" x={-340+(1-enter)*100} y={230} w={1630} rotate={t>.88?-8:-5}/>
+  <Guy pose={t<1.24?'05-confused':'08-thinking'} head x={t<1.24?-330:-470} y={1020} w={t<1.24?1160:1400} rotate={-14}/>
+  <Type text="NORMAL?" x={650} y={1650} size={120} color={cyan} angle={-10}/>
+ </>;caption=cue&&<Type text={cue.text} x={t<.88?265:430} y={1060} size={t<.88?150:210} angle={-8} scale={.92+.08*cp}/>;break;
+ case 'wrong':content=<>
+  <Type text="REAR" x={385} y={85} size={340} color="#b4c5c8"/>
+  <Picture name="swb.webp" x={-250} y={450} w={1530} opacity={.65} rotate={-5}/>
+  <svg width="1080" height="1920" style={{position:'absolute',inset:0}}><ellipse cx="866" cy="720" rx="200" ry="105" fill="#e9324322" stroke={red} strokeWidth="12"/></svg>
+  <Picture name="engine1.webp" x={675+(1-enter)*120} y={555} w={535} rotate={-13}/>
+  <Arrow x1={535} y1={1010} x2={880} y2={760} color={red}/>
+  <Guy pose={t<3.72?'08-thinking':'05-confused'} head x={-530} y={1070} w={1340} rotate={-16}/>
+  {t>=3.94&&<Type text="HERE?" x={590} y={1120} size={210} color={red} angle={-13}/>}
+ </>;caption=cue&&<Type text={cue.text} x={q<1.5?25:440} y={q<1.5?250:905} size={q<1.5?183:260} color={color} angle={-10} scale={.9+.1*cp}/>;break;
  case 'layout':content=<>
-  <Type text="PORSCHE" x={50} y={120} size={190} color="#c4cdce"/>
-  <Picture name="swb.webp" x={-40} y={480} w={1180}/>
-  <Guy pose="04-pointing" x={-115} y={1150} w={840} rotate={-5}/>
-  <Arrow x1={780} y1={1070} x2={945} y2={775}/>
- </>;break;
- case 'engine': content=<>
-  <Type text="6" x={20} y={160} size={680} color="#cfdadb"/>
-  <Picture name="engine0.webp" x={130} y={430} w={1010} scale={.93+.07*enter}/>
-  <Guy pose="11-looking-up" x={570} y={1130} w={780} rotate={8}/>
- </>;break;
+  <Type text="911" x={-20} y={70} size={640} color="#b5c8cb"/>
+  <Picture name="swb.webp" x={-240} y={580} w={1530} rotate={8}/>
+  <Guy pose="04-pointing" x={-110} y={1060} w={1250} rotate={-7}/>
+  <Arrow x1={450} y1={1120} x2={930} y2={865}/>
+ </>;caption=cue&&<Type text={cue.text} x={30} y={985} size={185} color={cyan} angle={8}/>;break;
+ case 'engine':content=<>
+  <Type text="6" x={-70} y={-30} size={1150} color="#c2d1d0"/>
+  <Picture name="engine0.webp" x={-110} y={520} w={1330} rotate={-8} scale={.93+.07*enter}/>
+  <Type text="FLAT SIX" x={35} y={1080} size={260} color={cyan} angle={-8} scale={.95+.05*cp}/>
+  <Guy pose="08-thinking" head x={260} y={1000} w={1050} rotate={14}/>
+ </>;caption=null;break;
  case 'behind':content=<>
-  <Picture name="swb.webp" x={-120} y={450} w={1250}/>
-  <Picture name="engine0.webp" x={850} y={690} w={280}/>
-  <svg style={{position:'absolute',inset:0}} width="1080" height="1920"><path d="M809 650 V980" stroke={ink} strokeWidth="6" strokeDasharray="14 12"/><path d="M820 920 H1040" stroke={cyan} strokeWidth="13"/></svg>
-  <Type text="AXLE" x={620} y={1010} size={80}/>
-  <Guy pose="04-pointing" x={-65} y={1175} w={850} rotate={-6}/>
-  <Arrow x1={560} y1={1150} x2={1000} y2={900}/>
- </>;break;
+  <Type text="BEHIND" x={-8} y={155} size={275} color={red}/>
+  <Picture name="swb.webp" x={-620} y={680} w={1820}/>
+  <svg width="1080" height="1920" style={{position:'absolute',inset:0}}><path d="M880 650 V1080" stroke={ink} strokeWidth="7" strokeDasharray="14 12"/></svg>
+  <Picture name="engine0.webp" x={912} y={835} w={350}/>
+  <Type text="AXLE" x={730} y={1030} size={110}/>
+  <Guy pose="04-pointing" x={-420} y={1120} w={1320} rotate={-9}/>
+  <Arrow x1={510} y1={1180} x2={1050} y2={1000}/>
+ </>;caption=cue&&cue.start>=8.5?<Type text="REAR AXLE" x={-6} y={425} size={220} angle={-6}/>:null;break;
  case 'advantage':content=<>
-  <Type text="SOMEHOW." x={40} y={120} size={190} color={cyan}/>
-  <Picture name="modern-user.webp" x={-50} y={420} w={1260} scale={1+.025*Math.sin(q*2)}/>
-  <Guy pose={q<1?'05-confused':'10-explaining'} x={250} y={1120} w={810} rotate={q<1?-6:3}/>
- </>;break;
+  <Type text="SOMEHOW." x={-10} y={70} size={240} color={cyan}/>
+  <Picture name="modern-user.webp" x={-310} y={350} w={1550} rotate={-9}/>
+  {q<1?<Guy pose="05-confused" head x={250} y={1070} w={1050} rotate={14}/>:<Guy pose="10-explaining" x={-60} y={1450} w={700} rotate={-4}/>}
+ </>;caption=cue&&q>=1&&<Type text={cue.text} x={q<1?30:370} y={q<1?1400:1210} size={q<1?195:172} angle={-9}/>;break;
  case 'load':content=<>
-  <Picture name="swb.webp" x={-330} y={410+enter*22} w={1600}/>
-  <Picture name="engine1.webp" x={680} y={185} w={430}/>
-  <Arrow x1={865} y1={570} x2={865} y2={910}/>
-  <Guy pose="04-pointing" x={-40} y={1130} w={790}/>
- </>;break;
+  <Type text="WEIGHT" x={-30} y={155} size={325} color="#aec2c5"/>
+  <Picture name="engine1.webp" x={300} y={360} w={1010} rotate={8}/>
+  <Picture name="swb.webp" x={-480} y={850+enter*32} w={1830} rotate={4}/>
+  <Arrow x1={950} y1={725} x2={950} y2={1180}/>
+  <Guy pose="05-confused" head x={-440} y={1290} w={1060} rotate={-16}/>
+ </>;caption=cue&&cue.start>=14.24?<Type text="DRIVEN WHEELS" x={315} y={1390} size={118} color={cyan} angle={4}/>:null;break;
  case 'traction':content=<>
-  <Type text="TRACTION" x={30} y={190} size={224} color="#b8cccf"/>
-  <Picture name="tyre.webp" x={275} y={430} w={740} rotate={q*6}/>
-  <svg width="1080" height="1920" style={{position:'absolute',inset:0}}><path d="M125 1220 H1060" stroke={ink} strokeWidth="14"/><path d="M310 1245 H900" stroke={cyan} strokeWidth="25"/></svg>
-  <Guy pose="10-explaining" x={-150} y={1210} w={800} rotate={-7}/>
-  <Arrow x1={970} y1={475} x2={970} y2={1080}/>
- </>;break;
+  <Type text="TRACTION" x={-45} y={170} size={280} color="#b1c9cc" angle={-7}/>
+  <Picture name="tyre.webp" x={-290} y={410} w={1270} rotate={q*7}/>
+  <svg width="1080" height="1920" style={{position:'absolute',inset:0}}><path d="M-100 1710 H1200" stroke={ink} strokeWidth="18"/><path d="M-80 1735 H810" stroke={cyan} strokeWidth="28"/></svg>
+  <Guy pose="08-thinking" head x={690} y={1190} w={730} rotate={15}/>
+  <Arrow x1={950} y1={500} x2={950} y2={1470}/>
+ </>;caption=cue&&<Type text={cue.text} x={cue.start<15.84?70:30} y={cue.start<15.84?1490:180} size={cue.start<15.84?125:235} angle={-7}/>;break;
  case 'problem':content=<>
-  <Guy pose={q<.65?'07-annoyed':'06-surprised'} head x={40} y={520} w={1000} rotate={q<.65?-5:5}/>
-  <Type text="BUT…" x={45} y={150} size={245} color={red}/>
- </>;break;
+  <Type text="BUT…" x={-20} y={90} size={380} color={red}/>
+  <Guy pose={q<.65?'07-annoyed':'06-surprised'} head x={q<.65?-130:-290} y={q<.65?550:380} w={q<.65?1260:1620} rotate={q<.65?-8:8}/>
+ </>;caption=cue&&<Type text={cue.text} x={45} y={1530} size={226} angle={-8} color={red}/>;break;
  case 'mass':{
   const angle=Math.sin(q*2.8)*24;
   content=<>
-   <Picture name="swb.webp" x={-40} y={185} w={1160} opacity={.25}/>
-   <div style={{position:'absolute',left:650,top:515,width:500,height:620,rotate:`${angle}deg`,transformOrigin:'50% 0%'}}><div style={{position:'absolute',left:245,top:0,width:8,height:360,background:ink}}/><Img src={staticFile('photo/engine1.webp')} style={{position:'absolute',left:-50,top:300,width:600}}/></div>
-   <Guy pose="11-looking-up" x={-155} y={1100} w={860} rotate={-6}/>
-   <Type text="REAR MASS" x={30} y={1015} size={135} color={red} angle={angle*.12}/>
-  </>;break;}
+   <Picture name="swb.webp" x={-380} y={150} w={1620} opacity={.22} rotate={-9}/>
+   <div style={{position:'absolute',left:400,top:530,width:700,height:1000,rotate:`${angle}deg`,transformOrigin:'65% 0%'}}>
+    <div style={{position:'absolute',left:440,top:0,width:9,height:420,background:ink}}/>
+    <Type text={cue?.text??''} x={-330} y={160} size={cue?.start===19.62?180:164} color={color} angle={-8}/>
+    <Type text="REAR MASS" x={-5} y={825} size={175} fit={640} color={red}/>
+    <Picture name="engine1.webp" x={0} y={360} w={840}/>
+   </div>
+   <Guy pose="05-confused" head x={-440} y={1130} w={1020} rotate={-18}/>
+  </>;caption=null;break;}
  case 'early':content=<>
-  <Type text="EARLY 911" x={65} y={140} size={195} color="#b7c3c6"/>
-  <Picture name="classic1.webp" x={-100+q*70} y={425} w={1200} rotate={-4+q*4}/>
-  <Guy pose="12-looking-side" x={480} y={1135} w={810} flip rotate={8}/>
-  <Arrow x1={200} y1={910} x2={805} y2={990} color={red}/>
- </>;break;
+  <Type text="EARLY 911" x={-20} y={80} size={235} color="#afc1c5"/>
+  <Picture name="classic1.webp" x={-290+q*80} y={430} w={1540} rotate={-10+q*5}/>
+  <Guy pose="12-looking-side" x={730} y={1490} w={450} flip rotate={8}/>
+  <Arrow x1={85} y1={1260} x2={825} y2={1360} color={red}/>
+ </>;caption=cue&&<Type text={cue.text} x={15+q*25} y={1200} size={200} color={red} angle={-10+q*5}/>;break;
  case 'lift':content=<>
-  <Picture name="swb.webp" x={-140} y={270} w={1280}/>
-  <Type text="LIFT" x={45} y={830} size={350} color={red} angle={-8}/>
-  <Guy pose="06-surprised" head x={600} y={1050} w={740} rotate={14}/>
-  <svg width="1080" height="1920" style={{position:'absolute',inset:0}}><path d="M240 1340 L285 1640 L400 1620 L355 1320 Z" fill={ink}/><path d="M235 1270 L510 1250" stroke={cyan} strokeWidth="24"/><path d="M330 1270 V1080 M290 1130 L330 1080 L370 1130" fill="none" stroke={red} strokeWidth="18"/></svg>
- </>;break;
+  <Picture name="swb.webp" x={-280} y={330} w={1480} rotate={-5}/>
+  <Type text="LIFT" x={-10} y={845} size={450} color={red} angle={-8}/>
+  <Guy pose="06-surprised" head x={640} y={970} w={940} rotate={17}/>
+  <svg width="1080" height="1920" style={{position:'absolute',inset:0}}><path d="M140 1330 L200 1730 L375 1700 L315 1300 Z" fill={ink}/><path d="M110 1260 L475 1220" stroke={cyan} strokeWidth="28"/><path d="M270 1240 V1080 M225 1135 L270 1080 L310 1135" fill="none" stroke={red} strokeWidth="18"/></svg>
+ </>;caption=cue&&<Type text={cue.text} x={cue.start<26.58?20:425} y={cue.start<26.58?90:1270} size={cue.start<26.58?200:140} color={color} angle={-8}/>;break;
  case 'rotate':{
   const yaw=interpolate(q,[0,1.8,2.1,3.5],[0,5,36,49],clamp);
   content=<>
-   <Arc angle={yaw}/>
-   <Picture name="classic1.webp" x={-120+Math.sin(q)*55} y={370} w={1280} rotate={yaw}/>
-   <Guy pose="06-surprised" head x={-180} y={1210} w={760} rotate={-18}/>
+   <Arc/><Picture name="classic1.webp" x={-120+Math.sin(q)*55} y={370} w={1280} rotate={yaw}/>
+   <Guy pose="06-surprised" head x={q>2.74?-390:-180} y={q>2.74?1080:1210} w={q>2.74?1090:760} rotate={-18}/>
    <Type text="REAR →" x={605} y={1100} size={110} color={red} angle={yaw*.3}/>
-  </>;break;}
+  </>;caption=cue&&<Type text={cue.text} x={cue.start<29.56?65:530} y={cue.start<29.56?120:cue.start<30.22?1270:1500} size={cue.start<29.56?167:cue.start<30.22?150:220} color={color} angle={cue.start<29.56?0:yaw*.37}/>;break;}
  case 'kept':content=<>
-  <Picture name="classic0.webp" x={-160} y={240} w={1100}/>
-  <Guy pose="07-annoyed" x={500} y={1100} w={840} rotate={7}/>
-  <Picture name="engine0.webp" x={80} y={1160} w={440}/>
-  <Type text="STAYS." x={60} y={1560} size={150} color={red} angle={-6}/>
- </>;break;
+  <Picture name="swb.webp" x={-330} y={190} w={1650} opacity={.2}/>
+  <Picture name="engine1.webp" x={-225} y={510} w={1460} rotate={-12}/>
+  <Type text="STAYS." x={65} y={1370} size={295} color={red} angle={-12}/>
+  <Guy pose="07-annoyed" x={630} y={1410} w={730} rotate={7}/>
+ </>;caption=cue&&<Type text={cue.text} x={15} y={175} size={230} angle={-7}/>;break;
  case 'engineered':content=<>
-  <Type text={"SAME\nLAYOUT."} x={35} y={140} size={240} color="#b4c5c8"/>
-  <Picture name="swb.webp" x={-50} y={680} w={1230}/>
-  <Guy pose="10-explaining" x={-120} y={1220} w={840}/>
-  <Type text={"BETTER\nENGINEERING."} x={550} y={1360} size={82} color={cyan} angle={6}/>
- </>;break;
+  <Type text={'SAME\nLAYOUT.'} x={-25} y={30} size={310} color="#b1c8cc" angle={5}/>
+  <Picture name="swb.webp" x={-410} y={625} w={1690} rotate={9}/>
+  <Guy pose="08-thinking" head x={-570} y={1270} w={1170} rotate={-18}/>
+  <Type text={'BETTER\nENGINEERING.'} x={630} y={1450} size={84} color={cyan} angle={9}/>
+ </>;caption=cue&&<Type text={cue.text} x={35} y={1060} size={195} color={cyan} angle={9}/>;break;
  case 'wheelbase':{
-  const ext=interpolate(q,[1.44,2.7],[0,65],clamp);
+  const ext=interpolate(q,[1.44,2.7],[0,77],clamp);
   content=<>
-   <Type text="1968" x={50} y={145} size={160} color="#9ca8ac"/>
-   <Picture name="swb.webp" x={40} y={370} w={1000} opacity={.55}/>
-   <Type text="1969" x={50} y={760} size={180} color={cyan}/>
-   <Picture name="lwb.webp" x={40} y={970} w={1000}/>
-   <svg width="1080" height="1920" style={{position:'absolute',inset:0}}><path d="M218 695 H790 M218 665 V720 M790 665 V720" fill="none" stroke="#859295" strokeWidth="8"/><path d={`M218 1300 H${790+ext} M218 1265 V1335 M${790+ext} 1265 V1335`} fill="none" stroke={cyan} strokeWidth="12"/></svg>
-   <Type text="2,211 mm" x={280} y={716} size={70} color="#6b797d"/>
-   <Type text="2,268 mm" x={335} y={1350} size={92} color={cyan}/>
-   <Guy pose="04-pointing" x={350} y={1450} w={660} rotate={-5}/>
-  </>;break;}
+   <Type text="1968" x={-8} y={25} size={230} color="#99acb1"/>
+   <Picture name="swb.webp" x={-180} y={280} w={1350} opacity={.6}/>
+   <Type text="1969" x={-8} y={845} size={245} color={cyan}/>
+   <Picture name="lwb.webp" x={-180} y={1060} w={1350}/>
+   <svg width="1080" height="1920" style={{position:'absolute',inset:0}}><path d="M60 710 H832 M60 675 V735 M832 675 V735" fill="none" stroke="#859295" strokeWidth="9"/><path d={`M60 1520 H${832+ext} M60 1485 V1555 M${832+ext} 1485 V1555`} fill="none" stroke={cyan} strokeWidth="13"/></svg>
+   <Type text="2,211 mm" x={250} y={740} size={88} color="#6b797d"/>
+   <Type text="2,268 mm" x={350} y={1570} size={108} color={cyan}/>
+   <Guy pose="04-pointing" x={720} y={1660} w={430} rotate={-8}/>
+  </>;caption=cue&&<Type text={cue.text} x={430} y={1000} size={115} color={cyan} angle={-5}/>;break;}
  case '57':content=<>
-  <Type text="+57" x={40} y={140} size={620} color={cyan} scale={.88+.12*enter}/>
-  <Type text="MM" x={485} y={680} size={335}/>
-  <Picture name="swb.webp" x={-80} y={1100} w={1240}/>
-  <Guy pose="04-pointing" x={-240} y={950} w={800} rotate={-14}/>
-  <Type text="LONGER WHEELBASE" x={160} y={1630} size={86} color={cyan}/>
- </>;break;
+  <Type text="+57" x={-50} y={40} size={810} color={cyan} scale={.88+.12*enter}/>
+  <Type text="MM" x={620} y={790} size={295}/>
+  <Type text="LONGER WHEELBASE" x={90} y={1480} size={110} color={cyan} angle={-8}/>
+  <Picture name="swb.webp" x={-260} y={1120} w={1570} rotate={-8}/>
+  <Guy pose="06-surprised" head x={-540} y={1360} w={1030} rotate={-16}/>
+ </>;caption=null;break;
  case 'tyres':content=<>
-  <Picture name="tyre.webp" x={-90} y={370} w={660} rotate={q*9}/>
-  <Picture name="tyre.webp" x={535} y={405} w={700} rotate={-q*6}/>
-  <Guy pose="10-explaining" x={220} y={1250} w={820}/>
-  <svg width="1080" height="1920" style={{position:'absolute',inset:0}}><path d="M175 1220 H920 M175 1180 V1260 M920 1180 V1260" stroke={cyan} strokeWidth="12" fill="none"/></svg>
- </>;break;
+  <Type text="THEN…" x={-10} y={50} size={300}/>
+  <Picture name="tyre.webp" x={-505} y={460} w={1310} rotate={q*9}/>
+  <Picture name="tyre.webp" x={625} y={530} w={1040} rotate={-q*6}/>
+  <svg width="1080" height="1920" style={{position:'absolute',inset:0}}><path d={`M160 1070 H${850+q*35} M160 1030 V1110 M${850+q*35} 1030 V1110`} stroke={cyan} strokeWidth="16" fill="none"/></svg>
+  {q>=.8&&<Type text="WIDER TYRES" x={45} y={1050} size={203} color={cyan} angle={-5}/>}
+  <Guy pose="10-explaining" x={660} y={1600} w={440} rotate={7}/>
+ </>;caption=null;break;
  case 'suspension':content=<>
-  <Picture name="axle.webp" x={-100} y={330} w={1250} rotate={-4+q*3}/>
-  <Type text="LINKS" x={40} y={160} size={200} color="#b7c7ca"/>
-  <Guy pose="04-pointing" x={520} y={1170} w={780} rotate={8} flip/>
-  <Arrow x1={420} y1={1180} x2={390} y2={845}/>
- </>;break;
+  <Type text="LINKS" x={-40} y={80} size={480} color="#b1c6cb" angle={-8}/>
+  <Picture name="axle.webp" x={-360} y={450} w={1760} rotate={-14+q*5}/>
+  <Guy pose="04-pointing" x={170} y={1080} w={1230} rotate={12} flip/>
+  <Arrow x1={510} y1={1380} x2={430} y2={940}/>
+ </>;caption=cue&&<Type text={cue.text} x={15} y={1220} size={197} color={color} angle={-14+q*5}/>;break;
  case 'evolve':{
-  const pic=q<.75?'swb.webp':q<1.5?'993tech0.webp':'modern-user.webp';
+  const pic=q<.65?'swb.webp':q<1.1?'993tech0.webp':'modern-user.webp';
   content=<>
-   <Type text="DECADES" x={30} y={170} size={225} color={cyan}/>
-   <Picture name={pic} x={-90} y={490} w={1280} scale={.97+.03*Math.sin(q*6)}/>
-   <Guy pose="talk" x={50} y={1140} w={850} rotate={-5}/>
-   <Type text={"REFINE.\nREPEAT."} x={620} y={1390} size={120} color={ink} angle={7}/>
-  </>;break;}
+   <Type text="DECADES" x={-20} y={65} size={262} color={cyan}/>
+   <Type text={'REFINE.\nREPEAT.'} x={625} y={1230} size={136} angle={10}/>
+   <Picture name={pic} x={-270} y={430} w={1550} rotate={-7}/>
+   <Guy pose="08-thinking" head x={-500} y={1100} w={1160} rotate={-15}/>
+  </>;caption=cue&&<Type text={cue.text} x={30} y={995} size={210} angle={-7}/>;break;}
  case '993':content=<>
-  <Type text="993" x={50} y={120} size={420} color={cyan}/>
-  <Picture name="993tech0.webp" x={-130} y={565} w={1380}/>
-  <Guy pose="11-looking-up" x={-120} y={1260} w={820} rotate={-10}/>
- </>;break;
+  <Type text="993" x={-45} y={-65} size={845} color={cyan}/>
+  <Picture name="993tech0.webp" x={-320} y={640} w={1740} rotate={-10}/>
+  <Guy pose="11-looking-up" x={785} y={1610} w={440} rotate={12} flip/>
+ </>;caption=cue&&<Type text={cue.text} x={10} y={1360} size={190} angle={-10}/>;break;
  case 'axle':content=<>
-  <Type text="REDESIGNED" x={50} y={160} size={170} color={cyan}/>
-  <Picture name="axle.webp" x={-100} y={440} w={1290} rotate={-8+q*3}/>
-  <Guy pose="04-pointing" x={-120} y={1130} w={880} rotate={-6}/>
-  <Arrow x1={870} y1={1170} x2={790} y2={850}/>
- </>;break;
+  <Type text="REDESIGNED" x={-5} y={30} size={190} color={cyan} angle={-5}/>
+  <Picture name="axle.webp" x={-455} y={360} w={1930} rotate={-18+q*7}/>
+  <Guy pose="05-confused" head x={690} y={1180} w={1000} rotate={15}/>
+  <Arrow x1={470} y1={1400} x2={640} y2={920}/>
+ </>;caption=cue&&<Type text={cue.text} x={-5} y={1360} size={170} angle={-18+q*7}/>;break;
  case 'multilink':content=<>
-  <Img src={staticFile('photo/undercarriage.jpg')} style={{position:'absolute',left:-100,top:260,width:1350,rotate:'-4deg'}}/>
-  <svg width="1080" height="1920" style={{position:'absolute',inset:0}}><path d="M210 820 L660 705 L840 780 M270 860 L680 840 L830 710" stroke={cyan} strokeWidth="15" fill="none" strokeDasharray={`${1200*enter} 1200`}/><circle cx="250" cy="825" r="36" fill="none" stroke="white" strokeWidth="10"/></svg>
-  <Guy pose="04-pointing" x={520} y={1230} w={780} flip rotate={5}/>
-  
- </>;break;
+  <Img src={staticFile('photo/undercarriage.jpg')} style={{position:'absolute',left:-340,top:170,width:1800,rotate:'-8deg'}}/>
+  <svg width="1080" height="1920" style={{position:'absolute',inset:0}}><path d="M150 930 L700 760 L980 880 M240 970 L740 920 L950 750" stroke={cyan} strokeWidth="18" fill="none" strokeDasharray={`${1500*enter} 1500`}/><circle cx="200" cy="920" r="48" fill="none" stroke="white" strokeWidth="12"/></svg>
+  <Guy pose="06-surprised" head x={-490} y={1270} w={1100} rotate={-18}/>
+ </>;caption=cue&&<Type text={cue.text} x={35} y={1190} size={215} color={color} angle={-8}/>;break;
  case 'yes':content=<>
-  <Type text="YES." x={35} y={140} size={510} color={cyan}/>
-  <Guy pose="07-annoyed" head x={580} y={700} w={740} rotate={14}/>
-  <Picture name="classic0.webp" x={-245} y={1050} w={1030}/>
-  <Arrow x1={185} y1={1110} x2={285} y2={1420} color={red}/>
- </>;break;
+  <Type text="YES." x={-35} y={70} size={735} color={cyan}/>
+  <Guy pose="07-annoyed" head x={420} y={810} w={1210} rotate={15}/>
+  <Picture name="classic1.webp" x={-385} y={1370} w={1390} rotate={-10}/>
+  <Arrow x1={185} y1={1210} x2={790} y2={1620} color={red}/>
+ </>;caption=cue&&<Type text={cue.text} x={35} y={cue.start<53.18?910:1090} size={cue.start<53.18?240:295} color={color} angle={-10}/>;break;
  default:content=<>
   <Sequence from={Math.round(53.9*60)} durationInFrames={Math.ceil(6.364*60)}><OffthreadVideo src={staticFile('media/hero.mp4')} muted style={{width:1080,height:1920,objectFit:'cover',objectPosition:'56% center'}}/></Sequence>
   <AbsoluteFill style={{background:'linear-gradient(0deg,#071014cc,transparent 55%,#07101422)'}}/>
   {t<56.34&&<Guy pose="09-arms-crossed" x={-100} y={1340} w={630} rotate={-5}/>}
   {t>=58.08&&<><Type text="911" x={65} y={1340} size={280} color="#f3f5f4"/><Type text="CHARACTER" x={80} y={1620} size={177} color="#38d5dc"/></>}
- </>;
+ </>;if(t>=58.08)caption=null;
  }
- const hero=t>=53.9;
+ const punch=t>=12.02&&t<13.1?{name:'advantage',start:12.02,end:13.1}:t>=16.42&&t<17.72?{name:'traction',start:16.42,end:17.72}:t>=44.3&&t<45.7?{name:'chassis',start:44.3,end:45.7}:null;
+ if(punch){content=<>
+  <Sequence from={Math.round(punch.start*60)} durationInFrames={Math.ceil(punch.end*60)-Math.round(punch.start*60)}><OffthreadVideo src={staticFile(`media/punches/${punch.name}.mp4`)} muted style={{width:1080,height:1920,objectFit:'cover'}}/></Sequence>
+  <AbsoluteFill style={{background:'linear-gradient(0deg,#071014aa,transparent 60%,#07101415)'}}/>
+ </>;caption=cue&&<Type text={cue.text} x={35} y={punch.name==='traction'?1390:1450} size={punch.name==='chassis'?175:245} color="#f3f5f4" angle={punch.name==='traction'?-9:-4} scale={.94+.06*cp}/>;}
  return <AbsoluteFill style={{background:shot.id==='problem'?'#eadbdd':'#e7e9e6',overflow:'hidden'}}>
   <style>{`@font-face {font-family:Display;src:url('${staticFile('fonts/Display.otf')}')} `}</style>
   <AbsoluteFill style={{background:'radial-gradient(ellipse at 40% 28%,#ffffff 0%,#f0f1ed 38%,#d2d7d4 100%)',opacity:shot.id==='problem'?.45:1}}/>
-  {content}
-  {cue&&!(hero&&t>=58.08)&&<Type text={cue.text} x={cue.x} y={cue.y} size={cue.size} color={hero?'#ffffff':cue.color==='red'?red:cue.color==='cyan'?cyan:ink} angle={cue.angle??0} scale={.94+.06*cp}/ >}
-  <Audio src={staticFile('media/cedar.mp3')}/>
-  <Audio src={staticFile('media/accents.mp3')} volume={.55}/>
+  {content}{caption}
+  <Audio src={staticFile('media/cedar.mp3')}/><Audio src={staticFile('media/accents.mp3')} volume={.55}/>
  </AbsoluteFill>;
 };

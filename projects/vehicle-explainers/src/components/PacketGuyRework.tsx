@@ -29,14 +29,14 @@ const heads: Record<string, Rect> = {
 
 export const PacketGuyRework: React.FC<{
   pose: string; x: number; y: number; w: number;
-  head?: boolean; rotate?: number; flip?: boolean;
-}> = ({pose, x, y, w, head = false, rotate = 0, flip = false}) => {
+  head?: boolean; rotate?: number; flip?: boolean; anchorBottom?: boolean;
+}> = ({pose, x, y, w, head = false, rotate = 0, flip = false, anchorBottom = true}) => {
   const frame = useCurrentFrame();
   const rect = head ? (heads[pose] ?? heads['08-thinking']) : (poses[pose] ?? poses['01-neutral']);
   const [sx, sy, sw, sh] = rect;
   const width = head ? w : w * .92;
   const height = head ? width * sh / sw : width * 1.06;
-  const top = head ? y : Math.max(y, 1920-height+75);
+  const top = head || !anchorBottom ? y : Math.max(y, 1920-height+75);
   const explaining = !head && (pose === '10-explaining' || pose === '12-looking-side');
   const lookingUp = !head && pose === '11-looking-up';
   const motion = pose === 'talk' || pose === '10-explaining';

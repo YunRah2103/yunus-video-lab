@@ -1,6 +1,6 @@
 # ⚠️ NEXT AGENT
 
-**GPT-6 Codex / next build agent: read `GPT6_CODEX_HANDOFF.md` FIRST.** Then read `docs/PACKET_GUY_REWORK.md` for the current presenter, `docs/V3_BUILD_NOTES.md` for the photographic rebuild and `docs/V3_REFERENCE_COMPARISON.md` for the reference diagnostic.
+**GPT-6 Codex / next build agent: read `GPT6_CODEX_HANDOFF.md` FIRST.** Then read `docs/V3_VISUAL_POLISH.md` for the current visual execution, `docs/PACKET_GUY_REWORK.md` for the presenter, `docs/V3_BUILD_NOTES.md` for the earlier photographic rebuild and `docs/V3_REFERENCE_COMPARISON.md` for the reference diagnostic.
 
 The V3 rebuild is implemented in `src/PorscheV3.tsx`, with shot/caption timing in `src/data/porscheV3.ts`. Its visual authority remains `191652.mp4`; V2 is a historical baseline, not a lock. The new user-supplied Cedar narration is the timing authority.
 
@@ -25,7 +25,7 @@ Reusable short-form machine/vehicle explainer system built around Packet Guy.
 
 `episodes/001-porsche-rear-engine/` — **Why Porsche put the engine in the wrong place**.
 
-V3 is 60.267 seconds at 1080×1920 / 60fps. It uses real Porsche/engine/tyre/suspension imagery, oversized and edge-cropped Packet Guy reactions, frame-specific typography, a +57 MM takeover and supplied Porsche footage for the final payoff.
+V3 is 60.267 seconds at 1080×1920 / 60fps. The current visual polish preserves its 25-shot structure and Cedar timing, replaces the blue cutaway, pushes crop/scale changes and attaches typography to physical objects. Three short, committed footage punches appear before the supplied Porsche ending. Layouts are authored in `src/PorscheV3.tsx`; cue coordinates in the data file are fallback values, not the current layout authority.
 
 Read `docs/V3_BUILD_NOTES.md`, `docs/V3_REFERENCE_COMPARISON.md` and `episodes/001-porsche-rear-engine/v3_asset_manifest.json` before revising. Large reference/source video and rendered MP4s are excluded from Git.
 
@@ -45,3 +45,5 @@ npm run typecheck
 npm run studio
 npm run render:v3
 ```
+
+The compact pre-ending footage clips are committed. To regenerate them from the supplied source, run `python3 scripts/prepare_polish.py --footage "/absolute/path/to/The Green Hornet source.webm"`. Use `V3_OUTPUT=out/PORSCHE_V3_VISUAL_POLISH.mp4 npm run render:v3` to choose the current delivery filename.

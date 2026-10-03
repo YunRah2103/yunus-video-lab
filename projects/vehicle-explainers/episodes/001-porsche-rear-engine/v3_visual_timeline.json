@@ -182,7 +182,7 @@
     },
     {
       "start": 5.24,
-      "text": "BECAUSE…",
+      "text": "BECAUSE\u2026",
       "x": 75,
       "y": 930,
       "size": 170
@@ -371,7 +371,7 @@
     },
     {
       "start": 31.48,
-      "text": "DIDN’T\nMOVE IT.",
+      "text": "DIDN\u2019T\nMOVE IT.",
       "x": 35,
       "y": 940,
       "size": 180
@@ -408,7 +408,7 @@
     },
     {
       "start": 39.8,
-      "text": "THEN…",
+      "text": "THEN\u2026",
       "x": 60,
       "y": 150,
       "size": 220
@@ -553,6 +553,44 @@
       "x": 0,
       "y": 0,
       "size": 1
+    }
+  ],
+  "visual_revision": "V3 visual polish",
+  "layout_authority": "src/PorscheV3.tsx",
+  "typography_note": "Word timings retained. Coordinates below are legacy fallback values; current shot-specific positions, overlap and rotation are authored in layout_authority.",
+  "footage_punches": [
+    {
+      "file": "media/punches/advantage.mp4",
+      "timeline": [
+        12.02,
+        13.1
+      ],
+      "source_in": 110.3,
+      "source": "Supplied Green Hornet Porsche 992 GT3 RS video",
+      "muted": true,
+      "crop_center_fraction": 0.57
+    },
+    {
+      "file": "media/punches/traction.mp4",
+      "timeline": [
+        16.42,
+        17.72
+      ],
+      "source_in": 26.2,
+      "source": "Supplied Green Hornet Porsche 992 GT3 RS video",
+      "muted": true,
+      "crop_center_fraction": 0.49
+    },
+    {
+      "file": "media/punches/chassis.mp4",
+      "timeline": [
+        44.3,
+        45.7
+      ],
+      "source_in": 114.1,
+      "source": "Supplied Green Hornet Porsche 992 GT3 RS video",
+      "muted": true,
+      "crop_center_fraction": 0.42
     }
   ]
 }
