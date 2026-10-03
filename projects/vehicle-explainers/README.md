@@ -1,3 +1,7 @@
+# ⚠️ NEXT AGENT
+
+**Read `NEXT_AGENT_PROMPT.md` before modifying or rendering this project.** The current V1 proof video is a weak baseline; the handoff defines the required V2 rebuild against reference `191652.mp4`.
+
 # Vehicle Explainers
 
 Reusable short-form machine/vehicle explainer system built around Packet Guy V1.
