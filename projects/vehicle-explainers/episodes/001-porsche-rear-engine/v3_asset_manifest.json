@@ -67,5 +67,21 @@
   "research": [
     "https://newsroom.porsche.com/en/history/porsche-911-seven-generations-part-1-original-911-16452.html",
     "https://newsroom.porsche.com/en/press-kits/60-Years-Porsche-911/4.-Generation---Karosserievarianten-und-Innovationen.html"
-  ]
+  ],
+  "presenter": {
+    "version": "Packet Guy illustrated rework",
+    "identity": "projects/stickman-studio/character/CHARACTER_SPEC.md",
+    "source": "built-in image generation, with established Packet Guy identity reference",
+    "production_assets": [
+      "public/presenter/rework/poses.png",
+      "public/presenter/rework/heads.png"
+    ],
+    "dimensions": [
+      1254,
+      1254
+    ],
+    "transparent": true,
+    "consumer": "src/components/PacketGuyRework.tsx",
+    "prompts": "public/presenter/rework/generation-prompts.json"
+  }
 }

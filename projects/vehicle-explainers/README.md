@@ -1,12 +1,12 @@
 # ⚠️ NEXT AGENT
 
-**GPT-6 Codex / next build agent: read `GPT6_CODEX_HANDOFF.md` FIRST.** Then read `docs/V3_BUILD_NOTES.md` for the completed rebuild and `docs/V3_REFERENCE_COMPARISON.md` for the reference diagnostic.
+**GPT-6 Codex / next build agent: read `GPT6_CODEX_HANDOFF.md` FIRST.** Then read `docs/PACKET_GUY_REWORK.md` for the current presenter, `docs/V3_BUILD_NOTES.md` for the photographic rebuild and `docs/V3_REFERENCE_COMPARISON.md` for the reference diagnostic.
 
 The V3 rebuild is implemented in `src/PorscheV3.tsx`, with shot/caption timing in `src/data/porscheV3.ts`. Its visual authority remains `191652.mp4`; V2 is a historical baseline, not a lock. The new user-supplied Cedar narration is the timing authority.
 
 # Vehicle Explainers
 
-Reusable short-form machine/vehicle explainer system built around Packet Guy V1.
+Reusable short-form machine/vehicle explainer system built around Packet Guy.
 
 **Character source of truth:** `projects/stickman-studio/character/CHARACTER_SPEC.md`. This project consumes that identity; it does not redefine it.
 
@@ -31,7 +31,9 @@ Read `docs/V3_BUILD_NOTES.md`, `docs/V3_REFERENCE_COMPARISON.md` and `episodes/0
 
 ## Presenter pack
 
-`scripts/generate_presenter.py` deterministically builds 12 transparent Packet Guy V1 poses plus master/turnaround references into `assets/presenter/`. `scripts/prepare_assets.py` creates any missing files and copies the pack into `public/presenter/` before Studio or render. The generated binaries stay out of Git; the authored character generator is the canonical asset source.
+V3 now consumes `src/components/PacketGuyRework.tsx` and two committed transparent art atlases under `public/presenter/rework/`. The redesigned eyes, brows, face, hands and hoodie folds preserve the established identity. There are nine waist-up poses and four large reaction close-ups. Read `docs/PACKET_GUY_REWORK.md` before changing their viewports or replacing art. These production assets are retained unchanged; no image generation is required to reproduce the render.
+
+`scripts/generate_presenter.py` and `scripts/prepare_assets.py` still build the legacy V1 pack for the legacy composition. Do not overwrite the current atlases with that generator.
 
 ## Run
 
@@ -43,4 +45,3 @@ npm run typecheck
 npm run studio
 npm run render:v3
 ```
-

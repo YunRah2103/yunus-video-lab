@@ -1,14 +1,11 @@
 import React from 'react';
 import {AbsoluteFill, Audio, Img, OffthreadVideo, Sequence, interpolate, spring, staticFile, useCurrentFrame} from 'remotion';
 import {cues, shots} from './data/porscheV3';
+import {PacketGuyRework as Guy} from './components/PacketGuyRework';
 
 const ink='#131b20', cyan='#008d9f', red='#e93243';
 const clamp={extrapolateLeft:'clamp',extrapolateRight:'clamp'} as const;
 const Picture:React.FC<{name:string,x:number,y:number,w:number,rotate?:number,scale?:number,opacity?:number}>=({name,x,y,w,rotate=0,scale=1,opacity=1})=><Img src={staticFile(`photo/${name}`)} style={{position:'absolute',left:x,top:y,width:w,rotate:`${rotate}deg`,scale,opacity,filter:'drop-shadow(0px 22px 18px #00000022)'}}/>;
-const Guy:React.FC<{pose:string,x:number,y:number,w:number,head?:boolean,rotate?:number,flip?:boolean}>=({pose,x,y,w,head=false,rotate=0,flip=false})=>{
- const f=useCurrentFrame();const talking=pose==='talk'?(Math.floor(f/9)%2?'02-talking-a':'03-talking-b'):pose;
- return <Img src={staticFile(`presenter/${head?'head':'upper'}-${talking}.png`)} style={{position:'absolute',left:x,top:y,width:w,rotate:`${rotate}deg`,transform:flip?'scaleX(-1)':undefined,translate:`0px ${Math.sin(f/17)*3}px`,filter:'drop-shadow(3px 8px 0px #ffffff90)'}}/>;
-};
 const Type:React.FC<{text:string,x:number,y:number,size?:number,color?:string,angle?:number,scale?:number,width?:number}>=({text,x,y,size=145,color=ink,angle=0,scale=1,width})=><div style={{position:'absolute',left:x,top:y,fontFamily:'Display',fontWeight:900,fontSize:size,lineHeight:.92,letterSpacing:-2,color,rotate:`${angle}deg`,scale,width,whiteSpace:'pre-line',WebkitTextStroke:'2px #f5f5ef',paintOrder:'stroke fill',textShadow:'4px 5px 0px #ffffff',transformOrigin:'left center'}}>{text}</div>;
 const Arrow:React.FC<{x1:number,y1:number,x2:number,y2:number,color?:string}>=({x1,y1,x2,y2,color=cyan})=><svg style={{position:'absolute',inset:0,width:1080,height:1920}}><defs><marker id={`a${x1}${y1}`} markerWidth="9" markerHeight="9" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8" fill="none" stroke={color} strokeWidth="2"/></marker></defs><path d={`M${x1},${y1} Q${(x1+x2)/2+25},${(y1+y2)/2-20} ${x2},${y2}`} stroke={color} strokeWidth="12" fill="none" strokeLinecap="round" markerEnd={`url(#a${x1}${y1})`}/></svg>;
 const Arc:React.FC<{angle:number}>=({angle})=><svg style={{position:'absolute',inset:0,width:1080,height:1920}}><path d="M150 750 Q420 260 900 690" fill="none" stroke="#e9324355" strokeWidth="16" strokeDasharray="22 18"/><path d="M670 720 Q880 900 950 600" fill="none" stroke={red} strokeWidth="14"/><path d="M918 650 L950 598 L980 650" fill="none" stroke={red} strokeWidth="14"/></svg>;
