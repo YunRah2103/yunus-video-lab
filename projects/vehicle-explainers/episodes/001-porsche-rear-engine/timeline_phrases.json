@@ -1,0 +1,18 @@
+{
+  "duration": 58.225,
+  "phrases": [
+    {"i":1,"text":"On paper, this is the wrong place for an engine.","start":0.0,"duration":3.455,"end":3.455},
+    {"i":2,"text":"Porsche built an icon around it.","start":3.575,"duration":2.3,"end":5.875},
+    {"i":3,"text":"The 911 puts its flat six behind the rear axle.","start":5.995,"duration":4.615,"end":10.61},
+    {"i":4,"text":"That gives it a huge advantage: traction.","start":10.73,"duration":2.825,"end":13.555},
+    {"i":5,"text":"With more weight over the driven wheels, it can put power down hard.","start":13.675,"duration":4.38,"end":18.055},
+    {"i":6,"text":"But that weight also acts like a pendulum at the back.","start":18.175,"duration":3.775,"end":21.95},
+    {"i":7,"text":"Lift suddenly in a corner, and early 911s could rotate very quickly.","start":22.07,"duration":5.88,"end":27.95},
+    {"i":8,"text":"So in 1969, Porsche stretched the wheelbase by 57 millimetres.","start":28.07,"duration":5.605,"end":33.675},
+    {"i":9,"text":"Specifically to calm the handling.","start":33.795,"duration":2.555,"end":36.35},
+    {"i":10,"text":"Then came wider tyres, better suspension geometry, and smarter chassis control.","start":36.47,"duration":5.945,"end":42.415},
+    {"i":11,"text":"By the 993, a new multi link rear axle helped make the car much more stable.","start":42.535,"duration":6.395,"end":48.93},
+    {"i":12,"text":"So yes, the engine really is in the weird place.","start":49.05,"duration":3.4,"end":52.45},
+    {"i":13,"text":"Porsche just spent decades turning the weakness into the 911's character.","start":52.57,"duration":5.655,"end":58.225}
+  ]
+}
