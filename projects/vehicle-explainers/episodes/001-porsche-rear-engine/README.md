@@ -1,6 +1,6 @@
 # Current production version: V3
 
-Use `Porsche-V3`, `v3_visual_timeline.json`, `cedar_word_timing.json`, `v3_asset_manifest.json` and `../../docs/V3_VISUAL_POLISH.md`. The user-provided Cedar audio is the timing authority. Scene layouts and current object-attached caption positions are authored in `src/PorscheV3.tsx`; JSON cue coordinates are legacy fallback values. Earlier build files remain for comparison.
+Use `Porsche-V3`, `v3_visual_timeline.json`, `cedar_word_timing.json`, `v3_asset_manifest.json` and `../../docs/V3_FRAMING_REBALANCE.md` and `../../docs/V3_VISUAL_POLISH.md`. The user-provided Cedar audio is the timing authority. Scene layouts and current object-attached caption positions are authored in `src/PorscheV3.tsx`; JSON cue coordinates are legacy fallback values. Earlier build files remain for comparison.
 
 # Episode 001 — Why Porsche put the engine in the wrong place
 

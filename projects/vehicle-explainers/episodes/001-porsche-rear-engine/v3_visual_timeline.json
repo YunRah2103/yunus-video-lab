@@ -592,5 +592,38 @@
       "muted": true,
       "crop_center_fraction": 0.42
     }
-  ]
+  ],
+  "framing_revision": {
+    "notes": "docs/V3_FRAMING_REBALANCE.md",
+    "layout_authority": "src/PorscheV3.tsx",
+    "medium_or_wide_relief": [
+      "layout",
+      "engine",
+      "early",
+      "kept",
+      "engineered",
+      "993",
+      "axle"
+    ],
+    "retained_close_events": [
+      "hook opening",
+      "problem",
+      "lift",
+      "rotate",
+      "tyres",
+      "suspension",
+      "multilink"
+    ],
+    "presenter_crop_relief": [
+      "hook second reaction",
+      "wrong",
+      "engine",
+      "mass",
+      "engineered",
+      "57",
+      "suspension",
+      "axle",
+      "yes"
+    ]
+  }
 }

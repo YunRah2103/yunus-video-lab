@@ -25,7 +25,7 @@ export const PorscheV3:React.FC=()=>{
  case 'hook': content=<>
   <Type text="PORSCHE" x={-12} y={60} size={255} color="#afbec0"/>
   <Picture name="modern-user.webp" x={-340+(1-enter)*100} y={230} w={1630} rotate={t>.88?-8:-5}/>
-  <Guy pose={t<1.24?'05-confused':'08-thinking'} head x={t<1.24?-330:-470} y={1020} w={t<1.24?1160:1400} rotate={-14}/>
+  <Guy pose={t<1.24?'05-confused':'08-thinking'} head x={t<1.24?-330:20} y={t<1.24?1020:1120} w={t<1.24?1160:810} rotate={t<1.24?-14:-6}/>
   <Type text="NORMAL?" x={650} y={1650} size={120} color={cyan} angle={-10}/>
  </>;caption=cue&&<Type text={cue.text} x={t<.88?265:430} y={1060} size={t<.88?150:210} angle={-8} scale={.92+.08*cp}/>;break;
  case 'wrong':content=<>
@@ -34,20 +34,20 @@ export const PorscheV3:React.FC=()=>{
   <svg width="1080" height="1920" style={{position:'absolute',inset:0}}><ellipse cx="866" cy="720" rx="200" ry="105" fill="#e9324322" stroke={red} strokeWidth="12"/></svg>
   <Picture name="engine1.webp" x={675+(1-enter)*120} y={555} w={535} rotate={-13}/>
   <Arrow x1={535} y1={1010} x2={880} y2={760} color={red}/>
-  <Guy pose={t<3.72?'08-thinking':'05-confused'} head x={-530} y={1070} w={1340} rotate={-16}/>
+  <Guy pose={t<3.72?'08-thinking':'05-confused'} head x={-75} y={1140} w={810} rotate={-9}/>
   {t>=3.94&&<Type text="HERE?" x={590} y={1120} size={210} color={red} angle={-13}/>}
  </>;caption=cue&&<Type text={cue.text} x={q<1.5?25:440} y={q<1.5?250:905} size={q<1.5?183:260} color={color} angle={-10} scale={.9+.1*cp}/>;break;
  case 'layout':content=<>
   <Type text="911" x={-20} y={70} size={640} color="#b5c8cb"/>
-  <Picture name="swb.webp" x={-240} y={580} w={1530} rotate={8}/>
-  <Guy pose="04-pointing" x={-110} y={1060} w={1250} rotate={-7}/>
-  <Arrow x1={450} y1={1120} x2={930} y2={865}/>
- </>;caption=cue&&<Type text={cue.text} x={30} y={985} size={185} color={cyan} angle={8}/>;break;
+  <Picture name="swb.webp" x={45} y={520} w={990} rotate={5}/>
+  <Guy pose="04-pointing" x={25} y={1170} w={780} rotate={-7}/>
+  <Arrow x1={425} y1={1290} x2={845} y2={790}/>
+ </>;caption=cue&&<Type text={cue.text} x={155} y={880} size={175} color={cyan} angle={5}/>;break;
  case 'engine':content=<>
   <Type text="6" x={-70} y={-30} size={1150} color="#c2d1d0"/>
-  <Picture name="engine0.webp" x={-110} y={520} w={1330} rotate={-8} scale={.93+.07*enter}/>
-  <Type text="FLAT SIX" x={35} y={1080} size={260} color={cyan} angle={-8} scale={.95+.05*cp}/>
-  <Guy pose="08-thinking" head x={260} y={1000} w={1050} rotate={14}/>
+  <Picture name="engine0.webp" x={35} y={530} w={1060} rotate={-8} scale={.93+.07*enter}/>
+  <Type text="FLAT SIX" x={85} y={1050} size={240} color={cyan} angle={-8} scale={.95+.05*cp}/>
+  <Guy pose="08-thinking" head x={440} y={1270} w={640} rotate={9}/>
  </>;caption=null;break;
  case 'behind':content=<>
   <Type text="BEHIND" x={-8} y={155} size={275} color={red}/>
@@ -91,14 +91,14 @@ export const PorscheV3:React.FC=()=>{
     <Type text="REAR MASS" x={-5} y={825} size={175} fit={640} color={red}/>
     <Picture name="engine1.webp" x={0} y={360} w={840}/>
    </div>
-   <Guy pose="05-confused" head x={-440} y={1130} w={1020} rotate={-18}/>
+   <Guy pose="05-confused" head x={-65} y={1260} w={690} rotate={-10}/>
   </>;caption=null;break;}
  case 'early':content=<>
   <Type text="EARLY 911" x={-20} y={80} size={235} color="#afc1c5"/>
-  <Picture name="classic1.webp" x={-290+q*80} y={430} w={1540} rotate={-10+q*5}/>
-  <Guy pose="12-looking-side" x={730} y={1490} w={450} flip rotate={8}/>
-  <Arrow x1={85} y1={1260} x2={825} y2={1360} color={red}/>
- </>;caption=cue&&<Type text={cue.text} x={15+q*25} y={1200} size={200} color={red} angle={-10+q*5}/>;break;
+  <Picture name="classic1.webp" x={35+q*12} y={460} w={1010} rotate={-7+q*3}/>
+  <Guy pose="12-looking-side" x={655} y={1410} w={410} flip rotate={8}/>
+  <Arrow x1={105} y1={1120} x2={780} y2={1210} color={red}/>
+ </>;caption=cue&&<Type text={cue.text} x={80+q*12} y={1040} size={185} color={red} angle={-7+q*3}/>;break;
  case 'lift':content=<>
   <Picture name="swb.webp" x={-280} y={330} w={1480} rotate={-5}/>
   <Type text="LIFT" x={-10} y={845} size={450} color={red} angle={-8}/>
@@ -114,16 +114,16 @@ export const PorscheV3:React.FC=()=>{
   </>;caption=cue&&<Type text={cue.text} x={cue.start<29.56?65:530} y={cue.start<29.56?120:cue.start<30.22?1270:1500} size={cue.start<29.56?167:cue.start<30.22?150:220} color={color} angle={cue.start<29.56?0:yaw*.37}/>;break;}
  case 'kept':content=<>
   <Picture name="swb.webp" x={-330} y={190} w={1650} opacity={.2}/>
-  <Picture name="engine1.webp" x={-225} y={510} w={1460} rotate={-12}/>
-  <Type text="STAYS." x={65} y={1370} size={295} color={red} angle={-12}/>
-  <Guy pose="07-annoyed" x={630} y={1410} w={730} rotate={7}/>
+  <Picture name="engine1.webp" x={65} y={575} w={970} rotate={-8}/>
+  <Type text="STAYS." x={80} y={1220} size={260} color={red} angle={-8}/>
+  <Guy pose="07-annoyed" x={570} y={1390} w={550} rotate={7}/>
  </>;caption=cue&&<Type text={cue.text} x={15} y={175} size={230} angle={-7}/>;break;
  case 'engineered':content=<>
   <Type text={'SAME\nLAYOUT.'} x={-25} y={30} size={310} color="#b1c8cc" angle={5}/>
-  <Picture name="swb.webp" x={-410} y={625} w={1690} rotate={9}/>
-  <Guy pose="08-thinking" head x={-570} y={1270} w={1170} rotate={-18}/>
-  <Type text={'BETTER\nENGINEERING.'} x={630} y={1450} size={84} color={cyan} angle={9}/>
- </>;caption=cue&&<Type text={cue.text} x={35} y={1060} size={195} color={cyan} angle={9}/>;break;
+  <Picture name="swb.webp" x={-35} y={660} w={1150} rotate={5}/>
+  <Guy pose="08-thinking" head x={-80} y={1320} w={680} rotate={-10}/>
+  <Type text={'BETTER\nENGINEERING.'} x={635} y={1470} size={84} color={cyan} angle={5}/>
+ </>;caption=cue&&<Type text={cue.text} x={70} y={1010} size={185} color={cyan} angle={5}/>;break;
  case 'wheelbase':{
   const ext=interpolate(q,[1.44,2.7],[0,77],clamp);
   content=<>
@@ -140,8 +140,8 @@ export const PorscheV3:React.FC=()=>{
   <Type text="+57" x={-50} y={40} size={810} color={cyan} scale={.88+.12*enter}/>
   <Type text="MM" x={620} y={790} size={295}/>
   <Type text="LONGER WHEELBASE" x={90} y={1480} size={110} color={cyan} angle={-8}/>
-  <Picture name="swb.webp" x={-260} y={1120} w={1570} rotate={-8}/>
-  <Guy pose="06-surprised" head x={-540} y={1360} w={1030} rotate={-16}/>
+  <Picture name="swb.webp" x={-5} y={1110} w={1080} rotate={-5}/>
+  <Guy pose="06-surprised" head x={-80} y={1410} w={650} rotate={-10}/>
  </>;caption=null;break;
  case 'tyres':content=<>
   <Type text="THEN…" x={-10} y={50} size={300}/>
@@ -154,7 +154,7 @@ export const PorscheV3:React.FC=()=>{
  case 'suspension':content=<>
   <Type text="LINKS" x={-40} y={80} size={480} color="#b1c6cb" angle={-8}/>
   <Picture name="axle.webp" x={-360} y={450} w={1760} rotate={-14+q*5}/>
-  <Guy pose="04-pointing" x={170} y={1080} w={1230} rotate={12} flip/>
+  <Guy pose="04-pointing" x={245} y={1250} w={830} rotate={8} flip/>
   <Arrow x1={510} y1={1380} x2={430} y2={940}/>
  </>;caption=cue&&<Type text={cue.text} x={15} y={1220} size={197} color={color} angle={-14+q*5}/>;break;
  case 'evolve':{
@@ -167,15 +167,15 @@ export const PorscheV3:React.FC=()=>{
   </>;caption=cue&&<Type text={cue.text} x={30} y={995} size={210} angle={-7}/>;break;}
  case '993':content=<>
   <Type text="993" x={-45} y={-65} size={845} color={cyan}/>
-  <Picture name="993tech0.webp" x={-320} y={640} w={1740} rotate={-10}/>
-  <Guy pose="11-looking-up" x={785} y={1610} w={440} rotate={12} flip/>
- </>;caption=cue&&<Type text={cue.text} x={10} y={1360} size={190} angle={-10}/>;break;
+  <Picture name="993tech0.webp" x={45} y={650} w={995} rotate={-6}/>
+  <Guy pose="11-looking-up" x={660} y={1440} w={390} rotate={8} flip/>
+ </>;caption=cue&&<Type text={cue.text} x={80} y={1190} size={180} angle={-6}/>;break;
  case 'axle':content=<>
   <Type text="REDESIGNED" x={-5} y={30} size={190} color={cyan} angle={-5}/>
-  <Picture name="axle.webp" x={-455} y={360} w={1930} rotate={-18+q*7}/>
-  <Guy pose="05-confused" head x={690} y={1180} w={1000} rotate={15}/>
-  <Arrow x1={470} y1={1400} x2={640} y2={920}/>
- </>;caption=cue&&<Type text={cue.text} x={-5} y={1360} size={170} angle={-18+q*7}/>;break;
+  <Picture name="axle.webp" x={-30} y={490} w={1190} rotate={-10+q*5}/>
+  <Guy pose="05-confused" head x={425} y={1240} w={660} rotate={9}/>
+  <Arrow x1={355} y1={1300} x2={575} y2={900}/>
+ </>;caption=cue&&<Type text={cue.text} x={45} y={1130} size={165} angle={-10+q*5}/>;break;
  case 'multilink':content=<>
   <Img src={staticFile('photo/undercarriage.jpg')} style={{position:'absolute',left:-340,top:170,width:1800,rotate:'-8deg'}}/>
   <svg width="1080" height="1920" style={{position:'absolute',inset:0}}><path d="M150 930 L700 760 L980 880 M240 970 L740 920 L950 750" stroke={cyan} strokeWidth="18" fill="none" strokeDasharray={`${1500*enter} 1500`}/><circle cx="200" cy="920" r="48" fill="none" stroke="white" strokeWidth="12"/></svg>
@@ -183,9 +183,9 @@ export const PorscheV3:React.FC=()=>{
  </>;caption=cue&&<Type text={cue.text} x={35} y={1190} size={215} color={color} angle={-8}/>;break;
  case 'yes':content=<>
   <Type text="YES." x={-35} y={70} size={735} color={cyan}/>
-  <Guy pose="07-annoyed" head x={420} y={810} w={1210} rotate={15}/>
-  <Picture name="classic1.webp" x={-385} y={1370} w={1390} rotate={-10}/>
-  <Arrow x1={185} y1={1210} x2={790} y2={1620} color={red}/>
+  <Guy pose="07-annoyed" head x={245} y={810} w={760} rotate={7}/>
+  <Picture name="classic1.webp" x={-65} y={1390} w={1010} rotate={-7}/>
+  <Arrow x1={170} y1={1270} x2={800} y2={1630} color={red}/>
  </>;caption=cue&&<Type text={cue.text} x={35} y={cue.start<53.18?910:1090} size={cue.start<53.18?240:295} color={color} angle={-10}/>;break;
  default:content=<>
   <Sequence from={Math.round(53.9*60)} durationInFrames={Math.ceil(6.364*60)}><OffthreadVideo src={staticFile('media/hero.mp4')} muted style={{width:1080,height:1920,objectFit:'cover',objectPosition:'56% center'}}/></Sequence>
