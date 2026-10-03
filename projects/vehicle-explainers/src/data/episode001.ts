@@ -23,6 +23,21 @@ export const porscheEpisode = {
     {start:49.050,end:52.450,text:'So yes, the engine really is in the weird place.'},
     {start:52.570,end:58.225,text:"Porsche just spent decades turning the weakness into the 911's character."}
   ],
+  visualEvents:[
+    {start:0.00,text:'ON PAPER',accent:'white'},{start:0.72,text:'THIS',accent:'white'},{start:1.28,text:'IS THE',accent:'white'},{start:1.84,text:'WRONG',accent:'red'},{start:2.48,text:'PLACE',accent:'red'},{start:3.02,text:'ENGINE?',accent:'cyan'},
+    {start:3.58,text:'PORSCHE',accent:'white'},{start:4.28,text:'BUILT',accent:'white'},{start:4.88,text:'AN ICON',accent:'cyan'},
+    {start:6.00,text:'FLAT SIX',accent:'cyan'},{start:7.22,text:'BEHIND',accent:'white'},{start:8.30,text:'REAR AXLE',accent:'cyan'},{start:9.50,text:'RIGHT HERE',accent:'white'},
+    {start:10.73,text:'WHY?',accent:'white'},{start:11.55,text:'TRACTION',accent:'cyan'},{start:12.80,text:'GRIP',accent:'cyan'},
+    {start:13.68,text:'MORE WEIGHT',accent:'white'},{start:14.90,text:'DRIVEN WHEELS',accent:'cyan'},{start:16.15,text:'POWER',accent:'white'},{start:17.12,text:'DOWN HARD',accent:'lime'},
+    {start:18.18,text:'BUT',accent:'red'},{start:18.90,text:'THAT MASS',accent:'white'},{start:19.90,text:'SWINGS',accent:'red'},{start:20.82,text:'PENDULUM',accent:'cyan'},
+    {start:22.07,text:'LIFT',accent:'red'},{start:23.02,text:'MID-CORNER',accent:'white'},{start:24.20,text:'REAR',accent:'white'},{start:25.06,text:'ROTATES',accent:'red'},{start:26.18,text:'FAST',accent:'red'},
+    {start:28.07,text:'1969',accent:'white'},{start:29.10,text:'+57 MM',accent:'cyan'},{start:31.18,text:'LONGER',accent:'white'},{start:32.28,text:'WHEELBASE',accent:'cyan'},
+    {start:33.80,text:'CALMER',accent:'cyan'},{start:35.02,text:'HANDLING',accent:'white'},
+    {start:36.47,text:'THEN',accent:'white'},{start:37.15,text:'WIDER TYRES',accent:'lime'},{start:38.48,text:'SUSPENSION',accent:'cyan'},{start:39.88,text:'GEOMETRY',accent:'white'},{start:41.15,text:'CHASSIS',accent:'cyan'},
+    {start:42.54,text:'993',accent:'white'},{start:43.45,text:'MULTI-LINK',accent:'cyan'},{start:45.18,text:'REAR AXLE',accent:'white'},{start:47.05,text:'STABLE',accent:'cyan'},
+    {start:49.05,text:'WEIRD PLACE?',accent:'white'},{start:50.55,text:'YES.',accent:'cyan'},
+    {start:52.57,text:'DECADES',accent:'white'},{start:53.35,text:'FIXING IT',accent:'cyan'},{start:54.35,text:'UNTIL',accent:'white'},{start:55.03,text:'THE WEAKNESS',accent:'red'},{start:56.05,text:'BECAME',accent:'white'},{start:56.78,text:'911 CHARACTER',accent:'cyan'}
+  ] as const,
   narration:[
     'On paper, this is the wrong place for an engine.',
     'Porsche built an icon around it.',
