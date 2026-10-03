@@ -1,8 +1,8 @@
 # ⚠️ NEXT AGENT
 
-**Read `NEXT_AGENT_PROMPT.md` and `docs/V2_BUILD_NOTES.md` before modifying or rendering this project.**
+**GPT-6 Codex / next build agent: read `GPT6_CODEX_HANDOFF.md` FIRST.** Then read `NEXT_AGENT_PROMPT.md` and `docs/V2_BUILD_NOTES.md`.
 
-A complete V2 Porsche rebuild has now been produced and reviewed. Do not fall back to the old V1 sentence-level infographic rhythm. The validated foreground timing is in `episodes/001-porsche-rear-engine/v2_visual_timeline.json`.
+The user reviewed V2: it is an improvement, but it still does **not** look close enough to the reference. `GPT6_CODEX_HANDOFF.md` is the current authority for the V3 rebuild. The V2 event timeline is a baseline, **not a lock**.
 
 # Vehicle Explainers
 
