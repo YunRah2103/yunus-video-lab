@@ -1,6 +1,8 @@
 # ⚠️ NEXT AGENT
 
-**Read `NEXT_AGENT_PROMPT.md` before modifying or rendering this project.** The current V1 proof video is a weak baseline; the handoff defines the required V2 rebuild against reference `191652.mp4`.
+**Read `NEXT_AGENT_PROMPT.md` and `docs/V2_BUILD_NOTES.md` before modifying or rendering this project.**
+
+A complete V2 Porsche rebuild has now been produced and reviewed. Do not fall back to the old V1 sentence-level infographic rhythm. The validated foreground timing is in `episodes/001-porsche-rear-engine/v2_visual_timeline.json`.
 
 # Vehicle Explainers
 
@@ -19,11 +21,13 @@ Reusable short-form machine/vehicle explainer system built around Packet Guy V1.
 - Dark charcoal background, off-white typography, cyan signature accent; vehicle-specific secondary colour is allowed.
 - Technical graphics only when they explain the narration. No generic cyber-HUD clutter.
 
-## First proof of concept
+## Current proof episode
 
 `episodes/001-porsche-rear-engine/` — **Why Porsche put the engine in the wrong place**.
 
-The episode uses the rear-engine layout to prove the full system: kinetic captions, Packet Guy pose swaps, technical callouts, 57 mm wheelbase statistic, handling explanation, multi-link rear-axle diagram and a real-footage hero payoff.
+V2 now has a reviewed 58.23-second vertical master and a locked micro-event timeline. It uses kinetic 1–3 word captions, larger presenter reactions, dedicated traction/pendulum/oversteer/component states, a prominent +57 mm statistic event, and a 911 CHARACTER payoff.
+
+See `docs/V2_BUILD_NOTES.md` for what changed, known asset/audio limitations, and the next implementation step.
 
 ## Presenter pack
 
