@@ -1,3 +1,19 @@
+# V2 BUILD STATUS — 2026-10-03
+
+A full V2 Porsche explainer has now been built and reviewed.
+
+Before doing more work:
+1. Read `docs/V2_BUILD_NOTES.md`.
+2. Read `episodes/001-porsche-rear-engine/v2_visual_timeline.json`.
+3. Treat the validated micro-event timeline as the new baseline.
+4. Do **not** revert to V1 sentence-level captions, tiny presenter framing, or persistent HUD styling.
+
+The reviewed master is 1080×1920, 60fps and 58.23s. The MP4 itself is not stored in GitHub.
+
+Known limitation: the original `191652.mp4` / `191654.mp4` binaries and production photographic Porsche cutouts were unavailable inside the build environment for this pass. The master therefore uses authored procedural automotive/component art and synthetic timing VO. When better provided/licensed assets and production VO are available, replace those assets while preserving the validated foreground rhythm.
+
+---
+
 # NEXT AGENT HANDOFF — VEHICLE EXPLAINER V2
 
 ## READ THIS BEFORE TOUCHING THE PROJECT
