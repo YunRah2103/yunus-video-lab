@@ -1,3 +1,11 @@
+# ⚠️ CURRENT TAKEOVER INSTRUCTION
+
+For the next visual rebuild, **read `GPT6_CODEX_HANDOFF.md` first**.
+
+The user has reviewed the completed V2 and says it is better, but still misses the desired reference look. The older instruction that the V2 micro-event timeline is "locked" is superseded: it is now a baseline only. The primary reference `191652.mp4` is the visual authority for V3.
+
+---
+
 # V2 BUILD STATUS — 2026-10-03
 
 A full V2 Porsche explainer has now been built and reviewed.
