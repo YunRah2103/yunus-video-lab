@@ -9,7 +9,7 @@ const Picture:React.FC<{name:string,x:number,y:number,w:number,rotate?:number,sc
 const Type:React.FC<{text:string,x:number,y:number,size?:number,color?:string,angle?:number,scale?:number,fit?:number}>=({text,x,y,size=145,color=ink,angle=0,scale=1,fit})=>{
  const advance=Math.max(...text.split('\n').map(line=>[...line].reduce((v,c)=>v+(displayAdvance[c]??.5),0)),1);
  const fontSize=Math.min(size,(fit??(1080-Math.max(0,x)-30))/advance);
- return <div style={{position:'absolute',left:x,top:y,fontFamily:'Display',fontWeight:900,fontSize,lineHeight:.92,letterSpacing:-2,color,rotate:`${angle}deg`,scale,whiteSpace:'pre',WebkitTextStroke:'2px #f5f5ef',paintOrder:'stroke fill',textShadow:'3px 4px 0px #fff',transformOrigin:'left center'}}>{text}</div>;
+ return <div style={{position:'absolute',left:x,top:y,fontFamily:'Display',fontWeight:800,fontSize,lineHeight:.92,letterSpacing:-2,color,rotate:`${angle}deg`,scale,whiteSpace:'pre',WebkitTextStroke:'2px #f5f5ef',paintOrder:'stroke fill',textShadow:'3px 4px 0px #fff',transformOrigin:'left center'}}>{text}</div>;
 };
 const Arrow:React.FC<{x1:number,y1:number,x2:number,y2:number,color?:string}>=({x1,y1,x2,y2,color=cyan})=><svg style={{position:'absolute',inset:0,width:1080,height:1920}}><defs><marker id={`a${x1}${y1}`} markerWidth="9" markerHeight="9" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8" fill="none" stroke={color} strokeWidth="2"/></marker></defs><path d={`M${x1},${y1} Q${(x1+x2)/2+25},${(y1+y2)/2-20} ${x2},${y2}`} stroke={color} strokeWidth="12" fill="none" strokeLinecap="round" markerEnd={`url(#a${x1}${y1})`}/></svg>;
 const Arc=()=> <svg style={{position:'absolute',inset:0,width:1080,height:1920}}><path d="M150 750 Q420 260 900 690" fill="none" stroke="#e9324355" strokeWidth="16" strokeDasharray="22 18"/><path d="M670 720 Q880 900 950 600 M918 650 L950 598 L980 650" fill="none" stroke={red} strokeWidth="14"/></svg>;
@@ -200,7 +200,7 @@ export const PorscheV3:React.FC=()=>{
   <AbsoluteFill style={{background:'linear-gradient(0deg,#071014aa,transparent 60%,#07101415)'}}/>
  </>;caption=cue&&<Type text={cue.text} x={35} y={punch.name==='traction'?1390:1450} size={punch.name==='chassis'?175:245} color="#f3f5f4" angle={punch.name==='traction'?-9:-4} scale={.94+.06*cp}/>;}
  return <AbsoluteFill style={{background:shot.id==='problem'?'#eadbdd':'#e7e9e6',overflow:'hidden'}}>
-  <style>{`@font-face {font-family:Display;src:url('${staticFile('fonts/Display.otf')}')} `}</style>
+  <style>{`@font-face {font-family:Display;src:url('${staticFile('fonts/BarlowCondensed-ExtraBold.ttf')}')} `}</style>
   <AbsoluteFill style={{background:'radial-gradient(ellipse at 40% 28%,#ffffff 0%,#f0f1ed 38%,#d2d7d4 100%)',opacity:shot.id==='problem'?.45:1}}/>
   {content}{caption}
   <Audio src={staticFile('media/cedar.mp3')}/><Audio src={staticFile('media/accents.mp3')} volume={.55}/>

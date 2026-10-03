@@ -46,4 +46,6 @@ npm run studio
 npm run render:v3
 ```
 
-The compact pre-ending footage clips are committed. To regenerate them from the supplied source, run `python3 scripts/prepare_polish.py --footage "/absolute/path/to/The Green Hornet source.webm"`. Use `V3_OUTPUT=out/PORSCHE_V3_FRAMING_REBALANCED.mp4 npm run render:v3` to choose the current delivery filename.
+The compact pre-ending footage clips are committed. To regenerate them from the supplied source, run `python3 scripts/prepare_polish.py --footage "/absolute/path/to/The Green Hornet source.webm"`. Use `V3_OUTPUT=out/PORSCHE_V3_FONT_FINAL.mp4 npm run render:v3` to choose the current delivery filename.
+
+Current V3 typography uses committed Barlow Condensed ExtraBold (SIL Open Font License, `public/fonts/Barlow-OFL.txt`). Font-specific advance metrics preserve fit; the previous Display.otf remains for historical builds.

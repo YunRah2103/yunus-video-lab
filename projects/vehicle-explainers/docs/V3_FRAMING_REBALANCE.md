@@ -25,3 +25,10 @@ Real-time audiovisual playback is unavailable here. Review uses chronological de
 ## Reproduce
 
 `V3_OUTPUT=out/PORSCHE_V3_FRAMING_REBALANCED.mp4 npm run render:v3`
+
+## Font-only follow-up
+
+Replaced Nimbus Sans Narrow Bold with Barlow Condensed ExtraBold in the active V3 composition. Font binary and its SIL Open Font License are committed; glyph advances recalculated for caption fit. Layout geometry, text sizes, cues, media and audio are retained. Inspected 13 sample stills, including long captions, +57 and YES. Final output is `out/PORSCHE_V3_FONT_FINAL.mp4`.
+
+Font export reviewed chronologically at half-second intervals through the ending: captions and stats retain fit. Typecheck passes; full decode completed without errors. Audio hash matches the prior approved export exactly.
+
