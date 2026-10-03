@@ -1,0 +1,71 @@
+{
+  "assets": {
+    "modern-user.webp": {
+      "source": "User-supplied The Green Hornet - Porsche 992 GT3 RS 4K [vwhP4yurzis].webm",
+      "frame_seconds": 15,
+      "processing": "foreground mask; no artificial car imagery"
+    },
+    "swb.webp": {
+      "source": "https://cdn.classicdigest.com/live/carimg/193901_194000/193968_23a7d729be408813.jpg",
+      "identity": "1968 911 S SWB"
+    },
+    "lwb.webp": {
+      "source": "https://cdn.dealeraccelerate.com/ecpch/2/672/28993/1920x1440/w/1969-porsche-911t-coupe",
+      "identity": "1969 911 T LWB",
+      "processing": "foreground mask and mirror to compare same-facing profiles"
+    },
+    "tyre.webp": {
+      "source": "https://dxm.contentcenter.michelin.com/api/wedia/dam/transform/b98rpyxf61b4xz9z9janecgofe/4w-97_3528708109599_tire_michelin_pilot-sport-cup-2_295-slash-30-zr19-100y-xl_a_main_4-90_nopad.webp?height=1200&t=resize",
+      "identity": "Michelin Pilot Sport Cup 2 modern illustrative tyre; not claimed as historic factory fitment"
+    },
+    "axle.webp": {
+      "source": "https://dt565gqrz3z7y.cloudfront.net/ce/image/EK8xlfBhQ9x2r8IZdyV9vg.jpg",
+      "identity": "Porsche suspension assembly, general geometry illustration"
+    },
+    "undercarriage.jpg": {
+      "source": "https://cimg7.ibsrv.net/gimg/rennlist.com-vbulletin/2000x1124/img_3801_97a8a386885f5aff7acb6db62953df5ab7183c67.jpeg",
+      "identity": "Riviera Blue Porsche 993 rear undercarriage",
+      "page": "https://rennlist.com/forums/993-forum/1410078-riviera-blue-einar-garage-in-houston-2.html"
+    },
+    "engine0.webp": {
+      "source": "https://newsroom.porsche.com/.imaging/mte/porsche-templating-theme/image_1290x726/dam/pnr/porsche_newsroom/Technik/Boxermotoren/b2-P15_0678_a4_rgb.jpg/jcr:content/b2-P15_0678_a4_rgb.jpg",
+      "credit": "Porsche AG / Porsche Newsroom",
+      "processing": "foreground mask; scaled WebP"
+    },
+    "engine1.webp": {
+      "source": "https://newsroom.porsche.com/dam/jcr:cca62731-119b-4106-9fcd-7f4e63ec603f/b-P17_0936_a4_rgb.jpg",
+      "credit": "Porsche AG / Porsche Newsroom",
+      "processing": "foreground mask; scaled WebP"
+    },
+    "993tech0.webp": {
+      "source": "https://porschepictures.flowcenter.de/pmdb/thumbnail.cgi?id=252921&w=1935&h=1089&crop=1&public=1&cs=162e401261db0d6b",
+      "credit": "Porsche AG / Porsche Newsroom",
+      "processing": "foreground mask; scaled WebP"
+    },
+    "classic0.webp": {
+      "source": "https://newsroom.porsche.com/dam/jcr:0868df5e-4e85-4783-ac3e-64af81924028/b-P13_0198.jpg",
+      "credit": "Porsche AG / Porsche Newsroom",
+      "processing": "foreground mask; scaled WebP"
+    },
+    "classic1.webp": {
+      "source": "https://newsroom.porsche.com/dam/jcr:34735f96-5180-40a3-b8e2-7a826a0e87c9/b-S12_0215.jpg",
+      "credit": "Porsche AG / Porsche Newsroom",
+      "processing": "foreground mask; scaled WebP"
+    }
+  },
+  "hero": {
+    "source": "same user-supplied Green Hornet video",
+    "in_seconds": 58,
+    "duration_seconds": 6.7,
+    "muted": true
+  },
+  "voice": {
+    "source": "user-supplied openai-fm-cedar-audio.mp3",
+    "duration_seconds": 60.264,
+    "unchanged": true
+  },
+  "research": [
+    "https://newsroom.porsche.com/en/history/porsche-911-seven-generations-part-1-original-911-16452.html",
+    "https://newsroom.porsche.com/en/press-kits/60-Years-Porsche-911/4.-Generation---Karosserievarianten-und-Innovationen.html"
+  ]
+}

@@ -1,0 +1,43 @@
+export const shots=[
+ {id:'hook',start:0,end:2.22},{id:'wrong',start:2.22,end:5.24},
+ {id:'layout',start:5.24,end:7.16},{id:'engine',start:7.16,end:7.96},{id:'behind',start:7.96,end:9.78},
+ {id:'advantage',start:9.78,end:13.1},{id:'load',start:13.1,end:14.74},{id:'traction',start:14.74,end:17.72},
+ {id:'problem',start:17.72,end:19.62},{id:'mass',start:19.62,end:22.82},
+ {id:'early',start:22.82,end:25.4},{id:'lift',start:25.4,end:27.48},{id:'rotate',start:27.48,end:31.48},
+ {id:'kept',start:31.48,end:33.64},{id:'engineered',start:33.64,end:35.4},
+ {id:'wheelbase',start:35.4,end:38.14},{id:'57',start:38.14,end:39.8},
+ {id:'tyres',start:39.8,end:41.82},{id:'suspension',start:41.82,end:43.46},{id:'evolve',start:43.46,end:45.7},
+ {id:'993',start:45.7,end:47.94},{id:'axle',start:47.94,end:49.14},{id:'multilink',start:49.14,end:51.22},
+ {id:'yes',start:51.22,end:53.9},{id:'hero',start:53.9,end:60.264}
+] as const;
+type Cue={start:number;text:string;x:number;y:number;size:number;color?:'red'|'cyan';angle?:number};
+export const cues:Cue[]=[
+ {start:0,text:'SPORTS CAR',x:480,y:920,size:107},{start:.88,text:'LOGIC.',x:585,y:930,size:164},
+ {start:2.22,text:'ENGINE',x:85,y:910,size:180,color:'cyan',angle:-5},{start:2.88,text:'COMPLETELY',x:70,y:925,size:157},
+ {start:3.72,text:'WRONG',x:85,y:855,size:245,color:'red',angle:-7},{start:3.94,text:'PLACE.',x:190,y:860,size:225,color:'red',angle:-7},
+ {start:5.24,text:'BECAUSE…',x:75,y:930,size:170},{start:5.78,text:'PORSCHE 911',x:160,y:950,size:159,color:'cyan'},
+ {start:7.16,text:'FLAT SIX',x:350,y:990,size:155,color:'cyan'},{start:7.96,text:'BEHIND',x:500,y:195,size:174,color:'red'},
+ {start:8.5,text:'REAR AXLE',x:230,y:210,size:173},{start:9.78,text:'SOMEHOW',x:80,y:970,size:155},
+ {start:10.78,text:'TURNED IT',x:460,y:970,size:120},{start:12.02,text:'ADVANTAGE.',x:80,y:940,size:186,color:'cyan',angle:-4},
+ {start:13.1,text:'WEIGHT',x:80,y:160,size:195},{start:14.24,text:'DRIVEN WHEELS',x:95,y:1000,size:141,color:'cyan'},
+ {start:15.84,text:'SERIOUS',x:565,y:1350,size:131},{start:16.42,text:'TRACTION.',x:165,y:1570,size:199,color:'cyan',angle:-4},
+ {start:17.72,text:'',x:0,y:0,size:1},{start:18.4,text:'PROBLEM.',x:80,y:1510,size:226,color:'red',angle:-6},
+ {start:19.62,text:'SAME MASS',x:95,y:400,size:174},{start:20.68,text:'HANGING',x:65,y:600,size:168,color:'red',angle:-7},
+ {start:21.48,text:'AT THE BACK',x:80,y:580,size:156,color:'red',angle:5},
+ {start:22.82,text:'',x:0,y:0,size:1},{start:24.1,text:'CHANGE\nDIRECTION',x:80,y:955,size:157,color:'red',angle:-5},
+ {start:25.4,text:'SUDDENLY',x:70,y:120,size:165},{start:26.58,text:'OFF THE\nTHROTTLE',x:550,y:875,size:106,color:'red'},
+ {start:27.48,text:'REAR WEIGHT',x:65,y:120,size:167},{start:29.56,text:'ROTATES',x:530,y:1250,size:137,color:'red',angle:15},
+ {start:30.22,text:'FAST.',x:600,y:1490,size:198,color:'red',angle:12},
+ {start:31.48,text:'DIDN’T\nMOVE IT.',x:35,y:940,size:180},{start:33.64,text:'ENGINEERED\nAROUND IT.',x:75,y:1040,size:164,color:'cyan'},
+ {start:35.4,text:'',x:0,y:0,size:1},{start:37.1,text:'STRETCHED',x:410,y:835,size:128,color:'cyan'},
+ {start:38.14,text:'',x:0,y:0,size:1},{start:39.8,text:'THEN…',x:60,y:150,size:220},
+ {start:40.6,text:'WIDER TYRES',x:120,y:1030,size:163,color:'cyan'},
+ {start:41.82,text:'SUSPENSION',x:55,y:1080,size:180},{start:42.38,text:'GEOMETRY.',x:85,y:1090,size:190,color:'cyan'},
+ {start:43.46,text:'CHASSIS',x:390,y:970,size:175},{start:44.3,text:'DEVELOPMENT',x:120,y:990,size:150,color:'cyan'},
+ {start:45.7,text:'',x:0,y:0,size:1},{start:47.2,text:'PORSCHE',x:180,y:1100,size:177},{start:47.94,text:'NEW REAR AXLE',x:90,y:1050,size:140},
+ {start:49.14,text:'MULTI-LINK',x:35,y:1050,size:221,color:'cyan',angle:-4},{start:49.86,text:'REAR AXLE',x:85,y:1120,size:203},
+ {start:51.22,text:'',x:0,y:0,size:1},{start:52.32,text:'STILL',x:70,y:780,size:190},{start:53.18,text:'WEIRD.',x:120,y:890,size:252,color:'red',angle:-7},
+ {start:53.9,text:'DECADES',x:100,y:190,size:200},{start:55.22,text:'REFINEMENT',x:75,y:280,size:184},
+ {start:56.4,text:'WEAKNESS',x:120,y:1260,size:196},{start:56.7,text:'BECAME',x:150,y:1310,size:208},
+ {start:57.06,text:'CHARACTER.',x:100,y:1400,size:177,color:'cyan'},{start:58.08,text:'',x:0,y:0,size:1}
+];

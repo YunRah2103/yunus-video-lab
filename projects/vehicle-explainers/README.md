@@ -1,8 +1,8 @@
 # ⚠️ NEXT AGENT
 
-**GPT-6 Codex / next build agent: read `GPT6_CODEX_HANDOFF.md` FIRST.** Then read `NEXT_AGENT_PROMPT.md` and `docs/V2_BUILD_NOTES.md`.
+**GPT-6 Codex / next build agent: read `GPT6_CODEX_HANDOFF.md` FIRST.** Then read `docs/V3_BUILD_NOTES.md` for the completed rebuild and `docs/V3_REFERENCE_COMPARISON.md` for the reference diagnostic.
 
-The user reviewed V2: it is an improvement, but it still does **not** look close enough to the reference. `GPT6_CODEX_HANDOFF.md` is the current authority for the V3 rebuild. The V2 event timeline is a baseline, **not a lock**.
+The V3 rebuild is implemented in `src/PorscheV3.tsx`, with shot/caption timing in `src/data/porscheV3.ts`. Its visual authority remains `191652.mp4`; V2 is a historical baseline, not a lock. The new user-supplied Cedar narration is the timing authority.
 
 # Vehicle Explainers
 
@@ -17,17 +17,17 @@ Reusable short-form machine/vehicle explainer system built around Packet Guy V1.
 - One meaningful visual event every ~0.5–1.2s; not necessarily a full scene cut.
 - Captions are 1–4 words, not sentence subtitles.
 - Numbers become visual events.
-- Six modes: standard, statistic, technical, reaction, comparison, hero.
-- Dark charcoal background, off-white typography, cyan signature accent; vehicle-specific secondary colour is allowed.
+- V3 uses 25 individually authored shots; legacy six-mode V1 remains for comparison.
+- V3 uses a quiet light studio background, photographic foreground, charcoal typography and cyan signature accent.
 - Technical graphics only when they explain the narration. No generic cyber-HUD clutter.
 
 ## Current proof episode
 
 `episodes/001-porsche-rear-engine/` — **Why Porsche put the engine in the wrong place**.
 
-V2 now has a reviewed 58.23-second vertical master and a locked micro-event timeline. It uses kinetic 1–3 word captions, larger presenter reactions, dedicated traction/pendulum/oversteer/component states, a prominent +57 mm statistic event, and a 911 CHARACTER payoff.
+V3 is 60.267 seconds at 1080×1920 / 60fps. It uses real Porsche/engine/tyre/suspension imagery, oversized and edge-cropped Packet Guy reactions, frame-specific typography, a +57 MM takeover and supplied Porsche footage for the final payoff.
 
-See `docs/V2_BUILD_NOTES.md` for what changed, known asset/audio limitations, and the next implementation step.
+Read `docs/V3_BUILD_NOTES.md`, `docs/V3_REFERENCE_COMPARISON.md` and `episodes/001-porsche-rear-engine/v3_asset_manifest.json` before revising. Large reference/source video and rendered MP4s are excluded from Git.
 
 ## Presenter pack
 
@@ -38,7 +38,9 @@ See `docs/V2_BUILD_NOTES.md` for what changed, known asset/audio limitations, an
 ```bash
 python -m pip install -r requirements.txt
 npm install
-npm run prepare:assets
+python3 scripts/prepare_v3.py --footage "/absolute/path/to/The Green Hornet source.webm"
+npm run typecheck
 npm run studio
-npm run render:porsche
+npm run render:v3
 ```
+

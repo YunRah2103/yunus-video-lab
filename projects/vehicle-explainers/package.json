@@ -5,13 +5,16 @@
   "scripts": {
     "prepare:assets": "python scripts/prepare_assets.py",
     "studio": "npm run prepare:assets && remotion studio src/index.ts",
-    "render:porsche": "npm run prepare:assets && remotion render src/index.ts VehicleExplainer-PorscheRearEngine out/porsche-rear-engine.mp4"
+    "render:porsche": "npm run prepare:assets && remotion render src/index.ts VehicleExplainer-PorscheRearEngine out/porsche-rear-engine.mp4",
+    "prepare:v3": "python3 scripts/prepare_v3.py",
+    "render:v3": "node scripts/render_v3.cjs",
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@remotion/cli": "^4.0.0",
+    "@remotion/cli": "4.0.532",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
-    "remotion": "^4.0.0"
+    "remotion": "4.0.532"
   },
   "devDependencies": {
     "@types/react": "^19.0.0",

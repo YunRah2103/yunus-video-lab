@@ -1,3 +1,7 @@
+# Current production version: V3
+
+Use `Porsche-V3`, `v3_visual_timeline.json`, `cedar_word_timing.json`, `v3_asset_manifest.json` and `../../docs/V3_BUILD_NOTES.md`. The user-provided Cedar audio is the current timing authority. Legacy files below are retained for comparison.
+
 # Episode 001 — Why Porsche put the engine in the wrong place
 
 ## Research-backed claims used
@@ -15,3 +19,4 @@ Wrong place? → engine behind rear axle → traction benefit → rear-mass comp
 ## Source notes
 
 Primary: Porsche Newsroom / Porsche official history pages. Handling context cross-checked against period/retrospective Car and Driver testing. Real hero footage is intentionally not committed to Git because the repository rules exclude large source footage.
+
