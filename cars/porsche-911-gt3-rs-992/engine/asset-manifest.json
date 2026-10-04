@@ -1,6 +1,6 @@
 {
   "asset": "YUNEX 992 GT3 RS simplified 4.0L naturally aspirated flat-six",
-  "status": "rough look-development for Astra review",
+  "status": "restrained refinement pass for master review",
   "units": "metres",
   "axis": {
     "forward": "+Z",
@@ -25,8 +25,8 @@
     0.6499999910593033,
     0.8499999940395355
   ],
-  "triangles": 29308,
-  "geometry_primitives": 103,
+  "triangles": 34668,
+  "geometry_primitives": 87,
   "named_groups": [
     "Engine_Root",
     "Crankcase",
@@ -133,5 +133,6 @@
     "Dimensions and installation marker are illustrative fit targets rather than measured engine package data.",
     "Installed review render loads the approved exterior GLB separately and keeps it unchanged; the engine is never baked into the car asset."
   ],
-  "sha256": "e618b289e2ae74f56991c601dcc8b9b81bf50a1f15a0292feb4518d7a004af76"
+  "exterior_model_sha256": "1c73fcb138c31e2b1d5ed126a2412074bb17f8e960b355436f28139bf518e1eb",
+  "sha256": "2368c579a0209c8615357b3b2ed5277996d9cf7d14539e67986fbe2d1aa84cf9"
 }

@@ -1,0 +1,163 @@
+{
+  "status": "pass_structural_visual_review_pending",
+  "engine_glb_load": true,
+  "finite_bounds": true,
+  "metre_scale_dimensions": [
+    1.100000023841858,
+    0.6499999910593033,
+    0.8499999940395355
+  ],
+  "required_groups_present": true,
+  "direct_group_parenting": true,
+  "independent_component_translations": {
+    "Crankcase": {
+      "ok": true,
+      "probe_translation_metres": [
+        0.031,
+        0.0,
+        0.0
+      ],
+      "observed_delta_metres": [
+        0.031,
+        0.0,
+        0.0
+      ]
+    },
+    "Bank_L": {
+      "ok": true,
+      "probe_translation_metres": [
+        0.34,
+        0.02,
+        0.0
+      ],
+      "observed_delta_metres": [
+        0.34,
+        0.02,
+        0.0
+      ]
+    },
+    "Bank_R": {
+      "ok": true,
+      "probe_translation_metres": [
+        -0.34,
+        0.02,
+        0.0
+      ],
+      "observed_delta_metres": [
+        -0.34,
+        0.02,
+        0.0
+      ]
+    },
+    "Intake": {
+      "ok": true,
+      "probe_translation_metres": [
+        0.0,
+        0.3,
+        0.0
+      ],
+      "observed_delta_metres": [
+        0.0,
+        0.3,
+        0.0
+      ]
+    },
+    "Headers_L": {
+      "ok": true,
+      "probe_translation_metres": [
+        0.26,
+        -0.22,
+        -0.05
+      ],
+      "observed_delta_metres": [
+        0.26,
+        -0.22,
+        -0.05
+      ]
+    },
+    "Headers_R": {
+      "ok": true,
+      "probe_translation_metres": [
+        -0.26,
+        -0.22,
+        -0.05
+      ],
+      "observed_delta_metres": [
+        -0.26,
+        -0.22,
+        -0.05
+      ]
+    },
+    "Accessory_Drive": {
+      "ok": true,
+      "probe_translation_metres": [
+        0.0,
+        0.0,
+        -0.28
+      ],
+      "observed_delta_metres": [
+        0.0,
+        0.0,
+        -0.28
+      ]
+    },
+    "Cover_L": {
+      "ok": true,
+      "probe_translation_metres": [
+        0.2,
+        0.04,
+        0.0
+      ],
+      "observed_delta_metres": [
+        0.2,
+        0.04,
+        0.0
+      ]
+    },
+    "Cover_R": {
+      "ok": true,
+      "probe_translation_metres": [
+        -0.2,
+        0.04,
+        0.0
+      ],
+      "observed_delta_metres": [
+        -0.2,
+        0.04,
+        0.0
+      ]
+    },
+    "Mounts": {
+      "ok": true,
+      "probe_translation_metres": [
+        0.0,
+        -0.18,
+        0.12
+      ],
+      "observed_delta_metres": [
+        0.0,
+        -0.18,
+        0.12
+      ]
+    }
+  },
+  "triangle_budget_target": [
+    25000,
+    50000
+  ],
+  "triangle_count": 34668,
+  "triangle_budget_pass": true,
+  "installation": {
+    "marker_metres": [
+      0.0,
+      0.47,
+      -1.78
+    ],
+    "rear_axle_z_metres": -1.2114155216682174,
+    "visual_clearance_review": "Use generated orthographic side/top renders against actual car surfaces; AABB overlap is not treated as proof of clearance."
+  },
+  "exterior_model_hash_before": "1c73fcb138c31e2b1d5ed126a2412074bb17f8e960b355436f28139bf518e1eb",
+  "exterior_model_hash_after": "1c73fcb138c31e2b1d5ed126a2412074bb17f8e960b355436f28139bf518e1eb",
+  "exterior_unchanged": true,
+  "engine_sha256": "2368c579a0209c8615357b3b2ed5277996d9cf7d14539e67986fbe2d1aa84cf9"
+}
