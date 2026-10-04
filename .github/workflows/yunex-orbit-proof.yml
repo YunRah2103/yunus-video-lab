@@ -1,0 +1,76 @@
+name: YUNEX orbit-cutaway proof
+
+on:
+  push:
+    branches:
+      - sol/yunex-orbit-cutaway-proof
+    paths:
+      - 'yunex/**'
+      - '.github/workflows/yunex-orbit-proof.yml'
+  workflow_dispatch:
+
+jobs:
+  render-proof:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout proof branch
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+          cache-dependency-path: yunex/package-lock.json
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install fit-check dependencies
+        run: python -m pip install --disable-pip-version-check numpy scipy trimesh rtree
+
+      - name: Stage approved car and reviewed engine
+        run: |
+          cp cars/porsche-911-gt3-rs-992/model.glb yunex/public/model.glb
+          cp cars/porsche-911-gt3-rs-992/engine/engine.glb yunex/public/engine.glb
+
+      - name: Inspect installed fit
+        run: python yunex/fit_check.py
+
+      - name: Install Remotion dependencies
+        working-directory: yunex
+        run: npm ci
+
+      - name: Render 7.5s vertical proof
+        working-directory: yunex
+        env:
+          NODE_OPTIONS: --require=./fix-network.cjs
+        run: |
+          mkdir -p out
+          npx remotion render src/index.tsx YUNEX-ORBIT-CUTAWAY-PROOF out/YUNEX_ORBIT_CUTAWAY_PROOF.mp4 --gl=swangle --concurrency=2 --codec=h264 --crf=18
+
+      - name: Extract master-review frames
+        working-directory: yunex
+        run: |
+          ffmpeg -y -ss 0.8 -i out/YUNEX_ORBIT_CUTAWAY_PROOF.mp4 -frames:v 1 out/key_01_hero.png
+          ffmpeg -y -ss 3.4 -i out/YUNEX_ORBIT_CUTAWAY_PROOF.mp4 -frames:v 1 out/key_02_cutaway.png
+          ffmpeg -y -ss 6.7 -i out/YUNEX_ORBIT_CUTAWAY_PROOF.mp4 -frames:v 1 out/key_03_technical.png
+          ffprobe -v error -show_entries format=duration:stream=width,height,r_frame_rate,codec_name -of json out/YUNEX_ORBIT_CUTAWAY_PROOF.mp4 > out/ffprobe.json
+
+      - name: Upload master-review proof
+        uses: actions/upload-artifact@v4
+        with:
+          name: yunex-orbit-cutaway-proof
+          path: |
+            yunex/out/YUNEX_ORBIT_CUTAWAY_PROOF.mp4
+            yunex/out/key_01_hero.png
+            yunex/out/key_02_cutaway.png
+            yunex/out/key_03_technical.png
+            yunex/out/fit-report.json
+            yunex/out/ffprobe.json
+          if-no-files-found: error
+          retention-days: 7
