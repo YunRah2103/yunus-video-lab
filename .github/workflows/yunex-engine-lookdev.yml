@@ -37,4 +37,5 @@ jobs:
           git add cars/porsche-911-gt3-rs-992/engine/renders/lookdev_isolated.png
           git add cars/porsche-911-gt3-rs-992/engine/renders/lookdev_installed.png
           git diff --cached --quiet || git commit -m "YUNEX engine lookdev - generate GLB and Astra review previews [skip ci]"
-          git push
+          git pull --rebase origin sol/gt3rs-engine-lookdev
+          git push origin HEAD:sol/gt3rs-engine-lookdev
