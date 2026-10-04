@@ -1,0 +1,37 @@
+name: YUNEX proof runtime bundle
+
+on:
+  push:
+    branches:
+      - sol/yunex-orbit-cutaway-proof
+    paths:
+      - '.github/workflows/yunex-proof-runtime-bundle.yml'
+  workflow_dispatch:
+
+jobs:
+  bundle-runtime:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+          cache-dependency-path: yunex/package-lock.json
+      - name: Install runtime
+        working-directory: yunex
+        run: npm ci
+      - name: Stage runtime bundle
+        run: |
+          mkdir -p runtime-bundle/assets
+          cp -R yunex runtime-bundle/yunex
+          cp cars/porsche-911-gt3-rs-992/model.glb runtime-bundle/assets/model.glb
+          cp cars/porsche-911-gt3-rs-992/engine/engine.glb runtime-bundle/assets/engine.glb
+      - name: Upload runtime bundle
+        uses: actions/upload-artifact@v4
+        with:
+          name: yunex-proof-runtime-bundle
+          path: runtime-bundle
+          compression-level: 6
+          retention-days: 1
