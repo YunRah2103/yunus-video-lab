@@ -1,0 +1,40 @@
+name: YUNEX engine lookdev build
+
+on:
+  push:
+    branches:
+      - sol/gt3rs-engine-lookdev
+    paths:
+      - 'cars/porsche-911-gt3-rs-992/engine/**'
+      - '.github/workflows/yunex-engine-lookdev.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: sol/gt3rs-engine-lookdev
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m pip install --upgrade pip
+      - run: python -m pip install numpy trimesh matplotlib
+      - name: Build and validate engine GLB
+        run: python cars/porsche-911-gt3-rs-992/engine/build_engine.py
+      - name: Render Astra lookdev pair
+        run: python cars/porsche-911-gt3-rs-992/engine/render_lookdev.py
+      - name: Commit generated review assets
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add cars/porsche-911-gt3-rs-992/engine/engine.glb
+          git add cars/porsche-911-gt3-rs-992/engine/asset-manifest.json
+          git add cars/porsche-911-gt3-rs-992/engine/renders/lookdev_isolated.png
+          git add cars/porsche-911-gt3-rs-992/engine/renders/lookdev_installed.png
+          git diff --cached --quiet || git commit -m "YUNEX engine lookdev - generate GLB and Astra review previews [skip ci]"
+          git push
