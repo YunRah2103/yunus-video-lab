@@ -1,4 +1,4 @@
-import React, {useEffect, useLayoutEffect, useMemo, useState} from 'react';
+import React, {useEffect, useLayoutEffect, useMemo, useRef, useState} from 'react';
 import {ThreeCanvas} from '@remotion/three';
 import {useThree} from '@react-three/fiber';
 import {
@@ -39,17 +39,19 @@ type CameraState = {
 const cameraStateForFrame = (frame:number, duration:number):CameraState => {
   const t = clamp01(frame / Math.max(1, duration - 1));
   const orbit = smooth(t / 0.72);
-  const angle = THREE.MathUtils.lerp(-0.88, -0.035, orbit);
-  const radius = THREE.MathUtils.lerp(13.2, 13.0, orbit);
+  // Start from the known-good rear three-quarter basis used by Car.tsx,
+  // then settle toward a clean left-side technical view.
+  const angle = THREE.MathUtils.lerp(-2.27, -3.08, orbit);
+  const radius = 13.0;
   const position:[number,number,number] = [
     Math.cos(angle) * radius,
-    THREE.MathUtils.lerp(3.25, 2.55, orbit),
+    THREE.MathUtils.lerp(2.85, 1.95, orbit),
     Math.sin(angle) * radius,
   ];
   return {
     position,
-    target:[0, 0.60, THREE.MathUtils.lerp(-0.18, -0.34, orbit)],
-    zoom:THREE.MathUtils.lerp(184, 196, smooth(t / 0.88)),
+    target:[0, 0.58, THREE.MathUtils.lerp(-0.10, -0.32, orbit)],
+    zoom:THREE.MathUtils.lerp(178, 190, smooth(t / 0.88)),
   };
 };
 
@@ -66,8 +68,8 @@ const cloneWithMaterials = (root:THREE.Object3D) => {
   const c = root.clone(true);
   c.traverse((o:any) => {
     if (o.isMesh) {
-      o.castShadow = true;
-      o.receiveShadow = true;
+      o.castShadow = false;
+      o.receiveShadow = false;
       if (Array.isArray(o.material)) o.material = o.material.map((m:any) => m.clone());
       else if (o.material) o.material = o.material.clone();
     }
@@ -80,8 +82,7 @@ function StudioRig({cameraState}:{cameraState:CameraState}) {
 
   useLayoutEffect(() => {
     gl.localClippingEnabled = true;
-    gl.shadowMap.enabled = true;
-    gl.shadowMap.type = THREE.PCFSoftShadowMap;
+    gl.shadowMap.enabled = false;
     gl.toneMapping = THREE.ACESFilmicToneMapping;
     gl.toneMappingExposure = 1.08;
   }, [gl]);
@@ -105,7 +106,7 @@ function StudioRig({cameraState}:{cameraState:CameraState}) {
 
   return <>
     <ambientLight intensity={0.35}/>
-    <directionalLight position={[3.5, 7.5, 4]} intensity={4.0} color="#fff5e8" castShadow/>
+    <directionalLight position={[3.5, 7.5, 4]} intensity={4.0} color="#fff5e8"/>
     <directionalLight position={[-4.5, 4.2, -3.5]} intensity={2.6} color="#dbe9ff"/>
     <spotLight position={[0.2, 4.2, -4.0]} target-position={[0,0.45,-1.72]} intensity={55} distance={8} angle={0.52} penumbra={0.7} color="#f7c58f"/>
     <spotLight position={[3.2, 2.3, -2.8]} target-position={[0,0.45,-1.75]} intensity={38} distance={8} angle={0.42} penumbra={0.72} color="#d5e89e"/>
@@ -134,6 +135,8 @@ function TechnicalMarkers({reveal}:{reveal:number}) {
 function ProofScene({frame,duration}:{frame:number; duration:number}) {
   const [sources, setSources] = useState<{car:THREE.Group; engine:THREE.Group}|null>(null);
   const [handle] = useState(() => delayRender('Loading approved Porsche and finished engine'));
+  const readyRef = useRef(false);
+  const {advance, camera} = useThree();
   const cameraState = cameraStateForFrame(frame, duration);
   const t = frame / Math.max(1, duration - 1);
   const cutaway = smooth((t - 0.22) / 0.46);
@@ -150,7 +153,6 @@ function ProofScene({frame,duration}:{frame:number; duration:number}) {
     ]).then(([car,engine]) => {
       if (cancelled) return;
       setSources({car:car.scene, engine:engine.scene});
-      continueRender(handle);
     }).catch((err) => cancelRender(err));
     return () => {cancelled = true;};
   }, [handle]);
@@ -206,11 +208,30 @@ function ProofScene({frame,duration}:{frame:number; duration:number}) {
     });
   }, [solidCar, ghostCar, engine, clipPlane, cutaway, engineReveal]);
 
+  // Remotion forces R3F to frameloop="never" while rendering. The GLBs arrive
+  // asynchronously after the first frame advance, so explicitly advance once
+  // after the loaded primitives and their materials are committed. Without
+  // this, stills capture the floor/markers but not the car or engine.
+  useEffect(() => {
+    if (!solidCar || !ghostCar || !engine || readyRef.current) return;
+    readyRef.current = true;
+    camera.position.set(...cameraState.position);
+    camera.lookAt(...cameraState.target);
+    if ('zoom' in camera) (camera as THREE.OrthographicCamera).zoom = cameraState.zoom;
+    camera.updateProjectionMatrix();
+    advance(performance.now());
+    continueRender(handle);
+  }, [advance, camera, cameraState.position, cameraState.target, cameraState.zoom, engine, ghostCar, handle, solidCar]);
+
   return <>
     <StudioRig cameraState={cameraState}/>
-    <mesh position={[0,-0.025,0]} rotation={[-Math.PI/2,0,0]} receiveShadow>
-      <planeGeometry args={[30,30]}/>
-      <meshStandardMaterial color="#141718" roughness={0.96} metalness={0.04}/>
+    <mesh position={[0,-0.025,0]} rotation={[-Math.PI/2,0,0]}>
+      <planeGeometry args={[120,120]}/>
+      <meshStandardMaterial color="#141718" roughness={0.98} metalness={0.02}/>
+    </mesh>
+    <mesh position={[0,-0.012,-0.28]} rotation={[-Math.PI/2,0,0]} scale={[2.9,1.15,1]}>
+      <circleGeometry args={[1,64]}/>
+      <meshBasicMaterial color="#050606" transparent opacity={0.34} depthWrite={false}/>
     </mesh>
     {solidCar && <primitive object={solidCar}/>}
     {ghostCar && <primitive object={ghostCar}/>}
