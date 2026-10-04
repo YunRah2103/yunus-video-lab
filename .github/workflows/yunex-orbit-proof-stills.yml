@@ -1,61 +1,53 @@
-name: YUNEX orbit-cutaway review stills
+name: YUNEX orbit-cutaway rescue stills
 
 on:
   push:
     branches:
       - sol/yunex-orbit-cutaway-proof
     paths:
+      - 'yunex/src/OrbitCutawayProof.tsx'
+      - 'yunex/src/index.tsx'
       - '.github/workflows/yunex-orbit-proof-stills.yml'
   workflow_dispatch:
 
 jobs:
   stills:
     runs-on: ubuntu-latest
-    timeout-minutes: 8
+    timeout-minutes: 12
     steps:
       - uses: actions/checkout@v4
+
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
           cache: 'npm'
           cache-dependency-path: yunex/package-lock.json
-      - name: Stage assets
+
+      - name: Stage approved assets
         run: |
           cp cars/porsche-911-gt3-rs-992/model.glb yunex/public/model.glb
           cp cars/porsche-911-gt3-rs-992/engine/engine.glb yunex/public/engine.glb
-      - name: Patch review rendering
-        run: |
-          python - <<'PY'
-          from pathlib import Path
-          p=Path('yunex/src/OrbitCutawayProof.tsx')
-          s=p.read_text()
-          a="const cameraState = cameraStateForFrame(frame, duration);"
-          b="const baseCameraState = cameraStateForFrame(frame, duration);\n  const cameraState = {...baseCameraState, zoom:baseCameraState.zoom * 0.5};"
-          s=s.replace(a,b,1)
-          old='<ThreeCanvas width={1080} height={1920} orthographic camera={{position:cameraState.position,zoom:cameraState.zoom,near:0.1,far:100}} gl={{antialias:true,alpha:true,preserveDrawingBuffer:true}}>'
-          new='<ThreeCanvas width={540} height={960} style={{width:1080,height:1920}} orthographic camera={{position:cameraState.position,zoom:cameraState.zoom*0.5,near:0.1,far:100}} gl={{antialias:false,alpha:true,preserveDrawingBuffer:true}}>'
-          s=s.replace(old,new,1)
-          s=s.replace('o.castShadow = true;','o.castShadow = false;').replace('o.receiveShadow = true;','o.receiveShadow = false;')
-          s=s.replace(' color="#fff5e8" castShadow/>',' color="#fff5e8"/>').replace(' rotation={[-Math.PI/2,0,0]} receiveShadow>',' rotation={[-Math.PI/2,0,0]}>')
-          p.write_text(s)
-          q=Path('yunex/src/index.tsx')
-          t=q.read_text().replace('component={OrbitCutawayProof} width={1080} height={1920} fps={30} durationInFrames={225}','component={OrbitCutawayProof} width={1080} height={1920} fps={30} durationInFrames={180}')
-          q.write_text(t)
-          PY
+
       - name: Install dependencies
         working-directory: yunex
         run: npm ci
-      - name: Render review frames
+
+      - name: Render rescue frames
         working-directory: yunex
         env:
           NODE_OPTIONS: --require=./fix-network.cjs
         run: |
-          mkdir -p out/stills
-          npx remotion still src/index.tsx YUNEX-ORBIT-CUTAWAY-PROOF out/stills/key_01_hero.png --frame=21 --gl=swangle
-          npx remotion still src/index.tsx YUNEX-ORBIT-CUTAWAY-PROOF out/stills/key_02_cutaway.png --frame=84 --gl=swangle
-          npx remotion still src/index.tsx YUNEX-ORBIT-CUTAWAY-PROOF out/stills/key_03_technical.png --frame=159 --gl=swangle
+          mkdir -p out/stills-half out/stills
+          npx remotion still src/index.tsx YUNEX-ORBIT-CUTAWAY-PROOF out/stills-half/key_01_hero.png --frame=24 --gl=swangle --scale=0.5
+          npx remotion still src/index.tsx YUNEX-ORBIT-CUTAWAY-PROOF out/stills-half/key_02_cutaway.png --frame=102 --gl=swangle --scale=0.5
+          npx remotion still src/index.tsx YUNEX-ORBIT-CUTAWAY-PROOF out/stills-half/key_03_technical.png --frame=201 --gl=swangle --scale=0.5
+          for f in out/stills-half/*.png; do
+            ffmpeg -y -i "$f" -vf scale=1080:1920:flags=lanczos "out/stills/$(basename "$f")"
+          done
+
       - uses: actions/upload-artifact@v4
         with:
-          name: yunex-orbit-cutaway-review-stills
+          name: yunex-orbit-cutaway-rescue-stills
           path: yunex/out/stills
-          retention-days: 1
+          if-no-files-found: error
+          retention-days: 2
