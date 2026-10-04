@@ -1,12 +1,6 @@
 name: YUNEX orbit-cutaway proof
 
 on:
-  push:
-    branches:
-      - sol/yunex-orbit-cutaway-proof
-    paths:
-      - 'yunex/**'
-      - '.github/workflows/yunex-orbit-proof.yml'
   workflow_dispatch:
 
 jobs:
