@@ -2,10 +2,10 @@
 <html><head><meta charset="utf-8"><style>
 html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#eef1f4}canvas{display:block;width:100%;height:100%}
 #l{position:fixed;left:32px;top:26px;font:11px Arial;color:#66717a;letter-spacing:.06em}#l b{display:block;font-size:20px;color:#1d2328;margin-bottom:7px}
-</style></head><body><div id="l"><b id="t">YUNEX · ENGINE REVIEW</b><span id="s"></span></div><script type="module">
-import * as THREE from './node_modules/three/build/three.module.js';
-import {GLTFLoader} from './node_modules/three/examples/jsm/loaders/GLTFLoader.js';
-import {RoomEnvironment} from './node_modules/three/examples/jsm/environments/RoomEnvironment.js';
+</style><script type="importmap">{"imports":{"three":"./node_modules/three/build/three.module.js","three/addons/":"./node_modules/three/examples/jsm/"}}</script></head><body><div id="l"><b id="t">YUNEX · ENGINE REVIEW</b><span id="s"></span></div><script type="module">
+import * as THREE from 'three';
+import {GLTFLoader} from 'three/addons/loaders/GLTFLoader.js';
+import {RoomEnvironment} from 'three/addons/environments/RoomEnvironment.js';
 const view=new URLSearchParams(location.search).get('view')||'isolated', marker=new THREE.Vector3(0,.47,-1.78), axleZ=-1.2114155216682174;
 const r=new THREE.WebGLRenderer({antialias:true,preserveDrawingBuffer:true});r.setPixelRatio(1);r.setSize(innerWidth,innerHeight,false);r.outputColorSpace=THREE.SRGBColorSpace;r.toneMapping=THREE.ACESFilmicToneMapping;r.toneMappingExposure=1.08;r.shadowMap.enabled=true;document.body.appendChild(r.domElement);
 const scene=new THREE.Scene();scene.background=new THREE.Color(0xeef1f4);const pm=new THREE.PMREMGenerator(r);scene.environment=pm.fromScene(new RoomEnvironment(),.04).texture;
