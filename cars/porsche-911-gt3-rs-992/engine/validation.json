@@ -9,6 +9,319 @@
   ],
   "required_groups_present": true,
   "direct_group_parenting": true,
+  "gltf_normal_accessors": {
+    "all_primitives_have_normals": true,
+    "position_normal_counts_match": true,
+    "missing": [],
+    "count_mismatches": [],
+    "curved_meshes": {
+      "Intake__plenum_crown_mesh": {
+        "positions": 1058,
+        "normals": 1058,
+        "normal_accessor_present": true
+      },
+      "Intake__runner_-1_0_mesh": {
+        "positions": 650,
+        "normals": 650,
+        "normal_accessor_present": true
+      },
+      "Intake__runner_-1_1_mesh": {
+        "positions": 650,
+        "normals": 650,
+        "normal_accessor_present": true
+      },
+      "Intake__runner_-1_2_mesh": {
+        "positions": 650,
+        "normals": 650,
+        "normal_accessor_present": true
+      },
+      "Intake__runner_1_0_mesh": {
+        "positions": 650,
+        "normals": 650,
+        "normal_accessor_present": true
+      },
+      "Intake__runner_1_1_mesh": {
+        "positions": 650,
+        "normals": 650,
+        "normal_accessor_present": true
+      },
+      "Intake__runner_1_2_mesh": {
+        "positions": 650,
+        "normals": 650,
+        "normal_accessor_present": true
+      },
+      "Headers_L__primary_0_mesh": {
+        "positions": 746,
+        "normals": 746,
+        "normal_accessor_present": true
+      },
+      "Headers_L__primary_1_mesh": {
+        "positions": 746,
+        "normals": 746,
+        "normal_accessor_present": true
+      },
+      "Headers_L__primary_2_mesh": {
+        "positions": 746,
+        "normals": 746,
+        "normal_accessor_present": true
+      },
+      "Headers_R__primary_0_mesh": {
+        "positions": 746,
+        "normals": 746,
+        "normal_accessor_present": true
+      },
+      "Headers_R__primary_1_mesh": {
+        "positions": 746,
+        "normals": 746,
+        "normal_accessor_present": true
+      },
+      "Headers_R__primary_2_mesh": {
+        "positions": 746,
+        "normals": 746,
+        "normal_accessor_present": true
+      }
+    },
+    "source_tube_vertex_sharing_and_winding": {
+      "Intake__runner_-1_0": {
+        "winding_consistent": true,
+        "shared_side_vertices": true,
+        "split_cap_vertices": true,
+        "radial_segments": 24,
+        "path_rings": 25
+      },
+      "Intake__runner_-1_1": {
+        "winding_consistent": true,
+        "shared_side_vertices": true,
+        "split_cap_vertices": true,
+        "radial_segments": 24,
+        "path_rings": 25
+      },
+      "Intake__runner_-1_2": {
+        "winding_consistent": true,
+        "shared_side_vertices": true,
+        "split_cap_vertices": true,
+        "radial_segments": 24,
+        "path_rings": 25
+      },
+      "Intake__runner_1_0": {
+        "winding_consistent": true,
+        "shared_side_vertices": true,
+        "split_cap_vertices": true,
+        "radial_segments": 24,
+        "path_rings": 25
+      },
+      "Intake__runner_1_1": {
+        "winding_consistent": true,
+        "shared_side_vertices": true,
+        "split_cap_vertices": true,
+        "radial_segments": 24,
+        "path_rings": 25
+      },
+      "Intake__runner_1_2": {
+        "winding_consistent": true,
+        "shared_side_vertices": true,
+        "split_cap_vertices": true,
+        "radial_segments": 24,
+        "path_rings": 25
+      },
+      "Headers_L__primary_0": {
+        "winding_consistent": true,
+        "shared_side_vertices": true,
+        "split_cap_vertices": true,
+        "radial_segments": 24,
+        "path_rings": 29
+      },
+      "Headers_L__primary_1": {
+        "winding_consistent": true,
+        "shared_side_vertices": true,
+        "split_cap_vertices": true,
+        "radial_segments": 24,
+        "path_rings": 29
+      },
+      "Headers_L__primary_2": {
+        "winding_consistent": true,
+        "shared_side_vertices": true,
+        "split_cap_vertices": true,
+        "radial_segments": 24,
+        "path_rings": 29
+      },
+      "Headers_L__collector_outlet": {
+        "winding_consistent": true,
+        "shared_side_vertices": true,
+        "split_cap_vertices": true,
+        "radial_segments": 28,
+        "path_rings": 9
+      },
+      "Headers_R__primary_0": {
+        "winding_consistent": true,
+        "shared_side_vertices": true,
+        "split_cap_vertices": true,
+        "radial_segments": 24,
+        "path_rings": 29
+      },
+      "Headers_R__primary_1": {
+        "winding_consistent": true,
+        "shared_side_vertices": true,
+        "split_cap_vertices": true,
+        "radial_segments": 24,
+        "path_rings": 29
+      },
+      "Headers_R__primary_2": {
+        "winding_consistent": true,
+        "shared_side_vertices": true,
+        "split_cap_vertices": true,
+        "radial_segments": 24,
+        "path_rings": 29
+      },
+      "Headers_R__collector_outlet": {
+        "winding_consistent": true,
+        "shared_side_vertices": true,
+        "split_cap_vertices": true,
+        "radial_segments": 28,
+        "path_rings": 9
+      }
+    }
+  },
+  "material_base_color_factors": {
+    "requested_python": {
+      "Cast_Aluminium": [
+        0.46,
+        0.48,
+        0.5,
+        1.0
+      ],
+      "Brushed_Aluminium": [
+        0.62,
+        0.64,
+        0.66,
+        1.0
+      ],
+      "Dark_Composite": [
+        0.055,
+        0.065,
+        0.072,
+        1.0
+      ],
+      "Stainless_Header": [
+        0.48,
+        0.45,
+        0.4,
+        1.0
+      ],
+      "Restrained_Rubber": [
+        0.035,
+        0.038,
+        0.04,
+        1.0
+      ],
+      "Dark_Steel": [
+        0.16,
+        0.17,
+        0.18,
+        1.0
+      ]
+    },
+    "expected_after_trimesh_rgba_quantization": {
+      "Cast_Aluminium": [
+        0.4588235294117647,
+        0.47843137254901963,
+        0.5019607843137255,
+        1.0
+      ],
+      "Brushed_Aluminium": [
+        0.6196078431372549,
+        0.6392156862745098,
+        0.6588235294117647,
+        1.0
+      ],
+      "Dark_Composite": [
+        0.054901960784313725,
+        0.06666666666666667,
+        0.07058823529411765,
+        1.0
+      ],
+      "Stainless_Header": [
+        0.47843137254901963,
+        0.45098039215686275,
+        0.4,
+        1.0
+      ],
+      "Restrained_Rubber": [
+        0.03529411764705882,
+        0.0392156862745098,
+        0.0392156862745098,
+        1.0
+      ],
+      "Dark_Steel": [
+        0.1607843137254902,
+        0.16862745098039217,
+        0.1803921568627451,
+        1.0
+      ]
+    },
+    "exported": [
+      [
+        0.4588235294117647,
+        0.47843137254901963,
+        0.5019607843137255,
+        1.0
+      ],
+      [
+        0.6196078431372549,
+        0.6392156862745098,
+        0.6588235294117647,
+        1.0
+      ],
+      [
+        0.054901960784313725,
+        0.06666666666666667,
+        0.07058823529411765,
+        1.0
+      ],
+      [
+        0.1607843137254902,
+        0.16862745098039217,
+        0.1803921568627451,
+        1.0
+      ],
+      [
+        0.47843137254901963,
+        0.45098039215686275,
+        0.4,
+        1.0
+      ],
+      [
+        0.03529411764705882,
+        0.0392156862745098,
+        0.0392156862745098,
+        1.0
+      ]
+    ],
+    "max_source_to_export_quantization_error": {
+      "Cast_Aluminium": 0.0019607843137254832,
+      "Brushed_Aluminium": 0.0011764705882353343,
+      "Dark_Composite": 0.0016666666666666635,
+      "Stainless_Header": 0.0015686274509803533,
+      "Restrained_Rubber": 0.0012156862745098043,
+      "Dark_Steel": 0.0013725490196078438
+    },
+    "all_expected_present": true,
+    "per_material_match": {
+      "Cast_Aluminium": true,
+      "Brushed_Aluminium": true,
+      "Dark_Composite": true,
+      "Stainless_Header": true,
+      "Restrained_Rubber": true,
+      "Dark_Steel": true
+    }
+  },
+  "component_checks": {
+    "intake_runners": 6,
+    "intake_head_ports": 6,
+    "header_primaries": 6,
+    "continuous_flat_belt": 1
+  },
+  "normal_cache_checks_pass": true,
   "independent_component_translations": {
     "Crankcase": {
       "ok": true,
@@ -145,7 +458,7 @@
     25000,
     50000
   ],
-  "triangle_count": 34668,
+  "triangle_count": 39108,
   "triangle_budget_pass": true,
   "installation": {
     "marker_metres": [
@@ -154,10 +467,11 @@
       -1.78
     ],
     "rear_axle_z_metres": -1.2114155216682174,
-    "visual_clearance_review": "Use generated orthographic side/top renders against actual car surfaces; AABB overlap is not treated as proof of clearance."
+    "visual_clearance_review": "Use generated rear-bay side/top renders against actual car surfaces; AABB overlap is not treated as proof of clearance.",
+    "unresolved_fit_issue": "Rear deck/undertray surfaces are hidden in the viewer to expose the engine, so hard shell clearance remains unresolved for master visual review. No clearance approval is claimed."
   },
   "exterior_model_hash_before": "1c73fcb138c31e2b1d5ed126a2412074bb17f8e960b355436f28139bf518e1eb",
   "exterior_model_hash_after": "1c73fcb138c31e2b1d5ed126a2412074bb17f8e960b355436f28139bf518e1eb",
   "exterior_unchanged": true,
-  "engine_sha256": "2368c579a0209c8615357b3b2ed5277996d9cf7d14539e67986fbe2d1aa84cf9"
+  "engine_sha256": "62216a409c52b2411315e8c02324e25907b3f447b44138cd26d73378dea617fd"
 }

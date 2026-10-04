@@ -1,6 +1,6 @@
 {
   "asset": "YUNEX 992 GT3 RS simplified 4.0L naturally aspirated flat-six",
-  "status": "restrained refinement pass for master review",
+  "status": "targeted finishing pass for master review",
   "units": "metres",
   "axis": {
     "forward": "+Z",
@@ -25,8 +25,8 @@
     0.6499999910593033,
     0.8499999940395355
   ],
-  "triangles": 34668,
-  "geometry_primitives": 87,
+  "triangles": 39108,
+  "geometry_primitives": 91,
   "named_groups": [
     "Engine_Root",
     "Crankcase",
@@ -47,6 +47,44 @@
     "Stainless_Header",
     "Restrained_Rubber",
     "Dark_Steel"
+  ],
+  "exported_base_color_factors": [
+    [
+      0.4588235294117647,
+      0.47843137254901963,
+      0.5019607843137255,
+      1.0
+    ],
+    [
+      0.6196078431372549,
+      0.6392156862745098,
+      0.6588235294117647,
+      1.0
+    ],
+    [
+      0.054901960784313725,
+      0.06666666666666667,
+      0.07058823529411765,
+      1.0
+    ],
+    [
+      0.1607843137254902,
+      0.16862745098039217,
+      0.1803921568627451,
+      1.0
+    ],
+    [
+      0.47843137254901963,
+      0.45098039215686275,
+      0.4,
+      1.0
+    ],
+    [
+      0.03529411764705882,
+      0.0392156862745098,
+      0.0392156862745098,
+      1.0
+    ]
   ],
   "explode_vectors_local_metres": {
     "Crankcase": [
@@ -134,5 +172,5 @@
     "Installed review render loads the approved exterior GLB separately and keeps it unchanged; the engine is never baked into the car asset."
   ],
   "exterior_model_sha256": "1c73fcb138c31e2b1d5ed126a2412074bb17f8e960b355436f28139bf518e1eb",
-  "sha256": "2368c579a0209c8615357b3b2ed5277996d9cf7d14539e67986fbe2d1aa84cf9"
+  "sha256": "62216a409c52b2411315e8c02324e25907b3f447b44138cd26d73378dea617fd"
 }

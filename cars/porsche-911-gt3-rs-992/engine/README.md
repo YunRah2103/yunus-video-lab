@@ -30,9 +30,10 @@ No V layout, turbochargers, air-cooled fan tower, gearbox, pistons, valvetrain o
 <!-- BEGIN GENERATED METRICS -->
 - Engine dimensions (X × Y × Z): **1.1000 × 0.6500 × 0.8500 m**.
 - Local Y bounds: **-0.2400 m to 0.4100 m**.
-- Triangle count: **34,668**.
-- Geometry primitives: **87**.
-- Engine SHA-256: `2368c579a0209c8615357b3b2ed5277996d9cf7d14539e67986fbe2d1aa84cf9`.
+- Triangle count: **39,108**.
+- Geometry primitives: **91**.
+- GLB NORMAL accessors: **all primitives present / POSITION counts matched**.
+- Engine SHA-256: `62216a409c52b2411315e8c02324e25907b3f447b44138cd26d73378dea617fd`.
 - Approved exterior SHA-256 before/after: `1c73fcb138c31e2b1d5ed126a2412074bb17f8e960b355436f28139bf518e1eb` / `1c73fcb138c31e2b1d5ed126a2412074bb17f8e960b355436f28139bf518e1eb` (**unchanged**).
 - Installation: `Engine_Root` at `Marker_Engine_Mass` = `[0, 0.47, -1.78]` m; local offset `[0, 0, 0]`.
 <!-- END GENERATED METRICS -->
