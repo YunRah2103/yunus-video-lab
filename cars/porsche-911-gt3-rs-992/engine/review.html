@@ -1,24 +1,122 @@
-<!doctype html>
-<html><head><meta charset="utf-8"><style>
-html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#eef1f4}canvas{display:block;width:100%;height:100%}
-#l{position:fixed;left:32px;top:26px;font:11px Arial;color:#66717a;letter-spacing:.06em}#l b{display:block;font-size:20px;color:#1d2328;margin-bottom:7px}
-</style><script type="importmap">{"imports":{"three":"./node_modules/three/build/three.module.js","three/addons/":"./node_modules/three/examples/jsm/"}}</script></head><body><div id="l"><b id="t">YUNEX · ENGINE REVIEW</b><span id="s"></span></div><script type="module">
+<!doctype html><html><head><meta charset="utf-8"><style>
+html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#e9ecef}canvas{display:block;width:100%;height:100%}
+#l{position:fixed;left:32px;top:26px;font:11px Arial;color:#5d676f;letter-spacing:.06em;z-index:8}#l b{display:block;font-size:20px;color:#171c20;margin-bottom:7px}
+#leaders{position:fixed;inset:0;pointer-events:none;z-index:9}.tag{position:absolute;font:700 12px Arial;letter-spacing:.08em;color:#151a1e;background:rgba(246,248,249,.92);padding:5px 7px;border:1px solid rgba(72,82,90,.22)}
+#leaderSvg{position:absolute;inset:0;width:100%;height:100%;overflow:visible}.inset{position:fixed;right:32px;bottom:28px;z-index:9;font:700 10px Arial;letter-spacing:.08em;color:#56616a;background:rgba(246,248,249,.9);padding:5px 7px;border:1px solid rgba(72,82,90,.18)}
+</style><script type="importmap">{"imports":{"three":"./node_modules/three/build/three.module.js","three/addons/":"./node_modules/three/examples/jsm/"}}</script></head><body>
+<div id="l"><b id="t">YUNEX · ENGINE REVIEW</b><span id="s"></span></div><div id="leaders"><svg id="leaderSvg"></svg></div>
+<script type="module">
 import * as THREE from 'three';
 import {GLTFLoader} from 'three/addons/loaders/GLTFLoader.js';
 import {RoomEnvironment} from 'three/addons/environments/RoomEnvironment.js';
-const view=new URLSearchParams(location.search).get('view')||'isolated', marker=new THREE.Vector3(0,.47,-1.78), axleZ=-1.2114155216682174;
-const r=new THREE.WebGLRenderer({antialias:true,preserveDrawingBuffer:true});r.setPixelRatio(1);r.setSize(innerWidth,innerHeight,false);r.outputColorSpace=THREE.SRGBColorSpace;r.toneMapping=THREE.ACESFilmicToneMapping;r.toneMappingExposure=1.08;r.shadowMap.enabled=true;document.body.appendChild(r.domElement);
-const scene=new THREE.Scene();scene.background=new THREE.Color(0xeef1f4);const pm=new THREE.PMREMGenerator(r);scene.environment=pm.fromScene(new RoomEnvironment(),.04).texture;
-scene.add(new THREE.HemisphereLight(0xffffff,0x6c7378,1.25));
-for(const [c,i,p] of [[0xffffff,4.2,[3.6,5.2,-2.8]],[0xdcecff,2.2,[-4.5,2.4,3.6]],[0xfff4df,1.35,[1,1.4,5]]]){const l=new THREE.DirectionalLight(c,i);l.position.set(...p);scene.add(l)}
+
+const params=new URLSearchParams(location.search);
+const view=params.get('view')||'isolated';
+const marker=new THREE.Vector3(0,.47,-1.78), axleZ=-1.2114155216682174;
+const r=new THREE.WebGLRenderer({antialias:true,preserveDrawingBuffer:true});
+r.setPixelRatio(1);r.setSize(innerWidth,innerHeight,false);r.outputColorSpace=THREE.SRGBColorSpace;
+r.toneMapping=THREE.ACESFilmicToneMapping;r.toneMappingExposure=.98;r.shadowMap.enabled=true;r.shadowMap.type=THREE.PCFSoftShadowMap;
+document.body.appendChild(r.domElement);
+
+const scene=new THREE.Scene();scene.background=new THREE.Color(0xe9ecef);
+const pm=new THREE.PMREMGenerator(r);scene.environment=pm.fromScene(new RoomEnvironment(),.04).texture;
+scene.add(new THREE.HemisphereLight(0xffffff,0x7a8085,.34));
+
+const key=new THREE.DirectionalLight(0xffffff,3.15);key.position.set(3.4,5.3,-2.6);key.castShadow=true;
+key.shadow.mapSize.set(2048,2048);key.shadow.bias=-.0007;key.shadow.normalBias=.018;
+Object.assign(key.shadow.camera,{near:.1,far:20,left:-3,right:3,top:3,bottom:-3});key.shadow.camera.updateProjectionMatrix();scene.add(key);
+const fill=new THREE.DirectionalLight(0xdcecff,.72);fill.position.set(-4.4,2.2,3.5);scene.add(fill);
+const rim=new THREE.DirectionalLight(0xfff1d9,.52);rim.position.set(1.2,1.1,4.8);scene.add(rim);
+
 const loader=new GLTFLoader(), eg=await loader.loadAsync('./engine.glb');
-eg.scene.traverse(o=>{if(o.isMesh){if(!o.geometry.attributes.normal)o.geometry.computeVertexNormals();else if(o.geometry.normalizeNormals)o.geometry.normalizeNormals();o.castShadow=o.receiveShadow=true}});
+eg.scene.traverse(o=>{if(o.isMesh){if(!o.geometry.attributes.normal)o.geometry.computeVertexNormals();o.castShadow=true;o.receiveShadow=true;if(o.material&&'envMapIntensity' in o.material)o.material.envMapIntensity=.82;}});
+
 function lineage(o){const a=[];for(let p=o;p;p=p.parent)if(p.name)a.push(p.name);return a.join('|')}
-function ghost(root){root.traverse(o=>{if(!o.isMesh)return;const n=lineage(o),opaque=/(Spin_|Wheel_|Caliper_)/.test(n),ms=Array.isArray(o.material)?o.material:[o.material];const cs=ms.map(m=>{const c=m.clone();if(opaque){c.transparent=false;c.opacity=1;c.depthWrite=true}else{c.transparent=true;c.opacity=/Glass/.test(n)?.06:.12;c.depthWrite=false;c.side=THREE.DoubleSide;if(c.color)c.color.lerp(new THREE.Color(0xa9b2b9),.72);if('roughness'in c)c.roughness=Math.max(c.roughness??.5,.62);if('metalness'in c)c.metalness=Math.min(c.metalness??0,.18)}c.needsUpdate=true;return c});o.material=Array.isArray(o.material)?cs:cs[0];o.castShadow=opaque;o.receiveShadow=true})}
+function fit(cam,w,h,p=1.08){const a=innerWidth/innerHeight,hh=Math.max(h*.5*p,(w*.5*p)/a);cam.left=-hh*a;cam.right=hh*a;cam.top=hh;cam.bottom=-hh;cam.near=.01;cam.far=100;cam.updateProjectionMatrix()}
 function label(a,b){document.getElementById('t').textContent=a;document.getElementById('s').textContent=b}
-function fit(cam,w,h,p=1.10){const a=innerWidth/innerHeight,hh=Math.max(h*.5*p,(w*.5*p)/a);cam.left=-hh*a;cam.right=hh*a;cam.top=hh;cam.bottom=-hh;cam.near=.01;cam.far=100;cam.updateProjectionMatrix()}
-let cam;
-if(view==='isolated'){scene.add(eg.scene);const b=new THREE.Box3().setFromObject(eg.scene),c=b.getCenter(new THREE.Vector3()),sp=b.getBoundingSphere(new THREE.Sphere());cam=new THREE.PerspectiveCamera(33,innerWidth/innerHeight,.01,20);cam.position.copy(c).addScaledVector(new THREE.Vector3(1.55,.78,-1.65).normalize(),sp.radius*4.2);cam.lookAt(c.x,c.y+.02,c.z);const g=new THREE.Mesh(new THREE.PlaneGeometry(7,7),new THREE.ShadowMaterial({opacity:.14}));g.rotation.x=-Math.PI/2;g.position.y=b.min.y-.018;g.receiveShadow=true;scene.add(g);label('YUNEX · 992 GT3 RS FLAT-SIX','ISOLATED REAR THREE-QUARTER · ACTUAL GLB PBR MATERIALS')}
-else{const cg=await loader.loadAsync('../model.glb');ghost(cg.scene);scene.add(cg.scene);eg.scene.position.copy(marker);scene.add(eg.scene);const ag=new THREE.CylinderGeometry(.012,.012,1.82,24);ag.rotateZ(Math.PI/2);const am=new THREE.MeshStandardMaterial({color:0x69747c,metalness:.45,roughness:.35}),ax=new THREE.Mesh(ag,am);ax.position.set(0,.371,axleZ);scene.add(ax);const b=new THREE.Box3().setFromObject(cg.scene).union(new THREE.Box3().setFromObject(eg.scene)),c=b.getCenter(new THREE.Vector3()),z=b.getSize(new THREE.Vector3());cam=new THREE.OrthographicCamera(-1,1,1,-1,.01,100);if(view==='side'){fit(cam,z.z,z.y);cam.position.set(c.x+8,c.y+.02,c.z);cam.up.set(0,1,0);cam.lookAt(c);label('YUNEX · ENGINE INSTALLATION','ORTHOGRAPHIC SIDE · OPAQUE WHEELS / GHOSTED BODY / REAR AXLE')}else{fit(cam,z.x,z.z);cam.position.set(c.x,c.y+10,c.z);cam.up.set(0,0,1);cam.lookAt(c);label('YUNEX · ENGINE INSTALLATION','ORTHOGRAPHIC TOP · OPAQUE WHEELS / GHOSTED BODY / REAR AXLE')}}
-if(r.compileAsync)await r.compileAsync(scene,cam);else r.compile(scene,cam);r.render(scene,cam);await new Promise(q=>requestAnimationFrame(()=>requestAnimationFrame(q)));r.render(scene,cam);window.__reviewReady=true;
+function addContactGround(y){
+  const g=new THREE.Mesh(new THREE.PlaneGeometry(7,7),new THREE.ShadowMaterial({opacity:.17}));
+  g.rotation.x=-Math.PI/2;g.position.y=y;g.receiveShadow=true;scene.add(g);
+}
+function addBodyOutline(mesh){
+  const edgeMat=new THREE.LineBasicMaterial({color:0x7c878f,transparent:true,opacity:.32,depthWrite:false});
+  const edges=new THREE.LineSegments(new THREE.EdgesGeometry(mesh.geometry,38),edgeMat);
+  edges.renderOrder=4;mesh.add(edges);
+}
+function prepExterior(root){
+  root.traverse(o=>{
+    if(!o.isMesh)return;
+    const n=lineage(o);
+    const keepOpaque=/(Spin_|Wheel_|Caliper_)/.test(n);
+    const body=/\bBody\b/.test(n);
+    const suppress=/(Interior|Glass|Grilles|Lights|Wing_Flap|Wing)/.test(n);
+    if(suppress&&!keepOpaque){o.visible=false;return}
+    if(keepOpaque){o.castShadow=true;o.receiveShadow=true;return}
+    if(body){
+      const ms=Array.isArray(o.material)?o.material:[o.material];
+      const cs=ms.map(m=>{const c=m.clone();c.transparent=true;c.opacity=.045;c.depthWrite=false;c.side=THREE.DoubleSide;if(c.color)c.color.lerp(new THREE.Color(0xc7ced3),.36);if('roughness'in c)c.roughness=Math.max(c.roughness??.5,.62);if('metalness'in c)c.metalness=Math.min(c.metalness??0,.12);return c});
+      o.material=Array.isArray(o.material)?cs:cs[0];o.castShadow=false;o.receiveShadow=false;addBodyOutline(o);return;
+    }
+    o.visible=false;
+  });
+}
+const leaderSvg=document.getElementById('leaderSvg');
+function clearLeaders(){leaderSvg.replaceChildren();document.querySelectorAll('.tag,.inset').forEach(x=>x.remove())}
+function addLeader(textValue,world,dx,dy,cam){
+  const p=world.clone().project(cam), x=(p.x*.5+.5)*innerWidth, y=(-p.y*.5+.5)*innerHeight;
+  const tx=x+dx,ty=y+dy;
+  const ns='http://www.w3.org/2000/svg',line=document.createElementNS(ns,'line');
+  line.setAttribute('x1',String(x));line.setAttribute('y1',String(y));line.setAttribute('x2',String(tx));line.setAttribute('y2',String(ty));
+  line.setAttribute('stroke','#4f5b63');line.setAttribute('stroke-width','1.5');leaderSvg.appendChild(line);
+  const dot=document.createElementNS(ns,'circle');dot.setAttribute('cx',String(x));dot.setAttribute('cy',String(y));dot.setAttribute('r','3');dot.setAttribute('fill','#20272c');leaderSvg.appendChild(dot);
+  const d=document.createElement('div');d.className='tag';d.textContent=textValue;d.style.left=(tx+(dx<0?-82:6))+'px';d.style.top=(ty-13)+'px';document.body.appendChild(d);
+}
+function insetLabel(){const d=document.createElement('div');d.className='inset';d.textContent='FULL-CAR CONTEXT';document.body.appendChild(d)}
+let cam,insetCam=null,turnCenter=null,turnRadius=0;
+if(view==='isolated'||view==='turntable'){
+  scene.add(eg.scene);
+  const b=new THREE.Box3().setFromObject(eg.scene),c=b.getCenter(new THREE.Vector3()),sp=b.getBoundingSphere(new THREE.Sphere());
+  cam=new THREE.PerspectiveCamera(33,innerWidth/innerHeight,.01,20);turnCenter=c.clone();turnRadius=sp.radius*4.15;
+  cam.position.copy(c).addScaledVector(new THREE.Vector3(1.55,.76,-1.65).normalize(),turnRadius);cam.lookAt(c.x,c.y+.02,c.z);
+  addContactGround(b.min.y-.018);
+  label('YUNEX · 992 GT3 RS FLAT-SIX',view==='turntable'?'EXACT EXPORTED GLB · SHADING TURNTABLE':'ISOLATED REAR THREE-QUARTER · EXACT EXPORTED GLB');
+}else{
+  const cg=await loader.loadAsync('../model.glb');prepExterior(cg.scene);scene.add(cg.scene);
+  eg.scene.position.copy(marker);scene.add(eg.scene);
+  const ag=new THREE.CylinderGeometry(.011,.011,1.82,24);ag.rotateZ(Math.PI/2);
+  const ax=new THREE.Mesh(ag,new THREE.MeshStandardMaterial({color:0x5d6870,metalness:.35,roughness:.42}));ax.position.set(0,.371,axleZ);scene.add(ax);
+  cam=new THREE.OrthographicCamera(-1,1,1,-1,.01,100);insetCam=new THREE.OrthographicCamera(-1,1,1,-1,.01,100);
+  if(view==='side'){
+    fit(cam,2.40,1.34,1.03);cam.position.set(8,.50,-1.56);cam.up.set(0,1,0);cam.lookAt(0,.50,-1.56);
+    fit(insetCam,4.75,1.55,1.08);insetCam.position.set(8,.55,0);insetCam.up.set(0,1,0);insetCam.lookAt(0,.55,0);
+    label('YUNEX · ENGINE INSTALLATION','REAR-BAY SIDE · OPAQUE ENGINE / OPAQUE WHEELS / RESTRAINED BODY OUTLINE');
+  }else{
+    fit(cam,2.18,2.18,1.03);cam.position.set(0,10,-1.57);cam.up.set(0,0,1);cam.lookAt(0,.35,-1.57);
+    fit(insetCam,2.22,4.78,1.08);insetCam.position.set(0,10,0);insetCam.up.set(0,0,1);insetCam.lookAt(0,.35,0);
+    label('YUNEX · ENGINE INSTALLATION','REAR-BAY TOP · OPAQUE ENGINE / OPAQUE WHEELS / RESTRAINED BODY OUTLINE');
+  }
+  insetLabel();
+}
+function renderAll(){
+  r.setScissorTest(false);r.setViewport(0,0,innerWidth,innerHeight);r.render(scene,cam);
+  if(insetCam){
+    const w=Math.round(innerWidth*.27),h=Math.round(innerHeight*.215),x=innerWidth-w-28,y=26;
+    r.clearDepth();r.setScissorTest(true);r.setScissor(x,y,w,h);r.setViewport(x,y,w,h);r.render(scene,insetCam);
+    r.setScissorTest(false);r.setViewport(0,0,innerWidth,innerHeight);
+  }
+}
+if(r.compileAsync)await r.compileAsync(scene,cam);else r.compile(scene,cam);
+renderAll();await new Promise(q=>requestAnimationFrame(()=>requestAnimationFrame(q)));renderAll();
+if(insetCam){
+  clearLeaders();insetLabel();
+  addLeader('ENGINE',new THREE.Vector3(0,.50,-1.78),view==='side'?120:-110,view==='side'?-115:-120,cam);
+  addLeader('REAR AXLE',new THREE.Vector3(0,.39,axleZ),view==='side'?-150:120,view==='side'?90:115,cam);
+}
+window.__setTurntableAngle=(angle)=>{
+  if(!turnCenter)return;
+  const elev=.34;
+  cam.position.set(turnCenter.x+Math.cos(angle)*turnRadius,turnCenter.y+turnRadius*elev,turnCenter.z+Math.sin(angle)*turnRadius);
+  cam.lookAt(turnCenter.x,turnCenter.y+.015,turnCenter.z);renderAll();
+};
+window.__renderNow=renderAll;window.__reviewReady=true;
 </script></body></html>

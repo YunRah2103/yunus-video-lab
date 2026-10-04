@@ -15,6 +15,7 @@ from pathlib import Path
 import hashlib
 import json
 import math
+import struct
 import numpy as np
 import trimesh
 from trimesh.visual.material import PBRMaterial
@@ -24,6 +25,7 @@ CAR_DIR = HERE.parent
 OUT = HERE / "engine.glb"
 MANIFEST = HERE / "asset-manifest.json"
 VALIDATION = HERE / "validation.json"
+REVIEW_NOTE = HERE / "REVIEW_NOTE.md"
 README = HERE / "README.md"
 CAR_GLB = CAR_DIR / "model.glb"
 CAR_MANIFEST = CAR_DIR / "asset-manifest.json"
@@ -36,6 +38,16 @@ MATERIALS = {
     "rubber": PBRMaterial(name="Restrained_Rubber", baseColorFactor=[0.035, 0.038, 0.04, 1.0], metallicFactor=0.0, roughnessFactor=0.78),
     "steel": PBRMaterial(name="Dark_Steel", baseColorFactor=[0.16, 0.17, 0.18, 1.0], metallicFactor=0.72, roughnessFactor=0.38),
 }
+
+EXPECTED_BASE_COLORS = {
+    "Cast_Aluminium": [0.46, 0.48, 0.50, 1.0],
+    "Brushed_Aluminium": [0.62, 0.64, 0.66, 1.0],
+    "Dark_Composite": [0.055, 0.065, 0.072, 1.0],
+    "Stainless_Header": [0.48, 0.45, 0.40, 1.0],
+    "Restrained_Rubber": [0.035, 0.038, 0.04, 1.0],
+    "Dark_Steel": [0.16, 0.17, 0.18, 1.0],
+}
+TUBE_SOURCE_CHECKS = {}
 
 GROUPS = ["Crankcase", "Bank_L", "Bank_R", "Intake", "Headers_L", "Headers_R", "Accessory_Drive", "Cover_L", "Cover_R", "Mounts"]
 EXPLODE_VECTORS = {
@@ -65,7 +77,7 @@ def box(extents, center, group, name, material="cast_aluminium"):
     add_mesh(group, mesh, name, material)
 
 def rounded_prism(extents, center, group, name, material="cast_aluminium", radius=0.04, corner_segments=5):
-    """Rounded X/Y profile extruded along Z for restrained housing bevels."""
+    """Rounded X/Y housing with split cap rings so cap seams stay hard."""
     ex, ey, ez = map(float, extents)
     r = max(0.0, min(float(radius), ex * 0.24, ey * 0.24))
     hx, hy, hz = ex / 2.0, ey / 2.0, ez / 2.0
@@ -82,13 +94,22 @@ def rounded_prism(extents, center, group, name, material="cast_aluminium", radiu
     verts = []
     for z in (-hz, hz):
         verts.extend([[x+center[0], y+center[1], z+center[2]] for x, y in pts])
+    bottom_cap = len(verts)
+    verts.extend([[x+center[0], y+center[1], center[2]-hz] for x, y in pts])
+    top_cap = len(verts)
+    verts.extend([[x+center[0], y+center[1], center[2]+hz] for x, y in pts])
     verts += [[center[0], center[1], center[2]-hz], [center[0], center[1], center[2]+hz]]
     bc, tc = len(verts)-2, len(verts)-1
     faces = []
     for i in range(n):
         j = (i+1) % n
-        faces += [[i,j,n+j], [i,n+j,n+i], [bc,j,i], [tc,n+i,n+j]]
-    add_mesh(group, trimesh.Trimesh(vertices=np.asarray(verts), faces=np.asarray(faces), process=True), name, material)
+        faces += [
+            [i, j, n+j], [i, n+j, n+i],
+            [bc, bottom_cap+j, bottom_cap+i],
+            [tc, top_cap+i, top_cap+j],
+        ]
+    mesh = trimesh.Trimesh(vertices=np.asarray(verts), faces=np.asarray(faces), process=False)
+    add_mesh(group, mesh, name, material)
 
 def cylinder(radius, height, center, axis, group, name, material="steel", sections=128):
     mesh = trimesh.creation.cylinder(radius=radius, height=height, sections=sections)
@@ -126,7 +147,7 @@ def _catmull_rom(points, samples_per_segment=7):
     return np.asarray(out)
 
 def tube_path(points, radius, group, name, material="stainless", radial_segments=24, samples_per_segment=7):
-    """Continuous tube mesh with caps only at the actual ends."""
+    """Continuous curved tube with shared side rings and split cap rings."""
     path = _catmull_rom(points, samples_per_segment)
     tangents = np.zeros_like(path)
     tangents[0] = path[1]-path[0]
@@ -136,34 +157,99 @@ def tube_path(points, radius, group, name, material="stainless", radial_segments
     normals = np.zeros_like(path)
     bins = np.zeros_like(path)
     seed = np.array([0.0,1.0,0.0])
-    if abs(np.dot(seed,tangents[0])) > 0.92: seed = np.array([1.0,0.0,0.0])
-    normals[0] = np.cross(tangents[0], seed); normals[0] /= np.linalg.norm(normals[0])
-    bins[0] = np.cross(tangents[0], normals[0]); bins[0] /= np.linalg.norm(bins[0])
+    if abs(np.dot(seed,tangents[0])) > 0.92:
+        seed = np.array([1.0,0.0,0.0])
+    normals[0] = np.cross(tangents[0], seed)
+    normals[0] /= np.linalg.norm(normals[0])
+    bins[0] = np.cross(tangents[0], normals[0])
+    bins[0] /= np.linalg.norm(bins[0])
     for i in range(1,len(path)):
         n = normals[i-1] - tangents[i]*np.dot(normals[i-1],tangents[i])
-        if np.linalg.norm(n) < 1e-7: n = np.cross(tangents[i], bins[i-1])
+        if np.linalg.norm(n) < 1e-7:
+            n = np.cross(tangents[i], bins[i-1])
         n /= np.linalg.norm(n)
-        b = np.cross(tangents[i],n); b /= np.linalg.norm(b)
+        b = np.cross(tangents[i],n)
+        b /= np.linalg.norm(b)
         normals[i], bins[i] = n, b
-    verts = []
+
+    rings = len(path)
+    side_verts = []
     for i,p in enumerate(path):
         for j in range(radial_segments):
             a = 2*math.pi*j/radial_segments
-            verts.append(p + radius*(math.cos(a)*normals[i] + math.sin(a)*bins[i]))
+            side_verts.append(p + radius*(math.cos(a)*normals[i] + math.sin(a)*bins[i]))
+    verts = list(side_verts)
+    start_cap = len(verts)
+    verts.extend(side_verts[:radial_segments])
+    end_cap = len(verts)
+    verts.extend(side_verts[(rings-1)*radial_segments:rings*radial_segments])
+    verts += [path[0], path[-1]]
+    sc, ec = len(verts)-2, len(verts)-1
+
     faces = []
-    rings = len(path)
     for i in range(rings-1):
         a0, a1 = i*radial_segments, (i+1)*radial_segments
         for j in range(radial_segments):
             k = (j+1) % radial_segments
             faces += [[a0+j,a0+k,a1+k],[a0+j,a1+k,a1+j]]
-    verts += [path[0], path[-1]]
-    sc, ec = len(verts)-2, len(verts)-1
-    last = (rings-1)*radial_segments
     for j in range(radial_segments):
         k = (j+1)%radial_segments
-        faces += [[sc,k,j],[ec,last+j,last+k]]
-    add_mesh(group, trimesh.Trimesh(vertices=np.asarray(verts), faces=np.asarray(faces), process=True), name, material)
+        faces += [
+            [sc,start_cap+k,start_cap+j],
+            [ec,end_cap+j,end_cap+k],
+        ]
+
+    mesh = trimesh.Trimesh(vertices=np.asarray(verts), faces=np.asarray(faces), process=False)
+    key = f"{group}__{name}"
+    TUBE_SOURCE_CHECKS[key] = {
+        "winding_consistent": bool(mesh.is_winding_consistent),
+        "shared_side_vertices": True,
+        "split_cap_vertices": True,
+        "radial_segments": int(radial_segments),
+        "path_rings": int(rings),
+    }
+    if not TUBE_SOURCE_CHECKS[key]["winding_consistent"]:
+        raise RuntimeError(f"Inconsistent tube winding: {key}")
+    add_mesh(group, mesh, name, material)
+
+def flat_belt_loop(points, z, width, thickness, group, name, material="rubber"):
+    """One continuous flat belt ribbon in the accessory-drive plane."""
+    pts = np.asarray(points, dtype=float)
+    count = len(pts)
+    if count < 4:
+        raise ValueError("belt loop needs at least four points")
+    tangents = np.zeros_like(pts)
+    for i in range(count):
+        tangent = pts[(i+1) % count] - pts[(i-1) % count]
+        tangent /= np.linalg.norm(tangent)
+        tangents[i] = tangent
+    perps = np.column_stack((-tangents[:,1], tangents[:,0]))
+    left = pts + perps * (width * 0.5)
+    right = pts - perps * (width * 0.5)
+    verts = []
+    for zoff in (-thickness*0.5, thickness*0.5):
+        for i in range(count):
+            verts += [
+                [left[i,0], left[i,1], z+zoff],
+                [right[i,0], right[i,1], z+zoff],
+            ]
+    top = count * 2
+    faces = []
+    for i in range(count):
+        j = (i+1) % count
+        bl, br = i*2, i*2+1
+        bjl, bjr = j*2, j*2+1
+        tl, tr = top+bl, top+br
+        tjl, tjr = top+bjl, top+bjr
+        faces += [
+            [tl,tr,tjr],[tl,tjr,tjl],
+            [bl,bjr,br],[bl,bjl,bjr],
+            [bl,tl,tjl],[bl,tjl,bjl],
+            [br,bjr,tjr],[br,tjr,tr],
+        ]
+    mesh = trimesh.Trimesh(vertices=np.asarray(verts), faces=np.asarray(faces), process=False)
+    mesh.fix_normals()
+    add_mesh(group, mesh, name, material)
 
 def tube_between(p0, p1, radius, group, name, material="stainless", sections=96):
     p0 = np.asarray(p0, dtype=float)
@@ -214,9 +300,16 @@ capsule(0.075, 0.34, [0, 0.355, 0], "z", "Intake", "plenum_crown", "dark_composi
 for sx in (-1, 1):
     for i, z in enumerate(bank_zs):
         cylinder(0.044, 0.12, [sx * 0.19, 0.255, z], "y", "Intake", f"throttle_{sx}_{i}", "brushed_aluminium", 112)
+        cylinder(0.050, 0.085, [sx * 0.455, 0.165, z], "y", "Intake", f"head_port_{sx}_{i}", "brushed_aluminium", 72)
         tube_path(
-            [(sx * 0.16, 0.285, z), (sx * 0.24, 0.265, z), (sx * 0.32, 0.215, z), (sx * 0.39, 0.18, z)],
-            0.038, "Intake", f"runner_{sx}_{i}", "dark_composite", radial_segments=20, samples_per_segment=5
+            [
+                (sx * 0.16, 0.285, z),
+                (sx * 0.23, 0.270, z),
+                (sx * 0.33, 0.220, z),
+                (sx * 0.425, 0.172, z),
+                (sx * 0.455, 0.155, z),
+            ],
+            0.038, "Intake", f"runner_{sx}_{i}", "dark_composite", radial_segments=24, samples_per_segment=6
         )
 
 for sx, group in ((1, "Headers_L"), (-1, "Headers_R")):
@@ -240,9 +333,15 @@ rounded_prism([0.43, 0.31, 0.055], [0, 0.02, -0.39], "Accessory_Drive", "rear_pl
 for i, (x, y, r) in enumerate([(-0.12, 0.04, 0.075), (0.12, 0.07, 0.055), (0.0, -0.07, 0.062)]):
     cylinder(r, 0.035, [x, y, -0.425], "z", "Accessory_Drive", f"pulley_{i}", "dark_composite", 144)
     cylinder(r * 0.48, 0.044, [x, y, -0.447], "z", "Accessory_Drive", f"hub_{i}", "brushed_aluminium", 112)
-tube_between((-0.12, 0.11, -0.449), (0.12, 0.11, -0.449), 0.012, "Accessory_Drive", "belt_top", "rubber", 64)
-tube_between((-0.12, -0.03, -0.449), (0, -0.13, -0.449), 0.012, "Accessory_Drive", "belt_low_l", "rubber", 64)
-tube_between((0, -0.13, -0.449), (0.12, 0.01, -0.449), 0.012, "Accessory_Drive", "belt_low_r", "rubber", 64)
+flat_belt_loop(
+    [
+        (-0.185, -0.010), (-0.202, 0.040), (-0.175, 0.102), (-0.120, 0.122),
+        (-0.058, 0.105), (0.070, 0.122), (0.120, 0.132), (0.177, 0.082),
+        (0.166, 0.022), (0.052, -0.030), (0.071, -0.074), (0.000, -0.142),
+        (-0.071, -0.074), (-0.052, -0.030), (-0.082, -0.012),
+    ],
+    -0.449, 0.022, 0.008, "Accessory_Drive", "belt_loop", "rubber"
+)
 
 for sx in (-1, 1):
     box([0.17, 0.055, 0.16], [sx * 0.43, -0.12, 0.26], "Mounts", f"mount_{sx}", "steel")
@@ -261,12 +360,46 @@ y_shift = target_y_center - scaled_bounds.mean(axis=0)[1]
 for geom in scene.geometry.values():
     geom.apply_translation([0.0, y_shift, 0.0])
 
+normal_cache_checks = {}
+for geom_name, geom in scene.geometry.items():
+    vertex_normals = np.asarray(geom.vertex_normals, dtype=float)
+    lengths = np.linalg.norm(vertex_normals, axis=1)
+    ok = bool(
+        len(vertex_normals) == len(geom.vertices)
+        and np.isfinite(vertex_normals).all()
+        and np.all((lengths > 0.98) & (lengths < 1.02))
+    )
+    normal_cache_checks[geom_name] = {
+        "vertices": int(len(geom.vertices)),
+        "normals": int(len(vertex_normals)),
+        "finite_unit_normals": ok,
+    }
+    if not ok:
+        raise RuntimeError(f"Invalid cached vertex normals before export: {geom_name}")
+
+def read_glb_json(path):
+    data = path.read_bytes()
+    if len(data) < 20 or data[:4] != b"glTF":
+        raise RuntimeError("engine export is not a valid GLB header")
+    version, declared_length = struct.unpack_from("<II", data, 4)
+    if version != 2 or declared_length != len(data):
+        raise RuntimeError("engine GLB header length/version mismatch")
+    offset = 12
+    while offset + 8 <= len(data):
+        chunk_length, chunk_type = struct.unpack_from("<II", data, offset)
+        offset += 8
+        payload = data[offset:offset+chunk_length]
+        offset += chunk_length
+        if chunk_type == 0x4E4F534A:
+            return json.loads(payload.decode("utf-8").rstrip(" \t\r\n\0"))
+    raise RuntimeError("engine GLB is missing JSON chunk")
+
 car_hash_before = hashlib.sha256(CAR_GLB.read_bytes()).hexdigest()
 car_manifest = json.loads(CAR_MANIFEST.read_text(encoding="utf-8"))
 if car_hash_before != car_manifest.get("sha256"):
     raise RuntimeError("Approved exterior model hash no longer matches its manifest")
 
-OUT.write_bytes(scene.export(file_type="glb"))
+OUT.write_bytes(scene.export(file_type="glb", include_normals=True))
 loaded = trimesh.load(OUT, force="scene")
 bounds = np.asarray(loaded.bounds, dtype=float)
 triangles = int(sum(len(g.faces) for g in loaded.geometry.values() if hasattr(g, "faces")))
@@ -275,6 +408,76 @@ required_nodes = {"Engine_Root", *GROUPS}
 missing_nodes = sorted(required_nodes - nodes)
 parents = getattr(loaded.graph.transforms, "parents", {})
 wrong_parents = {g: parents.get(g) for g in GROUPS if parents.get(g) != "Engine_Root"}
+
+gltf_header = read_glb_json(OUT)
+accessors = gltf_header.get("accessors", [])
+missing_normal_primitives = []
+normal_count_mismatches = []
+curved_normal_accessors = {}
+mesh_names = []
+for mesh_index, mesh_header in enumerate(gltf_header.get("meshes", [])):
+    mesh_name = mesh_header.get("name", f"mesh_{mesh_index}")
+    mesh_names.append(mesh_name)
+    for prim_index, primitive in enumerate(mesh_header.get("primitives", [])):
+        attrs = primitive.get("attributes", {})
+        pos_index = attrs.get("POSITION")
+        normal_index = attrs.get("NORMAL")
+        if normal_index is None:
+            missing_normal_primitives.append(f"{mesh_name}:{prim_index}")
+            continue
+        pos_count = int(accessors[pos_index]["count"])
+        normal_count = int(accessors[normal_index]["count"])
+        if pos_count != normal_count:
+            normal_count_mismatches.append({
+                "mesh": mesh_name,
+                "primitive": prim_index,
+                "positions": pos_count,
+                "normals": normal_count,
+            })
+        if (
+            "Intake__runner_" in mesh_name
+            or "Headers_L__primary_" in mesh_name
+            or "Headers_R__primary_" in mesh_name
+            or "Intake__plenum_crown" in mesh_name
+        ):
+            curved_normal_accessors[mesh_name] = {
+                "positions": pos_count,
+                "normals": normal_count,
+                "normal_accessor_present": True,
+            }
+
+exported_base_colors = []
+for material_header in gltf_header.get("materials", []):
+    factor = material_header.get("pbrMetallicRoughness", {}).get("baseColorFactor")
+    if factor is not None:
+        exported_base_colors.append([float(v) for v in factor])
+material_color_checks = {
+    name: bool(any(np.allclose(factor, target, atol=1e-6) for factor in exported_base_colors))
+    for name, target in EXPECTED_BASE_COLORS.items()
+}
+
+component_checks = {
+    "intake_runners": sum("Intake__runner_" in n for n in mesh_names),
+    "intake_head_ports": sum("Intake__head_port_" in n for n in mesh_names),
+    "header_primaries": sum("__primary_" in n for n in mesh_names),
+    "continuous_flat_belt": sum("Accessory_Drive__belt_loop" in n for n in mesh_names),
+}
+if missing_normal_primitives:
+    raise RuntimeError(f"Missing GLB NORMAL accessors: {missing_normal_primitives}")
+if normal_count_mismatches:
+    raise RuntimeError(f"GLB NORMAL/POSITION count mismatch: {normal_count_mismatches}")
+if len(curved_normal_accessors) < 13:
+    raise RuntimeError(f"Curved-surface NORMAL coverage incomplete: {len(curved_normal_accessors)} meshes")
+if not all(material_color_checks.values()):
+    raise RuntimeError(f"Exported material base colors differ from intended values: {material_color_checks}")
+if component_checks != {
+    "intake_runners": 6,
+    "intake_head_ports": 6,
+    "header_primaries": 6,
+    "continuous_flat_belt": 1,
+}:
+    raise RuntimeError(f"Component continuity checks failed: {component_checks}")
+
 if not np.isfinite(bounds).all():
     raise RuntimeError("Engine bounds are not finite")
 if missing_nodes:
@@ -311,7 +514,7 @@ if car_hash_before != car_hash_after:
 
 manifest = {
     "asset": "YUNEX 992 GT3 RS simplified 4.0L naturally aspirated flat-six",
-    "status": "restrained refinement pass for master review",
+    "status": "targeted finishing pass for master review",
     "units": "metres",
     "axis": {"forward": "+Z", "up": "+Y", "left": "+X"},
     "engine_root": "crankcase centre",
@@ -321,6 +524,7 @@ manifest = {
     "geometry_primitives": len(loaded.geometry),
     "named_groups": ["Engine_Root", *GROUPS],
     "materials": [m.name for m in MATERIALS.values()],
+    "exported_base_color_factors": exported_base_colors,
     "explode_vectors_local_metres": EXPLODE_VECTORS,
     "installation": {
         "parent_marker": "Marker_Engine_Mass",
@@ -348,6 +552,22 @@ validation = {
     "metre_scale_dimensions": (bounds[1] - bounds[0]).tolist(),
     "required_groups_present": True,
     "direct_group_parenting": True,
+    "gltf_normal_accessors": {
+        "all_primitives_have_normals": len(missing_normal_primitives) == 0,
+        "position_normal_counts_match": len(normal_count_mismatches) == 0,
+        "missing": missing_normal_primitives,
+        "count_mismatches": normal_count_mismatches,
+        "curved_meshes": curved_normal_accessors,
+        "source_tube_vertex_sharing_and_winding": TUBE_SOURCE_CHECKS,
+    },
+    "material_base_color_factors": {
+        "expected": EXPECTED_BASE_COLORS,
+        "exported": exported_base_colors,
+        "all_expected_present": all(material_color_checks.values()),
+        "per_material_match": material_color_checks,
+    },
+    "component_checks": component_checks,
+    "normal_cache_checks_pass": all(v["finite_unit_normals"] for v in normal_cache_checks.values()),
     "independent_component_translations": independent_translation,
     "triangle_budget_target": [25000, 50000],
     "triangle_count": triangles,
@@ -355,7 +575,8 @@ validation = {
     "installation": {
         "marker_metres": [0.0, 0.47, -1.78],
         "rear_axle_z_metres": -1.2114155216682174,
-        "visual_clearance_review": "Use generated orthographic side/top renders against actual car surfaces; AABB overlap is not treated as proof of clearance."
+        "visual_clearance_review": "Use generated rear-bay side/top renders against actual car surfaces; AABB overlap is not treated as proof of clearance.",
+        "unresolved_fit_issue": "Rear deck/undertray surfaces are hidden in the viewer to expose the engine, so hard shell clearance remains unresolved for master visual review. No clearance approval is claimed."
     },
     "exterior_model_hash_before": car_hash_before,
     "exterior_model_hash_after": car_hash_after,
@@ -363,6 +584,21 @@ validation = {
     "engine_sha256": manifest["sha256"],
 }
 VALIDATION.write_text(json.dumps(validation, indent=2) + "\n", encoding="utf-8")
+
+review_note = f"""# YUNEX engine finishing review
+
+- Changed source/presentation: `build_engine.py`, `review.html`, `render_review.mjs`, workflow verification, and README review guidance.
+- Generated outputs: `engine.glb`, `asset-manifest.json`, `validation.json`, three PNG review renders, and `renders/engine_turntable.mp4`.
+- Actual triangle count: **{triangles:,}** (budget 25–50k).
+- Exact GLB load: **PASS**; finite metre-scale bounds: **PASS**.
+- GLB NORMAL accessors: **PASS** on every primitive; POSITION/NORMAL counts match. Curved intake/header/plenum meshes are explicitly covered.
+- Tube topology: shared side vertices with split cap rings; source winding checks: **PASS**.
+- Components: six connected intake runners + six head-port collars, six header primaries, one continuous flat accessory belt: **PASS**.
+- Exported material baseColorFactor values match the intended Python values: **PASS**.
+- Approved exterior SHA-256 before/after: `{car_hash_before}` / `{car_hash_after}` — **unchanged**.
+- Installed fit: **UNRESOLVED FOR MASTER REVIEW**. Rear deck/undertray/interior obstruction is deliberately suppressed only in the review viewer so the opaque engine can be inspected. No shell-clearance claim is made; inspect the side/top PNGs for visible intersections before approval.
+"""
+REVIEW_NOTE.write_text(review_note, encoding="utf-8")
 
 if README.exists():
     text = README.read_text(encoding="utf-8")
@@ -374,6 +610,7 @@ if README.exists():
         f"- Local Y bounds: **{bounds[0,1]:.4f} m to {bounds[1,1]:.4f} m**.\n"
         f"- Triangle count: **{triangles:,}**.\n"
         f"- Geometry primitives: **{len(loaded.geometry)}**.\n"
+        f"- GLB NORMAL accessors: **all primitives present / POSITION counts matched**.\n"
         f"- Engine SHA-256: `{manifest['sha256']}`.\n"
         f"- Approved exterior SHA-256 before/after: `{car_hash_before}` / `{car_hash_after}` (**unchanged**).\n"
         f"- Installation: `Engine_Root` at `Marker_Engine_Mass` = `[0, 0.47, -1.78]` m; local offset `[0, 0, 0]`.\n"

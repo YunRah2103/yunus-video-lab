@@ -1,4 +1,4 @@
-name: YUNEX engine refinement build
+name: YUNEX engine finishing build
 
 on:
   push:
@@ -31,6 +31,8 @@ jobs:
         run: |
           npm install --prefix cars/porsche-911-gt3-rs-992/engine --no-save three@0.180.0 playwright@1.55.0
           npx --prefix cars/porsche-911-gt3-rs-992/engine playwright install --with-deps chromium
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg
       - name: Record exterior hash before build
         run: sha256sum cars/porsche-911-gt3-rs-992/model.glb | tee /tmp/exterior-before.sha256
       - name: Build and validate exact engine GLB
@@ -46,13 +48,40 @@ jobs:
           trap 'kill $SERVER_PID || true' EXIT
           sleep 2
           node cars/porsche-911-gt3-rs-992/engine/render_review.mjs
-      - name: Verify review outputs
+      - name: Verify master-review outputs
         run: |
           test -s cars/porsche-911-gt3-rs-992/engine/renders/review_isolated_rear_three_quarter.png
           test -s cars/porsche-911-gt3-rs-992/engine/renders/review_installed_side.png
           test -s cars/porsche-911-gt3-rs-992/engine/renders/review_installed_top.png
+          test -s cars/porsche-911-gt3-rs-992/engine/renders/engine_turntable.mp4
+          test -s cars/porsche-911-gt3-rs-992/engine/REVIEW_NOTE.md
           python -m json.tool cars/porsche-911-gt3-rs-992/engine/asset-manifest.json >/dev/null
           python -m json.tool cars/porsche-911-gt3-rs-992/engine/validation.json >/dev/null
+          python - <<'PY'
+          import json
+          p='cars/porsche-911-gt3-rs-992/engine/validation.json'
+          v=json.load(open(p))
+          assert v['engine_glb_load']
+          assert v['exterior_unchanged']
+          assert v['gltf_normal_accessors']['all_primitives_have_normals']
+          assert v['gltf_normal_accessors']['position_normal_counts_match']
+          assert v['material_base_color_factors']['all_expected_present']
+          assert v['component_checks']=={'intake_runners':6,'intake_head_ports':6,'header_primaries':6,'continuous_flat_belt':1}
+          assert v['triangle_budget_pass']
+          PY
+      - name: Upload master-review bundle
+        uses: actions/upload-artifact@v4
+        with:
+          name: yunex-engine-master-review-\${{ github.sha }}
+          path: |
+            cars/porsche-911-gt3-rs-992/engine/engine.glb
+            cars/porsche-911-gt3-rs-992/engine/asset-manifest.json
+            cars/porsche-911-gt3-rs-992/engine/validation.json
+            cars/porsche-911-gt3-rs-992/engine/REVIEW_NOTE.md
+            cars/porsche-911-gt3-rs-992/engine/renders/review_isolated_rear_three_quarter.png
+            cars/porsche-911-gt3-rs-992/engine/renders/review_installed_side.png
+            cars/porsche-911-gt3-rs-992/engine/renders/review_installed_top.png
+            cars/porsche-911-gt3-rs-992/engine/renders/engine_turntable.mp4
       - name: Commit generated master-review assets
         run: |
           git config user.name "github-actions[bot]"
@@ -61,9 +90,11 @@ jobs:
           git add cars/porsche-911-gt3-rs-992/engine/asset-manifest.json
           git add cars/porsche-911-gt3-rs-992/engine/validation.json
           git add cars/porsche-911-gt3-rs-992/engine/README.md
+          git add cars/porsche-911-gt3-rs-992/engine/REVIEW_NOTE.md
           git add cars/porsche-911-gt3-rs-992/engine/renders/review_isolated_rear_three_quarter.png
           git add cars/porsche-911-gt3-rs-992/engine/renders/review_installed_side.png
           git add cars/porsche-911-gt3-rs-992/engine/renders/review_installed_top.png
-          git diff --cached --quiet || git commit -m "YUNEX engine refinement - generate master review assets [skip ci]"
+          git add cars/porsche-911-gt3-rs-992/engine/renders/engine_turntable.mp4
+          git diff --cached --quiet || git commit -m "YUNEX engine finishing - generate master review assets [skip ci]"
           git pull --rebase origin sol/gt3rs-engine-lookdev
           git push origin HEAD:sol/gt3rs-engine-lookdev

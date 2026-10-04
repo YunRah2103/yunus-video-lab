@@ -1,6 +1,6 @@
 # YUNEX · 992 GT3 RS flat-six engine add-on
 
-Status: **restrained refinement pass for master review**.
+Status: **targeted finishing pass for master review**.
 
 This folder contains one separate reusable engine asset for the approved `cars/porsche-911-gt3-rs-992/model.glb`. The exterior is loaded read-only for installed previews and is never rebuilt, replaced, or baked together with the engine.
 
@@ -39,11 +39,13 @@ No V layout, turbochargers, air-cooled fan tower, gearbox, pistons, valvetrain o
 
 ## Master-review renders
 
-Three.js renders the **actual exported GLB** with its PBR materials, fixed cameras, a soft studio environment, ACES tone mapping and controlled key/fill/rim light. Installed views clone exterior materials only in memory to ghost the body while wheels/brake hardware remain opaque.
+Three.js renders the **actual exported GLB** with its PBR materials, fixed cameras, restrained environment light, a shadow-casting studio key and contact shadow. Installed views suppress obstructing interior/rear layers in memory, keep only a restrained body outline plus opaque wheels/brakes, frame the rear bay large, and add a small full-car context inset. The exterior GLB itself is never edited.
 
 - `renders/review_isolated_rear_three_quarter.png`
 - `renders/review_installed_side.png`
 - `renders/review_installed_top.png`
+- `renders/engine_turntable.mp4` — 6-second shading turntable from the exact exported GLB.
+- `REVIEW_NOTE.md` — concise master-review checks and the unresolved fit statement.
 
 Side/top views show the rear axle and actual exterior surfaces for fit review. Bounding-box overlap is not treated as proof of clearance; unresolved visible intersections must be reported honestly.
 
