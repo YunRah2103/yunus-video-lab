@@ -69,19 +69,6 @@ jobs:
           assert v['component_checks']=={'intake_runners':6,'intake_head_ports':6,'header_primaries':6,'continuous_flat_belt':1}
           assert v['triangle_budget_pass']
           PY
-      - name: Upload master-review bundle
-        uses: actions/upload-artifact@v4
-        with:
-          name: yunex-engine-master-review-\${{ github.sha }}
-          path: |
-            cars/porsche-911-gt3-rs-992/engine/engine.glb
-            cars/porsche-911-gt3-rs-992/engine/asset-manifest.json
-            cars/porsche-911-gt3-rs-992/engine/validation.json
-            cars/porsche-911-gt3-rs-992/engine/REVIEW_NOTE.md
-            cars/porsche-911-gt3-rs-992/engine/renders/review_isolated_rear_three_quarter.png
-            cars/porsche-911-gt3-rs-992/engine/renders/review_installed_side.png
-            cars/porsche-911-gt3-rs-992/engine/renders/review_installed_top.png
-            cars/porsche-911-gt3-rs-992/engine/renders/engine_turntable.mp4
       - name: Commit generated master-review assets
         run: |
           git config user.name "github-actions[bot]"
@@ -98,3 +85,16 @@ jobs:
           git diff --cached --quiet || git commit -m "YUNEX engine finishing - generate master review assets [skip ci]"
           git pull --rebase origin sol/gt3rs-engine-lookdev
           git push origin HEAD:sol/gt3rs-engine-lookdev
+      - name: Upload master-review bundle
+        uses: actions/upload-artifact@v4
+        with:
+          name: yunex-engine-master-review-${{ github.sha }}
+          path: |
+            cars/porsche-911-gt3-rs-992/engine/engine.glb
+            cars/porsche-911-gt3-rs-992/engine/asset-manifest.json
+            cars/porsche-911-gt3-rs-992/engine/validation.json
+            cars/porsche-911-gt3-rs-992/engine/REVIEW_NOTE.md
+            cars/porsche-911-gt3-rs-992/engine/renders/review_isolated_rear_three_quarter.png
+            cars/porsche-911-gt3-rs-992/engine/renders/review_installed_side.png
+            cars/porsche-911-gt3-rs-992/engine/renders/review_installed_top.png
+            cars/porsche-911-gt3-rs-992/engine/renders/engine_turntable.mp4

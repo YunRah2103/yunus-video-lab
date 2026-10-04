@@ -28,7 +28,7 @@ const turn=await browser.newPage({viewport:{width:960,height:720},deviceScaleFac
 turn.on('pageerror',e=>console.error('[turntable:error] '+e.message));
 await turn.goto(base+'?view=turntable',{waitUntil:'networkidle',timeout:120000});
 await turn.waitForFunction(()=>window.__reviewReady===true,{timeout:120000});
-const fps=24,seconds=6,total=fps*seconds;
+const fps=18,seconds=6,total=fps*seconds;
 for(let i=0;i<total;i++){
   const angle=(i/total)*Math.PI*2;
   await turn.evaluate(a=>window.__setTurntableAngle(a),angle);
