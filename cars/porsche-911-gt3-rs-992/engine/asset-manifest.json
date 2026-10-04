@@ -1,0 +1,137 @@
+{
+  "asset": "YUNEX 992 GT3 RS simplified 4.0L naturally aspirated flat-six",
+  "status": "rough look-development for Astra review",
+  "units": "metres",
+  "axis": {
+    "forward": "+Z",
+    "up": "+Y",
+    "left": "+X"
+  },
+  "engine_root": "crankcase centre",
+  "bounds_metres": [
+    [
+      -0.550000011920929,
+      -0.23999999463558197,
+      -0.45874568819999695
+    ],
+    [
+      0.550000011920929,
+      0.4099999964237213,
+      0.3912543058395386
+    ]
+  ],
+  "dimensions_metres": [
+    1.100000023841858,
+    0.6499999910593033,
+    0.8499999940395355
+  ],
+  "triangles": 29308,
+  "geometry_primitives": 103,
+  "named_groups": [
+    "Engine_Root",
+    "Crankcase",
+    "Bank_L",
+    "Bank_R",
+    "Intake",
+    "Headers_L",
+    "Headers_R",
+    "Accessory_Drive",
+    "Cover_L",
+    "Cover_R",
+    "Mounts"
+  ],
+  "materials": [
+    "Cast_Aluminium",
+    "Brushed_Aluminium",
+    "Dark_Composite",
+    "Stainless_Header",
+    "Restrained_Rubber",
+    "Dark_Steel"
+  ],
+  "explode_vectors_local_metres": {
+    "Crankcase": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "Bank_L": [
+      0.34,
+      0.02,
+      0.0
+    ],
+    "Bank_R": [
+      -0.34,
+      0.02,
+      0.0
+    ],
+    "Intake": [
+      0.0,
+      0.3,
+      0.0
+    ],
+    "Headers_L": [
+      0.26,
+      -0.22,
+      -0.05
+    ],
+    "Headers_R": [
+      -0.26,
+      -0.22,
+      -0.05
+    ],
+    "Accessory_Drive": [
+      0.0,
+      0.0,
+      -0.28
+    ],
+    "Cover_L": [
+      0.2,
+      0.04,
+      0.0
+    ],
+    "Cover_R": [
+      -0.2,
+      0.04,
+      0.0
+    ],
+    "Mounts": [
+      0.0,
+      -0.18,
+      0.12
+    ]
+  },
+  "installation": {
+    "parent_marker": "Marker_Engine_Mass",
+    "car_marker_translation_metres": [
+      0.0,
+      0.47,
+      -1.78
+    ],
+    "rear_axle_z_metres": -1.2114155216682174,
+    "local_offset_metres": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "global_bounds_at_marker_metres": [
+      [
+        -0.550000011920929,
+        0.230000005364418,
+        -2.238745688199997
+      ],
+      [
+        0.550000011920929,
+        0.8799999964237213,
+        -1.3887456941604615
+      ]
+    ],
+    "note": "Marker is approximate and is not a validated engine centre of gravity."
+  },
+  "limitations": [
+    "Original simplified explanatory geometry; not Porsche CAD.",
+    "No gearbox, pistons, valvetrain, animated internals, turbochargers or air-cooled fan tower.",
+    "Dimensions and installation marker are illustrative fit targets rather than measured engine package data.",
+    "Rough installed preview uses canonical car dimensions and wheel pivots as a fit proxy; exterior GLB is unchanged."
+  ],
+  "sha256": "e618b289e2ae74f56991c601dcc8b9b81bf50a1f15a0292feb4518d7a004af76"
+}
