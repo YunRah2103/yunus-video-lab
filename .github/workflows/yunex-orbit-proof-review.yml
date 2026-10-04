@@ -1,0 +1,82 @@
+name: YUNEX orbit-cutaway master-review render
+
+on:
+  push:
+    branches:
+      - sol/yunex-orbit-cutaway-proof
+    paths:
+      - '.github/workflows/yunex-orbit-proof-review.yml'
+  workflow_dispatch:
+
+jobs:
+  render-review:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+          cache-dependency-path: yunex/package-lock.json
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install fit dependencies
+        run: python -m pip install --disable-pip-version-check numpy scipy trimesh rtree
+      - name: Stage approved assets and inspect fit
+        run: |
+          cp cars/porsche-911-gt3-rs-992/model.glb yunex/public/model.glb
+          cp cars/porsche-911-gt3-rs-992/engine/engine.glb yunex/public/engine.glb
+          python yunex/fit_check.py
+      - name: Patch review-only render cost
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p=Path('yunex/src/OrbitCutawayProof.tsx')
+          s=p.read_text()
+          anchor="const cameraState = cameraStateForFrame(frame, duration);"
+          repl="const baseCameraState = cameraStateForFrame(frame, duration);\n  const cameraState = {...baseCameraState, zoom:baseCameraState.zoom * 0.5};"
+          if anchor not in s: raise SystemExit('camera anchor missing')
+          s=s.replace(anchor,repl,1)
+          old='<ThreeCanvas width={1080} height={1920} orthographic camera={{position:cameraState.position,zoom:cameraState.zoom,near:0.1,far:100}} gl={{antialias:true,alpha:true,preserveDrawingBuffer:true}}>'
+          new='<ThreeCanvas width={540} height={960} style={{width:1080,height:1920}} orthographic camera={{position:cameraState.position,zoom:cameraState.zoom*0.5,near:0.1,far:100}} gl={{antialias:false,alpha:true,preserveDrawingBuffer:true}}>'
+          if old not in s: raise SystemExit('canvas anchor missing')
+          s=s.replace(old,new,1)
+          s=s.replace('o.castShadow = true;','o.castShadow = false;')
+          s=s.replace('o.receiveShadow = true;','o.receiveShadow = false;')
+          s=s.replace(' color="#fff5e8" castShadow/>',' color="#fff5e8"/>')
+          s=s.replace(' rotation={[-Math.PI/2,0,0]} receiveShadow>',' rotation={[-Math.PI/2,0,0]}>')
+          p.write_text(s)
+          q=Path('yunex/src/index.tsx')
+          t=q.read_text()
+          t=t.replace('component={OrbitCutawayProof} width={1080} height={1920} fps={30} durationInFrames={225}', 'component={OrbitCutawayProof} width={1080} height={1920} fps={30} durationInFrames={180}')
+          q.write_text(t)
+          PY
+      - name: Install Remotion dependencies
+        working-directory: yunex
+        run: npm ci
+      - name: Render 6s master-review MP4
+        working-directory: yunex
+        env:
+          NODE_OPTIONS: --require=./fix-network.cjs
+        run: |
+          mkdir -p out
+          npx remotion render src/index.tsx YUNEX-ORBIT-CUTAWAY-PROOF out/YUNEX_ORBIT_CUTAWAY_PROOF.mp4 --gl=swangle --concurrency=2 --codec=h264 --crf=17
+          ffmpeg -y -ss 0.7 -i out/YUNEX_ORBIT_CUTAWAY_PROOF.mp4 -frames:v 1 out/key_01_hero.png
+          ffmpeg -y -ss 2.8 -i out/YUNEX_ORBIT_CUTAWAY_PROOF.mp4 -frames:v 1 out/key_02_cutaway.png
+          ffmpeg -y -ss 5.3 -i out/YUNEX_ORBIT_CUTAWAY_PROOF.mp4 -frames:v 1 out/key_03_technical.png
+          ffprobe -v error -show_entries format=duration:stream=width,height,r_frame_rate,codec_name -of json out/YUNEX_ORBIT_CUTAWAY_PROOF.mp4 > out/ffprobe.json
+      - name: Upload review artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: yunex-orbit-cutaway-master-review
+          path: |
+            yunex/out/YUNEX_ORBIT_CUTAWAY_PROOF.mp4
+            yunex/out/key_01_hero.png
+            yunex/out/key_02_cutaway.png
+            yunex/out/key_03_technical.png
+            yunex/out/fit-report.json
+            yunex/out/ffprobe.json
+          if-no-files-found: error
+          retention-days: 7
