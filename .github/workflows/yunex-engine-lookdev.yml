@@ -1,4 +1,4 @@
-name: YUNEX engine lookdev build
+name: YUNEX engine refinement build
 
 on:
   push:
@@ -22,20 +22,48 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
       - run: python -m pip install --upgrade pip
-      - run: python -m pip install numpy trimesh matplotlib
-      - name: Build and validate engine GLB
+      - run: python -m pip install numpy==2.3.5 trimesh==4.11.1
+      - name: Install deterministic Three.js review renderer
+        run: |
+          npm install --prefix cars/porsche-911-gt3-rs-992/engine --no-save three@0.180.0 playwright@1.55.0
+          npx --prefix cars/porsche-911-gt3-rs-992/engine playwright install --with-deps chromium
+      - name: Record exterior hash before build
+        run: sha256sum cars/porsche-911-gt3-rs-992/model.glb | tee /tmp/exterior-before.sha256
+      - name: Build and validate exact engine GLB
         run: python cars/porsche-911-gt3-rs-992/engine/build_engine.py
-      - name: Render Astra lookdev pair
-        run: python cars/porsche-911-gt3-rs-992/engine/render_lookdev.py
-      - name: Commit generated review assets
+      - name: Confirm exterior byte-identical
+        run: |
+          sha256sum cars/porsche-911-gt3-rs-992/model.glb | tee /tmp/exterior-after.sha256
+          test "$(cut -d' ' -f1 /tmp/exterior-before.sha256)" = "$(cut -d' ' -f1 /tmp/exterior-after.sha256)"
+      - name: Render actual GLBs in Three.js
+        run: |
+          python -m http.server 8000 --bind 127.0.0.1 >/tmp/yunex-http.log 2>&1 &
+          SERVER_PID=$!
+          trap 'kill $SERVER_PID || true' EXIT
+          sleep 2
+          node cars/porsche-911-gt3-rs-992/engine/render_review.mjs
+      - name: Verify review outputs
+        run: |
+          test -s cars/porsche-911-gt3-rs-992/engine/renders/review_isolated_rear_three_quarter.png
+          test -s cars/porsche-911-gt3-rs-992/engine/renders/review_installed_side.png
+          test -s cars/porsche-911-gt3-rs-992/engine/renders/review_installed_top.png
+          python -m json.tool cars/porsche-911-gt3-rs-992/engine/asset-manifest.json >/dev/null
+          python -m json.tool cars/porsche-911-gt3-rs-992/engine/validation.json >/dev/null
+      - name: Commit generated master-review assets
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add cars/porsche-911-gt3-rs-992/engine/engine.glb
           git add cars/porsche-911-gt3-rs-992/engine/asset-manifest.json
-          git add cars/porsche-911-gt3-rs-992/engine/renders/lookdev_isolated.png
-          git add cars/porsche-911-gt3-rs-992/engine/renders/lookdev_installed.png
-          git diff --cached --quiet || git commit -m "YUNEX engine lookdev - generate GLB and Astra review previews [skip ci]"
+          git add cars/porsche-911-gt3-rs-992/engine/validation.json
+          git add cars/porsche-911-gt3-rs-992/engine/README.md
+          git add cars/porsche-911-gt3-rs-992/engine/renders/review_isolated_rear_three_quarter.png
+          git add cars/porsche-911-gt3-rs-992/engine/renders/review_installed_side.png
+          git add cars/porsche-911-gt3-rs-992/engine/renders/review_installed_top.png
+          git diff --cached --quiet || git commit -m "YUNEX engine refinement - generate master review assets [skip ci]"
           git pull --rebase origin sol/gt3rs-engine-lookdev
           git push origin HEAD:sol/gt3rs-engine-lookdev

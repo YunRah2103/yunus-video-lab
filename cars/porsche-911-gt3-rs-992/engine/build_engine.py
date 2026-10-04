@@ -20,8 +20,13 @@ import trimesh
 from trimesh.visual.material import PBRMaterial
 
 HERE = Path(__file__).resolve().parent
+CAR_DIR = HERE.parent
 OUT = HERE / "engine.glb"
 MANIFEST = HERE / "asset-manifest.json"
+VALIDATION = HERE / "validation.json"
+README = HERE / "README.md"
+CAR_GLB = CAR_DIR / "model.glb"
+CAR_MANIFEST = CAR_DIR / "asset-manifest.json"
 
 MATERIALS = {
     "cast_aluminium": PBRMaterial(name="Cast_Aluminium", baseColorFactor=[0.46, 0.48, 0.50, 1.0], metallicFactor=0.58, roughnessFactor=0.48),
@@ -59,6 +64,32 @@ def box(extents, center, group, name, material="cast_aluminium"):
     mesh = trimesh.creation.box(extents=extents, transform=trimesh.transformations.translation_matrix(center))
     add_mesh(group, mesh, name, material)
 
+def rounded_prism(extents, center, group, name, material="cast_aluminium", radius=0.04, corner_segments=5):
+    """Rounded X/Y profile extruded along Z for restrained housing bevels."""
+    ex, ey, ez = map(float, extents)
+    r = max(0.0, min(float(radius), ex * 0.24, ey * 0.24))
+    hx, hy, hz = ex / 2.0, ey / 2.0, ez / 2.0
+    pts = []
+    corners = [
+        (hx-r, hy-r, 0.0), (-hx+r, hy-r, math.pi/2),
+        (-hx+r, -hy+r, math.pi), (hx-r, -hy+r, 3*math.pi/2),
+    ]
+    for cx, cy, start in corners:
+        for j in range(corner_segments + 1):
+            a = start + (j / corner_segments) * (math.pi / 2)
+            pts.append((cx + r*math.cos(a), cy + r*math.sin(a)))
+    n = len(pts)
+    verts = []
+    for z in (-hz, hz):
+        verts.extend([[x+center[0], y+center[1], z+center[2]] for x, y in pts])
+    verts += [[center[0], center[1], center[2]-hz], [center[0], center[1], center[2]+hz]]
+    bc, tc = len(verts)-2, len(verts)-1
+    faces = []
+    for i in range(n):
+        j = (i+1) % n
+        faces += [[i,j,n+j], [i,n+j,n+i], [bc,j,i], [tc,n+i,n+j]]
+    add_mesh(group, trimesh.Trimesh(vertices=np.asarray(verts), faces=np.asarray(faces), process=True), name, material)
+
 def cylinder(radius, height, center, axis, group, name, material="steel", sections=128):
     mesh = trimesh.creation.cylinder(radius=radius, height=height, sections=sections)
     if axis == "x":
@@ -81,6 +112,59 @@ def capsule(radius, height, center, axis, group, name, material="cast_aluminium"
     mesh.apply_transform(trimesh.transformations.translation_matrix(center) @ rotation)
     add_mesh(group, mesh, name, material)
 
+def _catmull_rom(points, samples_per_segment=7):
+    p = [np.asarray(x, dtype=float) for x in points]
+    padded = [p[0], *p, p[-1]]
+    out = []
+    for i in range(1, len(padded)-2):
+        p0, p1, p2, p3 = padded[i-1], padded[i], padded[i+1], padded[i+2]
+        for s in range(samples_per_segment):
+            t = s / float(samples_per_segment)
+            t2, t3 = t*t, t*t*t
+            out.append(0.5*((2*p1)+(-p0+p2)*t+(2*p0-5*p1+4*p2-p3)*t2+(-p0+3*p1-3*p2+p3)*t3))
+    out.append(p[-1])
+    return np.asarray(out)
+
+def tube_path(points, radius, group, name, material="stainless", radial_segments=24, samples_per_segment=7):
+    """Continuous tube mesh with caps only at the actual ends."""
+    path = _catmull_rom(points, samples_per_segment)
+    tangents = np.zeros_like(path)
+    tangents[0] = path[1]-path[0]
+    tangents[-1] = path[-1]-path[-2]
+    tangents[1:-1] = path[2:]-path[:-2]
+    tangents /= np.linalg.norm(tangents, axis=1)[:,None]
+    normals = np.zeros_like(path)
+    bins = np.zeros_like(path)
+    seed = np.array([0.0,1.0,0.0])
+    if abs(np.dot(seed,tangents[0])) > 0.92: seed = np.array([1.0,0.0,0.0])
+    normals[0] = np.cross(tangents[0], seed); normals[0] /= np.linalg.norm(normals[0])
+    bins[0] = np.cross(tangents[0], normals[0]); bins[0] /= np.linalg.norm(bins[0])
+    for i in range(1,len(path)):
+        n = normals[i-1] - tangents[i]*np.dot(normals[i-1],tangents[i])
+        if np.linalg.norm(n) < 1e-7: n = np.cross(tangents[i], bins[i-1])
+        n /= np.linalg.norm(n)
+        b = np.cross(tangents[i],n); b /= np.linalg.norm(b)
+        normals[i], bins[i] = n, b
+    verts = []
+    for i,p in enumerate(path):
+        for j in range(radial_segments):
+            a = 2*math.pi*j/radial_segments
+            verts.append(p + radius*(math.cos(a)*normals[i] + math.sin(a)*bins[i]))
+    faces = []
+    rings = len(path)
+    for i in range(rings-1):
+        a0, a1 = i*radial_segments, (i+1)*radial_segments
+        for j in range(radial_segments):
+            k = (j+1) % radial_segments
+            faces += [[a0+j,a0+k,a1+k],[a0+j,a1+k,a1+j]]
+    verts += [path[0], path[-1]]
+    sc, ec = len(verts)-2, len(verts)-1
+    last = (rings-1)*radial_segments
+    for j in range(radial_segments):
+        k = (j+1)%radial_segments
+        faces += [[sc,k,j],[ec,last+j,last+k]]
+    add_mesh(group, trimesh.Trimesh(vertices=np.asarray(verts), faces=np.asarray(faces), process=True), name, material)
+
 def tube_between(p0, p1, radius, group, name, material="stainless", sections=96):
     p0 = np.asarray(p0, dtype=float)
     p1 = np.asarray(p1, dtype=float)
@@ -100,8 +184,8 @@ def tube_between(p0, p1, radius, group, name, material="stainless", sections=96)
     mesh.apply_transform(trimesh.transformations.translation_matrix((p0 + p1) * 0.5) @ rotation)
     add_mesh(group, mesh, name, material)
 
-box([0.58, 0.30, 0.60], [0, 0.00, 0.00], "Crankcase", "main_case")
-box([0.42, 0.13, 0.47], [0, -0.18, 0.00], "Crankcase", "sump")
+rounded_prism([0.58, 0.30, 0.60], [0, 0.00, 0.00], "Crankcase", "main_case", radius=0.055)
+rounded_prism([0.42, 0.13, 0.47], [0, -0.18, 0.00], "Crankcase", "sump", radius=0.025)
 cylinder(0.205, 0.10, [0, 0.01, 0.35], "z", "Crankcase", "flywheel_housing", "cast_aluminium", 160)
 cylinder(0.105, 0.67, [0, -0.015, 0.0], "z", "Crankcase", "crank_spine", "brushed_aluminium", 144)
 for i, z in enumerate(np.linspace(-0.24, 0.24, 5)):
@@ -111,7 +195,7 @@ for sx in (-1, 1):
 
 bank_zs = [-0.22, 0.0, 0.22]
 for group, sx in (("Bank_L", 1), ("Bank_R", -1)):
-    box([0.30, 0.25, 0.65], [sx * 0.37, 0.045, 0], group, "water_jacket")
+    rounded_prism([0.30, 0.25, 0.65], [sx * 0.37, 0.045, 0], group, "water_jacket", radius=0.045)
     for i, z in enumerate(bank_zs):
         cylinder(0.108, 0.31, [sx * 0.39, 0.045, z], "x", group, f"cylinder_bulge_{i}", "cast_aluminium", 144)
         box([0.035, 0.19, 0.15], [sx * 0.535, 0.055, z], group, f"head_flange_{i}", "brushed_aluminium")
@@ -119,36 +203,40 @@ for group, sx in (("Bank_L", 1), ("Bank_R", -1)):
         box([0.32, 0.026, 0.035], [sx * 0.37, 0.158, z], group, f"housing_rib_{i}", "brushed_aluminium")
 
 for group, sx in (("Cover_L", 1), ("Cover_R", -1)):
-    box([0.085, 0.205, 0.59], [sx * 0.545, 0.07, 0], group, "main_cover", "dark_composite")
+    rounded_prism([0.085, 0.205, 0.59], [sx * 0.545, 0.07, 0], group, "main_cover", "dark_composite", radius=0.024)
     for i, z in enumerate([-0.18, 0.0, 0.18]):
         box([0.018, 0.16, 0.045], [sx * 0.592, 0.08, z], group, f"cover_rib_{i}", "dark_composite")
     for i, z in enumerate([-0.24, 0.0, 0.24]):
         cylinder(0.014, 0.012, [sx * 0.593, 0.13, z], "x", group, f"fastener_{i}", "steel", 64)
 
-box([0.36, 0.15, 0.56], [0, 0.31, 0.0], "Intake", "plenum", "dark_composite")
+rounded_prism([0.36, 0.15, 0.56], [0, 0.31, 0.0], "Intake", "plenum", "dark_composite", radius=0.035)
 capsule(0.075, 0.34, [0, 0.355, 0], "z", "Intake", "plenum_crown", "dark_composite")
 for sx in (-1, 1):
     for i, z in enumerate(bank_zs):
         cylinder(0.044, 0.12, [sx * 0.19, 0.255, z], "y", "Intake", f"throttle_{sx}_{i}", "brushed_aluminium", 112)
-        p0 = (sx * 0.16, 0.285, z)
-        p1 = (sx * 0.29, 0.235, z)
-        p2 = (sx * 0.39, 0.18, z)
-        tube_between(p0, p1, 0.038, "Intake", f"runnerA_{sx}_{i}", "dark_composite", 96)
-        tube_between(p1, p2, 0.038, "Intake", f"runnerB_{sx}_{i}", "dark_composite", 96)
+        tube_path(
+            [(sx * 0.16, 0.285, z), (sx * 0.24, 0.265, z), (sx * 0.32, 0.215, z), (sx * 0.39, 0.18, z)],
+            0.038, "Intake", f"runner_{sx}_{i}", "dark_composite", radial_segments=20, samples_per_segment=5
+        )
 
 for sx, group in ((1, "Headers_L"), (-1, "Headers_R")):
-    collector_z = -0.18
+    merge_z = -0.19
     for i, z in enumerate(bank_zs):
-        p0 = (sx * 0.55, -0.01, z)
-        p1 = (sx * 0.49, -0.17, z - 0.02)
-        p2 = (sx * 0.34, -0.245, z - 0.07)
-        p3 = (sx * 0.26, -0.245, collector_z)
-        tube_between(p0, p1, 0.026, group, f"primary_{i}_a")
-        tube_between(p1, p2, 0.026, group, f"primary_{i}_b")
-        tube_between(p2, p3, 0.028, group, f"primary_{i}_c")
-    cylinder(0.064, 0.25, [sx * 0.23, -0.245, -0.20], "z", group, "collector", "stainless", 128)
+        tube_path(
+            [
+                (sx * (0.55 - 0.018 * i), -0.01, z),
+                (sx * 0.52, -0.11, z - 0.015),
+                (sx * 0.45, -0.20, z - 0.045),
+                (sx * 0.34, -0.245, z * 0.58 - 0.055),
+                (sx * 0.265, -0.245, merge_z + (i - 1) * 0.018),
+            ],
+            0.025 if i != 1 else 0.026,
+            group, f"primary_{i}", "stainless", radial_segments=24, samples_per_segment=7,
+        )
+    capsule(0.064, 0.18, [sx * 0.23, -0.245, -0.205], "z", group, "collector", "stainless")
+    tube_path([(sx * 0.23, -0.245, -0.31), (sx * 0.22, -0.235, -0.39)], 0.052, group, "collector_outlet", "stainless", radial_segments=28, samples_per_segment=8)
 
-box([0.43, 0.31, 0.055], [0, 0.02, -0.39], "Accessory_Drive", "rear_plate", "steel")
+rounded_prism([0.43, 0.31, 0.055], [0, 0.02, -0.39], "Accessory_Drive", "rear_plate", "steel", radius=0.025)
 for i, (x, y, r) in enumerate([(-0.12, 0.04, 0.075), (0.12, 0.07, 0.055), (0.0, -0.07, 0.062)]):
     cylinder(r, 0.035, [x, y, -0.425], "z", "Accessory_Drive", f"pulley_{i}", "dark_composite", 144)
     cylinder(r * 0.48, 0.044, [x, y, -0.447], "z", "Accessory_Drive", f"hub_{i}", "brushed_aluminium", 112)
@@ -173,6 +261,11 @@ y_shift = target_y_center - scaled_bounds.mean(axis=0)[1]
 for geom in scene.geometry.values():
     geom.apply_translation([0.0, y_shift, 0.0])
 
+car_hash_before = hashlib.sha256(CAR_GLB.read_bytes()).hexdigest()
+car_manifest = json.loads(CAR_MANIFEST.read_text(encoding="utf-8"))
+if car_hash_before != car_manifest.get("sha256"):
+    raise RuntimeError("Approved exterior model hash no longer matches its manifest")
+
 OUT.write_bytes(scene.export(file_type="glb"))
 loaded = trimesh.load(OUT, force="scene")
 bounds = np.asarray(loaded.bounds, dtype=float)
@@ -189,9 +282,36 @@ if missing_nodes:
 if wrong_parents:
     raise RuntimeError(f"Unexpected group parents: {wrong_parents}")
 
+independent_translation = {}
+for group in GROUPS:
+    probe = trimesh.load(OUT, force="scene")
+    probe_parents = getattr(probe.graph.transforms, "parents", {})
+    child_nodes = [n for n, p in probe_parents.items() if p == group]
+    geom_child = next((n for n in child_nodes if probe.graph[n][1] is not None), None)
+    if geom_child is None:
+        raise RuntimeError(f"Group {group} has no geometry child")
+    baseline = probe.graph.get(frame_to=geom_child)[0].copy()
+    delta = np.asarray(EXPLODE_VECTORS[group], dtype=float)
+    if np.linalg.norm(delta) < 1e-8:
+        delta = np.array([0.031, 0.0, 0.0])
+    probe.graph.update(frame_to=group, frame_from="Engine_Root", matrix=trimesh.transformations.translation_matrix(delta))
+    moved = probe.graph.get(frame_to=geom_child)[0]
+    observed = moved[:3, 3] - baseline[:3, 3]
+    ok = bool(np.allclose(observed, delta, atol=1e-6))
+    independent_translation[group] = {"ok": ok, "probe_translation_metres": delta.tolist(), "observed_delta_metres": observed.tolist()}
+    if not ok:
+        raise RuntimeError(f"Independent translation failed for {group}")
+
+if not (25000 <= triangles <= 50000):
+    raise RuntimeError(f"Triangle count {triangles} is outside 25k-50k budget")
+
+car_hash_after = hashlib.sha256(CAR_GLB.read_bytes()).hexdigest()
+if car_hash_before != car_hash_after:
+    raise RuntimeError("Approved exterior model changed during engine build")
+
 manifest = {
     "asset": "YUNEX 992 GT3 RS simplified 4.0L naturally aspirated flat-six",
-    "status": "rough look-development for Astra review",
+    "status": "restrained refinement pass for master review",
     "units": "metres",
     "axis": {"forward": "+Z", "up": "+Y", "left": "+X"},
     "engine_root": "crankcase centre",
@@ -216,7 +336,50 @@ manifest = {
         "Dimensions and installation marker are illustrative fit targets rather than measured engine package data.",
         "Installed review render loads the approved exterior GLB separately and keeps it unchanged; the engine is never baked into the car asset."
     ],
+    "exterior_model_sha256": car_hash_after,
     "sha256": hashlib.sha256(OUT.read_bytes()).hexdigest(),
 }
 MANIFEST.write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8")
-print(json.dumps({"engine_glb": str(OUT), "triangles": triangles, "bounds": bounds.tolist(), "dimensions": (bounds[1] - bounds[0]).tolist(), "sha256": manifest["sha256"]}, indent=2))
+
+validation = {
+    "status": "pass_structural_visual_review_pending",
+    "engine_glb_load": True,
+    "finite_bounds": True,
+    "metre_scale_dimensions": (bounds[1] - bounds[0]).tolist(),
+    "required_groups_present": True,
+    "direct_group_parenting": True,
+    "independent_component_translations": independent_translation,
+    "triangle_budget_target": [25000, 50000],
+    "triangle_count": triangles,
+    "triangle_budget_pass": True,
+    "installation": {
+        "marker_metres": [0.0, 0.47, -1.78],
+        "rear_axle_z_metres": -1.2114155216682174,
+        "visual_clearance_review": "Use generated orthographic side/top renders against actual car surfaces; AABB overlap is not treated as proof of clearance."
+    },
+    "exterior_model_hash_before": car_hash_before,
+    "exterior_model_hash_after": car_hash_after,
+    "exterior_unchanged": car_hash_before == car_hash_after,
+    "engine_sha256": manifest["sha256"],
+}
+VALIDATION.write_text(json.dumps(validation, indent=2) + "\n", encoding="utf-8")
+
+if README.exists():
+    text = README.read_text(encoding="utf-8")
+    a = "<!-- BEGIN GENERATED METRICS -->"
+    b = "<!-- END GENERATED METRICS -->"
+    generated = (
+        f"{a}\n"
+        f"- Engine dimensions (X × Y × Z): **{(bounds[1]-bounds[0])[0]:.4f} × {(bounds[1]-bounds[0])[1]:.4f} × {(bounds[1]-bounds[0])[2]:.4f} m**.\n"
+        f"- Local Y bounds: **{bounds[0,1]:.4f} m to {bounds[1,1]:.4f} m**.\n"
+        f"- Triangle count: **{triangles:,}**.\n"
+        f"- Geometry primitives: **{len(loaded.geometry)}**.\n"
+        f"- Engine SHA-256: `{manifest['sha256']}`.\n"
+        f"- Approved exterior SHA-256 before/after: `{car_hash_before}` / `{car_hash_after}` (**unchanged**).\n"
+        f"- Installation: `Engine_Root` at `Marker_Engine_Mass` = `[0, 0.47, -1.78]` m; local offset `[0, 0, 0]`.\n"
+        f"{b}"
+    )
+    if a in text and b in text:
+        README.write_text(text.split(a,1)[0] + generated + text.split(b,1)[1], encoding="utf-8")
+
+print(json.dumps({"engine_glb": str(OUT), "triangles": triangles, "bounds": bounds.tolist(), "dimensions": (bounds[1] - bounds[0]).tolist(), "sha256": manifest["sha256"], "exterior_unchanged": True}, indent=2))
