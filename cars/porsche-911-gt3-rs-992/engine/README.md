@@ -1,6 +1,6 @@
 # YUNEX · 992 GT3 RS flat-six engine add-on
 
-Status: **rough look-development for Astra review**.
+Status: **rough look-development for Astra review**.\n\nReview renderer: actual approved exterior GLB loaded read-only; engine remains a separate asset.
 
 This folder contains one separate reusable engine asset for the approved `cars/porsche-911-gt3-rs-992/model.glb`. The exterior car GLB is not edited, rebuilt, or replaced.
 
