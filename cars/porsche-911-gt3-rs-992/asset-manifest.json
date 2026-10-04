@@ -1,0 +1,63 @@
+{
+  "car": "Porsche 911 GT3 RS 992",
+  "source": {
+    "author": "Ddiaz Design (https://sketchfab.com/ddiaz-design)",
+    "license": "CC-BY-NC-SA-4.0 (http://creativecommons.org/licenses/by-nc-sa/4.0/)",
+    "source": "https://sketchfab.com/3d-models/2023-porsche-911-gt3-rs-27-carrera-tribute-992-f17a982d5d8a4d97baef4b00b51a4e9a",
+    "title": "2023 Porsche 911 GT3 RS 2.7 Carrera Tribute 992"
+  },
+  "dimensions_metres": [
+    2.028211235180552,
+    1.3660527788964643,
+    4.572
+  ],
+  "export_scale": 1.000622313367572,
+  "triangles": 253890,
+  "meshes": 42,
+  "nodes": 65,
+  "wheel_pivots": {
+    "FL": [
+      0.8047665688272774,
+      0.3521761158410333,
+      1.242510736222192
+    ],
+    "FR": [
+      -0.8047665640219048,
+      0.35217613650115226,
+      1.2425106101149082
+    ],
+    "RL": [
+      0.7878194082865579,
+      0.3713972648801439,
+      -1.212009833228744
+    ],
+    "RR": [
+      -0.7878194081323107,
+      0.37139726488197466,
+      -1.210821210107691
+    ]
+  },
+  "parts_triangles": {
+    "Body": 83896,
+    "Wing": 11552,
+    "Wing_Flap": 9588,
+    "Grilles": 2298,
+    "Lights": 23335,
+    "Glass": 2908,
+    "Interior": 61519,
+    "Wheel_FL": 11705,
+    "Wheel_FR": 11705,
+    "Wheel_RL": 12048,
+    "Wheel_RR": 12048,
+    "Caliper_FL": 2778,
+    "Caliper_FR": 2778,
+    "Caliper_RL": 2866,
+    "Caliper_RR": 2866
+  },
+  "axis": {
+    "forward": "+Z",
+    "up": "+Y",
+    "left": "+X"
+  },
+  "sha256": "1c73fcb138c31e2b1d5ed126a2412074bb17f8e960b355436f28139bf518e1eb"
+}
