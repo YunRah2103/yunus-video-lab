@@ -1,0 +1,27 @@
+name: YUNEX proof source bundle
+
+on:
+  push:
+    branches:
+      - sol/yunex-orbit-cutaway-proof
+    paths:
+      - '.github/workflows/yunex-proof-source-bundle.yml'
+  workflow_dispatch:
+
+jobs:
+  bundle:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Stage proof source
+        run: |
+          mkdir -p proof-bundle/assets
+          cp -R yunex proof-bundle/yunex
+          cp cars/porsche-911-gt3-rs-992/model.glb proof-bundle/assets/model.glb
+          cp cars/porsche-911-gt3-rs-992/engine/engine.glb proof-bundle/assets/engine.glb
+      - name: Upload source bundle
+        uses: actions/upload-artifact@v4
+        with:
+          name: yunex-proof-source-bundle
+          path: proof-bundle
+          retention-days: 1
