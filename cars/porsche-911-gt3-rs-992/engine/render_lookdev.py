@@ -12,6 +12,7 @@ HERE = Path(__file__).resolve().parent
 RENDERS = HERE / "renders"
 RENDERS.mkdir(exist_ok=True)
 engine = trimesh.load(HERE / "engine.glb", force="scene")
+car = trimesh.load(HERE.parent / "model.glb", force="scene")
 car_manifest = json.loads((HERE.parent / "asset-manifest.json").read_text())
 marker = np.array([0.0, 0.47, -1.78])
 
@@ -31,6 +32,7 @@ COLORS = {
 def group(name):
     return next((g for g in COLORS if name.startswith(g + "__")), "Crankcase")
 
+# Map world +Y to screen-up while retaining the car's longitudinal +Z axis.
 def P(v):
     a = np.asarray(v)
     return np.stack([a[..., 0], a[..., 2], a[..., 1]], axis=-1)
@@ -52,9 +54,36 @@ def add_engine(ax, offset=np.zeros(3)):
         base = COLORS[group(name)]
         lum = np.clip(0.50 + 0.50 * np.maximum(0, normals @ light), 0.38, 1.0)
         facecolors = np.clip(base[None, :] * lum[:, None] + 0.03, 0, 1)
-        ax.add_collection3d(Poly3DCollection(tris, facecolors=facecolors, edgecolors=(0, 0, 0, 0.10), linewidths=0.05))
+        ax.add_collection3d(Poly3DCollection(
+            tris,
+            facecolors=facecolors,
+            edgecolors=(0, 0, 0, 0.10),
+            linewidths=0.05,
+            alpha=1.0,
+        ))
 
-# Isolated review
+def add_car_rear(ax):
+    # Scene.dump applies the car's node transforms without changing the source GLB.
+    for mesh in car.dump(concatenate=False):
+        if not hasattr(mesh, "faces") or len(mesh.faces) == 0:
+            continue
+        faces = mesh.faces
+        centroids = mesh.triangles_center
+        keep = np.flatnonzero(centroids[:, 2] < 0.35)
+        if len(keep) == 0:
+            continue
+        # Keep this a review overlay, not a second high-cost car render.
+        if len(keep) > 1600:
+            keep = keep[np.linspace(0, len(keep) - 1, 1600).astype(int)]
+        tris = P(mesh.vertices[faces[keep]])
+        ax.add_collection3d(Poly3DCollection(
+            tris,
+            facecolors=(0.54, 0.74, 0.56, 0.085),
+            edgecolors=(0.68, 0.82, 0.70, 0.055),
+            linewidths=0.05,
+        ))
+
+# Isolated engine lookdev.
 fig = plt.figure(figsize=(12, 9), dpi=160)
 ax = fig.add_subplot(111, projection="3d")
 style(ax)
@@ -73,42 +102,28 @@ fig.text(0.055, 0.06, "Low broad crankcase · opposed banks · six intake runner
 plt.savefig(RENDERS / "lookdev_isolated.png", bbox_inches="tight", facecolor=fig.get_facecolor(), pad_inches=0.18)
 plt.close(fig)
 
-# Installed side-fit review
-wheel = {k: np.array(v) for k, v in car_manifest["wheel_pivots"].items() if k in ("RL", "RR")}
+# Installed review using the actual approved exterior asset, shown translucently.
 fig = plt.figure(figsize=(12, 9), dpi=160)
 ax = fig.add_subplot(111, projection="3d")
 style(ax)
-
-z = np.array([-2.28, -2.05, -1.75, -1.40, -1.05, -0.65, -0.25, 0.2, 0.6])
-y = np.array([0.45, 0.62, 0.70, 0.78, 0.88, 1.05, 1.24, 1.30, 1.18])
-for x in (-0.92, 0.92):
-    q = P(np.stack([np.full_like(z, x), y, z], axis=-1))
-    ax.plot(q[:, 0], q[:, 1], q[:, 2], color="#7fb482", alpha=0.28, linewidth=1.3)
-    q2 = P(np.array([[x, 0.24, -2.25], [x, 0.22, -0.55]]))
-    ax.plot(q2[:, 0], q2[:, 1], q2[:, 2], color="#7fb482", alpha=0.22, linewidth=1.0)
-
-theta = np.linspace(0, 2 * np.pi, 160)
-for p in wheel.values():
-    rr = 0.335
-    ring = np.stack([np.full_like(theta, p[0]), p[1] + rr * np.cos(theta), p[2] + rr * np.sin(theta)], axis=-1)
-    q = P(ring)
-    ax.plot(q[:, 0], q[:, 1], q[:, 2], color="#d1d6d8", alpha=0.65, linewidth=2.2)
-
-rear_z = float(np.mean([p[2] for p in wheel.values()]))
-for x in (-0.95, 0.95):
-    line = P(np.array([[x, 0.08, rear_z], [x, 0.95, rear_z]]))
-    ax.plot(line[:, 0], line[:, 1], line[:, 2], color="#d4dadd", alpha=0.35, linewidth=0.9)
-
+add_car_rear(ax)
 add_engine(ax, marker)
+
+wheel = {k: np.array(v) for k, v in car_manifest["wheel_pivots"].items() if k in ("RL", "RR")}
+rear_z = float(np.mean([p[2] for p in wheel.values()]))
+for x in (-0.96, 0.96):
+    line = P(np.array([[x, 0.08, rear_z], [x, 1.05, rear_z]]))
+    ax.plot(line[:, 0], line[:, 1], line[:, 2], color="#d9dddf", alpha=0.32, linewidth=0.85)
+
 q = P(marker)
-ax.scatter([q[0]], [q[1]], [q[2]], s=26, color="white")
-ax.set_xlim(-1.1, 1.1)
-ax.set_ylim(-2.38, -0.48)
-ax.set_zlim(0.05, 1.3)
-ax.set_box_aspect([0.55, 1.9, 1.25])
-ax.view_init(elev=0, azim=0)
-fig.text(0.055, 0.925, "ENGINE INSTALLED BEHIND REAR AXLE", color="white", fontsize=18, weight="bold")
-fig.text(0.055, 0.892, "ROUGH SIDE-FIT REVIEW · APPROVED EXTERIOR GLB UNCHANGED", color="#b9c2c8", fontsize=10)
-fig.text(0.055, 0.06, "Exact rear-wheel pivots + Marker_Engine_Mass. Green line is a fit proxy, not a replacement car model.", color="#aeb8be", fontsize=9)
+ax.scatter([q[0]], [q[1]], [q[2]], s=24, color="white")
+ax.set_xlim(-1.10, 1.10)
+ax.set_ylim(-2.38, 0.32)
+ax.set_zlim(0.02, 1.42)
+ax.set_box_aspect([1.05, 2.70, 1.40])
+ax.view_init(elev=7, azim=-6)
+fig.text(0.055, 0.925, "ENGINE INSTALLED IN APPROVED 992 GT3 RS", color="white", fontsize=18, weight="bold")
+fig.text(0.055, 0.892, "ROUGH INSTALL REVIEW · EXTERIOR GLB LOADED READ-ONLY", color="#b9c2c8", fontsize=10)
+fig.text(0.055, 0.06, "Engine root = Marker_Engine_Mass [0, 0.47, -1.78] m · rear axle shown for placement context", color="#aeb8be", fontsize=9)
 plt.savefig(RENDERS / "lookdev_installed.png", bbox_inches="tight", facecolor=fig.get_facecolor(), pad_inches=0.18)
 plt.close(fig)

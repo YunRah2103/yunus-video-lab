@@ -64,7 +64,7 @@ The two current review images are intentionally limited to the first approval ga
 - `renders/lookdev_isolated.png`
 - `renders/lookdev_installed.png`
 
-The installed image uses the canonical car dimensions, exact rear-wheel pivots, and `Marker_Engine_Mass` as a fit proxy because this pass is only checking engine silhouette, scale, and placement. It does **not** replace or modify the approved exterior model.
+The installed image loads the **actual approved exterior GLB** and renders it translucently around the engine at `Marker_Engine_Mass`. The preview renderer does **not** write to, replace, or bake anything into the exterior model.
 
 After Astra accepts the direction, the next pass should refine only silhouette, component readability, materials, and fit, then add the required rear-three-quarter, side, top, installed and exploded review renders.
 

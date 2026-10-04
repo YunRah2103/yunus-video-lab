@@ -214,7 +214,7 @@ manifest = {
         "Original simplified explanatory geometry; not Porsche CAD.",
         "No gearbox, pistons, valvetrain, animated internals, turbochargers or air-cooled fan tower.",
         "Dimensions and installation marker are illustrative fit targets rather than measured engine package data.",
-        "Rough installed preview uses canonical car dimensions and wheel pivots as a fit proxy; exterior GLB is unchanged."
+        "Installed review render loads the approved exterior GLB separately and keeps it unchanged; the engine is never baked into the car asset."
     ],
     "sha256": hashlib.sha256(OUT.read_bytes()).hexdigest(),
 }
