@@ -1,0 +1,9 @@
+import React from 'react';
+import {AbsoluteFill,staticFile,interpolate,useCurrentFrame,OffthreadVideo} from 'remotion';
+export const gold='#dbad75',white='#f4f2ec',green='#bddc93';
+export const ease=(f:number,a:number,b:number)=>interpolate(f,[a,b],[0,1],{extrapolateLeft:'clamp',extrapolateRight:'clamp'});
+export function Base({children}:{children:React.ReactNode}){return <AbsoluteFill style={{background:'radial-gradient(ellipse at 65% 44%,#272b2c 0%,#111516 54%,#090c0e 100%)',color:white,fontFamily:'Arial',overflow:'hidden'}}><style>{`@font-face{font-family:Yunex;src:url('${staticFile('Display.ttf')}')} `}</style>{children}</AbsoluteFill>}
+export function Heading({children,top=230,size=120,color=white}:{children:React.ReactNode,top?:number,size?:number,color?:string}){const f=useCurrentFrame();return <div style={{position:'absolute',top,left:76,right:76,fontFamily:'Yunex',fontSize:size,lineHeight:.94,letterSpacing:-1,color,translate:`0 ${18*(1-ease(f,0,7))}px`,opacity:ease(f,0,5)}}>{children}</div>}
+export function Small({children,top=130,left=78,color='#b7bdba'}:{children:React.ReactNode,top?:number,left?:number,color?:string}){return <div style={{position:'absolute',top,left,color,fontSize:26,letterSpacing:5,fontWeight:500}}>{children}</div>}
+export function Film({src,top=0,height=1920,fit='cover',position='50% 50%',opacity=1,trimBefore=0}:{src:string,top?:number,height?:number,fit?:any,position?:string,opacity?:number,trimBefore?:number}){return <div style={{position:'absolute',left:0,top,width:1080,height,overflow:'hidden',opacity}}><OffthreadVideo src={staticFile(src)} muted trimBefore={trimBefore} style={{width:'100%',height:'100%',objectFit:fit,objectPosition:position}}/></div>}
+export function Footer({text='ENGINEERING, SIMPLIFIED'}:{text?:string}){return <><div style={{position:'absolute',left:78,right:78,bottom:168,height:1,background:'#aeb6b02b'}}/><Small top={1780}>{text}</Small></>}

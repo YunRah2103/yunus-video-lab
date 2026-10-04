@@ -1,0 +1,25 @@
+{
+  "name": "yunex",
+  "version": "1.0.0",
+  "description": "A 27.6-second vertical Porsche 911 GT3 RS product film built with Remotion.",
+  "private": true,
+  "scripts": {
+    "preview": "NODE_OPTIONS=--require=./fix-network.cjs remotion studio src/index.tsx",
+    "render": "NODE_OPTIONS=--require=./fix-network.cjs remotion render src/index.tsx YUNEX-001 out/YUNEX_001.mp4 --gl=swangle --concurrency=2"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "SEE LICENSES.md",
+  "type": "commonjs",
+  "dependencies": {
+    "@react-three/fiber": "^9.8.1",
+    "@remotion/cli": "^4.0.532",
+    "@remotion/media": "^4.0.532",
+    "@remotion/three": "^4.0.532",
+    "@remotion/transitions": "^4.0.532",
+    "react": "^19.3.0",
+    "react-dom": "^19.3.0",
+    "remotion": "^4.0.532",
+    "three": "^0.186.1"
+  }
+}
