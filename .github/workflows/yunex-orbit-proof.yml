@@ -12,7 +12,7 @@ on:
 jobs:
   render-proof:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 50
 
     steps:
       - name: Checkout proof branch
@@ -51,7 +51,7 @@ jobs:
           NODE_OPTIONS: --require=./fix-network.cjs
         run: |
           mkdir -p out
-          npx remotion render src/index.tsx YUNEX-ORBIT-CUTAWAY-PROOF out/YUNEX_ORBIT_CUTAWAY_PROOF.mp4 --gl=swangle --concurrency=2 --codec=h264 --crf=18
+          npx remotion render src/index.tsx YUNEX-ORBIT-CUTAWAY-PROOF out/YUNEX_ORBIT_CUTAWAY_PROOF.mp4 --gl=swangle --concurrency=3 --codec=h264 --crf=18
 
       - name: Extract master-review frames
         working-directory: yunex
