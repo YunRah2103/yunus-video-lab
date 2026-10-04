@@ -32,6 +32,11 @@ jobs:
         working-directory: yunex
         run: npm ci
 
+      - name: Install ffmpeg
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg
+
       - name: Render rescue frames
         working-directory: yunex
         env:
