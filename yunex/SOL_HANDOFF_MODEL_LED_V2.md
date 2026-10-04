@@ -4,6 +4,8 @@ Implement the model-led V2 described here. Astra retains creative direction, arc
 
 ## Existing state
 
+Engine dependency: implement `cars/porsche-911-gt3-rs-992/ENGINE_SOL_HANDOFF.md` first. After Astra approves its installed fit, load the separate `engine/engine.glb` at `Marker_Engine_Mass` and replace the procedural placeholder. The exterior remains approved; do not rebuild it.
+
 Repo: `YunRah2103/yunus-video-lab`. Project: `yunex/`. Asset: `cars/porsche-911-gt3-rs-992/model.glb`. Read both READMEs, `LICENSES.md`, `Car.tsx` and `transcript-edited.json`. The delivered production pack supplies VO/media/cached views absent from GitHub. Reuse the 27.05-second edited VO without rewriting it; output 27.6 seconds, 1080 × 1920, 30 fps. The approved appearance does not change the recorded source licence.
 
 ## Directing contract
