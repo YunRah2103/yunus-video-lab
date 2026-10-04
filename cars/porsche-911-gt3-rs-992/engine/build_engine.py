@@ -248,7 +248,8 @@ def flat_belt_loop(points, z, width, thickness, group, name, material="rubber"):
             [br,bjr,tjr],[br,tjr,tr],
         ]
     mesh = trimesh.Trimesh(vertices=np.asarray(verts), faces=np.asarray(faces), process=False)
-    mesh.fix_normals()
+    if not mesh.is_winding_consistent:
+        raise RuntimeError("Accessory belt winding is inconsistent")
     add_mesh(group, mesh, name, material)
 
 def tube_between(p0, p1, radius, group, name, material="stainless", sections=96):
