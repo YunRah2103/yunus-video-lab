@@ -47,6 +47,13 @@ EXPECTED_BASE_COLORS = {
     "Restrained_Rubber": [0.035, 0.038, 0.04, 1.0],
     "Dark_Steel": [0.16, 0.17, 0.18, 1.0],
 }
+# Trimesh's PBRMaterial stores RGBA factors as uint8 before glTF export.
+# Validate the real exported factors against that documented quantization,
+# while recording the original Python factors and the quantization delta.
+EXPECTED_EXPORTED_BASE_COLORS = {
+    name: (np.round(np.asarray(value, dtype=float) * 255.0) / 255.0).tolist()
+    for name, value in EXPECTED_BASE_COLORS.items()
+}
 TUBE_SOURCE_CHECKS = {}
 
 GROUPS = ["Crankcase", "Bank_L", "Bank_R", "Intake", "Headers_L", "Headers_R", "Accessory_Drive", "Cover_L", "Cover_R", "Mounts"]
@@ -454,7 +461,11 @@ for material_header in gltf_header.get("materials", []):
         exported_base_colors.append([float(v) for v in factor])
 material_color_checks = {
     name: bool(any(np.allclose(factor, target, atol=1e-6) for factor in exported_base_colors))
-    for name, target in EXPECTED_BASE_COLORS.items()
+    for name, target in EXPECTED_EXPORTED_BASE_COLORS.items()
+}
+material_quantization_error = {
+    name: float(np.max(np.abs(np.asarray(EXPECTED_EXPORTED_BASE_COLORS[name]) - np.asarray(EXPECTED_BASE_COLORS[name]))))
+    for name in EXPECTED_BASE_COLORS
 }
 
 component_checks = {
@@ -562,8 +573,10 @@ validation = {
         "source_tube_vertex_sharing_and_winding": TUBE_SOURCE_CHECKS,
     },
     "material_base_color_factors": {
-        "expected": EXPECTED_BASE_COLORS,
+        "requested_python": EXPECTED_BASE_COLORS,
+        "expected_after_trimesh_rgba_quantization": EXPECTED_EXPORTED_BASE_COLORS,
         "exported": exported_base_colors,
+        "max_source_to_export_quantization_error": material_quantization_error,
         "all_expected_present": all(material_color_checks.values()),
         "per_material_match": material_color_checks,
     },
@@ -595,7 +608,7 @@ review_note = f"""# YUNEX engine finishing review
 - GLB NORMAL accessors: **PASS** on every primitive; POSITION/NORMAL counts match. Curved intake/header/plenum meshes are explicitly covered.
 - Tube topology: shared side vertices with split cap rings; source winding checks: **PASS**.
 - Components: six connected intake runners + six head-port collars, six header primaries, one continuous flat accessory belt: **PASS**.
-- Exported material baseColorFactor values match the intended Python values: **PASS**.
+- Exported material baseColorFactor values match the intended Python values after Trimesh's 8-bit RGBA quantization: **PASS**. The source→export delta is recorded in validation.
 - Approved exterior SHA-256 before/after: `{car_hash_before}` / `{car_hash_after}` — **unchanged**.
 - Installed fit: **UNRESOLVED FOR MASTER REVIEW**. Rear deck/undertray/interior obstruction is deliberately suppressed only in the review viewer so the opaque engine can be inspected. No shell-clearance claim is made; inspect the side/top PNGs for visible intersections before approval.
 """
