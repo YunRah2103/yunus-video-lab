@@ -40,9 +40,12 @@ jobs:
 
       - name: Install render dependencies
         run: |
-          npm ci --prefix yunex
-          sudo apt-get update
-          sudo apt-get install -y ffmpeg
+          npm ci --prefix yunex --prefer-offline --no-audit --no-fund
+          if ! command -v ffmpeg >/dev/null 2>&1; then
+            sudo apt-get update
+            sudo apt-get install -y ffmpeg
+          fi
+          ffmpeg -version | head -1
 
       - name: Prepare and lock approved assets
         run: |
