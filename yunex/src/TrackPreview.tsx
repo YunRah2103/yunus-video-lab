@@ -61,6 +61,11 @@ const makeLayout=()=>{
     scale:.78+random()*.58,
     yaw:(random()-.5)*.8,
     color:treeColors[Math.floor(random()*treeColors.length)],
+    crownWidth:.86+random()*.30,
+    crownHeight:.88+random()*.26,
+    asymmetry:(random()-.5)*.34,
+    lean:(random()-.5)*.08,
+    crownVariant:i%3,
   }));
   const shrubs=Array.from({length:24},()=>({
     x:-4.55-random()*4.4,
@@ -105,22 +110,46 @@ const Shrub:React.FC<{item:ReturnType<typeof makeLayout>['shrubs'][number];motio
     </mesh>)}
   </group>;
 
-const Tree:React.FC<{item:ReturnType<typeof makeLayout>['trees'][number];motionLite:boolean}> = ({item,motionLite}) =>
-  <group position={[item.x,.02,item.z]} rotation={[0,item.yaw,0]} scale={item.scale}>
-    <mesh castShadow={!motionLite} position={[0,.72,0]}>
-      <cylinderGeometry args={[.09,.14,1.45,8]}/>
+const Tree:React.FC<{item:ReturnType<typeof makeLayout>['trees'][number];motionLite:boolean}> = ({item,motionLite}) => {
+  const crownVariants=[
+    [
+      [-.18,1.48,.04,.92,.78,.76],
+      [.38,1.60,-.12,.66,.76,.62],
+      [-.52,1.72,.10,.58,.67,.58],
+      [.08,1.98,.01,.72,.64,.69],
+      [-.10,2.22,-.03,.44,.48,.43],
+    ],
+    [
+      [-.08,1.46,-.02,.78,.84,.72],
+      [.48,1.70,.06,.62,.68,.60],
+      [-.42,1.62,-.12,.72,.70,.67],
+      [.02,2.00,.10,.64,.74,.60],
+      [.28,2.22,-.05,.42,.45,.40],
+    ],
+    [
+      [-.22,1.58,.08,.74,.74,.70],
+      [.34,1.48,-.08,.78,.70,.72],
+      [-.50,1.86,-.02,.55,.60,.52],
+      [.12,1.94,.08,.76,.66,.70],
+      [.04,2.25,-.05,.48,.50,.44],
+    ],
+  ] as const;
+  const crown=crownVariants[item.crownVariant];
+  return <group position={[item.x,.02,item.z]} rotation={[0,item.yaw,0]} scale={item.scale}>
+    <mesh castShadow={!motionLite} position={[item.lean*.24,.72,0]} rotation={[0,0,item.lean]}>
+      <cylinderGeometry args={[.085,.14,1.45,8]}/>
       <meshStandardMaterial color="#554a38" roughness={.92}/>
     </mesh>
-    {[
-      [-.12,1.55,.02,.95,.88,.90],
-      [.42,1.62,-.08,.72,.78,.72],
-      [-.48,1.72,.06,.68,.72,.68],
-      [.08,2.05,.03,.78,.72,.76],
-    ].map((v,i)=><mesh key={i} castShadow={!motionLite} receiveShadow={!motionLite} position={[v[0],v[1],v[2]]} scale={[v[3],v[4],v[5]]}>
-      <icosahedronGeometry args={[.82,motionLite?1:2]}/>
-      <meshStandardMaterial color={item.color} roughness={.98} metalness={0} flatShading/>
-    </mesh>)}
+    <group position={[item.asymmetry*.15,0,0]}>
+      {crown.map((v,i)=><mesh key={i} castShadow={!motionLite} receiveShadow={!motionLite}
+        position={[v[0]+item.asymmetry*(i%2===0?.18:-.10),v[1],v[2]]}
+        scale={[v[3]*item.crownWidth,v[4]*item.crownHeight,v[5]*(.94+item.crownWidth*.08)]}>
+        <icosahedronGeometry args={[.82,motionLite?1:2]}/>
+        <meshStandardMaterial color={item.color} roughness={.98} metalness={0} flatShading/>
+      </mesh>)}
+    </group>
   </group>;
+};
 
 function TrackEnvironment({asphalt,grass,mode}:{asphalt:THREE.Texture;grass:THREE.Texture;mode:TrackMode}){
   const layout=useMemo(makeLayout,[]);
@@ -151,7 +180,7 @@ const cameraFor=(mode:TrackMode,frame:number)=>{
     return {position:new THREE.Vector3(3.35,1.50,4.25),target:new THREE.Vector3(-.10,.58,.15)};
   }
   if(mode==='portrait'){
-    return {position:new THREE.Vector3(6.65,1.85,7.95),target:new THREE.Vector3(-.05,.38,.18)};
+    return {position:new THREE.Vector3(6.18,1.76,7.42),target:new THREE.Vector3(-.05,.44,.18)};
   }
   const target=new THREE.Vector3(-.05,.60,.18);
   const position=new THREE.Vector3(7.25,2.05,8.55);
@@ -241,7 +270,7 @@ const TrackCanvas:React.FC<{mode:TrackMode;width:number;height:number}> = ({mode
       width={width}
       height={height}
       camera={{
-        position:mode==='landscape'?[3.35,1.50,4.25]:mode==='portrait'?[6.65,1.85,7.95]:[7.25,2.05,8.55],
+        position:mode==='landscape'?[3.35,1.50,4.25]:mode==='portrait'?[6.18,1.76,7.42]:[7.25,2.05,8.55],
         fov:mode==='landscape'?36:mode==='portrait'?40:40,
         near:.1,
         far:100,
