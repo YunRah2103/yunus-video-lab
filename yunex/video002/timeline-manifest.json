@@ -1,0 +1,19 @@
+{
+  "fps": 30,
+  "duration_seconds": 25.02,
+  "duration_frames": 751,
+  "beats": [
+    {"id":"hook","start":0,"end":2.4,"mode":"highDownforce"},
+    {"id":"isolate","start":2.4,"end":5.5,"mode":"highDownforce"},
+    {"id":"highDownforce","start":5.5,"end":9.5,"mode":"highDownforce"},
+    {"id":"drs","start":9.5,"end":13.5,"mode":"drs"},
+    {"id":"airbrake","start":13.5,"end":18,"mode":"airbrake"},
+    {"id":"wholeCar","start":18,"end":22,"mode":"highDownforce"},
+    {"id":"payoff","start":22,"end":25.02,"mode":"drs"}
+  ],
+  "type_cues": [
+    {"beat":"hook","line1":"THIS WING","line2":"ACTUALLY MOVES"},
+    {"beat":"drs","line1":"LESS DRAG","line2":"MORE SPEED"},
+    {"beat":"wholeCar","line1":"FRONT + REAR","line2":"WORK TOGETHER"}
+  ]
+}
