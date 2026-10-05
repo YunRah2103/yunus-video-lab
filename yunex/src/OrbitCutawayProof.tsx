@@ -225,10 +225,6 @@ function ProofScene({frame,duration}:{frame:number; duration:number}) {
 
   return <>
     <StudioRig cameraState={cameraState}/>
-    <mesh position={[0,-0.025,0]} rotation={[-Math.PI/2,0,0]}>
-      <planeGeometry args={[120,120]}/>
-      <meshStandardMaterial color="#141718" roughness={0.98} metalness={0.02}/>
-    </mesh>
     <mesh position={[0,-0.012,-0.28]} rotation={[-Math.PI/2,0,0]} scale={[2.9,1.15,1]}>
       <circleGeometry args={[1,64]}/>
       <meshBasicMaterial color="#050606" transparent opacity={0.34} depthWrite={false}/>
@@ -293,9 +289,9 @@ export const OrbitCutawayProof:React.FC = () => {
       992 GT3 RS · ENGINE PLACEMENT
     </div>
 
-    <Label label="FRONT AXLE" point={FRONT_AXLE} color={GREEN} offset={[-38,-78]} cameraState={cameraState} opacity={labelsOpacity}/>
-    <Label label="REAR AXLE" point={REAR_AXLE} color={GREEN} offset={[12,-88]} cameraState={cameraState} opacity={labelsOpacity}/>
-    <Label label="ENGINE MASS" point={ENGINE_MARKER} color={COPPER} offset={[32,94]} cameraState={cameraState} opacity={labelsOpacity}/>
+    <Label label="FRONT AXLE" point={FRONT_AXLE} color={GREEN} offset={[48,-112]} cameraState={cameraState} opacity={labelsOpacity}/>
+    <Label label="REAR AXLE" point={REAR_AXLE} color={GREEN} offset={[-54,-118]} cameraState={cameraState} opacity={labelsOpacity}/>
+    <Label label="ENGINE MASS" point={ENGINE_MARKER} color={COPPER} offset={[-16,112]} cameraState={cameraState} opacity={labelsOpacity}/>
 
     <div style={{position:'absolute',left:66,bottom:86,opacity:technicalOpacity,fontFamily:'Display, sans-serif',fontSize:21,letterSpacing:2.4,color:'rgba(241,234,220,.72)'}}>
       CUTAWAY PROOF · ILLUSTRATIVE PLACEMENT
