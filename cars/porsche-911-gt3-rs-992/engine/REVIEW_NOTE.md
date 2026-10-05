@@ -1,8 +1,8 @@
 # YUNEX engine finishing review
 
-- Changed source/presentation: `build_engine.py`, `review.html`, `render_review.mjs`, workflow verification, and README review guidance.
+- Refined geometry/material source: housing transitions and stepped sump/head masses, sculpted intake/plenum junctions, explicit three-into-one header convergence, and stronger film-safe material separation.
 - Generated outputs: `engine.glb`, `asset-manifest.json`, `validation.json`, three PNG review renders, and `renders/engine_turntable.mp4`.
-- Actual triangle count: **39,108** (budget 25–50k).
+- Actual triangle count: **58,016** (preferred 50–75k; hard ceiling 90k).
 - Exact GLB load: **PASS**; finite metre-scale bounds: **PASS**.
 - GLB NORMAL accessors: **PASS** on every primitive; POSITION/NORMAL counts match. Curved intake/header/plenum meshes are explicitly covered.
 - Tube topology: shared side vertices with split cap rings; source winding checks: **PASS**.

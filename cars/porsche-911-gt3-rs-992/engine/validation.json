@@ -15,69 +15,99 @@
     "missing": [],
     "count_mismatches": [],
     "curved_meshes": {
-      "Intake__plenum_crown_mesh": {
-        "positions": 1058,
-        "normals": 1058,
+      "Intake__plenum_shell_mesh": {
+        "positions": 2562,
+        "normals": 2562,
         "normal_accessor_present": true
       },
       "Intake__runner_-1_0_mesh": {
-        "positions": 650,
-        "normals": 650,
+        "positions": 808,
+        "normals": 808,
+        "normal_accessor_present": true
+      },
+      "Intake__runner_coupler_-1_0_mesh": {
+        "positions": 146,
+        "normals": 146,
         "normal_accessor_present": true
       },
       "Intake__runner_-1_1_mesh": {
-        "positions": 650,
-        "normals": 650,
+        "positions": 808,
+        "normals": 808,
+        "normal_accessor_present": true
+      },
+      "Intake__runner_coupler_-1_1_mesh": {
+        "positions": 146,
+        "normals": 146,
         "normal_accessor_present": true
       },
       "Intake__runner_-1_2_mesh": {
-        "positions": 650,
-        "normals": 650,
+        "positions": 808,
+        "normals": 808,
+        "normal_accessor_present": true
+      },
+      "Intake__runner_coupler_-1_2_mesh": {
+        "positions": 146,
+        "normals": 146,
         "normal_accessor_present": true
       },
       "Intake__runner_1_0_mesh": {
-        "positions": 650,
-        "normals": 650,
+        "positions": 808,
+        "normals": 808,
+        "normal_accessor_present": true
+      },
+      "Intake__runner_coupler_1_0_mesh": {
+        "positions": 146,
+        "normals": 146,
         "normal_accessor_present": true
       },
       "Intake__runner_1_1_mesh": {
-        "positions": 650,
-        "normals": 650,
+        "positions": 808,
+        "normals": 808,
+        "normal_accessor_present": true
+      },
+      "Intake__runner_coupler_1_1_mesh": {
+        "positions": 146,
+        "normals": 146,
         "normal_accessor_present": true
       },
       "Intake__runner_1_2_mesh": {
-        "positions": 650,
-        "normals": 650,
+        "positions": 808,
+        "normals": 808,
+        "normal_accessor_present": true
+      },
+      "Intake__runner_coupler_1_2_mesh": {
+        "positions": 146,
+        "normals": 146,
         "normal_accessor_present": true
       },
       "Headers_L__primary_0_mesh": {
-        "positions": 746,
-        "normals": 746,
+        "positions": 1120,
+        "normals": 1120,
         "normal_accessor_present": true
       },
       "Headers_L__primary_1_mesh": {
-        "positions": 746,
-        "normals": 746,
+        "positions": 1120,
+        "normals": 1120,
         "normal_accessor_present": true
       },
       "Headers_L__primary_2_mesh": {
-        "positions": 746,
-        "normals": 746,
+        "positions": 1120,
+        "normals": 1120,
         "normal_accessor_present": true
       },
       "Headers_R__primary_0_mesh": {
-        "positions": 746,
-        "normals": 746,
+        "positions": 1120,
+        "normals": 1120,
         "normal_accessor_present": true
       },
       "Headers_R__primary_1_mesh": {
-        "positions": 746,
-        "normals": 746,
+        "positions": 1120,
+        "normals": 1120,
         "normal_accessor_present": true
       },
       "Headers_R__primary_2_mesh": {
-        "positions": 746,
-        "normals": 746,
+        "positions": 1120,
+        "normals": 1120,
         "normal_accessor_present": true
       }
     },
@@ -86,64 +116,85 @@
         "winding_consistent": true,
         "shared_side_vertices": true,
         "split_cap_vertices": true,
-        "radial_segments": 24,
-        "path_rings": 25
+        "radial_segments": 26,
+        "path_rings": 29
       },
       "Intake__runner_-1_1": {
         "winding_consistent": true,
         "shared_side_vertices": true,
         "split_cap_vertices": true,
-        "radial_segments": 24,
-        "path_rings": 25
+        "radial_segments": 26,
+        "path_rings": 29
       },
       "Intake__runner_-1_2": {
         "winding_consistent": true,
         "shared_side_vertices": true,
         "split_cap_vertices": true,
-        "radial_segments": 24,
-        "path_rings": 25
+        "radial_segments": 26,
+        "path_rings": 29
       },
       "Intake__runner_1_0": {
         "winding_consistent": true,
         "shared_side_vertices": true,
         "split_cap_vertices": true,
-        "radial_segments": 24,
-        "path_rings": 25
+        "radial_segments": 26,
+        "path_rings": 29
       },
       "Intake__runner_1_1": {
         "winding_consistent": true,
         "shared_side_vertices": true,
         "split_cap_vertices": true,
-        "radial_segments": 24,
-        "path_rings": 25
+        "radial_segments": 26,
+        "path_rings": 29
       },
       "Intake__runner_1_2": {
         "winding_consistent": true,
         "shared_side_vertices": true,
         "split_cap_vertices": true,
-        "radial_segments": 24,
-        "path_rings": 25
+        "radial_segments": 26,
+        "path_rings": 29
       },
       "Headers_L__primary_0": {
         "winding_consistent": true,
         "shared_side_vertices": true,
         "split_cap_vertices": true,
+        "radial_segments": 26,
+        "path_rings": 41
+      },
+      "Headers_L__collector_neck_0": {
+        "winding_consistent": true,
+        "shared_side_vertices": true,
+        "split_cap_vertices": true,
         "radial_segments": 24,
-        "path_rings": 29
+        "path_rings": 13
       },
       "Headers_L__primary_1": {
         "winding_consistent": true,
         "shared_side_vertices": true,
         "split_cap_vertices": true,
+        "radial_segments": 26,
+        "path_rings": 41
+      },
+      "Headers_L__collector_neck_1": {
+        "winding_consistent": true,
+        "shared_side_vertices": true,
+        "split_cap_vertices": true,
         "radial_segments": 24,
-        "path_rings": 29
+        "path_rings": 13
       },
       "Headers_L__primary_2": {
         "winding_consistent": true,
         "shared_side_vertices": true,
         "split_cap_vertices": true,
+        "radial_segments": 26,
+        "path_rings": 41
+      },
+      "Headers_L__collector_neck_2": {
+        "winding_consistent": true,
+        "shared_side_vertices": true,
+        "split_cap_vertices": true,
         "radial_segments": 24,
-        "path_rings": 29
+        "path_rings": 13
       },
       "Headers_L__collector_outlet": {
         "winding_consistent": true,
@@ -156,22 +207,43 @@
         "winding_consistent": true,
         "shared_side_vertices": true,
         "split_cap_vertices": true,
+        "radial_segments": 26,
+        "path_rings": 41
+      },
+      "Headers_R__collector_neck_0": {
+        "winding_consistent": true,
+        "shared_side_vertices": true,
+        "split_cap_vertices": true,
         "radial_segments": 24,
-        "path_rings": 29
+        "path_rings": 13
       },
       "Headers_R__primary_1": {
         "winding_consistent": true,
         "shared_side_vertices": true,
         "split_cap_vertices": true,
+        "radial_segments": 26,
+        "path_rings": 41
+      },
+      "Headers_R__collector_neck_1": {
+        "winding_consistent": true,
+        "shared_side_vertices": true,
+        "split_cap_vertices": true,
         "radial_segments": 24,
-        "path_rings": 29
+        "path_rings": 13
       },
       "Headers_R__primary_2": {
         "winding_consistent": true,
         "shared_side_vertices": true,
         "split_cap_vertices": true,
+        "radial_segments": 26,
+        "path_rings": 41
+      },
+      "Headers_R__collector_neck_2": {
+        "winding_consistent": true,
+        "shared_side_vertices": true,
+        "split_cap_vertices": true,
         "radial_segments": 24,
-        "path_rings": 29
+        "path_rings": 13
       },
       "Headers_R__collector_outlet": {
         "winding_consistent": true,
@@ -185,125 +257,125 @@
   "material_base_color_factors": {
     "requested_python": {
       "Cast_Aluminium": [
-        0.46,
-        0.48,
-        0.5,
+        0.38,
+        0.4,
+        0.42,
         1.0
       ],
       "Brushed_Aluminium": [
-        0.62,
         0.64,
         0.66,
+        0.68,
         1.0
       ],
       "Dark_Composite": [
+        0.045,
         0.055,
-        0.065,
-        0.072,
+        0.062,
         1.0
       ],
       "Stainless_Header": [
-        0.48,
-        0.45,
-        0.4,
+        0.42,
+        0.37,
+        0.31,
         1.0
       ],
       "Restrained_Rubber": [
-        0.035,
-        0.038,
-        0.04,
+        0.028,
+        0.031,
+        0.034,
         1.0
       ],
       "Dark_Steel": [
-        0.16,
-        0.17,
-        0.18,
+        0.13,
+        0.14,
+        0.15,
         1.0
       ]
     },
     "expected_after_trimesh_rgba_quantization": {
       "Cast_Aluminium": [
-        0.4588235294117647,
-        0.47843137254901963,
-        0.5019607843137255,
+        0.3803921568627451,
+        0.4,
+        0.4196078431372549,
         1.0
       ],
       "Brushed_Aluminium": [
-        0.6196078431372549,
         0.6392156862745098,
         0.6588235294117647,
+        0.6784313725490196,
         1.0
       ],
       "Dark_Composite": [
+        0.043137254901960784,
         0.054901960784313725,
-        0.06666666666666667,
-        0.07058823529411765,
+        0.06274509803921569,
         1.0
       ],
       "Stainless_Header": [
-        0.47843137254901963,
-        0.45098039215686275,
-        0.4,
+        0.4196078431372549,
+        0.3686274509803922,
+        0.30980392156862746,
         1.0
       ],
       "Restrained_Rubber": [
+        0.027450980392156862,
+        0.03137254901960784,
         0.03529411764705882,
-        0.0392156862745098,
-        0.0392156862745098,
         1.0
       ],
       "Dark_Steel": [
-        0.1607843137254902,
-        0.16862745098039217,
-        0.1803921568627451,
+        0.12941176470588237,
+        0.1411764705882353,
+        0.14901960784313725,
         1.0
       ]
     },
     "exported": [
       [
-        0.4588235294117647,
-        0.47843137254901963,
-        0.5019607843137255,
+        0.3803921568627451,
+        0.4,
+        0.4196078431372549,
         1.0
       ],
       [
-        0.6196078431372549,
         0.6392156862745098,
         0.6588235294117647,
+        0.6784313725490196,
         1.0
       ],
       [
+        0.043137254901960784,
         0.054901960784313725,
-        0.06666666666666667,
-        0.07058823529411765,
+        0.06274509803921569,
         1.0
       ],
       [
-        0.1607843137254902,
-        0.16862745098039217,
-        0.1803921568627451,
+        0.12941176470588237,
+        0.1411764705882353,
+        0.14901960784313725,
         1.0
       ],
       [
-        0.47843137254901963,
-        0.45098039215686275,
-        0.4,
-        1.0
-      ],
-      [
+        0.027450980392156862,
+        0.03137254901960784,
         0.03529411764705882,
-        0.0392156862745098,
-        0.0392156862745098,
+        1.0
+      ],
+      [
+        0.4196078431372549,
+        0.3686274509803922,
+        0.30980392156862746,
         1.0
       ]
     ],
     "max_source_to_export_quantization_error": {
-      "Cast_Aluminium": 0.0019607843137254832,
-      "Brushed_Aluminium": 0.0011764705882353343,
-      "Dark_Composite": 0.0016666666666666635,
-      "Stainless_Header": 0.0015686274509803533,
-      "Restrained_Rubber": 0.0012156862745098043,
-      "Dark_Steel": 0.0013725490196078438
+      "Cast_Aluminium": 0.00039215686274507444,
+      "Brushed_Aluminium": 0.0015686274509804088,
+      "Dark_Composite": 0.0018627450980392146,
+      "Stainless_Header": 0.001372549019607816,
+      "Restrained_Rubber": 0.0012941176470588206,
+      "Dark_Steel": 0.0011764705882352788
     },
     "all_expected_present": true,
     "per_material_match": {
@@ -454,11 +526,13 @@
       ]
     }
   },
-  "triangle_budget_target": [
-    25000,
-    50000
+  "triangle_budget_target_preferred": [
+    50000,
+    75000
   ],
-  "triangle_count": 39108,
+  "triangle_hard_ceiling": 90000,
+  "triangle_count": 58016,
+  "preferred_triangle_range_pass": true,
   "triangle_budget_pass": true,
   "installation": {
     "marker_metres": [
@@ -473,5 +547,20 @@
   "exterior_model_hash_before": "1c73fcb138c31e2b1d5ed126a2412074bb17f8e960b355436f28139bf518e1eb",
   "exterior_model_hash_after": "1c73fcb138c31e2b1d5ed126a2412074bb17f8e960b355436f28139bf518e1eb",
   "exterior_unchanged": true,
-  "engine_sha256": "62216a409c52b2411315e8c02324e25907b3f447b44138cd26d73378dea617fd"
+  "engine_sha256": "0c20adb62ce59a4bbc935fafbf9290663484acd10250547cd35c8b5d73ad28db",
+  "refinement_baseline_commit": "50a912e66c637402e5dc9cdbc1753b01da20bc4d",
+  "public_engine_sha256": "0c20adb62ce59a4bbc935fafbf9290663484acd10250547cd35c8b5d73ad28db",
+  "public_engine_matches_source": true,
+  "native_renderer_review": {
+    "frame": 180,
+    "resolution": [
+      1080,
+      1920
+    ],
+    "preview_frames": [
+      155,
+      185
+    ],
+    "preview_path": "renders/native_film_preview_0155_0185.mp4"
+  }
 }

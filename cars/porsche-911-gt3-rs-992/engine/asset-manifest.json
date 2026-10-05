@@ -1,6 +1,6 @@
 {
   "asset": "YUNEX 992 GT3 RS simplified 4.0L naturally aspirated flat-six",
-  "status": "targeted finishing pass for master review",
+  "status": "visual refinement pass for native-film master review",
   "units": "metres",
   "axis": {
     "forward": "+Z",
@@ -25,8 +25,8 @@
     0.6499999910593033,
     0.8499999940395355
   ],
-  "triangles": 39108,
-  "geometry_primitives": 91,
+  "triangles": 58016,
+  "geometry_primitives": 125,
   "named_groups": [
     "Engine_Root",
     "Crankcase",
@@ -50,39 +50,39 @@
   ],
   "exported_base_color_factors": [
     [
-      0.4588235294117647,
-      0.47843137254901963,
-      0.5019607843137255,
+      0.3803921568627451,
+      0.4,
+      0.4196078431372549,
       1.0
     ],
     [
-      0.6196078431372549,
       0.6392156862745098,
       0.6588235294117647,
+      0.6784313725490196,
       1.0
     ],
     [
+      0.043137254901960784,
       0.054901960784313725,
-      0.06666666666666667,
-      0.07058823529411765,
+      0.06274509803921569,
       1.0
     ],
     [
-      0.1607843137254902,
-      0.16862745098039217,
-      0.1803921568627451,
+      0.12941176470588237,
+      0.1411764705882353,
+      0.14901960784313725,
       1.0
     ],
     [
-      0.47843137254901963,
-      0.45098039215686275,
-      0.4,
-      1.0
-    ],
-    [
+      0.027450980392156862,
+      0.03137254901960784,
       0.03529411764705882,
-      0.0392156862745098,
-      0.0392156862745098,
+      1.0
+    ],
+    [
+      0.4196078431372549,
+      0.3686274509803922,
+      0.30980392156862746,
       1.0
     ]
   ],
@@ -172,5 +172,19 @@
     "Installed review render loads the approved exterior GLB separately and keeps it unchanged; the engine is never baked into the car asset."
   ],
   "exterior_model_sha256": "1c73fcb138c31e2b1d5ed126a2412074bb17f8e960b355436f28139bf518e1eb",
-  "sha256": "62216a409c52b2411315e8c02324e25907b3f447b44138cd26d73378dea617fd"
+  "sha256": "0c20adb62ce59a4bbc935fafbf9290663484acd10250547cd35c8b5d73ad28db",
+  "refinement_baseline_commit": "50a912e66c637402e5dc9cdbc1753b01da20bc4d",
+  "review_outputs": {
+    "before_rear_three_quarter": "renders/before_rear_three_quarter.png",
+    "after_rear_three_quarter": "renders/after_rear_three_quarter.png",
+    "before_close_three_quarter": "renders/before_close_three_quarter.png",
+    "after_close_three_quarter": "renders/after_close_three_quarter.png",
+    "installed_side": "renders/after_installed_side.png",
+    "installed_top": "renders/after_installed_top.png",
+    "exploded": "renders/after_exploded.png",
+    "native_before_frame": "renders/before_native_frame_0180.png",
+    "native_after_frame": "renders/after_native_frame_0180.png",
+    "native_preview": "renders/native_film_preview_0155_0185.mp4"
+  },
+  "public_engine_sha256": "0c20adb62ce59a4bbc935fafbf9290663484acd10250547cd35c8b5d73ad28db"
 }
