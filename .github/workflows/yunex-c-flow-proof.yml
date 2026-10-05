@@ -1,0 +1,61 @@
+name: YUNEX 002 C airflow proof
+
+on:
+  push:
+    branches:
+      - sol/yunex-002-c-flow
+    paths:
+      - 'yunex/src/video002/**'
+      - '.github/workflows/yunex-c-flow-proof.yml'
+
+jobs:
+  render:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+          cache-dependency-path: yunex/package-lock.json
+
+      - name: Install existing YUNEX runtime
+        working-directory: yunex
+        run: npm ci
+
+      - name: Stage locked approved Porsche
+        run: |
+          cp cars/porsche-911-gt3-rs-992/model.glb yunex/public/model.glb
+          echo "model_sha256=$(sha256sum yunex/public/model.glb | awk '{print $1}')" > yunex/c_flow_asset_qa.txt
+
+      - name: Render native C proof
+        working-directory: yunex
+        run: |
+          npx remotion render src/video002/c_flow_entry.tsx YUNEX-002-C-FLOW-PROOF c_flow_proof.mp4 --codec=h264 --crf=18 --gl=swangle --concurrency=2
+          npx remotion still src/video002/c_flow_entry.tsx YUNEX-002-C-FLOW-PROOF c_high_downforce.png --frame=30 --gl=swangle
+          npx remotion still src/video002/c_flow_entry.tsx YUNEX-002-C-FLOW-PROOF c_drs.png --frame=112 --gl=swangle
+          npx remotion still src/video002/c_flow_entry.tsx YUNEX-002-C-FLOW-PROOF c_airbrake.png --frame=187 --gl=swangle
+
+      - name: Validate proof
+        working-directory: yunex
+        run: |
+          ffprobe -v error -show_entries stream=codec_name,width,height,r_frame_rate,nb_frames -show_entries format=duration -of default=noprint_wrappers=1 c_flow_proof.mp4 | tee c_flow_probe.txt
+          sha256sum c_flow_proof.mp4 | tee c_flow_sha256.txt
+          test "$(sha256sum public/model.glb | awk '{print $1}')" = "1c73fcb138c31e2b1d5ed126a2412074bb17f8e960b355436f28139bf518e1eb"
+
+      - name: Upload C proof bundle
+        uses: actions/upload-artifact@v4
+        with:
+          name: yunex-002-c-flow-proof
+          path: |
+            yunex/c_flow_proof.mp4
+            yunex/c_high_downforce.png
+            yunex/c_drs.png
+            yunex/c_airbrake.png
+            yunex/c_flow_probe.txt
+            yunex/c_flow_sha256.txt
+            yunex/c_flow_asset_qa.txt
+          retention-days: 2
+          compression-level: 6
