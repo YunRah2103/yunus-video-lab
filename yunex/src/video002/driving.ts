@@ -33,10 +33,6 @@ export const DEFAULT_CAMERA_TIMING: Yunex002CameraTiming = {
 export const TYRE_RADIUS_METRES = 0.34;
 
 const clamp01 = (value: number) => Math.max(0, Math.min(1, value));
-const smoothstep = (value: number) => {
-  const t = clamp01(value);
-  return t * t * (3 - 2 * t);
-};
 
 export const resolveCameraTiming = (
   timing: Partial<Yunex002CameraTiming> = {},
@@ -70,15 +66,43 @@ const distanceKeysFor = (timing: Yunex002CameraTiming): DistanceKey[] => [
   {frame: timing.finalEnd, metres: 5.15},
 ];
 
+const monotoneSlopes = (keys: DistanceKey[]) => {
+  const secants = keys.slice(0, -1).map((key, index) => {
+    const next = keys[index + 1];
+    return (next.metres - key.metres) / Math.max(1, next.frame - key.frame);
+  });
+  return keys.map((_, index) => {
+    if (index === 0) return secants[0];
+    if (index === keys.length - 1) return secants[secants.length - 1];
+    const a = secants[index - 1];
+    const b = secants[index];
+    if (a === 0 || b === 0 || Math.sign(a) !== Math.sign(b)) return 0;
+    return (2 * a * b) / (a + b);
+  });
+};
+
 const sampleKeyCurve = (frame: number, keys: DistanceKey[]) => {
   if (frame <= keys[0].frame) return keys[0].metres;
   if (frame >= keys[keys.length - 1].frame) return keys[keys.length - 1].metres;
+  const slopes = monotoneSlopes(keys);
   for (let i = 0; i < keys.length - 1; i++) {
     const a = keys[i];
     const b = keys[i + 1];
     if (frame >= a.frame && frame <= b.frame) {
-      const t = smoothstep((frame - a.frame) / Math.max(1, b.frame - a.frame));
-      return a.metres + (b.metres - a.metres) * t;
+      const span = Math.max(1, b.frame - a.frame);
+      const t = clamp01((frame - a.frame) / span);
+      const t2 = t * t;
+      const t3 = t2 * t;
+      const h00 = 2 * t3 - 3 * t2 + 1;
+      const h10 = t3 - 2 * t2 + t;
+      const h01 = -2 * t3 + 3 * t2;
+      const h11 = t3 - t2;
+      return (
+        h00 * a.metres +
+        h10 * span * slopes[i] +
+        h01 * b.metres +
+        h11 * span * slopes[i + 1]
+      );
     }
   }
   return keys[keys.length - 1].metres;
@@ -109,7 +133,7 @@ const brakingPitchAt = (frame: number, timing: Yunex002CameraTiming) => {
   if (frame <= start || frame >= end) return 0;
   const t = clamp01((frame - start) / Math.max(1, end - start));
   // Under one degree: enough to suggest load transfer without a dramatic nose-dive.
-  return Math.sin(t * Math.PI) * 0.014;
+  return Math.sin(t * Math.PI) * 0.0035;
 };
 
 export const rootPoseAt = (
