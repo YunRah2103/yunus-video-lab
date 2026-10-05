@@ -50,53 +50,36 @@ export function stateFor(frame:number):State {
   const aero = phase(frame,549,675);
   const finish = phase(frame,675,827);
 
-  let angle = blend(-2.26,-3.03,hero);
-  let y = blend(5.4,1.72,hero);
-  let radius = blend(12.2,12.8,hero);
-  let zoom = blend(184,196,hero);
-  let targetZ = blend(-0.08,-0.28,hero);
-  if (frame >= 105) {
-    angle = blend(-3.03,-3.14,cut);
-    y = blend(1.72,2.12,cut);
-    radius = blend(12.8,13.15,cut);
-    zoom = blend(196,183,cut);
-    targetZ = blend(-0.28,-0.22,cut);
-  }
-  if (frame >= 255) {
-    angle = blend(-3.14,-Math.PI / 2,rotate);
-    y = blend(2.12,9.7,rotate);
-    radius = blend(13.15,0.12,rotate);
-    zoom = blend(183,171,rotate);
-    targetZ = blend(-0.22,0.05,rotate);
-  }
-  if (frame >= 345) {
-    angle = blend(-Math.PI / 2,-2.55,recover);
-    y = blend(9.7,2.18,recover);
-    radius = blend(0.12,12.4,recover);
-    zoom = blend(171,186,recover);
-    targetZ = blend(0.05,-0.2,recover);
-  }
-  if (frame >= 396) {
-    angle = blend(-2.55,-2.30,grip);
-    y = blend(2.18,1.62,grip);
-    radius = blend(12.4,12.0,grip);
-    zoom = blend(186,193,grip);
-    targetZ = blend(-0.2,-0.35,grip);
-  }
-  if (frame >= 549) {
-    angle = blend(-2.30,-2.08,aero);
-    y = blend(1.62,1.50,aero);
-    radius = blend(12.0,11.7,aero);
-    zoom = blend(193,198,aero);
-    targetZ = blend(-0.35,-0.20,aero);
-  }
-  if (frame >= 675) {
-    angle = blend(-2.08,-2.34,finish);
-    y = blend(1.50,2.52,finish);
-    radius = blend(11.7,12.1,finish);
-    zoom = blend(198,190,finish);
-    targetZ = blend(-0.20,-0.08,finish);
-  }
+  type CameraKey={f:number;angle:number;y:number;r:number;zoom:number;ty:number;tz:number};
+  const keys:CameraKey[]=[
+    {f:0,angle:-1.68,y:9.0,r:9.0,zoom:282,ty:.48,tz:-.10},
+    {f:52,angle:-1.82,y:8.5,r:9.0,zoom:286,ty:.48,tz:-.18},
+    {f:105,angle:-2.02,y:6.7,r:8.5,zoom:274,ty:.50,tz:-.62},
+    // Rear-bay close view: the installed engine becomes the subject.
+    {f:145,angle:-2.76,y:1.72,r:4.85,zoom:490,ty:.47,tz:-1.56},
+    {f:178,angle:-2.82,y:1.66,r:5.05,zoom:470,ty:.47,tz:-1.50},
+    // Pull back briefly so axle-to-engine placement reads as one relationship.
+    {f:218,angle:-3.08,y:1.9,r:11.7,zoom:208,ty:.58,tz:-.28},
+    {f:255,angle:-3.13,y:2.05,r:12.0,zoom:210,ty:.62,tz:-.16},
+    {f:300,angle:-1.55,y:9.1,r:.35,zoom:205,ty:.58,tz:.02},
+    {f:345,angle:-1.30,y:9.0,r:.45,zoom:205,ty:.58,tz:.04},
+    {f:396,angle:-2.48,y:3.0,r:9.7,zoom:225,ty:.66,tz:-.52},
+    // Close rear-wheel/load beat, then breathe back to a medium car view.
+    {f:442,angle:-2.72,y:1.72,r:5.45,zoom:350,ty:.45,tz:-1.18},
+    {f:490,angle:-2.58,y:2.15,r:6.8,zoom:302,ty:.51,tz:-.96},
+    {f:549,angle:-2.34,y:3.0,r:9.8,zoom:226,ty:.70,tz:-.46},
+    // High rear three-quarter keeps the wing and airflow relationship visible.
+    {f:610,angle:-2.16,y:6.5,r:8.0,zoom:226,ty:.69,tz:-.48},
+    {f:674,angle:-2.02,y:6.6,r:8.0,zoom:234,ty:.62,tz:-.40},
+    {f:675,angle:1.50,y:8.7,r:9.0,zoom:278,ty:.48,tz:.10},
+    // New front-three-quarter payoff avoids simply replaying the opening view.
+    {f:748,angle:1.34,y:8.7,r:9.0,zoom:278,ty:.48,tz:.12},
+    {f:827,angle:1.14,y:8.9,r:9.0,zoom:282,ty:.48,tz:.18},
+  ];
+  let ka=keys[0],kb=keys[1];
+  for(let i=0;i<keys.length-1;i++){if(frame>=keys[i].f&&frame<=keys[i+1].f){ka=keys[i];kb=keys[i+1];break;} if(frame>keys[keys.length-1].f){ka=keys[keys.length-2];kb=keys[keys.length-1];}}
+  const kt=phase(frame,ka.f,kb.f);
+  const angle=blend(ka.angle,kb.angle,kt),y=blend(ka.y,kb.y,kt),radius=blend(ka.r,kb.r,kt),zoom=blend(ka.zoom,kb.zoom,kt),targetY=blend(ka.ty,kb.ty,kt),targetZ=blend(ka.tz,kb.tz,kt);
 
   const spin = frame >= 255 && frame < 345 ? Math.sin(rotate * Math.PI) * -0.43 : 0;
   const pivot = FRONT_AXLE;
@@ -106,7 +89,7 @@ export function stateFor(frame:number):State {
   return {
     camera:{
       position:[Math.cos(angle)*radius,y,Math.sin(angle)*radius],
-      target:[0,0.28,targetZ],
+      target:[0,targetY,targetZ],
       zoom,
     },
     ghost: frame < 55 ? 0 : frame < 150 ? phase(frame,55,150) * 0.73 : frame < 555 ? 0.73 : 0.73 * (1-phase(frame,555,615)),
@@ -245,8 +228,10 @@ function Scene({frame,state}:{frame:number;state:State}) {
     const installed=ENGINE.clone().applyEuler(new THREE.Euler(...state.carRotation)).add(new THREE.Vector3(...state.carPosition));
     engine.position.copy(installed); engine.rotation.set(...state.carRotation);
     engine.traverse((o:any)=>{if(!o.isMesh)return;const mats=Array.isArray(o.material)?o.material:[o.material];o.visible=state.engine>.002;for(const m of mats){m.transparent=true;m.opacity=state.engine;m.depthWrite=state.engine>.3;}});
-    const detail=frame>=125&&frame<246 ? Math.min(phase(frame,125,145),1-phase(frame,232,246)) : 0;
-    engineDetail.visible=detail>.001;engineDetail.position.set(0,-1.55,-.36);engineDetail.rotation.set(.08,-.18,0);engineDetail.scale.setScalar(1.42);
+    // The refined camera now shows the installed engine directly; keep the duplicate
+    // dormant so the viewer never has to reconcile two engine positions.
+    const detail=0;
+    engineDetail.visible=false;engineDetail.position.set(0,-1.55,-.36);engineDetail.rotation.set(.08,-.18,0);engineDetail.scale.setScalar(1.42);
     engineDetail.traverse((o:any)=>{if(!o.isMesh)return;const mats=Array.isArray(o.material)?o.material:[o.material];for(const m of mats){m.transparent=true;m.opacity=detail;m.depthWrite=detail>.3;}});
   },[car,ghostCar,engine,engineDetail,clipPlane,frame,state.carPosition[0],state.carPosition[1],state.carPosition[2],state.carRotation[0],state.carRotation[1],state.carRotation[2],state.ghost,state.engine]);
 
@@ -266,7 +251,7 @@ function Scene({frame,state}:{frame:number;state:State}) {
   </group>;
   return <>
     <Studio state={state}/>
-    <mesh position={[0,-.018,-.18]} rotation={[-Math.PI/2,0,0]} scale={[3.1,1.3,1]}><circleGeometry args={[1,64]}/><meshBasicMaterial color="#030404" transparent opacity={.40} depthWrite={false}/></mesh>
+    <mesh position={[0,-.018,-.18]} rotation={[-Math.PI/2,0,0]} scale={[1.05,2.5,1]}><circleGeometry args={[1,64]}/><meshBasicMaterial color="#030404" transparent opacity={frame>=255&&frame<345?0:.22} depthWrite={false}/></mesh>
     {car&&<primitive object={car}/>} {ghostCar&&<primitive object={ghostCar}/>} {engine&&<primitive object={engine}/>} {engineDetail&&<primitive object={engineDetail}/>} {markerGroup}
     {frame>257&&frame<343&&Math.abs(state.rotation)>.01&&<RotationTrail angle={state.rotation} opacity={Math.sin(phase(frame,255,345)*Math.PI)*.88}/>}
   </>;
@@ -284,7 +269,7 @@ function Label({text,point,state,color,opacity,dx=0,dy=0}:{text:string;point:THR
   const p=project(point,state);const estimatedHalf=Math.max(92,text.length*11.5);const x=Math.max(65+estimatedHalf,Math.min(W-65-estimatedHalf,p.x+dx)),y=p.y+dy;
   return <>{opacity>.001&&<>
     <svg width={W} height={H} style={{position:'absolute',inset:0,opacity,pointerEvents:'none'}}><line x1={p.x} y1={p.y} x2={x} y2={y} stroke={color} strokeWidth={2}/><circle cx={p.x} cy={p.y} r={5} fill={color}/></svg>
-    <div style={{position:'absolute',left:x,top:y,translate:'-50% -50%',fontFamily:'Yunex',fontSize:38,fontWeight:900,letterSpacing:1.4,color,opacity,textShadow:'0 3px 16px #000',whiteSpace:'nowrap'}}>{text}</div>
+    <div style={{position:'absolute',left:x,top:y,translate:'-50% -50%',fontFamily:'Yunex',fontSize:36,fontWeight:900,letterSpacing:1.3,color,opacity,textShadow:'0 3px 16px #000',whiteSpace:'nowrap',background:'rgba(10,13,14,.76)',padding:'5px 10px 3px',borderRadius:3}}>{text}</div>
   </>}</>;
 }
 
@@ -298,29 +283,31 @@ function Title({frame}:{frame:number}) {
   else if(frame>=549&&frame<675){eyebrow='DECADES OF DEVELOPMENT';a='AERO + CHASSIS';b='+ CONTROL.';start=549;end=675;color=GREEN;align='left';}
   else if(frame>=675){eyebrow='THE RESULT';a='UNMISTAKABLY';b='911.';start=675;end=828;}
   const intro=phase(frame,start,start+10);const outro=1-phase(frame,end-12,end);
-  return <div style={{position:'absolute',top:frame>=105&&frame<255?292:frame>=396&&frame<675?280:300,left:70,right:70,textAlign:align,opacity:intro*outro,translate:`0 ${18*(1-intro)}px`,textShadow:'0 5px 28px rgba(0,0,0,.72)'}}>
-    <div style={{fontFamily:'Arial',fontWeight:700,fontSize:22,letterSpacing:5.4,color:'rgba(241,234,220,.68)',marginBottom:14}}>{eyebrow}</div>
-    <div style={{fontFamily:'Yunex',fontWeight:900,fontSize:align==='center'?92:82,lineHeight:.86,letterSpacing:-1.2,color:IVORY}}>{a}</div>
-    <div style={{fontFamily:'Yunex',fontWeight:900,fontSize:align==='center'?104:91,lineHeight:.92,letterSpacing:-1.5,color}}>{b}</div>
+  const overhead=frame>=255&&frame<396;
+  const top=frame>=675?100:overhead?190:frame>=549&&frame<675?430:220;
+  return <div style={{position:'absolute',top,left:74,right:74,textAlign:align,opacity:intro*outro,translate:`0 ${14*(1-intro)}px`,textShadow:'0 5px 28px rgba(0,0,0,.72)'}}>
+    <div style={{fontFamily:'Arial',fontWeight:700,fontSize:19,letterSpacing:4.8,color:'rgba(241,234,220,.68)',marginBottom:11}}>{eyebrow}</div>
+    <div style={{fontFamily:'Yunex',fontWeight:900,fontSize:align==='center'?70:66,lineHeight:.88,letterSpacing:-.8,color:IVORY}}>{a}</div>
+    <div style={{fontFamily:'Yunex',fontWeight:900,fontSize:align==='center'?78:72,lineHeight:.94,letterSpacing:-1,color}}>{b}</div>
   </div>;
 }
 
 export const ModelLedVideo:React.FC=()=>{
   const frame=useCurrentFrame();const state=stateFor(frame);
-  const labels=state.technical*(frame<345?1:frame<396?0:frame<549?.7:0);
+  const labels=state.technical*(frame<255?phase(frame,180,198):frame<345?1:frame<396?0:frame<549?.7:0);
   const showEngineDetail=frame>=105&&frame<255;
   const finalMark=phase(frame,770,810);
   return <AbsoluteFill style={{background:CHARCOAL,overflow:'hidden'}}>
     <style>{`@font-face{font-family:Yunex;src:url('${staticFile('Display.ttf')}')}*{box-sizing:border-box}`}</style>
     <AbsoluteFill style={{background:'radial-gradient(ellipse at 52% 53%,#292e2f 0%,#15191a 45%,#0b0e0f 84%)'}}/>
-    <ThreeCanvas width={W} height={H} orthographic camera={{position:state.camera.position,zoom:state.camera.zoom,near:.1,far:100}} gl={{antialias:false,alpha:true,preserveDrawingBuffer:true}}>
+    <ThreeCanvas width={W} height={H} orthographic camera={{position:state.camera.position,zoom:state.camera.zoom,near:.1,far:100}} gl={{antialias:true,alpha:true,preserveDrawingBuffer:true}}>
       <Scene frame={frame} state={state}/>
     </ThreeCanvas>
     <Title frame={frame}/>
     <Label text="FRONT AXLE" point={FRONT_AXLE} state={state} color={GREEN} opacity={labels} dx={68} dy={-95}/>
     <Label text="REAR AXLE" point={REAR_AXLE} state={state} color={GREEN} opacity={labels} dx={-22} dy={-105}/>
     <Label text="ENGINE MASS" point={ENGINE} state={state} color={COPPER} opacity={Math.max(showEngineDetail?phase(frame,125,155):0,labels)} dx={-15} dy={105}/>
-    {showEngineDetail&&<div style={{position:'absolute',left:540,top:1425,translate:'-50% 0',fontFamily:'Arial',fontSize:20,fontWeight:700,letterSpacing:4,color:'rgba(241,234,220,.58)',opacity:phase(frame,135,150)*(1-phase(frame,232,246))}}>4.0L NATURALLY ASPIRATED FLAT-SIX</div>}
+    {showEngineDetail&&<div style={{position:'absolute',left:74,bottom:185,fontFamily:'Arial',fontSize:19,fontWeight:700,letterSpacing:3.4,color:'rgba(241,234,220,.60)',opacity:phase(frame,135,150)*(1-phase(frame,232,246))}}>4.0L NATURALLY ASPIRATED FLAT-SIX</div>}
     {frame>=255&&frame<345&&<div style={{position:'absolute',left:72,bottom:164,width:390,fontFamily:'Arial',fontSize:25,lineHeight:1.25,letterSpacing:1.1,color:'rgba(241,234,220,.74)',opacity:phase(frame,266,281)*(1-phase(frame,330,343))}}>REAR MASS AND CAR<br/><b style={{color:COPPER}}>ROTATE TOGETHER</b></div>}
     {frame>=396&&frame<549&&<div style={{position:'absolute',left:74,bottom:156,fontFamily:'Arial',fontSize:24,letterSpacing:2.6,color:'rgba(241,234,220,.70)',opacity:phase(frame,411,430)*(1-phase(frame,530,548))}}>DRIVEN REAR WHEELS · LOAD INTO ROAD</div>}
     {frame>=549&&frame<675&&<div style={{position:'absolute',left:74,bottom:148,right:74,fontFamily:'Arial',fontSize:21,lineHeight:1.35,letterSpacing:2.1,color:'rgba(241,234,220,.64)',opacity:phase(frame,566,585)*(1-phase(frame,658,674))}}>MODERN GT3 RS · AIRFLOW SHOWN ILLUSTRATIVELY AT SPEED</div>}

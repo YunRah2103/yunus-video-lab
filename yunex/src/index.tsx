@@ -8,8 +8,10 @@ import {AssetPreview,CarPlate} from './Car';
 const RotationPlate=()=> <CarPlate view="top" width={1080} height={1100} zoom={180} ghost={.78} engine yaw={-useCurrentFrame()/51*.62}/>;
 const Root=()=> <>
  <Composition id="YUNEX-001-V2-FINAL" component={FinalFinish} width={1080} height={1920} fps={30} durationInFrames={828}/>
+ <Composition id="YUNEX-001-V3-FINAL" component={FinalFinish} width={1080} height={1920} fps={30} durationInFrames={828}/>
  <Composition id="YUNEX-001" component={YunexVideo} width={1080} height={1920} fps={30} durationInFrames={828}/>
  <Composition id="YUNEX-001-V2" component={ModelLedVideo} width={1080} height={1920} fps={30} durationInFrames={828}/>
+ <Composition id="YUNEX-001-V3" component={ModelLedVideo} width={1080} height={1920} fps={30} durationInFrames={828}/>
  <Composition id="YUNEX-ORBIT-CUTAWAY-PROOF" component={OrbitCutawayProof} width={1080} height={1920} fps={30} durationInFrames={225}/>
  <Still id="CarPlate" component={CarPlate} width={1080} height={1000} defaultProps={{view:'rear',width:1080,height:1000,zoom:205}} calculateMetadata={({props}:any)=>({width:props.width,height:props.height})}/>
  <Composition id="RotationPlate" component={RotationPlate} width={1080} height={1100} fps={30} durationInFrames={52}/>
