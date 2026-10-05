@@ -88,10 +88,10 @@ jobs:
           NODE_OPTIONS: --require=./fix-network.cjs
         run: |
           npx remotion still src/index.tsx YUNEX-001-V2 ../cars/porsche-911-gt3-rs-992/engine/renders/after_native_frame_0180.png             --frame=180 --gl=swangle --timeout=120000
-          npx remotion render src/index.tsx YUNEX-001-V2 ../cars/porsche-911-gt3-rs-992/engine/renders/native_film_preview_0125_0246.mp4             --frames=125-246 --gl=swangle --concurrency=2 --codec=h264 --crf=17 --timeout=120000
+          npx remotion render src/index.tsx YUNEX-001-V2 ../cars/porsche-911-gt3-rs-992/engine/renders/native_film_preview_0155_0185.mp4             --frames=155-185 --gl=swangle --concurrency=2 --codec=h264 --crf=17 --timeout=120000
           ffmpeg -y             -i ../cars/porsche-911-gt3-rs-992/engine/renders/before_native_frame_0180.png             -i ../cars/porsche-911-gt3-rs-992/engine/renders/after_native_frame_0180.png             -filter_complex hstack=inputs=2 -frames:v 1             ../cars/porsche-911-gt3-rs-992/engine/renders/comparison_native_frame_0180.png
-          ffprobe -v error -select_streams v:0 -show_entries stream=width,height,r_frame_rate,codec_name,pix_fmt             -of json ../cars/porsche-911-gt3-rs-992/engine/renders/native_film_preview_0125_0246.mp4             > ../cars/porsche-911-gt3-rs-992/engine/renders/native_film_preview_ffprobe.json
-          test "$(ffprobe -v error -select_streams v:0 -show_entries stream=width,height -of csv=p=0 ../cars/porsche-911-gt3-rs-992/engine/renders/native_film_preview_0125_0246.mp4)" = "1080,1920"
+          ffprobe -v error -select_streams v:0 -show_entries stream=width,height,r_frame_rate,codec_name,pix_fmt             -of json ../cars/porsche-911-gt3-rs-992/engine/renders/native_film_preview_0155_0185.mp4             > ../cars/porsche-911-gt3-rs-992/engine/renders/native_film_preview_ffprobe.json
+          test "$(ffprobe -v error -select_streams v:0 -show_entries stream=width,height -of csv=p=0 ../cars/porsche-911-gt3-rs-992/engine/renders/native_film_preview_0155_0185.mp4)" = "1080,1920"
 
       - name: Verify locked car and update manifest validation
         run: |
@@ -117,7 +117,7 @@ jobs:
             "exploded":"renders/after_exploded.png",
             "native_before_frame":"renders/before_native_frame_0180.png",
             "native_after_frame":"renders/after_native_frame_0180.png",
-            "native_preview":"renders/native_film_preview_0125_0246.mp4"
+            "native_preview":"renders/native_film_preview_0155_0185.mp4"
           }
           manifest["public_engine_sha256"]=sha(pub)
           validation["refinement_baseline_commit"]=manifest["refinement_baseline_commit"]
@@ -126,8 +126,8 @@ jobs:
           validation["native_renderer_review"]={
             "frame":180,
             "resolution":[1080,1920],
-            "preview_frames":[125,246],
-            "preview_path":"renders/native_film_preview_0125_0246.mp4"
+            "preview_frames":[155,185],
+            "preview_path":"renders/native_film_preview_0155_0185.mp4"
           }
           assert validation["public_engine_matches_source"]
           (d/"asset-manifest.json").write_text(json.dumps(manifest,indent=2)+"\n")
@@ -149,7 +149,7 @@ jobs:
           test -s "$ENGINE_DIR/renders/before_native_frame_0180.png"
           test -s "$ENGINE_DIR/renders/after_native_frame_0180.png"
           test -s "$ENGINE_DIR/renders/comparison_native_frame_0180.png"
-          test -s "$ENGINE_DIR/renders/native_film_preview_0125_0246.mp4"
+          test -s "$ENGINE_DIR/renders/native_film_preview_0155_0185.mp4"
           python -m json.tool "$ENGINE_DIR/asset-manifest.json" >/dev/null
           python -m json.tool "$ENGINE_DIR/validation.json" >/dev/null
 
@@ -164,8 +164,7 @@ jobs:
           git add "$ENGINE_DIR/REVIEW_NOTE.md"
           git add "$ENGINE_DIR/renders/"*.png
           git add "$ENGINE_DIR/renders/native_film_preview_ffprobe.json"
-          git add -f "$ENGINE_DIR/renders/native_film_preview_0125_0246.mp4"
-          git add -f "$ENGINE_DIR/renders/engine_turntable_after.mp4"
+          git add -f "$ENGINE_DIR/renders/native_film_preview_0155_0185.mp4"
           git add yunex/public/engine.glb
           git diff --cached --quiet || git commit -m "YUNEX engine refinement: generated assets and native review [skip ci]"
           git pull --rebase origin sol/yunex-full-film-v2
