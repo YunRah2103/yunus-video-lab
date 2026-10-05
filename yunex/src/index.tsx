@@ -4,11 +4,13 @@ import {YunexVideo} from './Video';
 import {ModelLedVideo} from './ModelLedVideo';
 import {FinalFinish} from './FinalFinish';
 import {OrbitCutawayProof} from './OrbitCutawayProof';
-import {TrackPreview} from './TrackPreview';
+import {TrackMotionProof,TrackPortraitPreview,TrackPreview} from './TrackPreview';
 import {AssetPreview,CarPlate} from './Car';
 const RotationPlate=()=> <CarPlate view="top" width={1080} height={1100} zoom={180} ghost={.78} engine yaw={-useCurrentFrame()/51*.62}/>;
 const Root=()=> <>
  <Still id="YUNEX-TRACK-PREVIEW" component={TrackPreview} width={1600} height={1000}/>
+ <Still id="YUNEX-TRACK-PORTRAIT" component={TrackPortraitPreview} width={1080} height={1920}/>
+ <Composition id="YUNEX-TRACK-MOTION-PROOF" component={TrackMotionProof} width={1080} height={1920} fps={30} durationInFrames={90}/>
  <Composition id="YUNEX-001-V2-FINAL" component={FinalFinish} width={1080} height={1920} fps={30} durationInFrames={828}/>
  <Composition id="YUNEX-001-V3-FINAL" component={FinalFinish} width={1080} height={1920} fps={30} durationInFrames={828}/>
  <Composition id="YUNEX-001" component={YunexVideo} width={1080} height={1920} fps={30} durationInFrames={828}/>
