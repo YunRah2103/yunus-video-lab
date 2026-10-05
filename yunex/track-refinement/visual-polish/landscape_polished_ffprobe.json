@@ -1,0 +1,13 @@
+{
+    "programs": [
+
+    ],
+    "streams": [
+        {
+            "codec_name": "png",
+            "width": 1600,
+            "height": 1000,
+            "pix_fmt": "rgb24"
+        }
+    ]
+}
