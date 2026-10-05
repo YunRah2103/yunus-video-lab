@@ -153,10 +153,10 @@ const cameraFor=(mode:TrackMode,frame:number)=>{
   const target=new THREE.Vector3(-.05,.60,.18);
   const position=new THREE.Vector3(7.25,2.05,8.55);
   if(mode==='motion'){
-    const orbit=interpolate(frame,[0,89],[-.065,.065],{extrapolateLeft:'clamp',extrapolateRight:'clamp'});
+    const orbit=interpolate(frame,[0,74],[-.065,.065],{extrapolateLeft:'clamp',extrapolateRight:'clamp'});
     const offset=position.clone().sub(target).applyAxisAngle(new THREE.Vector3(0,1,0),orbit);
     position.copy(target).add(offset);
-    position.y+=interpolate(frame,[0,44,89],[.02,.11,.03],{extrapolateLeft:'clamp',extrapolateRight:'clamp'});
+    position.y+=interpolate(frame,[0,37,74],[.02,.11,.03],{extrapolateLeft:'clamp',extrapolateRight:'clamp'});
   }
   return {position,target};
 };
@@ -202,9 +202,10 @@ function TrackScene({mode}:{mode:TrackMode}){
       g.scene.traverse((o:any)=>{if(o.isMesh){o.castShadow=true;o.receiveShadow=true;o.frustumCulled=false;}});
       setGroundY(new THREE.Box3().setFromObject(g.scene).min.y);
       setModel(g.scene);
+      gl.shadowMap.needsUpdate=true;
     },undefined,cancelRender);
     return()=>{live=false;};
-  },[]);
+  },[gl]);
 
   useEffect(()=>{
     if(!model||ready.current)return;
