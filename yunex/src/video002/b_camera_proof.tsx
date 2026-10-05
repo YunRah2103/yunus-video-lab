@@ -33,7 +33,8 @@ const Scene: React.FC = () => {
   const {camera, gl, advance} = useThree();
   const [model, setModel] = useState<THREE.Group | null>(null);
   const [handle] = useState(() => delayRender('Loading approved YUNEX Porsche for B camera proof'));
-  const ready = useRef(false);\n  const wheelBase = useRef<Record<string, number>>({});
+  const ready = useRef(false);
+  const wheelBase = useRef<Record<string, number>>({});
 
   useLayoutEffect(() => {
     const perspective = camera as THREE.PerspectiveCamera;
@@ -65,7 +66,11 @@ const Scene: React.FC = () => {
             object.receiveShadow = false;
           }
         });
-        for (const name of WHEEL_NODES) {\n          const node = gltf.scene.getObjectByName(name);\n          if (node) wheelBase.current[name] = node.rotation.x;\n        }\n        setModel(gltf.scene);
+        for (const name of WHEEL_NODES) {
+          const node = gltf.scene.getObjectByName(name);
+          if (node) wheelBase.current[name] = node.rotation.x;
+        }
+        setModel(gltf.scene);
       },
       undefined,
       cancelRender,
