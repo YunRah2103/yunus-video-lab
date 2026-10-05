@@ -1,0 +1,7 @@
+{
+  "voice": {"source":"user supplied OpenAI FM Alloy MP3","license":"user supplied","treatment":"silence-only trimming; no synthesis or time stretch"},
+  "engine_bed": {"source":"procedural sine harmonics","license":"generated in-session"},
+  "wind": {"source":"procedural filtered pink noise","license":"generated in-session"},
+  "mechanism_ticks": {"source":"procedural sine/noise accents","license":"generated in-session"},
+  "brake_load": {"source":"procedural filtered white noise","license":"generated in-session"}
+}
