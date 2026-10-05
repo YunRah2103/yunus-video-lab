@@ -271,7 +271,7 @@ const TrackCanvas:React.FC<{mode:TrackMode;width:number;height:number}> = ({mode
       height={height}
       camera={{
         position:mode==='landscape'?[3.35,1.50,4.25]:mode==='portrait'?[2.20,1.45,5.85]:[7.25,2.05,8.55],
-        fov:mode==='landscape'?36:mode==='portrait'?44:40,
+        fov:mode==='landscape'?36:mode==='portrait'?48:40,
         near:.1,
         far:100,
       }}
