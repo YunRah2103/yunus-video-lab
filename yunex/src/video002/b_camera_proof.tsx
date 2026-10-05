@@ -18,7 +18,7 @@ import {DEFAULT_CAMERA_TIMING} from './driving';
 
 const W = 1080;
 const H = 1920;
-const PROOF_FRAMES = 75;
+const PROOF_FRAMES = 45;
 const WHEEL_NODES = ['Spin_FL', 'Spin_FR', 'Spin_RL', 'Spin_RR'] as const;
 
 const Scene: React.FC = () => {

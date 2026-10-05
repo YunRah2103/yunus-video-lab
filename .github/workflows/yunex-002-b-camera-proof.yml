@@ -48,16 +48,16 @@ jobs:
         run: |
           ffmpeg -v error -i yunex/b-camera-proof/YUNEX_002_B_CAMERA_PROOF.mp4 -f null -
           ffprobe -v error -count_frames -select_streams v:0 -show_entries stream=width,height,r_frame_rate,codec_name,pix_fmt,nb_read_frames -of json yunex/b-camera-proof/YUNEX_002_B_CAMERA_PROOF.mp4 > yunex/b-camera-proof/ffprobe.json
-          ffmpeg -y -ss 0.12 -i yunex/b-camera-proof/YUNEX_002_B_CAMERA_PROOF.mp4 -frames:v 1 yunex/b-camera-proof/opening.png >/dev/null 2>&1
-          ffmpeg -y -ss 0.55 -i yunex/b-camera-proof/YUNEX_002_B_CAMERA_PROOF.mp4 -frames:v 1 yunex/b-camera-proof/wing_macro.png >/dev/null 2>&1
-          ffmpeg -y -ss 2.30 -i yunex/b-camera-proof/YUNEX_002_B_CAMERA_PROOF.mp4 -frames:v 1 yunex/b-camera-proof/final_hero.png >/dev/null 2>&1
+          ffmpeg -y -ss 0.08 -i yunex/b-camera-proof/YUNEX_002_B_CAMERA_PROOF.mp4 -frames:v 1 yunex/b-camera-proof/opening.png >/dev/null 2>&1
+          ffmpeg -y -ss 0.34 -i yunex/b-camera-proof/YUNEX_002_B_CAMERA_PROOF.mp4 -frames:v 1 yunex/b-camera-proof/wing_macro.png >/dev/null 2>&1
+          ffmpeg -y -ss 1.38 -i yunex/b-camera-proof/YUNEX_002_B_CAMERA_PROOF.mp4 -frames:v 1 yunex/b-camera-proof/final_hero.png >/dev/null 2>&1
           python - <<'PY'
           import json
           from pathlib import Path
           s=json.loads(Path('yunex/b-camera-proof/ffprobe.json').read_text())['streams'][0]
           assert (s['width'],s['height'])==(1080,1920),s
           assert s['r_frame_rate']=='30/1',s
-          assert int(s['nb_read_frames'])==75,s
+          assert int(s['nb_read_frames'])==45,s
           PY
           sha256sum yunex/b-camera-proof/YUNEX_002_B_CAMERA_PROOF.mp4 > yunex/b-camera-proof/proof_sha256.txt
       - name: Upload B proof
