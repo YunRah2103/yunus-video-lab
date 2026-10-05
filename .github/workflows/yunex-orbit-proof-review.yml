@@ -1,4 +1,4 @@
-name: YUNEX orbit-cutaway master-review render
+name: YUNEX orbit-cutaway final proof
 
 on:
   push:
@@ -9,68 +9,61 @@ on:
   workflow_dispatch:
 
 jobs:
-  render-review:
+  render-proof:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 35
+
     steps:
       - uses: actions/checkout@v4
+
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
           cache: 'npm'
           cache-dependency-path: yunex/package-lock.json
+
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - name: Install fit dependencies
-        run: python -m pip install --disable-pip-version-check numpy scipy trimesh rtree
+
+      - name: Install system and fit-check dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg
+          python -m pip install --disable-pip-version-check numpy scipy trimesh rtree
+
       - name: Stage approved assets and inspect fit
         run: |
           cp cars/porsche-911-gt3-rs-992/model.glb yunex/public/model.glb
           cp cars/porsche-911-gt3-rs-992/engine/engine.glb yunex/public/engine.glb
           python yunex/fit_check.py
-      - name: Patch review-only render cost
-        run: |
-          python - <<'PY'
-          from pathlib import Path
-          p=Path('yunex/src/OrbitCutawayProof.tsx')
-          s=p.read_text()
-          anchor="const cameraState = cameraStateForFrame(frame, duration);"
-          repl="const baseCameraState = cameraStateForFrame(frame, duration);\n  const cameraState = {...baseCameraState, zoom:baseCameraState.zoom * 0.5};"
-          if anchor not in s: raise SystemExit('camera anchor missing')
-          s=s.replace(anchor,repl,1)
-          old='<ThreeCanvas width={1080} height={1920} orthographic camera={{position:cameraState.position,zoom:cameraState.zoom,near:0.1,far:100}} gl={{antialias:true,alpha:true,preserveDrawingBuffer:true}}>'
-          new='<ThreeCanvas width={540} height={960} style={{width:1080,height:1920}} orthographic camera={{position:cameraState.position,zoom:cameraState.zoom*0.5,near:0.1,far:100}} gl={{antialias:false,alpha:true,preserveDrawingBuffer:true}}>'
-          if old not in s: raise SystemExit('canvas anchor missing')
-          s=s.replace(old,new,1)
-          s=s.replace('o.castShadow = true;','o.castShadow = false;')
-          s=s.replace('o.receiveShadow = true;','o.receiveShadow = false;')
-          s=s.replace(' color="#fff5e8" castShadow/>',' color="#fff5e8"/>')
-          s=s.replace(' rotation={[-Math.PI/2,0,0]} receiveShadow>',' rotation={[-Math.PI/2,0,0]}>')
-          p.write_text(s)
-          q=Path('yunex/src/index.tsx')
-          t=q.read_text()
-          t=t.replace('component={OrbitCutawayProof} width={1080} height={1920} fps={30} durationInFrames={225}', 'component={OrbitCutawayProof} width={1080} height={1920} fps={30} durationInFrames={180}')
-          q.write_text(t)
-          PY
+
       - name: Install Remotion dependencies
         working-directory: yunex
         run: npm ci
-      - name: Render 6s master-review MP4
+
+      - name: Render 7.5s proof efficiently
         working-directory: yunex
         env:
           NODE_OPTIONS: --require=./fix-network.cjs
         run: |
           mkdir -p out
-          npx remotion render src/index.tsx YUNEX-ORBIT-CUTAWAY-PROOF out/YUNEX_ORBIT_CUTAWAY_PROOF.mp4 --gl=swangle --concurrency=2 --codec=h264 --crf=17
-          ffmpeg -y -ss 0.7 -i out/YUNEX_ORBIT_CUTAWAY_PROOF.mp4 -frames:v 1 out/key_01_hero.png
-          ffmpeg -y -ss 2.8 -i out/YUNEX_ORBIT_CUTAWAY_PROOF.mp4 -frames:v 1 out/key_02_cutaway.png
-          ffmpeg -y -ss 5.3 -i out/YUNEX_ORBIT_CUTAWAY_PROOF.mp4 -frames:v 1 out/key_03_technical.png
-          ffprobe -v error -show_entries format=duration:stream=width,height,r_frame_rate,codec_name -of json out/YUNEX_ORBIT_CUTAWAY_PROOF.mp4 > out/ffprobe.json
-      - name: Upload review artifact
+          npx remotion render src/index.tsx YUNEX-ORBIT-CUTAWAY-PROOF out/proof-half.mp4 --gl=swangle --concurrency=3 --codec=h264 --crf=16 --scale=0.5
+          ffmpeg -y -i out/proof-half.mp4 -vf scale=1080:1920:flags=lanczos -c:v libx264 -preset medium -crf 17 -pix_fmt yuv420p -movflags +faststart out/YUNEX_ORBIT_CUTAWAY_PROOF.mp4
+          rm out/proof-half.mp4
+
+      - name: Extract review frames and metadata
+        working-directory: yunex
+        run: |
+          ffmpeg -y -ss 0.8 -i out/YUNEX_ORBIT_CUTAWAY_PROOF.mp4 -frames:v 1 out/key_01_hero.png
+          ffmpeg -y -ss 3.4 -i out/YUNEX_ORBIT_CUTAWAY_PROOF.mp4 -frames:v 1 out/key_02_cutaway.png
+          ffmpeg -y -ss 6.7 -i out/YUNEX_ORBIT_CUTAWAY_PROOF.mp4 -frames:v 1 out/key_03_technical.png
+          ffprobe -v error -show_entries format=duration:stream=width,height,r_frame_rate,codec_name,pix_fmt -of json out/YUNEX_ORBIT_CUTAWAY_PROOF.mp4 > out/ffprobe.json
+
+      - name: Upload final proof
         uses: actions/upload-artifact@v4
         with:
-          name: yunex-orbit-cutaway-master-review
+          name: yunex-orbit-cutaway-final-proof
           path: |
             yunex/out/YUNEX_ORBIT_CUTAWAY_PROOF.mp4
             yunex/out/key_01_hero.png
