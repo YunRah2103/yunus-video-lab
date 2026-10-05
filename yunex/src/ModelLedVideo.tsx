@@ -39,7 +39,7 @@ type State = {
   carPosition:[number,number,number]; carRotation:[number,number,number]; squat:number;
 };
 
-function stateFor(frame:number):State {
+export function stateFor(frame:number):State {
   // Camera path is intentionally continuous. Every beat changes the relationship,
   // rather than cutting between fixed plates.
   const hero = phase(frame,0,105);
@@ -272,7 +272,7 @@ function Scene({frame,state}:{frame:number;state:State}) {
   </>;
 }
 
-function project(point:THREE.Vector3,state:State,followCar=true) {
+export function project(point:THREE.Vector3,state:State,followCar=true) {
   const p=point.clone();
   if(followCar){p.applyEuler(new THREE.Euler(...state.carRotation));p.add(new THREE.Vector3(...state.carPosition));}
   const c=new THREE.OrthographicCamera(-W/2,W/2,H/2,-H/2,.1,100);
