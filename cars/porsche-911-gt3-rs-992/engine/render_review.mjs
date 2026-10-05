@@ -11,22 +11,32 @@ await fs.mkdir(out,{recursive:true});
 const browser=await chromium.launch({headless:true,args:['--use-gl=angle','--use-angle=swiftshader','--enable-webgl','--disable-gpu-sandbox']});
 const base='http://127.0.0.1:8000/cars/porsche-911-gt3-rs-992/engine/review.html';
 
-const page=await browser.newPage({viewport:{width:1600,height:1200},deviceScaleFactor:1});
-page.on('console',m=>console.log('[browser:'+m.type()+'] '+m.text()));
-page.on('pageerror',e=>console.error('[browser:error] '+e.message));
-for(const [v,f] of [['isolated','review_isolated_rear_three_quarter.png'],['side','review_installed_side.png'],['top','review_installed_top.png']]){
-  await page.goto(base+'?view='+v,{waitUntil:'networkidle',timeout:120000});
+async function renderView(asset,variant,view,file){
+  const page=await browser.newPage({viewport:{width:1600,height:1200},deviceScaleFactor:1});
+  page.on('console',m=>console.log('[browser:'+m.type()+'] '+m.text()));
+  page.on('pageerror',e=>console.error('[browser:error] '+e.message));
+  const q='?view='+encodeURIComponent(view)+'&asset='+encodeURIComponent(asset)+'&variant='+encodeURIComponent(variant);
+  await page.goto(base+q,{waitUntil:'networkidle',timeout:120000});
   await page.waitForFunction(()=>window.__reviewReady===true,{timeout:120000});
-  await page.screenshot({path:path.join(out,f),fullPage:true});
-  console.log('rendered '+f);
+  await page.screenshot({path:path.join(out,file),fullPage:true});
+  await page.close();
+  console.log('rendered '+file);
 }
-await page.close();
+for(const [asset,variant,view,file] of [
+  ['./engine_before.glb','BEFORE','isolated','before_rear_three_quarter.png'],
+  ['./engine.glb','AFTER','isolated','after_rear_three_quarter.png'],
+  ['./engine_before.glb','BEFORE','close','before_close_three_quarter.png'],
+  ['./engine.glb','AFTER','close','after_close_three_quarter.png'],
+  ['./engine.glb','AFTER','side','after_installed_side.png'],
+  ['./engine.glb','AFTER','top','after_installed_top.png'],
+  ['./engine.glb','AFTER','exploded','after_exploded.png'],
+]) await renderView(asset,variant,view,file);
 
 const frames=path.join(out,'_turntable_frames');
 await fs.rm(frames,{recursive:true,force:true});await fs.mkdir(frames,{recursive:true});
 const turn=await browser.newPage({viewport:{width:960,height:720},deviceScaleFactor:1});
 turn.on('pageerror',e=>console.error('[turntable:error] '+e.message));
-await turn.goto(base+'?view=turntable',{waitUntil:'networkidle',timeout:120000});
+await turn.goto(base+'?view=turntable&asset=.%2Fengine.glb&variant=AFTER',{waitUntil:'networkidle',timeout:120000});
 await turn.waitForFunction(()=>window.__reviewReady===true,{timeout:120000});
 const fps=18,seconds=6,total=fps*seconds;
 for(let i=0;i<total;i++){
@@ -37,7 +47,7 @@ for(let i=0;i<total;i++){
 }
 await turn.close();await browser.close();
 
-const mp4=path.join(out,'engine_turntable.mp4');
+const mp4=path.join(out,'engine_turntable_after.mp4');
 const result=await execFileAsync('ffmpeg',[
   '-y','-framerate',String(fps),'-i',path.join(frames,'frame_%03d.png'),
   '-c:v','libx264','-pix_fmt','yuv420p','-movflags','+faststart','-crf','19','-preset','medium',
@@ -45,4 +55,4 @@ const result=await execFileAsync('ffmpeg',[
 ],{maxBuffer:20*1024*1024});
 if(result.stderr)console.log(result.stderr.split('\n').slice(-8).join('\n'));
 await fs.rm(frames,{recursive:true,force:true});
-console.log('rendered engine_turntable.mp4');
+console.log('rendered engine_turntable_after.mp4');
