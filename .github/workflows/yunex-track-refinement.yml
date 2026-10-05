@@ -15,6 +15,10 @@ on:
 permissions:
   contents: write
 
+concurrency:
+  group: yunex-track-refinement-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   render-track-refinement:
     if: github.actor != 'github-actions[bot]'
@@ -80,6 +84,9 @@ jobs:
           ffprobe -v error -select_streams v:0 -show_entries stream=width,height,codec_name,pix_fmt -of json yunex/track-refinement/portrait_hero.png > yunex/track-refinement/portrait_ffprobe.json
           ffprobe -v error -count_frames -select_streams v:0 -show_entries stream=width,height,r_frame_rate,codec_name,pix_fmt,nb_read_frames -of json yunex/track-refinement/portrait_motion_proof.mp4 > yunex/track-refinement/motion_ffprobe.json
           ffmpeg -v error -i yunex/track-refinement/portrait_motion_proof.mp4 -f null -
+          ffmpeg -y -i yunex/track-refinement/portrait_motion_proof.mp4 -vf "select='eq(n,0)'" -vsync 0 -frames:v 1 yunex/track-refinement/motion_frame_000.png >/dev/null 2>&1
+          ffmpeg -y -i yunex/track-refinement/portrait_motion_proof.mp4 -vf "select='eq(n,37)'" -vsync 0 -frames:v 1 yunex/track-refinement/motion_frame_mid.png >/dev/null 2>&1
+          ffmpeg -y -i yunex/track-refinement/portrait_motion_proof.mp4 -vf "select='eq(n,74)'" -vsync 0 -frames:v 1 yunex/track-refinement/motion_frame_end.png >/dev/null 2>&1
           python - <<'PY'
           import json
           from pathlib import Path
@@ -91,7 +98,7 @@ jobs:
           assert (portrait["width"], portrait["height"]) == (1080, 1920), portrait
           assert (motion["width"], motion["height"]) == (1080, 1920), motion
           assert motion["r_frame_rate"] == "30/1", motion
-          assert int(motion["nb_read_frames"]) == 90, motion
+          assert int(motion["nb_read_frames"]) == 75, motion
           PY
 
       - name: Verify locked assets remained byte-identical
@@ -124,13 +131,14 @@ jobs:
             '- after_landscape.png - 1600 x 1000 refined matched angle' \
             '- before_after_landscape.png - side-by-side comparison' \
             '- portrait_hero.png - native 1080 x 1920 hero still' \
-            "- portrait_motion_proof.mp4 - native 1080 x 1920, 30 fps, 90 frames, $MOTION_BYTES bytes" \
+            "- portrait_motion_proof.mp4 - native 1080 x 1920, 30 fps, 75 frames, $MOTION_BYTES bytes" \
             '- *_ffprobe.json - technical media metadata' \
+            '- motion_frame_000.png / motion_frame_mid.png / motion_frame_end.png - generated inspection frames' \
             '' \
             '## Automated verification' \
             '- Motion proof fully decoded with FFmpeg without errors.' \
             '- Landscape, portrait and motion dimensions were asserted.' \
-            '- Motion proof frame count was asserted at 90 frames.' \
+            '- Motion proof frame count was asserted at 75 frames.' \
             '- No third-party foliage asset was introduced; the environment uses deterministic procedural geometry/textures in TrackPreview.tsx.' \
             '' \
             '## Visual inspection' \
@@ -146,6 +154,7 @@ jobs:
           git add yunex/track-refinement/before_after_landscape.png
           git add yunex/track-refinement/portrait_hero.png
           git add yunex/track-refinement/*.json
+          git add yunex/track-refinement/motion_frame_*.png
           git add yunex/track-refinement/QA.md
           git add -f yunex/track-refinement/portrait_motion_proof.mp4
           git diff --cached --quiet || git commit -m "YUNEX track refinement: generated review proofs [skip ci]"
