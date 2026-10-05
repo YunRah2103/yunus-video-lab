@@ -14,3 +14,5 @@ What already works and must be preserved: the low flat-six silhouette, six-runne
 Triangle budget will be spent in this order: housing transitions and stepped masses, intake junctions and a sculpted plenum, header convergence, then only a small accessory/material pass.
 
 Native review pipeline note: matched stills and the native model-led film preview are generated from the locked baseline/refined pair; temporary audio is silent and exists only inside CI so visual validation does not alter film source.
+
+CI iteration note: native visual validation now treats the matched PBR pair as the before/after contact sheet and the 1080×1920 model-led render as the film-scale acceptance check.
