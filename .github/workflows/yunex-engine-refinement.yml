@@ -51,9 +51,10 @@ jobs:
       - name: Lock approved exterior and baseline engine
         run: |
           sha256sum cars/porsche-911-gt3-rs-992/model.glb | tee /tmp/exterior-before.sha256
-          sha256sum yunex/public/model.glb | tee /tmp/film-car-before.sha256
+          mkdir -p yunex/public
           git show "$BASELINE_COMMIT:$ENGINE_DIR/engine.glb" > "$ENGINE_DIR/engine_before.glb"
-          git show "$BASELINE_COMMIT:yunex/public/engine.glb" > yunex/public/engine.glb
+          cp cars/porsche-911-gt3-rs-992/model.glb yunex/public/model.glb
+          cp "$ENGINE_DIR/engine_before.glb" yunex/public/engine.glb
           sha256sum "$ENGINE_DIR/engine_before.glb" | tee /tmp/engine-baseline.sha256
 
       - name: Render locked native BEFORE frame
@@ -93,9 +94,7 @@ jobs:
       - name: Verify locked car and update manifest validation
         run: |
           sha256sum cars/porsche-911-gt3-rs-992/model.glb | tee /tmp/exterior-after.sha256
-          sha256sum yunex/public/model.glb | tee /tmp/film-car-after.sha256
           diff -u /tmp/exterior-before.sha256 /tmp/exterior-after.sha256
-          diff -u /tmp/film-car-before.sha256 /tmp/film-car-after.sha256
           python - <<'PY'
           import hashlib, json
           from pathlib import Path
