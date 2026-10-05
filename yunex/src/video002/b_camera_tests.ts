@@ -8,7 +8,8 @@ import {
   type Yunex002CameraTiming,
 } from './driving';
 
-// This module is also imported by the isolated proof root so a render is a contract test.\nconst finite = (values: number[]) => values.every(Number.isFinite);
+// This module is also imported by the isolated proof root so a render is a contract test.
+const finite = (values: number[]) => values.every(Number.isFinite);
 
 export type BCameraCheckReport = {
   ok: boolean;
