@@ -1,0 +1,165 @@
+name: YUNEX track foliage refinement
+
+on:
+  push:
+    branches:
+      - sol/yunex-full-film-v2
+    paths:
+      - 'yunex/src/TrackPreview.tsx'
+      - 'yunex/src/index.tsx'
+      - 'yunex/render-track.cjs'
+      - 'yunex/TRACK_FOLIAGE_IMPLEMENTATION.md'
+      - '.github/workflows/yunex-track-refinement.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  render-track-refinement:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    env:
+      BASELINE_COMMIT: 73893baf2a75111cf91fd9d77fa83156c53d2e91
+      EXPECTED_EXTERIOR_SHA256: 1c73fcb138c31e2b1d5ed126a2412074bb17f8e960b355436f28139bf518e1eb
+      EXPECTED_ENGINE_SHA256: aa05a760bcc778483c7684653f7200399d3eb540a36b1e7b0e4ec9248bc0841d
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+          cache-dependency-path: yunex/package-lock.json
+
+      - name: Install render dependencies
+        run: |
+          npm ci --prefix yunex
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg
+
+      - name: Prepare and lock approved assets
+        run: |
+          mkdir -p yunex/public yunex/track-refinement
+          cp cars/porsche-911-gt3-rs-992/model.glb yunex/public/model.glb
+          printf '%s  %s\n' "$EXPECTED_EXTERIOR_SHA256" cars/porsche-911-gt3-rs-992/model.glb | sha256sum -c -
+          printf '%s  %s\n' "$EXPECTED_ENGINE_SHA256" cars/porsche-911-gt3-rs-992/engine/engine.glb | sha256sum -c -
+          sha256sum cars/porsche-911-gt3-rs-992/model.glb > /tmp/exterior-before.sha256
+          sha256sum cars/porsche-911-gt3-rs-992/engine/engine.glb > /tmp/engine-before.sha256
+
+      - name: Render matched baseline landscape still
+        working-directory: yunex
+        env:
+          NODE_OPTIONS: --require=./fix-network.cjs
+        run: |
+          cp src/TrackPreview.tsx /tmp/TrackPreview.refined.tsx
+          cp src/index.tsx /tmp/index.refined.tsx
+          git show "$BASELINE_COMMIT:yunex/src/TrackPreview.tsx" > src/TrackPreview.tsx
+          git show "$BASELINE_COMMIT:yunex/src/index.tsx" > src/index.tsx
+          npx remotion still src/index.tsx YUNEX-TRACK-PREVIEW track-refinement/before_landscape.png --gl=swangle --timeout=120000
+          mv /tmp/TrackPreview.refined.tsx src/TrackPreview.tsx
+          mv /tmp/index.refined.tsx src/index.tsx
+
+      - name: Render refined proofs
+        working-directory: yunex
+        env:
+          NODE_OPTIONS: --require=./fix-network.cjs
+        run: |
+          npx remotion still src/index.tsx YUNEX-TRACK-PREVIEW track-refinement/after_landscape.png --gl=swangle --timeout=120000
+          npx remotion still src/index.tsx YUNEX-TRACK-PORTRAIT track-refinement/portrait_hero.png --gl=swangle --timeout=120000
+          npx remotion render src/index.tsx YUNEX-TRACK-MOTION-PROOF track-refinement/portrait_motion_proof.mp4 --gl=swangle --concurrency=2 --codec=h264 --crf=17 --timeout=120000
+
+      - name: Build comparison and verify media
+        run: |
+          ffmpeg -y -i yunex/track-refinement/before_landscape.png -i yunex/track-refinement/after_landscape.png -filter_complex "hstack=inputs=2" -frames:v 1 yunex/track-refinement/before_after_landscape.png >/dev/null 2>&1
+          ffprobe -v error -select_streams v:0 -show_entries stream=width,height,codec_name,pix_fmt -of json yunex/track-refinement/after_landscape.png > yunex/track-refinement/landscape_ffprobe.json
+          ffprobe -v error -select_streams v:0 -show_entries stream=width,height,codec_name,pix_fmt -of json yunex/track-refinement/portrait_hero.png > yunex/track-refinement/portrait_ffprobe.json
+          ffprobe -v error -count_frames -select_streams v:0 -show_entries stream=width,height,r_frame_rate,codec_name,pix_fmt,nb_read_frames -of json yunex/track-refinement/portrait_motion_proof.mp4 > yunex/track-refinement/motion_ffprobe.json
+          ffmpeg -v error -i yunex/track-refinement/portrait_motion_proof.mp4 -f null -
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          base=Path("yunex/track-refinement")
+          landscape=json.loads((base/"landscape_ffprobe.json").read_text())["streams"][0]
+          portrait=json.loads((base/"portrait_ffprobe.json").read_text())["streams"][0]
+          motion=json.loads((base/"motion_ffprobe.json").read_text())["streams"][0]
+          assert (landscape["width"], landscape["height"]) == (1600, 1000), landscape
+          assert (portrait["width"], portrait["height"]) == (1080, 1920), portrait
+          assert (motion["width"], motion["height"]) == (1080, 1920), motion
+          assert motion["r_frame_rate"] == "30/1", motion
+          assert int(motion["nb_read_frames"]) == 90, motion
+          PY
+
+      - name: Verify locked assets remained byte-identical
+        run: |
+          sha256sum cars/porsche-911-gt3-rs-992/model.glb > /tmp/exterior-after.sha256
+          sha256sum cars/porsche-911-gt3-rs-992/engine/engine.glb > /tmp/engine-after.sha256
+          diff -u /tmp/exterior-before.sha256 /tmp/exterior-after.sha256
+          diff -u /tmp/engine-before.sha256 /tmp/engine-after.sha256
+          printf '%s  %s\n' "$EXPECTED_EXTERIOR_SHA256" cars/porsche-911-gt3-rs-992/model.glb | sha256sum -c -
+          printf '%s  %s\n' "$EXPECTED_ENGINE_SHA256" cars/porsche-911-gt3-rs-992/engine/engine.glb | sha256sum -c -
+
+      - name: Write QA record
+        run: |
+          EXTERIOR_SHA=$(sha256sum cars/porsche-911-gt3-rs-992/model.glb | awk '{print $1}')
+          ENGINE_SHA=$(sha256sum cars/porsche-911-gt3-rs-992/engine/engine.glb | awk '{print $1}')
+          MOTION_BYTES=$(stat -c%s yunex/track-refinement/portrait_motion_proof.mp4)
+          printf '%s\n' \
+            '# YUNEX track foliage refinement - generated QA' \
+            '' \
+            "Source commit: $GITHUB_SHA" \
+            "Baseline comparison commit: $BASELINE_COMMIT" \
+            '' \
+            '## Locked assets' \
+            "- Approved exterior SHA-256: $EXTERIOR_SHA" \
+            "- Refined engine SHA-256: $ENGINE_SHA" \
+            '- Both hashes were verified before and after rendering.' \
+            '' \
+            '## Proofs' \
+            '- before_landscape.png - 1600 x 1000 baseline angle' \
+            '- after_landscape.png - 1600 x 1000 refined matched angle' \
+            '- before_after_landscape.png - side-by-side comparison' \
+            '- portrait_hero.png - native 1080 x 1920 hero still' \
+            "- portrait_motion_proof.mp4 - native 1080 x 1920, 30 fps, 90 frames, $MOTION_BYTES bytes" \
+            '- *_ffprobe.json - technical media metadata' \
+            '' \
+            '## Automated verification' \
+            '- Motion proof fully decoded with FFmpeg without errors.' \
+            '- Landscape, portrait and motion dimensions were asserted.' \
+            '- Motion proof frame count was asserted at 90 frames.' \
+            '- No third-party foliage asset was introduced; the environment uses deterministic procedural geometry/textures in TrackPreview.tsx.' \
+            '' \
+            '## Visual inspection' \
+            'Pending master-agent inspection of the generated review bundle.' \
+            > yunex/track-refinement/QA.md
+
+      - name: Commit persistent review proofs and QA
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add yunex/track-refinement/before_landscape.png
+          git add yunex/track-refinement/after_landscape.png
+          git add yunex/track-refinement/before_after_landscape.png
+          git add yunex/track-refinement/portrait_hero.png
+          git add yunex/track-refinement/*.json
+          git add yunex/track-refinement/QA.md
+          git add -f yunex/track-refinement/portrait_motion_proof.mp4
+          git diff --cached --quiet || git commit -m "YUNEX track refinement: generated review proofs [skip ci]"
+          git pull --rebase origin sol/yunex-full-film-v2
+          git push origin HEAD:sol/yunex-full-film-v2
+
+      - name: Upload review bundle
+        uses: actions/upload-artifact@v4
+        with:
+          name: yunex-track-refinement-review
+          path: |
+            yunex/track-refinement/
+            yunex/src/TrackPreview.tsx
+            yunex/render-track.cjs
+            yunex/TRACK_FOLIAGE_IMPLEMENTATION.md
+          if-no-files-found: error
+          retention-days: 7
