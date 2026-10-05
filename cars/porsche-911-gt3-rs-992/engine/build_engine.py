@@ -502,7 +502,7 @@ for mesh_index, mesh_header in enumerate(gltf_header.get("meshes", [])):
             "Intake__runner_" in mesh_name
             or "Headers_L__primary_" in mesh_name
             or "Headers_R__primary_" in mesh_name
-            or "Intake__plenum_crown" in mesh_name
+            or "Intake__plenum_shell" in mesh_name
         ):
             curved_normal_accessors[mesh_name] = {
                 "positions": pos_count,
