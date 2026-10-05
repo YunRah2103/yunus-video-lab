@@ -33,6 +33,19 @@ const phase = (frame:number, start:number, end:number) => {
 };
 const blend = (a:number,b:number,t:number) => THREE.MathUtils.lerp(a,b,t);
 
+const WHEEL_SPIN_NODES=['Spin_FL','Spin_FR','Spin_RL','Spin_RR'] as const;
+function wheelSpinAngle(frame:number) {
+  if (frame<=396) return 0;
+  const end=Math.min(frame,675);
+  let angle=0;
+  for (let f=397;f<=end;f++) {
+    const accelerate=phase(f,396,430);
+    const decelerate=1-phase(f,648,675);
+    angle+=.48*accelerate*decelerate;
+  }
+  return angle%(Math.PI*2);
+}
+
 type State = {
   camera:{position:[number,number,number]; target:[number,number,number]; zoom:number};
   ghost:number; engine:number; technical:number; rotation:number; grip:number; aero:number; restore:number;
@@ -158,24 +171,54 @@ function Marker({position,color,opacity,radius=.052}:{position:THREE.Vector3;col
   </mesh>;
 }
 
-function ForceArrow({x,opacity}:{x:number;opacity:number}) {
-  return <group position={[x,1.1,-1.21]}>
-    <mesh position={[0,-.32,0]}><cylinderGeometry args={[.027,.027,.64,12]}/><meshBasicMaterial color={GREEN} transparent opacity={opacity}/></mesh>
-    <mesh position={[0,-.69,0]} rotation={[0,0,Math.PI]}><coneGeometry args={[.09,.22,16]}/><meshBasicMaterial color={GREEN} transparent opacity={opacity}/></mesh>
+function ForceArrow({x,opacity,y=1.1,z=-1.21,length=.64}:{x:number;opacity:number;y?:number;z?:number;length?:number}) {
+  return <group position={[x,y,z]}>
+    <mesh position={[0,-length*.5,0]}><cylinderGeometry args={[.022,.022,length,12]}/><meshBasicMaterial color={GREEN} transparent opacity={opacity}/></mesh>
+    <mesh position={[0,-length-.11,0]} rotation={[0,0,Math.PI]}><coneGeometry args={[.075,.20,16]}/><meshBasicMaterial color={GREEN} transparent opacity={opacity}/></mesh>
   </group>;
 }
 
-function AeroLines({opacity}:{opacity:number}) {
-  const curves=useMemo(()=>[-.65,0,.65].map((x,i)=>{
-    const y=i===1?1.42:1.12;
-    return new THREE.CatmullRomCurve3([
-      new THREE.Vector3(x,y,2.85),new THREE.Vector3(x,y+.08,1.45),new THREE.Vector3(x,y+.35,.0),new THREE.Vector3(x,y+.62,-1.25),new THREE.Vector3(x,y+.74,-2.55),
-    ]);
-  }),[]);
-  return <>{curves.map((curve,i)=><mesh key={i}>
-    <tubeGeometry args={[curve,48,.018,7,false]}/><meshBasicMaterial color={i===1?COPPER:GREEN} transparent opacity={opacity}/>
-  </mesh>)}
-  <ForceArrow x={-.62} opacity={opacity*.8}/><ForceArrow x={.62} opacity={opacity*.8}/></>;
+type AeroPathSpec={
+  points:Array<[number,number,number]>;
+  color:string;
+  baseOpacity:number;
+  pulseOffset:number;
+  radius:number;
+};
+
+function AeroLines({frame,opacity}:{frame:number;opacity:number}) {
+  const paths=useMemo<AeroPathSpec[]>(()=>[
+    {color:COPPER,baseOpacity:.32,pulseOffset:.00,radius:.010,points:[[0,.68,2.95],[0,.76,1.72],[0,1.16,.92],[0,1.42,.10],[0,1.43,-.92],[0,1.54,-1.72],[0,1.58,-2.62]]},
+    {color:GREEN,baseOpacity:.24,pulseOffset:.14,radius:.008,points:[[-.43,.66,2.90],[-.48,.75,1.72],[-.46,1.10,.88],[-.43,1.34,.05],[-.42,1.35,-1.02],[-.46,1.48,-1.78],[-.50,1.50,-2.58]]},
+    {color:GREEN,baseOpacity:.24,pulseOffset:.29,radius:.008,points:[[.43,.66,2.90],[.48,.75,1.72],[.46,1.10,.88],[.43,1.34,.05],[.42,1.35,-1.02],[.46,1.48,-1.78],[.50,1.50,-2.58]]},
+    {color:GREEN,baseOpacity:.25,pulseOffset:.42,radius:.009,points:[[-.86,.55,2.82],[-.98,.60,1.60],[-1.00,.66,.42],[-.94,.72,-.78],[-.86,.84,-1.62],[-.74,1.02,-2.48]]},
+    {color:GREEN,baseOpacity:.25,pulseOffset:.57,radius:.009,points:[[.86,.55,2.82],[.98,.60,1.60],[1.00,.66,.42],[.94,.72,-.78],[.86,.84,-1.62],[.74,1.02,-2.48]]},
+    {color:GREEN,baseOpacity:.18,pulseOffset:.68,radius:.007,points:[[-.34,.16,2.66],[-.36,.15,1.34],[-.36,.14,.06],[-.34,.14,-1.20],[-.30,.19,-2.04],[-.26,.34,-2.72]]},
+    {color:GREEN,baseOpacity:.18,pulseOffset:.80,radius:.007,points:[[.34,.16,2.66],[.36,.15,1.34],[.36,.14,.06],[.34,.14,-1.20],[.30,.19,-2.04],[.26,.34,-2.72]]},
+  ],[]);
+  const curves=useMemo(()=>paths.map((p)=>new THREE.CatmullRomCurve3(p.points.map((v)=>new THREE.Vector3(...v)),false,'catmullrom',.42)),[paths]);
+  const flow=(frame-549)/58;
+  return <>
+    {curves.map((curve,i)=>{
+      const spec=paths[i];
+      return <React.Fragment key={i}>
+        <mesh>
+          <tubeGeometry args={[curve,72,spec.radius,7,false]}/>
+          <meshBasicMaterial color={spec.color} transparent opacity={opacity*spec.baseOpacity} depthWrite={false}/>
+        </mesh>
+        {[0,.44].map((extra,j)=>{
+          const t=((flow+spec.pulseOffset+extra)%1+1)%1;
+          const p=curve.getPoint(t);
+          return <mesh key={j} position={p.toArray() as [number,number,number]}>
+            <sphereGeometry args={[i===0 ? .036 : .030,12,12]}/>
+            <meshBasicMaterial color={spec.color} transparent opacity={opacity*(j===0 ? .90 : .56)} depthWrite={false}/>
+          </mesh>;
+        })}
+      </React.Fragment>;
+    })}
+    <ForceArrow x={-.62} y={1.78} z={-1.72} length={.72} opacity={opacity*.70}/>
+    <ForceArrow x={.62} y={1.78} z={-1.72} length={.72} opacity={opacity*.70}/>
+  </>;
 }
 
 function RotationTrail({angle,opacity}:{angle:number;opacity:number}) {
@@ -214,6 +257,11 @@ function Scene({frame,state}:{frame:number;state:State}) {
   useLayoutEffect(()=>{
     if(!car||!ghostCar||!engine||!engineDetail)return;
     car.position.set(...state.carPosition); car.rotation.set(...state.carRotation);
+    const wheelAngle=wheelSpinAngle(frame);
+    for (const nodeName of WHEEL_SPIN_NODES) {
+      const wheelPivot=car.getObjectByName(nodeName);
+      if (wheelPivot) wheelPivot.rotation.x=wheelAngle;
+    }
     clipPlane.constant=blend(3,.76,state.ghost/.73);
     car.traverse((o:any)=>{
       if(!o.isMesh)return;
@@ -247,7 +295,7 @@ function Scene({frame,state}:{frame:number;state:State}) {
     <Marker position={REAR_AXLE} color={GREEN} opacity={state.technical}/>
     <Marker position={ENGINE} color={COPPER} opacity={Math.max(state.technical,state.engine*.55)} radius={.068}/>
     {state.grip>.01&&<><ForceArrow x={-.79} opacity={state.grip}/><ForceArrow x={.79} opacity={state.grip}/></>}
-    {state.aero>.01&&<AeroLines opacity={state.aero}/>} 
+    {state.aero>.01&&<AeroLines frame={frame} opacity={state.aero}/>} 
   </group>;
   return <>
     <Studio state={state}/>
