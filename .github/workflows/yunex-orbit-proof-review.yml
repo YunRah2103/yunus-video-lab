@@ -9,9 +9,19 @@ on:
   workflow_dispatch:
 
 jobs:
-  render-proof:
+  render-segments:
     runs-on: ubuntu-latest
-    timeout-minutes: 35
+    timeout-minutes: 25
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: seg0
+            frames: 0-74
+          - name: seg1
+            frames: 75-149
+          - name: seg2
+            frames: 150-224
 
     steps:
       - uses: actions/checkout@v4
@@ -22,35 +32,73 @@ jobs:
           cache: 'npm'
           cache-dependency-path: yunex/package-lock.json
 
-      - uses: actions/setup-python@v5
-        with:
-          python-version: '3.12'
-
-      - name: Install system and fit-check dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y ffmpeg
-          python -m pip install --disable-pip-version-check numpy scipy trimesh rtree
-
-      - name: Stage approved assets and inspect fit
+      - name: Stage approved assets
         run: |
           cp cars/porsche-911-gt3-rs-992/model.glb yunex/public/model.glb
           cp cars/porsche-911-gt3-rs-992/engine/engine.glb yunex/public/engine.glb
-          python yunex/fit_check.py
 
       - name: Install Remotion dependencies
         working-directory: yunex
         run: npm ci
 
-      - name: Render 7.5s proof efficiently
+      - name: Render ${{ matrix.name }}
         working-directory: yunex
         env:
           NODE_OPTIONS: --require=./fix-network.cjs
         run: |
           mkdir -p out
-          npx remotion render src/index.tsx YUNEX-ORBIT-CUTAWAY-PROOF out/proof-half.mp4 --gl=swangle --concurrency=2 --codec=h264 --crf=16 --scale=0.5
-          ffmpeg -y -i out/proof-half.mp4 -vf scale=1080:1920:flags=lanczos -c:v libx264 -preset medium -crf 17 -pix_fmt yuv420p -movflags +faststart out/YUNEX_ORBIT_CUTAWAY_PROOF.mp4
-          rm out/proof-half.mp4
+          npx remotion render src/index.tsx YUNEX-ORBIT-CUTAWAY-PROOF out/${{ matrix.name }}.mp4 \
+            --frames=${{ matrix.frames }} \
+            --gl=swangle \
+            --concurrency=2 \
+            --codec=h264 \
+            --crf=16 \
+            --scale=0.5
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.name }}
+          path: yunex/out/${{ matrix.name }}.mp4
+          if-no-files-found: error
+          retention-days: 1
+
+  assemble:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    needs: render-segments
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install assembly and fit-check dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg
+          python -m pip install --disable-pip-version-check numpy scipy trimesh rtree
+
+      - name: Download rendered segments
+        uses: actions/download-artifact@v4
+        with:
+          pattern: seg*
+          path: yunex/out/segments
+          merge-multiple: true
+
+      - name: Inspect installed fit
+        run: python yunex/fit_check.py
+
+      - name: Assemble final proof
+        working-directory: yunex
+        run: |
+          printf "file 'seg0.mp4'\nfile 'seg1.mp4'\nfile 'seg2.mp4'\n" > out/segments/concat.txt
+          ffmpeg -y -f concat -safe 0 -i out/segments/concat.txt -c copy out/proof-half.mp4
+          ffmpeg -y -i out/proof-half.mp4 \
+            -vf scale=1080:1920:flags=lanczos \
+            -c:v libx264 -preset medium -crf 17 -pix_fmt yuv420p -movflags +faststart \
+            out/YUNEX_ORBIT_CUTAWAY_PROOF.mp4
 
       - name: Extract review frames and metadata
         working-directory: yunex
@@ -58,7 +106,7 @@ jobs:
           ffmpeg -y -ss 0.8 -i out/YUNEX_ORBIT_CUTAWAY_PROOF.mp4 -frames:v 1 out/key_01_hero.png
           ffmpeg -y -ss 3.4 -i out/YUNEX_ORBIT_CUTAWAY_PROOF.mp4 -frames:v 1 out/key_02_cutaway.png
           ffmpeg -y -ss 6.7 -i out/YUNEX_ORBIT_CUTAWAY_PROOF.mp4 -frames:v 1 out/key_03_technical.png
-          ffprobe -v error -show_entries format=duration:stream=width,height,r_frame_rate,codec_name,pix_fmt -of json out/YUNEX_ORBIT_CUTAWAY_PROOF.mp4 > out/ffprobe.json
+          ffprobe -v error -show_entries format=duration:stream=width,height,r_frame_rate,codec_name,pix_fmt,nb_frames -of json out/YUNEX_ORBIT_CUTAWAY_PROOF.mp4 > out/ffprobe.json
 
       - name: Upload final proof
         uses: actions/upload-artifact@v4
