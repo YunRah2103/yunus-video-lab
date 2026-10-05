@@ -26,7 +26,7 @@ const proofState = (frame: number): {
   title: string;
   detail: string;
 } => {
-  if (frame < 75) {
+  if (frame < 40) {
     return {
       mode: 'highDownforce',
       fromMode: 'highDownforce',
@@ -35,11 +35,11 @@ const proofState = (frame: number): {
       detail: 'LOAD · FRONT + REAR',
     };
   }
-  if (frame < 150) {
+  if (frame < 80) {
     return {
       mode: 'drs',
       fromMode: 'highDownforce',
-      progress: interpolate(frame, [75, 93], [0, 1], {
+      progress: interpolate(frame, [40, 50], [0, 1], {
         extrapolateLeft: 'clamp',
         extrapolateRight: 'clamp',
       }),
@@ -50,7 +50,7 @@ const proofState = (frame: number): {
   return {
     mode: 'airbrake',
     fromMode: 'drs',
-    progress: interpolate(frame, [150, 168], [0, 1], {
+    progress: interpolate(frame, [80, 90], [0, 1], {
       extrapolateLeft: 'clamp',
       extrapolateRight: 'clamp',
     }),
