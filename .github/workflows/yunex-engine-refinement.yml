@@ -89,7 +89,6 @@ jobs:
         run: |
           npx remotion still src/index.tsx YUNEX-001-V2 ../cars/porsche-911-gt3-rs-992/engine/renders/after_native_frame_0180.png             --frame=180 --gl=swangle --timeout=120000
           npx remotion render src/index.tsx YUNEX-001-V2 ../cars/porsche-911-gt3-rs-992/engine/renders/native_film_preview_0155_0185.mp4             --frames=155-185 --gl=swangle --concurrency=2 --codec=h264 --crf=17 --timeout=120000
-          ffmpeg -y             -i ../cars/porsche-911-gt3-rs-992/engine/renders/before_native_frame_0180.png             -i ../cars/porsche-911-gt3-rs-992/engine/renders/after_native_frame_0180.png             -filter_complex hstack=inputs=2 -frames:v 1             ../cars/porsche-911-gt3-rs-992/engine/renders/comparison_native_frame_0180.png
           ffprobe -v error -select_streams v:0 -show_entries stream=width,height,r_frame_rate,codec_name,pix_fmt             -of json ../cars/porsche-911-gt3-rs-992/engine/renders/native_film_preview_0155_0185.mp4             > ../cars/porsche-911-gt3-rs-992/engine/renders/native_film_preview_ffprobe.json
           test "$(ffprobe -v error -select_streams v:0 -show_entries stream=width,height -of csv=p=0 ../cars/porsche-911-gt3-rs-992/engine/renders/native_film_preview_0155_0185.mp4)" = "1080,1920"
 
@@ -148,7 +147,6 @@ jobs:
           test -s "$ENGINE_DIR/renders/after_exploded.png"
           test -s "$ENGINE_DIR/renders/before_native_frame_0180.png"
           test -s "$ENGINE_DIR/renders/after_native_frame_0180.png"
-          test -s "$ENGINE_DIR/renders/comparison_native_frame_0180.png"
           test -s "$ENGINE_DIR/renders/native_film_preview_0155_0185.mp4"
           python -m json.tool "$ENGINE_DIR/asset-manifest.json" >/dev/null
           python -m json.tool "$ENGINE_DIR/validation.json" >/dev/null
