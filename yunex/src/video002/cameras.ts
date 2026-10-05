@@ -69,7 +69,7 @@ const keysFor = (t: Yunex002CameraTiming): CameraKey[] => [
     frame: t.wingMacroEnd,
     positionOffset: [1.9, 1.4, -4.0],
     targetOffset: [0.0, 1.06, -2.02],
-    focalLength: 25,
+    focalLength: 58,
     shot: 'wing-macro',
   },
   {
@@ -83,7 +83,7 @@ const keysFor = (t: Yunex002CameraTiming): CameraKey[] => [
     frame: t.drsEnd,
     positionOffset: [9.5, 1.25, -0.1],
     targetOffset: [0.0, 0.61, 0.08],
-    focalLength: 58,
+    focalLength: 25,
     shot: 'drs-side-track',
   },
   {
