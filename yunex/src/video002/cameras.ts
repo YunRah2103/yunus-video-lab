@@ -53,16 +53,16 @@ const lerp3 = (a: Vec3, b: Vec3, t: number): Vec3 => [
 const keysFor = (t: Yunex002CameraTiming): CameraKey[] => [
   {
     frame: 0,
-    positionOffset: [3.8, 1.7, -6.5],
-    targetOffset: [0.05, 0.63, -0.72],
-    focalLength: 32,
+    positionOffset: [4.4, 1.7, -7.4],
+    targetOffset: [0.05, 0.63, -0.55],
+    focalLength: 29,
     shot: 'rear-quarter-hook',
   },
   {
     frame: t.hookEnd,
-    positionOffset: [3.8, 1.6, -6.2],
-    targetOffset: [0.02, 0.78, -1.25],
-    focalLength: 34,
+    positionOffset: [4.8, 1.7, -8.0],
+    targetOffset: [0.02, 0.72, -0.75],
+    focalLength: 28,
     shot: 'rear-quarter-hook',
   },
   {
@@ -74,9 +74,9 @@ const keysFor = (t: Yunex002CameraTiming): CameraKey[] => [
   },
   {
     frame: t.highDownforceEnd,
-    positionOffset: [4.6, 2.4, -7.8],
+    positionOffset: [4.9, 2.5, -8.4],
     targetOffset: [0.0, 0.72, -0.62],
-    focalLength: 32,
+    focalLength: 30,
     shot: 'high-downforce-rear',
   },
   {
