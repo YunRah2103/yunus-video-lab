@@ -21,7 +21,16 @@ Source render commit: 28bd3712725ba0fcf4d6206fcb30267040a0a748
 - No Porsche or engine asset bytes changed.
 
 ## Visual inspection
-Pending agent inspection of the generated artifact bundle.
+- Wheel proof inspected as a temporal sequence, including adjacent-frame rear-wheel crops.
+- The visible wheels rotate in the forward-roll direction for the +Z-forward car, with a smooth ramp from the 13.2 s grip beat and no phase reset or hub wobble.
+- All four named Spin_* pivots receive the same deterministic local-X wheel angle. Calipers remain outside those spin pivots and stay visually fixed to the upright while rims/tyres move.
+- Aero proof inspected at start, mid and end plus a five-frame contact sequence.
+- Flow direction reads front -> rear immediately. The copper centre path hugs the bonnet/windscreen/roof line, paired green roof/shoulder paths add depth, side paths stay close to the flanks, and two low underbody paths rise gently into the rear wake.
+- The rear-wing region is visibly part of the flow story; the centre/shoulder paths continue through/over the wing area and the restrained downforce cue remains anchored at the rear aero package.
+- Streamlines remain thin and low-opacity, tracer beads show direction without becoming a particle storm, and the Porsche remains the dominant visual.
+- No path discontinuity, frame-to-frame popping, body penetration that distracts at the reviewed angles, or wheel flicker/wobble was observed.
+- One downforce arrow is partly occluded from the high rear-three-quarter camera at peak aero; this reads as normal 3D occlusion rather than a detached overlay and was left unchanged to keep the treatment restrained.
+- No bounded corrective source pass was necessary after inspection; the first rendered pass met the handoff quality gate.
 
 ## Integration note
 - ModelLedVideo contains the live wheel/aero changes.
