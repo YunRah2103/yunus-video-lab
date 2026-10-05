@@ -1,9 +1,9 @@
-name: YUNEX track static final
+name: YUNEX track visual polish
 
 on:
   push:
     branches:
-      - sol/yunex-track-static-final
+      - sol/yunex-track-visual-polish
     paths:
       - 'yunex/src/TrackPreview.tsx'
       - '.github/workflows/yunex-track-refinement.yml'
@@ -13,16 +13,15 @@ permissions:
   contents: write
 
 concurrency:
-  group: yunex-track-static-final
+  group: yunex-track-visual-polish
   cancel-in-progress: false
 
 jobs:
-  render-static-proofs:
+  render-visual-polish:
     if: github.actor != 'github-actions[bot]'
     runs-on: ubuntu-latest
-    timeout-minutes: 22
+    timeout-minutes: 20
     env:
-      BASELINE_COMMIT: 73893baf2a75111cf91fd9d77fa83156c53d2e91
       EXPECTED_EXTERIOR_SHA256: 1c73fcb138c31e2b1d5ed126a2412074bb17f8e960b355436f28139bf518e1eb
       EXPECTED_ENGINE_SHA256: aa05a760bcc778483c7684653f7200399d3eb540a36b1e7b0e4ec9248bc0841d
 
@@ -45,47 +44,46 @@ jobs:
 
       - name: Prepare and lock approved assets
         run: |
-          mkdir -p yunex/public yunex/track-refinement
+          mkdir -p yunex/public yunex/track-refinement/visual-polish
           cp cars/porsche-911-gt3-rs-992/model.glb yunex/public/model.glb
           printf '%s  %s\n' "$EXPECTED_EXTERIOR_SHA256" cars/porsche-911-gt3-rs-992/model.glb | sha256sum -c -
           printf '%s  %s\n' "$EXPECTED_ENGINE_SHA256" cars/porsche-911-gt3-rs-992/engine/engine.glb | sha256sum -c -
           sha256sum cars/porsche-911-gt3-rs-992/model.glb > /tmp/exterior-before.sha256
           sha256sum cars/porsche-911-gt3-rs-992/engine/engine.glb > /tmp/engine-before.sha256
+          test -f yunex/track-refinement/after_landscape.png
+          test -f yunex/track-refinement/portrait_hero.png
 
-      - name: Render matched baseline landscape
+      - name: Render polished static proofs
         working-directory: yunex
         env:
           NODE_OPTIONS: --require=./fix-network.cjs
         run: |
-          cp src/TrackPreview.tsx /tmp/TrackPreview.refined.tsx
-          cp src/index.tsx /tmp/index.refined.tsx
-          git show "$BASELINE_COMMIT:yunex/src/TrackPreview.tsx" > src/TrackPreview.tsx
-          git show "$BASELINE_COMMIT:yunex/src/index.tsx" > src/index.tsx
-          npx remotion still src/index.tsx YUNEX-TRACK-PREVIEW track-refinement/before_landscape.png --gl=swangle --timeout=120000
-          mv /tmp/TrackPreview.refined.tsx src/TrackPreview.tsx
-          mv /tmp/index.refined.tsx src/index.tsx
+          npx remotion still src/index.tsx YUNEX-TRACK-PREVIEW track-refinement/visual-polish/landscape_polished.png --gl=swangle --timeout=120000
+          npx remotion still src/index.tsx YUNEX-TRACK-PORTRAIT track-refinement/visual-polish/portrait_polished.png --gl=swangle --timeout=120000
 
-      - name: Render refined static proofs
-        working-directory: yunex
-        env:
-          NODE_OPTIONS: --require=./fix-network.cjs
+      - name: Build Agent A to Agent D comparisons
         run: |
-          npx remotion still src/index.tsx YUNEX-TRACK-PREVIEW track-refinement/after_landscape.png --gl=swangle --timeout=120000
-          npx remotion still src/index.tsx YUNEX-TRACK-PORTRAIT track-refinement/portrait_hero.png --gl=swangle --timeout=120000
+          ffmpeg -y -i yunex/track-refinement/after_landscape.png -i yunex/track-refinement/visual-polish/landscape_polished.png -filter_complex "hstack=inputs=2" -frames:v 1 yunex/track-refinement/visual-polish/landscape_comparison.png >/dev/null 2>&1
+          ffmpeg -y -i yunex/track-refinement/portrait_hero.png -i yunex/track-refinement/visual-polish/portrait_polished.png -filter_complex "hstack=inputs=2" -frames:v 1 yunex/track-refinement/visual-polish/portrait_comparison.png >/dev/null 2>&1
 
-      - name: Build comparison and validate dimensions
+      - name: Validate output dimensions
         run: |
-          ffmpeg -y -i yunex/track-refinement/before_landscape.png -i yunex/track-refinement/after_landscape.png -filter_complex "hstack=inputs=2" -frames:v 1 yunex/track-refinement/before_after_landscape.png >/dev/null 2>&1
-          ffprobe -v error -select_streams v:0 -show_entries stream=width,height,codec_name,pix_fmt -of json yunex/track-refinement/after_landscape.png > yunex/track-refinement/landscape_ffprobe.json
-          ffprobe -v error -select_streams v:0 -show_entries stream=width,height,codec_name,pix_fmt -of json yunex/track-refinement/portrait_hero.png > yunex/track-refinement/portrait_ffprobe.json
+          ffprobe -v error -select_streams v:0 -show_entries stream=width,height,codec_name,pix_fmt -of json yunex/track-refinement/visual-polish/landscape_polished.png > yunex/track-refinement/visual-polish/landscape_polished_ffprobe.json
+          ffprobe -v error -select_streams v:0 -show_entries stream=width,height,codec_name,pix_fmt -of json yunex/track-refinement/visual-polish/portrait_polished.png > yunex/track-refinement/visual-polish/portrait_polished_ffprobe.json
+          ffprobe -v error -select_streams v:0 -show_entries stream=width,height -of json yunex/track-refinement/visual-polish/landscape_comparison.png > /tmp/landscape-comparison.json
+          ffprobe -v error -select_streams v:0 -show_entries stream=width,height -of json yunex/track-refinement/visual-polish/portrait_comparison.png > /tmp/portrait-comparison.json
           python - <<'PY'
           import json
           from pathlib import Path
-          base=Path("yunex/track-refinement")
-          landscape=json.loads((base/"landscape_ffprobe.json").read_text())["streams"][0]
-          portrait=json.loads((base/"portrait_ffprobe.json").read_text())["streams"][0]
+          base=Path("yunex/track-refinement/visual-polish")
+          landscape=json.loads((base/"landscape_polished_ffprobe.json").read_text())["streams"][0]
+          portrait=json.loads((base/"portrait_polished_ffprobe.json").read_text())["streams"][0]
+          lc=json.loads(Path("/tmp/landscape-comparison.json").read_text())["streams"][0]
+          pc=json.loads(Path("/tmp/portrait-comparison.json").read_text())["streams"][0]
           assert (landscape["width"], landscape["height"]) == (1600, 1000), landscape
           assert (portrait["width"], portrait["height"]) == (1080, 1920), portrait
+          assert (lc["width"], lc["height"]) == (3200, 1000), lc
+          assert (pc["width"], pc["height"]) == (2160, 1920), pc
           PY
 
       - name: Verify locked assets remained byte-identical
@@ -97,29 +95,31 @@ jobs:
           printf '%s  %s\n' "$EXPECTED_EXTERIOR_SHA256" cars/porsche-911-gt3-rs-992/model.glb | sha256sum -c -
           printf '%s  %s\n' "$EXPECTED_ENGINE_SHA256" cars/porsche-911-gt3-rs-992/engine/engine.glb | sha256sum -c -
 
-      - name: Commit static proof outputs
+      - name: Commit visual-polish proof outputs
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add -f yunex/track-refinement/before_landscape.png
-          git add -f yunex/track-refinement/after_landscape.png
-          git add -f yunex/track-refinement/before_after_landscape.png
-          git add -f yunex/track-refinement/portrait_hero.png
-          git add -f yunex/track-refinement/landscape_ffprobe.json
-          git add -f yunex/track-refinement/portrait_ffprobe.json
-          git diff --cached --quiet || git commit -m "YUNEX track static final: render proof bundle [skip ci]"
-          git push origin HEAD:sol/yunex-track-static-final
+          git add -f yunex/track-refinement/visual-polish/landscape_polished.png
+          git add -f yunex/track-refinement/visual-polish/portrait_polished.png
+          git add -f yunex/track-refinement/visual-polish/landscape_comparison.png
+          git add -f yunex/track-refinement/visual-polish/portrait_comparison.png
+          git add -f yunex/track-refinement/visual-polish/landscape_polished_ffprobe.json
+          git add -f yunex/track-refinement/visual-polish/portrait_polished_ffprobe.json
+          git diff --cached --quiet || git commit -m "YUNEX track visual polish: render review bundle [skip ci]"
+          git push origin HEAD:sol/yunex-track-visual-polish
 
-      - name: Upload static review bundle
+      - name: Upload visual-polish review bundle
         uses: actions/upload-artifact@v4
         with:
-          name: yunex-track-static-final-review
+          name: yunex-track-visual-polish-review
           path: |
-            yunex/track-refinement/before_landscape.png
             yunex/track-refinement/after_landscape.png
-            yunex/track-refinement/before_after_landscape.png
             yunex/track-refinement/portrait_hero.png
-            yunex/track-refinement/landscape_ffprobe.json
-            yunex/track-refinement/portrait_ffprobe.json
+            yunex/track-refinement/visual-polish/landscape_polished.png
+            yunex/track-refinement/visual-polish/portrait_polished.png
+            yunex/track-refinement/visual-polish/landscape_comparison.png
+            yunex/track-refinement/visual-polish/portrait_comparison.png
+            yunex/track-refinement/visual-polish/landscape_polished_ffprobe.json
+            yunex/track-refinement/visual-polish/portrait_polished_ffprobe.json
           if-no-files-found: error
           retention-days: 7
