@@ -55,6 +55,8 @@ jobs:
           git show "$BASELINE_COMMIT:$ENGINE_DIR/engine.glb" > "$ENGINE_DIR/engine_before.glb"
           cp cars/porsche-911-gt3-rs-992/model.glb yunex/public/model.glb
           cp "$ENGINE_DIR/engine_before.glb" yunex/public/engine.glb
+          ffmpeg -y -f lavfi -i anullsrc=r=48000:cl=stereo -t 28 yunex/public/vo.wav >/dev/null 2>&1
+          cp yunex/public/vo.wav yunex/public/sound.wav
           sha256sum "$ENGINE_DIR/engine_before.glb" | tee /tmp/engine-baseline.sha256
 
       - name: Render locked native BEFORE frame
@@ -63,7 +65,7 @@ jobs:
           NODE_OPTIONS: --require=./fix-network.cjs
         run: |
           mkdir -p ../cars/porsche-911-gt3-rs-992/engine/renders
-          npx remotion still src/index.tsx YUNEX-001 ../cars/porsche-911-gt3-rs-992/engine/renders/before_native_frame_0180.png             --frame=180 --gl=swangle --timeout=120000
+          npx remotion still src/index.tsx YUNEX-001-V2 ../cars/porsche-911-gt3-rs-992/engine/renders/before_native_frame_0180.png             --frame=180 --gl=swangle --timeout=120000
 
       - name: Build refined engine and validate GLB
         run: |
@@ -85,8 +87,8 @@ jobs:
         env:
           NODE_OPTIONS: --require=./fix-network.cjs
         run: |
-          npx remotion still src/index.tsx YUNEX-001 ../cars/porsche-911-gt3-rs-992/engine/renders/after_native_frame_0180.png             --frame=180 --gl=swangle --timeout=120000
-          npx remotion render src/index.tsx YUNEX-001 ../cars/porsche-911-gt3-rs-992/engine/renders/native_film_preview_0125_0246.mp4             --frames=125-246 --gl=swangle --concurrency=2 --codec=h264 --crf=17 --timeout=120000
+          npx remotion still src/index.tsx YUNEX-001-V2 ../cars/porsche-911-gt3-rs-992/engine/renders/after_native_frame_0180.png             --frame=180 --gl=swangle --timeout=120000
+          npx remotion render src/index.tsx YUNEX-001-V2 ../cars/porsche-911-gt3-rs-992/engine/renders/native_film_preview_0125_0246.mp4             --frames=125-246 --gl=swangle --concurrency=2 --codec=h264 --crf=17 --timeout=120000
           ffmpeg -y             -i ../cars/porsche-911-gt3-rs-992/engine/renders/before_native_frame_0180.png             -i ../cars/porsche-911-gt3-rs-992/engine/renders/after_native_frame_0180.png             -filter_complex hstack=inputs=2 -frames:v 1             ../cars/porsche-911-gt3-rs-992/engine/renders/comparison_native_frame_0180.png
           ffprobe -v error -select_streams v:0 -show_entries stream=width,height,r_frame_rate,codec_name,pix_fmt             -of json ../cars/porsche-911-gt3-rs-992/engine/renders/native_film_preview_0125_0246.mp4             > ../cars/porsche-911-gt3-rs-992/engine/renders/native_film_preview_ffprobe.json
           test "$(ffprobe -v error -select_streams v:0 -show_entries stream=width,height -of csv=p=0 ../cars/porsche-911-gt3-rs-992/engine/renders/native_film_preview_0125_0246.mp4)" = "1080,1920"
