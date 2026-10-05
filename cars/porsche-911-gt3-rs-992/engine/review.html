@@ -12,6 +12,8 @@ import {RoomEnvironment} from 'three/addons/environments/RoomEnvironment.js';
 
 const params=new URLSearchParams(location.search);
 const view=params.get('view')||'isolated';
+const asset=params.get('asset')||'./engine.glb';
+const variant=(params.get('variant')||'AFTER').toUpperCase();
 const marker=new THREE.Vector3(0,.47,-1.78), axleZ=-1.2114155216682174;
 const r=new THREE.WebGLRenderer({antialias:true,preserveDrawingBuffer:true});
 r.setPixelRatio(1);r.setSize(innerWidth,innerHeight,false);r.outputColorSpace=THREE.SRGBColorSpace;
@@ -28,7 +30,7 @@ Object.assign(key.shadow.camera,{near:.1,far:20,left:-3,right:3,top:3,bottom:-3}
 const fill=new THREE.DirectionalLight(0xdcecff,.72);fill.position.set(-4.4,2.2,3.5);scene.add(fill);
 const rim=new THREE.DirectionalLight(0xfff1d9,.52);rim.position.set(1.2,1.1,4.8);scene.add(rim);
 
-const loader=new GLTFLoader(), eg=await loader.loadAsync('./engine.glb');
+const loader=new GLTFLoader(), eg=await loader.loadAsync(asset);
 eg.scene.traverse(o=>{if(o.isMesh){if(!o.geometry.attributes.normal)o.geometry.computeVertexNormals();o.castShadow=true;o.receiveShadow=true;if(o.material&&'envMapIntensity' in o.material)o.material.envMapIntensity=.82;}});
 
 function lineage(o){const a=[];for(let p=o;p;p=p.parent)if(p.name)a.push(p.name);return a.join('|')}
@@ -73,13 +75,25 @@ function addLeader(textValue,world,dx,dy,cam){
 }
 function insetLabel(){const d=document.createElement('div');d.className='inset';d.textContent='FULL-CAR CONTEXT';document.body.appendChild(d)}
 let cam,insetCam=null,turnCenter=null,turnRadius=0;
-if(view==='isolated'||view==='turntable'){
+if(view==='isolated'||view==='close'||view==='exploded'||view==='turntable'){
+  if(view==='exploded'){
+    const explode={
+      Crankcase:[0,0,0],Bank_L:[.34,.02,0],Bank_R:[-.34,.02,0],Intake:[0,.30,0],
+      Headers_L:[.26,-.22,-.05],Headers_R:[-.26,-.22,-.05],Accessory_Drive:[0,0,-.28],
+      Cover_L:[.20,.04,0],Cover_R:[-.20,.04,0],Mounts:[0,-.18,.12]
+    };
+    for(const [name,v] of Object.entries(explode)){const o=eg.scene.getObjectByName(name);if(o)o.position.add(new THREE.Vector3(...v));}
+  }
   scene.add(eg.scene);
   const b=new THREE.Box3().setFromObject(eg.scene),c=b.getCenter(new THREE.Vector3()),sp=b.getBoundingSphere(new THREE.Sphere());
-  cam=new THREE.PerspectiveCamera(33,innerWidth/innerHeight,.01,20);turnCenter=c.clone();turnRadius=sp.radius*4.15;
-  cam.position.copy(c).addScaledVector(new THREE.Vector3(1.55,.76,-1.65).normalize(),turnRadius);cam.lookAt(c.x,c.y+.02,c.z);
+  const fov=view==='close'?29:33;
+  cam=new THREE.PerspectiveCamera(fov,innerWidth/innerHeight,.01,20);turnCenter=c.clone();
+  turnRadius=sp.radius*(view==='close'?2.75:view==='exploded'?4.35:4.15);
+  const dir=view==='close'?new THREE.Vector3(1.45,.52,-1.35):new THREE.Vector3(1.55,.76,-1.65);
+  cam.position.copy(c).addScaledVector(dir.normalize(),turnRadius);cam.lookAt(c.x,c.y+(view==='close'?.015:.02),c.z);
   addContactGround(b.min.y-.018);
-  label('YUNEX · 992 GT3 RS FLAT-SIX',view==='turntable'?'EXACT EXPORTED GLB · SHADING TURNTABLE':'ISOLATED REAR THREE-QUARTER · EXACT EXPORTED GLB');
+  const mode=view==='turntable'?'SHADING TURNTABLE':view==='close'?'MATCHED CLOSE THREE-QUARTER · HOUSING / INTAKE / HEADERS':view==='exploded'?'EXPLODED COMPONENT HIERARCHY':'ISOLATED REAR THREE-QUARTER · MATCHED CAMERA';
+  label('YUNEX · 992 GT3 RS FLAT-SIX',variant+' · '+mode);
 }else{
   const cg=await loader.loadAsync('../model.glb');prepExterior(cg.scene);scene.add(cg.scene);
   eg.scene.position.copy(marker);scene.add(eg.scene);
