@@ -150,6 +150,9 @@ const cameraFor=(mode:TrackMode,frame:number)=>{
   if(mode==='landscape'){
     return {position:new THREE.Vector3(3.35,1.50,4.25),target:new THREE.Vector3(-.10,.58,.15)};
   }
+  if(mode==='portrait'){
+    return {position:new THREE.Vector3(6.65,1.85,7.95),target:new THREE.Vector3(-.05,.38,.18)};
+  }
   const target=new THREE.Vector3(-.05,.60,.18);
   const position=new THREE.Vector3(7.25,2.05,8.55);
   if(mode==='motion'){
@@ -237,7 +240,12 @@ const TrackCanvas:React.FC<{mode:TrackMode;width:number;height:number}> = ({mode
     <ThreeCanvas
       width={width}
       height={height}
-      camera={{position:mode==='landscape'?[3.35,1.50,4.25]:[7.25,2.05,8.55],fov:mode==='landscape'?36:40,near:.1,far:100}}
+      camera={{
+        position:mode==='landscape'?[3.35,1.50,4.25]:mode==='portrait'?[6.65,1.85,7.95]:[7.25,2.05,8.55],
+        fov:mode==='landscape'?36:mode==='portrait'?36:40,
+        near:.1,
+        far:100,
+      }}
       gl={{antialias:true,alpha:false,preserveDrawingBuffer:true}}
       shadows
     >
