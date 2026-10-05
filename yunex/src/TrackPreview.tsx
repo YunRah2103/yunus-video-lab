@@ -1,35 +1,75 @@
 import React, {useEffect, useLayoutEffect, useMemo, useRef, useState} from 'react';
 import {ThreeCanvas} from '@remotion/three';
 import {useThree} from '@react-three/fiber';
-import {AbsoluteFill,cancelRender,continueRender,delayRender,staticFile} from 'remotion';
+import {AbsoluteFill,cancelRender,continueRender,delayRender,interpolate,staticFile,useCurrentFrame} from 'remotion';
 import * as THREE from 'three';
 import {GLTFLoader} from 'three/examples/jsm/loaders/GLTFLoader.js';
 
-const makeAsphalt=()=>{
+type TrackMode='landscape'|'portrait'|'motion';
+
+const makeNoiseTexture=(kind:'asphalt'|'grass')=>{
   const size=384,data=new Uint8Array(size*size*4);
-  let seed=911;
+  let seed=kind==='asphalt'?911:992;
   const random=()=>{seed=(seed*1664525+1013904223)>>>0;return seed/4294967296;};
   for(let i=0;i<size*size;i++){
-    const grain=(random()-.5)*28;
-    const fleck=random()>.986?24:0;
-    const v=Math.max(28,Math.min(72,47+grain+fleck));
-    data[i*4]=v;data[i*4+1]=v+1;data[i*4+2]=v+2;data[i*4+3]=255;
+    if(kind==='asphalt'){
+      const grain=(random()-.5)*24;
+      const fleck=random()>.989?18:0;
+      const v=Math.max(31,Math.min(69,49+grain+fleck));
+      data[i*4]=v;data[i*4+1]=v+1;data[i*4+2]=v+2;data[i*4+3]=255;
+    }else{
+      const grain=(random()-.5)*18;
+      const dry=random()>.93?10:0;
+      data[i*4]=Math.max(55,Math.min(92,68+grain+dry));
+      data[i*4+1]=Math.max(63,Math.min(101,79+grain));
+      data[i*4+2]=Math.max(48,Math.min(78,57+grain*.55));
+      data[i*4+3]=255;
+    }
   }
-  const t=new THREE.DataTexture(data,size,size,THREE.RGBAFormat);
-  t.wrapS=t.wrapT=THREE.RepeatWrapping;t.repeat.set(9,12);t.colorSpace=THREE.SRGBColorSpace;t.needsUpdate=true;
-  return t;
+  const texture=new THREE.DataTexture(data,size,size,THREE.RGBAFormat);
+  texture.wrapS=texture.wrapT=THREE.RepeatWrapping;
+  texture.repeat.set(kind==='asphalt'?9:7,kind==='asphalt'?12:18);
+  texture.colorSpace=THREE.SRGBColorSpace;
+  texture.needsUpdate=true;
+  return texture;
 };
 
 const makeSky=()=>{
   const w=256,h=128,data=new Uint8Array(w*h*4);
   for(let y=0;y<h;y++)for(let x=0;x<w;x++){
     const t=y/(h-1),warm=Math.exp(-Math.pow((t-.61)/.13,2));
-    const r=THREE.MathUtils.lerp(160,230,t)+warm*14;
-    const g=THREE.MathUtils.lerp(191,218,t)+warm*8;
-    const b=THREE.MathUtils.lerp(224,199,t)-warm*8;
+    const r=THREE.MathUtils.lerp(160,230,t)+warm*12;
+    const g=THREE.MathUtils.lerp(191,218,t)+warm*7;
+    const b=THREE.MathUtils.lerp(224,199,t)-warm*7;
     const i=(y*w+x)*4;data[i]=r;data[i+1]=g;data[i+2]=b;data[i+3]=255;
   }
-  const tex=new THREE.DataTexture(data,w,h,THREE.RGBAFormat);tex.mapping=THREE.EquirectangularReflectionMapping;tex.colorSpace=THREE.SRGBColorSpace;tex.needsUpdate=true;return tex;
+  const tex=new THREE.DataTexture(data,w,h,THREE.RGBAFormat);
+  tex.mapping=THREE.EquirectangularReflectionMapping;
+  tex.colorSpace=THREE.SRGBColorSpace;
+  tex.needsUpdate=true;
+  return tex;
+};
+
+const makeLayout=()=>{
+  let seed=2103;
+  const random=()=>{seed=(seed*1664525+1013904223)>>>0;return seed/4294967296;};
+  const treeColors=['#34483a','#405142','#495846','#2f4438'];
+  const shrubColors=['#42513d','#4b5943','#384a39','#526048'];
+  const trees=Array.from({length:10},(_,i)=>({
+    x:-6.3-random()*5.5,
+    z:-10.5+i*2.35+(random()-.5)*1.15,
+    scale:.78+random()*.58,
+    yaw:(random()-.5)*.8,
+    color:treeColors[Math.floor(random()*treeColors.length)],
+  }));
+  const shrubs=Array.from({length:24},()=>({
+    x:-4.55-random()*4.4,
+    z:-11+random()*22,
+    scale:.55+random()*.75,
+    yaw:(random()-.5)*1.4,
+    color:shrubColors[Math.floor(random()*shrubColors.length)],
+  }));
+  return {trees,shrubs};
 };
 
 function Rail(){
@@ -48,25 +88,110 @@ function Rail(){
 function Kerb(){
   return <group position={[-2.95,.025,.15]} rotation={[0,-.05,0]}>
     {Array.from({length:12},(_,i)=><mesh key={i} receiveShadow position={[0,0,(i-5.5)*.47]}>
-      <boxGeometry args={[.48,.05,.46]}/><meshStandardMaterial color={i%2===0?'#e8e3d8':'#b52220'} roughness={.76}/>
+      <boxGeometry args={[.48,.05,.46]}/><meshStandardMaterial color={i%2===0?'#e8e3d8':'#a92a25'} roughness={.78}/>
     </mesh>)}
   </group>;
 }
 
-function TrackScene(){
+const Shrub:React.FC<{item:ReturnType<typeof makeLayout>['shrubs'][number]}> = ({item}) =>
+  <group position={[item.x,.05,item.z]} rotation={[0,item.yaw,0]} scale={item.scale}>
+    {[
+      [-.38,.34,.02,.72,.55,.62],
+      [.24,.38,-.08,.78,.64,.68],
+      [.02,.52,.24,.62,.66,.58],
+    ].map((v,i)=><mesh key={i} castShadow receiveShadow position={[v[0],v[1],v[2]]} scale={[v[3],v[4],v[5]]}>
+      <sphereGeometry args={[.72,10,7]}/>
+      <meshStandardMaterial color={item.color} roughness={.97} metalness={0} flatShading/>
+    </mesh>)}
+  </group>;
+
+const Tree:React.FC<{item:ReturnType<typeof makeLayout>['trees'][number]}> = ({item}) =>
+  <group position={[item.x,.02,item.z]} rotation={[0,item.yaw,0]} scale={item.scale}>
+    <mesh castShadow position={[0,.72,0]}>
+      <cylinderGeometry args={[.09,.14,1.45,8]}/>
+      <meshStandardMaterial color="#554a38" roughness={.92}/>
+    </mesh>
+    {[
+      [-.12,1.55,.02,.95,.88,.90],
+      [.42,1.62,-.08,.72,.78,.72],
+      [-.48,1.72,.06,.68,.72,.68],
+      [.08,2.05,.03,.78,.72,.76],
+    ].map((v,i)=><mesh key={i} castShadow receiveShadow position={[v[0],v[1],v[2]]} scale={[v[3],v[4],v[5]]}>
+      <icosahedronGeometry args={[.82,2]}/>
+      <meshStandardMaterial color={item.color} roughness={.98} metalness={0} flatShading/>
+    </mesh>)}
+  </group>;
+
+function TrackEnvironment({asphalt,grass}:{asphalt:THREE.Texture;grass:THREE.Texture}){
+  const layout=useMemo(makeLayout,[]);
+  return <>
+    <mesh receiveShadow position={[0,-.012,0]} rotation={[-Math.PI/2,0,0]}>
+      <planeGeometry args={[24,26]}/><meshStandardMaterial map={asphalt} color="#565a5b" roughness={.94} metalness={.01}/>
+    </mesh>
+    <mesh receiveShadow position={[-7.15,-.001,0]} rotation={[-Math.PI/2,0,0]}>
+      <planeGeometry args={[7.05,26]}/><meshStandardMaterial map={grass} color="#69705b" roughness={1}/>
+    </mesh>
+    <mesh receiveShadow position={[-3.63,.005,0]} rotation={[-Math.PI/2,0,0]}>
+      <planeGeometry args={[.42,26]}/><meshStandardMaterial color="#6b654f" roughness={1}/>
+    </mesh>
+    <mesh receiveShadow position={[-10.8,-.03,-1.0]} rotation={[-Math.PI/2,0,0]}>
+      <planeGeometry args={[9.5,34]}/><meshStandardMaterial map={grass} color="#59634f" roughness={1}/>
+    </mesh>
+    <Kerb/><Rail/>
+    <group>
+      {layout.shrubs.map((item,i)=><Shrub key={'s-'+i} item={item}/>)}
+      {layout.trees.map((item,i)=><Tree key={'t-'+i} item={item}/>)}
+    </group>
+  </>;
+}
+
+const cameraFor=(mode:TrackMode,frame:number)=>{
+  if(mode==='landscape'){
+    return {position:new THREE.Vector3(3.35,1.50,4.25),target:new THREE.Vector3(-.10,.58,.15)};
+  }
+  const target=new THREE.Vector3(-.05,.60,.18);
+  const position=new THREE.Vector3(7.25,2.05,8.55);
+  if(mode==='motion'){
+    const orbit=interpolate(frame,[0,89],[-.065,.065],{extrapolateLeft:'clamp',extrapolateRight:'clamp'});
+    const offset=position.clone().sub(target).applyAxisAngle(new THREE.Vector3(0,1,0),orbit);
+    position.copy(target).add(offset);
+    position.y+=interpolate(frame,[0,44,89],[.02,.11,.03],{extrapolateLeft:'clamp',extrapolateRight:'clamp'});
+  }
+  return {position,target};
+};
+
+function TrackScene({mode}:{mode:TrackMode}){
+  const frame=useCurrentFrame();
   const {gl,scene,camera,advance}=useThree();
   const [model,setModel]=useState<THREE.Group|null>(null);
   const [groundY,setGroundY]=useState(0);
-  const [handle]=useState(()=>delayRender('Loading approved Porsche track still'));
+  const [handle]=useState(()=>delayRender('Loading approved Porsche track refinement'));
   const ready=useRef(false);
-  const asphalt=useMemo(makeAsphalt,[]),sky=useMemo(makeSky,[]);
+  const asphalt=useMemo(()=>makeNoiseTexture('asphalt'),[]);
+  const grass=useMemo(()=>makeNoiseTexture('grass'),[]);
+  const sky=useMemo(makeSky,[]);
+
   useLayoutEffect(()=>{
-    gl.shadowMap.enabled=true;gl.shadowMap.type=THREE.PCFShadowMap;gl.toneMapping=THREE.ACESFilmicToneMapping;gl.toneMappingExposure=.92;
+    gl.shadowMap.enabled=true;
+    gl.shadowMap.type=THREE.PCFSoftShadowMap;
+    gl.toneMapping=THREE.ACESFilmicToneMapping;
+    gl.toneMappingExposure=.90;
     scene.background=sky;
-    const pmrem=new THREE.PMREMGenerator(gl);const env=pmrem.fromEquirectangular(sky);scene.environment=env.texture;
-    camera.position.set(3.35,1.50,4.25);camera.lookAt(-.10,.58,.15);camera.updateProjectionMatrix();
-    return()=>{env.dispose();pmrem.dispose();sky.dispose();};
-  },[gl,scene,camera,sky]);
+    scene.fog=new THREE.Fog('#b9c7c2',12,34);
+    const pmrem=new THREE.PMREMGenerator(gl);
+    const env=pmrem.fromEquirectangular(sky);
+    scene.environment=env.texture;
+    return()=>{scene.environment=null;scene.fog=null;env.dispose();pmrem.dispose();};
+  },[gl,scene,sky]);
+
+  useLayoutEffect(()=>{
+    const c=cameraFor(mode,frame);
+    camera.position.copy(c.position);
+    camera.lookAt(c.target);
+    camera.updateProjectionMatrix();
+    if(model)advance(frame*(1000/30));
+  },[mode,frame,camera,advance,model]);
+
   useEffect(()=>{
     let live=true;
     new GLTFLoader().load(staticFile('model.glb'),g=>{
@@ -77,26 +202,45 @@ function TrackScene(){
     },undefined,cancelRender);
     return()=>{live=false;};
   },[]);
+
   useEffect(()=>{
-    if(!model||ready.current)return;ready.current=true;
-    camera.position.set(3.35,1.50,4.25);camera.lookAt(-.10,.58,.15);camera.updateProjectionMatrix();advance(performance.now());continueRender(handle);
-  },[model,advance,camera,handle]);
+    if(!model||ready.current)return;
+    ready.current=true;
+    const c=cameraFor(mode,frame);
+    camera.position.copy(c.position);
+    camera.lookAt(c.target);
+    camera.updateProjectionMatrix();
+    advance(frame*(1000/30));
+    continueRender(handle);
+  },[model,mode,frame,advance,camera,handle]);
+
+  useEffect(()=>()=>{asphalt.dispose();grass.dispose();sky.dispose();},[asphalt,grass,sky]);
+
   return <>
-    <hemisphereLight args={['#dcecff','#273126',1.55]}/>
-    <directionalLight castShadow position={[-4.5,7.5,5.5]} intensity={4.0} color="#ffe7c5" shadow-mapSize-width={2048} shadow-mapSize-height={2048} shadow-camera-left={-7} shadow-camera-right={7} shadow-camera-top={7} shadow-camera-bottom={-7} shadow-bias={-.00018} shadow-normalBias={.02}/>
-    <directionalLight position={[5,3,-4]} intensity={1.25} color="#bad4ed"/>
-    <group position={[0,groundY,0]}>
-      <mesh receiveShadow position={[0,-.012,0]} rotation={[-Math.PI/2,0,0]}>
-        <planeGeometry args={[22,24]}/><meshStandardMaterial map={asphalt} color="#575b5d" roughness={.93} metalness={.02}/>
-      </mesh>
-      <Kerb/><Rail/>
-    </group>
-    {model&&<primitive object={model}/>} 
+    <hemisphereLight args={['#dce8ed','#303a2e',1.42]}/>
+    <directionalLight castShadow position={[-4.5,7.5,5.5]} intensity={3.65} color="#ffe8ca"
+      shadow-mapSize-width={2048} shadow-mapSize-height={2048}
+      shadow-camera-left={-9} shadow-camera-right={9} shadow-camera-top={9} shadow-camera-bottom={-9}
+      shadow-bias={-.00016} shadow-normalBias={.025}/>
+    <directionalLight position={[5,3,-4]} intensity={1.05} color="#bfd4e8"/>
+    <group position={[0,groundY,0]}><TrackEnvironment asphalt={asphalt} grass={grass}/></group>
+    {model&&<primitive object={model}/>}
   </>;
 }
 
-export const TrackPreview:React.FC=()=> <AbsoluteFill style={{background:'#abc6d8'}}>
-  <ThreeCanvas width={1600} height={1000} camera={{position:[3.35,1.50,4.25],fov:36,near:.1,far:100}} gl={{antialias:true,alpha:false,preserveDrawingBuffer:true}} shadows>
-    <TrackScene/>
-  </ThreeCanvas>
-</AbsoluteFill>;
+const TrackCanvas:React.FC<{mode:TrackMode;width:number;height:number}> = ({mode,width,height}) =>
+  <AbsoluteFill style={{background:'#aec4cf'}}>
+    <ThreeCanvas
+      width={width}
+      height={height}
+      camera={{position:mode==='landscape'?[3.35,1.50,4.25]:[7.25,2.05,8.55],fov:mode==='landscape'?36:40,near:.1,far:100}}
+      gl={{antialias:true,alpha:false,preserveDrawingBuffer:true}}
+      shadows
+    >
+      <TrackScene mode={mode}/>
+    </ThreeCanvas>
+  </AbsoluteFill>;
+
+export const TrackPreview:React.FC=()=> <TrackCanvas mode="landscape" width={1600} height={1000}/>;
+export const TrackPortraitPreview:React.FC=()=> <TrackCanvas mode="portrait" width={1080} height={1920}/>;
+export const TrackMotionProof:React.FC=()=> <TrackCanvas mode="motion" width={1080} height={1920}/>;
