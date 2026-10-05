@@ -1,0 +1,185 @@
+name: YUNEX engine visual refinement
+
+on:
+  push:
+    branches:
+      - sol/yunex-full-film-v2
+    paths:
+      - 'cars/porsche-911-gt3-rs-992/engine/build_engine.py'
+      - 'cars/porsche-911-gt3-rs-992/engine/review.html'
+      - 'cars/porsche-911-gt3-rs-992/engine/render_review.mjs'
+      - 'cars/porsche-911-gt3-rs-992/engine/REFINEMENT_DIAGNOSIS.md'
+      - '.github/workflows/yunex-engine-refinement.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  refine-render-validate:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    env:
+      BASELINE_COMMIT: 50a912e66c637402e5dc9cdbc1753b01da20bc4d
+      ENGINE_DIR: cars/porsche-911-gt3-rs-992/engine
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+          cache-dependency-path: yunex/package-lock.json
+
+      - name: Install deterministic build and render dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install numpy==2.3.5 scipy==1.16.2 trimesh==4.11.1
+          npm install --prefix "$ENGINE_DIR" --no-save three@0.180.0 playwright@1.55.0
+          npx --prefix "$ENGINE_DIR" playwright install --with-deps chromium
+          npm ci --prefix yunex
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg
+
+      - name: Lock approved exterior and baseline engine
+        run: |
+          sha256sum cars/porsche-911-gt3-rs-992/model.glb | tee /tmp/exterior-before.sha256
+          sha256sum yunex/public/model.glb | tee /tmp/film-car-before.sha256
+          git show "$BASELINE_COMMIT:$ENGINE_DIR/engine.glb" > "$ENGINE_DIR/engine_before.glb"
+          git show "$BASELINE_COMMIT:yunex/public/engine.glb" > yunex/public/engine.glb
+          sha256sum "$ENGINE_DIR/engine_before.glb" | tee /tmp/engine-baseline.sha256
+
+      - name: Render locked native BEFORE frame
+        working-directory: yunex
+        env:
+          NODE_OPTIONS: --require=./fix-network.cjs
+        run: |
+          mkdir -p ../cars/porsche-911-gt3-rs-992/engine/renders
+          npx remotion still src/index.tsx YUNEX-001 ../cars/porsche-911-gt3-rs-992/engine/renders/before_native_frame_0180.png             --frame=180 --gl=swangle --timeout=120000
+
+      - name: Build refined engine and validate GLB
+        run: |
+          python "$ENGINE_DIR/build_engine.py"
+          cp "$ENGINE_DIR/engine.glb" yunex/public/engine.glb
+          cmp -s "$ENGINE_DIR/engine.glb" yunex/public/engine.glb
+          sha256sum "$ENGINE_DIR/engine.glb" yunex/public/engine.glb | tee /tmp/refined-engine.sha256
+
+      - name: Render matched PBR reviews
+        run: |
+          python -m http.server 8000 --bind 127.0.0.1 >/tmp/yunex-http.log 2>&1 &
+          SERVER_PID=$!
+          trap 'kill $SERVER_PID || true' EXIT
+          sleep 2
+          node "$ENGINE_DIR/render_review.mjs"
+
+      - name: Render native AFTER frame and detail-beat preview
+        working-directory: yunex
+        env:
+          NODE_OPTIONS: --require=./fix-network.cjs
+        run: |
+          npx remotion still src/index.tsx YUNEX-001 ../cars/porsche-911-gt3-rs-992/engine/renders/after_native_frame_0180.png             --frame=180 --gl=swangle --timeout=120000
+          npx remotion render src/index.tsx YUNEX-001 ../cars/porsche-911-gt3-rs-992/engine/renders/native_film_preview_0125_0246.mp4             --frames=125-246 --gl=swangle --concurrency=2 --codec=h264 --crf=17 --timeout=120000
+          ffmpeg -y             -i ../cars/porsche-911-gt3-rs-992/engine/renders/before_native_frame_0180.png             -i ../cars/porsche-911-gt3-rs-992/engine/renders/after_native_frame_0180.png             -filter_complex hstack=inputs=2 -frames:v 1             ../cars/porsche-911-gt3-rs-992/engine/renders/comparison_native_frame_0180.png
+          ffprobe -v error -select_streams v:0 -show_entries stream=width,height,r_frame_rate,codec_name,pix_fmt             -of json ../cars/porsche-911-gt3-rs-992/engine/renders/native_film_preview_0125_0246.mp4             > ../cars/porsche-911-gt3-rs-992/engine/renders/native_film_preview_ffprobe.json
+          test "$(ffprobe -v error -select_streams v:0 -show_entries stream=width,height -of csv=p=0 ../cars/porsche-911-gt3-rs-992/engine/renders/native_film_preview_0125_0246.mp4)" = "1080,1920"
+
+      - name: Verify locked car and update manifest validation
+        run: |
+          sha256sum cars/porsche-911-gt3-rs-992/model.glb | tee /tmp/exterior-after.sha256
+          sha256sum yunex/public/model.glb | tee /tmp/film-car-after.sha256
+          diff -u /tmp/exterior-before.sha256 /tmp/exterior-after.sha256
+          diff -u /tmp/film-car-before.sha256 /tmp/film-car-after.sha256
+          python - <<'PY'
+          import hashlib, json
+          from pathlib import Path
+          d=Path("cars/porsche-911-gt3-rs-992/engine")
+          eng=d/"engine.glb"
+          pub=Path("yunex/public/engine.glb")
+          sha=lambda p: hashlib.sha256(p.read_bytes()).hexdigest()
+          manifest=json.loads((d/"asset-manifest.json").read_text())
+          validation=json.loads((d/"validation.json").read_text())
+          manifest["refinement_baseline_commit"]="50a912e66c637402e5dc9cdbc1753b01da20bc4d"
+          manifest["review_outputs"]={
+            "before_rear_three_quarter":"renders/before_rear_three_quarter.png",
+            "after_rear_three_quarter":"renders/after_rear_three_quarter.png",
+            "before_close_three_quarter":"renders/before_close_three_quarter.png",
+            "after_close_three_quarter":"renders/after_close_three_quarter.png",
+            "installed_side":"renders/after_installed_side.png",
+            "installed_top":"renders/after_installed_top.png",
+            "exploded":"renders/after_exploded.png",
+            "native_before_frame":"renders/before_native_frame_0180.png",
+            "native_after_frame":"renders/after_native_frame_0180.png",
+            "native_preview":"renders/native_film_preview_0125_0246.mp4"
+          }
+          manifest["public_engine_sha256"]=sha(pub)
+          validation["refinement_baseline_commit"]=manifest["refinement_baseline_commit"]
+          validation["public_engine_sha256"]=sha(pub)
+          validation["public_engine_matches_source"]=sha(pub)==sha(eng)
+          validation["native_renderer_review"]={
+            "frame":180,
+            "resolution":[1080,1920],
+            "preview_frames":[125,246],
+            "preview_path":"renders/native_film_preview_0125_0246.mp4"
+          }
+          assert validation["public_engine_matches_source"]
+          (d/"asset-manifest.json").write_text(json.dumps(manifest,indent=2)+"\n")
+          (d/"validation.json").write_text(json.dumps(validation,indent=2)+"\n")
+          PY
+          rm -f "$ENGINE_DIR/engine_before.glb"
+
+      - name: Verify required refinement outputs
+        run: |
+          test -s "$ENGINE_DIR/engine.glb"
+          test -s yunex/public/engine.glb
+          test -s "$ENGINE_DIR/renders/before_rear_three_quarter.png"
+          test -s "$ENGINE_DIR/renders/after_rear_three_quarter.png"
+          test -s "$ENGINE_DIR/renders/before_close_three_quarter.png"
+          test -s "$ENGINE_DIR/renders/after_close_three_quarter.png"
+          test -s "$ENGINE_DIR/renders/after_installed_side.png"
+          test -s "$ENGINE_DIR/renders/after_installed_top.png"
+          test -s "$ENGINE_DIR/renders/after_exploded.png"
+          test -s "$ENGINE_DIR/renders/before_native_frame_0180.png"
+          test -s "$ENGINE_DIR/renders/after_native_frame_0180.png"
+          test -s "$ENGINE_DIR/renders/comparison_native_frame_0180.png"
+          test -s "$ENGINE_DIR/renders/native_film_preview_0125_0246.mp4"
+          python -m json.tool "$ENGINE_DIR/asset-manifest.json" >/dev/null
+          python -m json.tool "$ENGINE_DIR/validation.json" >/dev/null
+
+      - name: Commit generated refined engine and review renders
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add "$ENGINE_DIR/engine.glb"
+          git add "$ENGINE_DIR/asset-manifest.json"
+          git add "$ENGINE_DIR/validation.json"
+          git add "$ENGINE_DIR/README.md"
+          git add "$ENGINE_DIR/REVIEW_NOTE.md"
+          git add "$ENGINE_DIR/renders/"*.png
+          git add "$ENGINE_DIR/renders/native_film_preview_ffprobe.json"
+          git add -f "$ENGINE_DIR/renders/native_film_preview_0125_0246.mp4"
+          git add -f "$ENGINE_DIR/renders/engine_turntable_after.mp4"
+          git add yunex/public/engine.glb
+          git diff --cached --quiet || git commit -m "YUNEX engine refinement: generated assets and native review [skip ci]"
+          git pull --rebase origin sol/yunex-full-film-v2
+          git push origin HEAD:sol/yunex-full-film-v2
+
+      - name: Upload refinement review bundle
+        uses: actions/upload-artifact@v4
+        with:
+          name: yunex-engine-refinement-${{ github.sha }}
+          path: |
+            cars/porsche-911-gt3-rs-992/engine/engine.glb
+            cars/porsche-911-gt3-rs-992/engine/asset-manifest.json
+            cars/porsche-911-gt3-rs-992/engine/validation.json
+            cars/porsche-911-gt3-rs-992/engine/REVIEW_NOTE.md
+            cars/porsche-911-gt3-rs-992/engine/renders/
+            yunex/public/engine.glb
+          if-no-files-found: error
+          retention-days: 7
