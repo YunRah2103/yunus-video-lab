@@ -340,8 +340,8 @@ function Title({frame}:{frame:number}) {
   </div>;
 }
 
-export const ModelLedVideo:React.FC=()=>{
-  const frame=useCurrentFrame();const state=stateFor(frame);
+export const ModelLedVideo:React.FC<{frameOffset?:number;includeAudio?:boolean}>=({frameOffset=0,includeAudio=true})=>{
+  const frame=useCurrentFrame()+frameOffset;const state=stateFor(frame);
   const labels=state.technical*(frame<255?phase(frame,180,198):frame<345?1:frame<396?0:frame<549?.7:0);
   const showEngineDetail=frame>=105&&frame<255;
   const finalMark=phase(frame,770,810);
@@ -360,6 +360,6 @@ export const ModelLedVideo:React.FC=()=>{
     {frame>=396&&frame<549&&<div style={{position:'absolute',left:74,bottom:156,fontFamily:'Arial',fontSize:24,letterSpacing:2.6,color:'rgba(241,234,220,.70)',opacity:phase(frame,411,430)*(1-phase(frame,530,548))}}>DRIVEN REAR WHEELS · LOAD INTO ROAD</div>}
     {frame>=549&&frame<675&&<div style={{position:'absolute',left:74,bottom:148,right:74,fontFamily:'Arial',fontSize:21,lineHeight:1.35,letterSpacing:2.1,color:'rgba(241,234,220,.64)',opacity:phase(frame,566,585)*(1-phase(frame,658,674))}}>MODERN GT3 RS · AIRFLOW SHOWN ILLUSTRATIVELY AT SPEED</div>}
     <div style={{position:'absolute',right:56,bottom:52,fontFamily:'Yunex',fontSize:25,letterSpacing:5,color:IVORY,opacity:.24+.76*finalMark}}>YUNEX</div>
-    <Audio src={staticFile('vo.wav')}/><Audio src={staticFile('sound.wav')} volume={.42}/>
+    {includeAudio&&<><Audio src={staticFile('vo.wav')}/><Audio src={staticFile('sound.wav')} volume={.42}/></>}
   </AbsoluteFill>;
 };
