@@ -525,7 +525,7 @@ material_quantization_error = {
 }
 
 component_checks = {
-    "intake_runners": sum("Intake__runner_" in n for n in mesh_names),
+    "intake_runners": sum("Intake__runner_" in n and "runner_coupler" not in n for n in mesh_names),
     "intake_head_ports": sum("Intake__head_port_" in n for n in mesh_names),
     "header_primaries": sum("__primary_" in n for n in mesh_names),
     "continuous_flat_belt": sum("Accessory_Drive__belt_loop" in n for n in mesh_names),
