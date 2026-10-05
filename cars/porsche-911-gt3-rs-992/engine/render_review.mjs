@@ -32,27 +32,5 @@ for(const [asset,variant,view,file] of [
   ['./engine.glb','AFTER','exploded','after_exploded.png'],
 ]) await renderView(asset,variant,view,file);
 
-const frames=path.join(out,'_turntable_frames');
-await fs.rm(frames,{recursive:true,force:true});await fs.mkdir(frames,{recursive:true});
-const turn=await browser.newPage({viewport:{width:960,height:720},deviceScaleFactor:1});
-turn.on('pageerror',e=>console.error('[turntable:error] '+e.message));
-await turn.goto(base+'?view=turntable&asset=.%2Fengine.glb&variant=AFTER',{waitUntil:'networkidle',timeout:120000});
-await turn.waitForFunction(()=>window.__reviewReady===true,{timeout:120000});
-const fps=18,seconds=6,total=fps*seconds;
-for(let i=0;i<total;i++){
-  const angle=(i/total)*Math.PI*2;
-  await turn.evaluate(a=>window.__setTurntableAngle(a),angle);
-  const name='frame_'+String(i).padStart(3,'0')+'.png';
-  await turn.screenshot({path:path.join(frames,name)});
-}
-await turn.close();await browser.close();
-
-const mp4=path.join(out,'engine_turntable_after.mp4');
-const result=await execFileAsync('ffmpeg',[
-  '-y','-framerate',String(fps),'-i',path.join(frames,'frame_%03d.png'),
-  '-c:v','libx264','-pix_fmt','yuv420p','-movflags','+faststart','-crf','19','-preset','medium',
-  '-t',String(seconds),mp4
-],{maxBuffer:20*1024*1024});
-if(result.stderr)console.log(result.stderr.split('\n').slice(-8).join('\n'));
-await fs.rm(frames,{recursive:true,force:true});
-console.log('rendered engine_turntable_after.mp4');
+await browser.close();
+console.log('matched refinement stills complete');
