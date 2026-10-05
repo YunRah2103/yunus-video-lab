@@ -18,7 +18,7 @@ import {DEFAULT_CAMERA_TIMING} from './driving';
 
 const W = 1080;
 const H = 1920;
-const PROOF_FRAMES = 120;
+const PROOF_FRAMES = 75;
 const WHEEL_NODES = ['Spin_FL', 'Spin_FR', 'Spin_RL', 'Spin_RR'] as const;
 
 const Scene: React.FC = () => {
@@ -33,7 +33,7 @@ const Scene: React.FC = () => {
   const {camera, gl, advance} = useThree();
   const [model, setModel] = useState<THREE.Group | null>(null);
   const [handle] = useState(() => delayRender('Loading approved YUNEX Porsche for B camera proof'));
-  const ready = useRef(false);
+  const ready = useRef(false);\n  const wheelBase = useRef<Record<string, number>>({});
 
   useLayoutEffect(() => {
     const perspective = camera as THREE.PerspectiveCamera;
@@ -46,7 +46,7 @@ const Scene: React.FC = () => {
       model.rotation.set(...pose.rootPose.rotation);
       for (const name of WHEEL_NODES) {
         const node = model.getObjectByName(name);
-        if (node) node.rotation.x = pose.wheelAngle;
+        if (node) node.rotation.x = (wheelBase.current[name] ?? 0) + pose.wheelAngle;
       }
       advance(proofFrame * (1000 / 30));
     }
@@ -65,7 +65,7 @@ const Scene: React.FC = () => {
             object.receiveShadow = false;
           }
         });
-        setModel(gltf.scene);
+        for (const name of WHEEL_NODES) {\n          const node = gltf.scene.getObjectByName(name);\n          if (node) wheelBase.current[name] = node.rotation.x;\n        }\n        setModel(gltf.scene);
       },
       undefined,
       cancelRender,
