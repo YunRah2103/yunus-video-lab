@@ -5,7 +5,7 @@ import {AbsoluteFill,cancelRender,continueRender,delayRender,interpolate,staticF
 import * as THREE from 'three';
 import {GLTFLoader} from 'three/examples/jsm/loaders/GLTFLoader.js';
 
-type TrackMode='landscape'|'portrait'|'motion'|'film-opening'|'film-final';
+type TrackMode='landscape'|'portrait'|'motion'|'film-opening'|'film-final'|'technical';
 
 const makeNoiseTexture=(kind:'asphalt'|'grass')=>{
   const size=384,data=new Uint8Array(size*size*4);
@@ -151,21 +151,26 @@ const Tree:React.FC<{item:ReturnType<typeof makeLayout>['trees'][number];motionL
   </group>;
 };
 
-function TrackEnvironment({asphalt,grass,mode}:{asphalt:THREE.Texture;grass:THREE.Texture;mode:TrackMode}){
+export function TrackEnvironment({asphalt,grass,mode}:{asphalt:THREE.Texture;grass:THREE.Texture;mode:TrackMode}){
   const layout=useMemo(makeLayout,[]);
-  const motionLite=mode==='motion'||mode==='film-opening'||mode==='film-final';
+  const motionLite=mode==='motion'||mode==='film-opening'||mode==='film-final'||mode==='technical';
+  const technical=mode==='technical';
+  const roadLength=technical?500:60;
   return <>
     <mesh receiveShadow position={[0,-.012,0]} rotation={[-Math.PI/2,0,0]}>
-      <planeGeometry args={[44,60]}/><meshStandardMaterial map={asphalt} color="#565a5b" roughness={.94} metalness={.01}/>
+      <planeGeometry args={[technical?500:44,roadLength]}/><meshStandardMaterial map={asphalt} color={technical?'#c7cbcc':'#565a5b'} roughness={.94} metalness={.01}/>
     </mesh>
+    {technical&&<mesh position={[0,-5,0]} rotation={[-Math.PI/2,0,0]}>
+      <planeGeometry args={[500,500]}/><meshStandardMaterial map={asphalt} color="#c7cbcc" roughness={.94} metalness={.01}/>
+    </mesh>}
     <mesh receiveShadow position={[-7.15,-.001,0]} rotation={[-Math.PI/2,0,0]}>
-      <planeGeometry args={[7.05,60]}/><meshStandardMaterial map={grass} color="#69705b" roughness={1}/>
+      <planeGeometry args={[7.05,roadLength]}/><meshStandardMaterial map={grass} color="#69705b" roughness={1}/>
     </mesh>
     <mesh receiveShadow position={[-3.63,.005,0]} rotation={[-Math.PI/2,0,0]}>
-      <planeGeometry args={[.42,60]}/><meshStandardMaterial color="#6b654f" roughness={1}/>
+      <planeGeometry args={[.42,roadLength]}/><meshStandardMaterial color="#6b654f" roughness={1}/>
     </mesh>
     <mesh receiveShadow position={[-16,-.03,-1.0]} rotation={[-Math.PI/2,0,0]}>
-      <planeGeometry args={[24,70]}/><meshStandardMaterial map={grass} color="#59634f" roughness={1}/>
+      <planeGeometry args={[24,technical?520:70]}/><meshStandardMaterial map={grass} color="#59634f" roughness={1}/>
     </mesh>
     <Kerb/><Rail/>
     <group>
@@ -174,6 +179,19 @@ function TrackEnvironment({asphalt,grass,mode}:{asphalt:THREE.Texture;grass:THRE
     </group>
   </>;
 }
+
+// Economical shared world for the orthographic engineering film. It deliberately
+// omits PMREM, fog and shadow maps; the film supplies its own stable lighting and
+// contact stamp while retaining the approved track geometry and textures.
+export const TechnicalTrackWorld:React.FC<{groundY?:number}>=({groundY=-.018})=>{
+  const asphalt=useMemo(()=>makeNoiseTexture('asphalt'),[]);
+  const grass=useMemo(()=>makeNoiseTexture('grass'),[]);
+  useMemo(()=>{asphalt.repeat.set(193,233);grass.repeat.set(7,333);},[asphalt,grass]);
+  useEffect(()=>()=>{asphalt.dispose();grass.dispose();},[asphalt,grass]);
+  return <group position={[-1,groundY,0]} rotation={[0,Math.PI,0]}>
+    <TrackEnvironment asphalt={asphalt} grass={grass} mode="technical"/>
+  </group>;
+};
 
 const cameraFor=(mode:TrackMode,frame:number)=>{
   if(mode==='landscape'){
