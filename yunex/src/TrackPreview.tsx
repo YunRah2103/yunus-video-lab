@@ -93,21 +93,21 @@ function Kerb(){
   </group>;
 }
 
-const Shrub:React.FC<{item:ReturnType<typeof makeLayout>['shrubs'][number]}> = ({item}) =>
+const Shrub:React.FC<{item:ReturnType<typeof makeLayout>['shrubs'][number];motionLite:boolean}> = ({item,motionLite}) =>
   <group position={[item.x,.05,item.z]} rotation={[0,item.yaw,0]} scale={item.scale}>
     {[
       [-.38,.34,.02,.72,.55,.62],
       [.24,.38,-.08,.78,.64,.68],
       [.02,.52,.24,.62,.66,.58],
-    ].map((v,i)=><mesh key={i} castShadow receiveShadow position={[v[0],v[1],v[2]]} scale={[v[3],v[4],v[5]]}>
-      <sphereGeometry args={[.72,10,7]}/>
+    ].map((v,i)=><mesh key={i} castShadow={!motionLite} receiveShadow={!motionLite} position={[v[0],v[1],v[2]]} scale={[v[3],v[4],v[5]]}>
+      <sphereGeometry args={[.72,motionLite?8:10,motionLite?6:7]}/>
       <meshStandardMaterial color={item.color} roughness={.97} metalness={0} flatShading/>
     </mesh>)}
   </group>;
 
-const Tree:React.FC<{item:ReturnType<typeof makeLayout>['trees'][number]}> = ({item}) =>
+const Tree:React.FC<{item:ReturnType<typeof makeLayout>['trees'][number];motionLite:boolean}> = ({item,motionLite}) =>
   <group position={[item.x,.02,item.z]} rotation={[0,item.yaw,0]} scale={item.scale}>
-    <mesh castShadow position={[0,.72,0]}>
+    <mesh castShadow={!motionLite} position={[0,.72,0]}>
       <cylinderGeometry args={[.09,.14,1.45,8]}/>
       <meshStandardMaterial color="#554a38" roughness={.92}/>
     </mesh>
@@ -116,14 +116,15 @@ const Tree:React.FC<{item:ReturnType<typeof makeLayout>['trees'][number]}> = ({i
       [.42,1.62,-.08,.72,.78,.72],
       [-.48,1.72,.06,.68,.72,.68],
       [.08,2.05,.03,.78,.72,.76],
-    ].map((v,i)=><mesh key={i} castShadow receiveShadow position={[v[0],v[1],v[2]]} scale={[v[3],v[4],v[5]]}>
-      <icosahedronGeometry args={[.82,2]}/>
+    ].map((v,i)=><mesh key={i} castShadow={!motionLite} receiveShadow={!motionLite} position={[v[0],v[1],v[2]]} scale={[v[3],v[4],v[5]]}>
+      <icosahedronGeometry args={[.82,motionLite?1:2]}/>
       <meshStandardMaterial color={item.color} roughness={.98} metalness={0} flatShading/>
     </mesh>)}
   </group>;
 
-function TrackEnvironment({asphalt,grass}:{asphalt:THREE.Texture;grass:THREE.Texture}){
+function TrackEnvironment({asphalt,grass,mode}:{asphalt:THREE.Texture;grass:THREE.Texture;mode:TrackMode}){
   const layout=useMemo(makeLayout,[]);
+  const motionLite=mode==='motion';
   return <>
     <mesh receiveShadow position={[0,-.012,0]} rotation={[-Math.PI/2,0,0]}>
       <planeGeometry args={[24,26]}/><meshStandardMaterial map={asphalt} color="#565a5b" roughness={.94} metalness={.01}/>
@@ -139,8 +140,8 @@ function TrackEnvironment({asphalt,grass}:{asphalt:THREE.Texture;grass:THREE.Tex
     </mesh>
     <Kerb/><Rail/>
     <group>
-      {layout.shrubs.map((item,i)=><Shrub key={'s-'+i} item={item}/>)}
-      {layout.trees.map((item,i)=><Tree key={'t-'+i} item={item}/>)}
+      {layout.shrubs.map((item,i)=><Shrub key={'s-'+i} item={item} motionLite={motionLite}/>)}
+      {layout.trees.map((item,i)=><Tree key={'t-'+i} item={item} motionLite={motionLite}/>)}
     </group>
   </>;
 }
@@ -174,6 +175,8 @@ function TrackScene({mode}:{mode:TrackMode}){
   useLayoutEffect(()=>{
     gl.shadowMap.enabled=true;
     gl.shadowMap.type=THREE.PCFSoftShadowMap;
+    gl.shadowMap.autoUpdate=mode!=='motion';
+    gl.shadowMap.needsUpdate=true;
     gl.toneMapping=THREE.ACESFilmicToneMapping;
     gl.toneMappingExposure=.90;
     scene.background=sky;
@@ -181,8 +184,8 @@ function TrackScene({mode}:{mode:TrackMode}){
     const pmrem=new THREE.PMREMGenerator(gl);
     const env=pmrem.fromEquirectangular(sky);
     scene.environment=env.texture;
-    return()=>{scene.environment=null;scene.fog=null;env.dispose();pmrem.dispose();};
-  },[gl,scene,sky]);
+    return()=>{gl.shadowMap.autoUpdate=true;scene.environment=null;scene.fog=null;env.dispose();pmrem.dispose();};
+  },[gl,scene,sky,mode]);
 
   useLayoutEffect(()=>{
     const c=cameraFor(mode,frame);
@@ -219,11 +222,11 @@ function TrackScene({mode}:{mode:TrackMode}){
   return <>
     <hemisphereLight args={['#dce8ed','#303a2e',1.42]}/>
     <directionalLight castShadow position={[-4.5,7.5,5.5]} intensity={3.65} color="#ffe8ca"
-      shadow-mapSize-width={2048} shadow-mapSize-height={2048}
+      shadow-mapSize-width={mode==='motion'?1024:2048} shadow-mapSize-height={mode==='motion'?1024:2048}
       shadow-camera-left={-9} shadow-camera-right={9} shadow-camera-top={9} shadow-camera-bottom={-9}
       shadow-bias={-.00016} shadow-normalBias={.025}/>
     <directionalLight position={[5,3,-4]} intensity={1.05} color="#bfd4e8"/>
-    <group position={[0,groundY,0]}><TrackEnvironment asphalt={asphalt} grass={grass}/></group>
+    <group position={[0,groundY,0]}><TrackEnvironment asphalt={asphalt} grass={grass} mode={mode}/></group>
     {model&&<primitive object={model}/>}
   </>;
 }
