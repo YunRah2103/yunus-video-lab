@@ -11,7 +11,7 @@ on:
 jobs:
   render:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 12
     steps:
       - uses: actions/checkout@v4
 
@@ -34,9 +34,9 @@ jobs:
         working-directory: yunex
         run: |
           npx remotion render src/video002/c_flow_entry.tsx YUNEX-002-C-FLOW-PROOF c_flow_proof.mp4 --codec=h264 --crf=18 --gl=swangle --concurrency=2
-          npx remotion still src/video002/c_flow_entry.tsx YUNEX-002-C-FLOW-PROOF c_high_downforce.png --frame=30 --gl=swangle
-          npx remotion still src/video002/c_flow_entry.tsx YUNEX-002-C-FLOW-PROOF c_drs.png --frame=112 --gl=swangle
-          npx remotion still src/video002/c_flow_entry.tsx YUNEX-002-C-FLOW-PROOF c_airbrake.png --frame=187 --gl=swangle
+          npx remotion still src/video002/c_flow_entry.tsx YUNEX-002-C-FLOW-PROOF c_high_downforce.png --frame=18 --gl=swangle
+          npx remotion still src/video002/c_flow_entry.tsx YUNEX-002-C-FLOW-PROOF c_drs.png --frame=62 --gl=swangle
+          npx remotion still src/video002/c_flow_entry.tsx YUNEX-002-C-FLOW-PROOF c_airbrake.png --frame=102 --gl=swangle
 
       - name: Validate proof
         working-directory: yunex
