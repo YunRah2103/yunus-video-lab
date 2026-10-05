@@ -6,6 +6,7 @@ import {FinalFinish} from './FinalFinish';
 import {OrbitCutawayProof} from './OrbitCutawayProof';
 import {TrackFilmSegment,TrackMotionProof,TrackPortraitPreview,TrackPreview} from './TrackPreview';
 import {YunexV4,YunexV4Final} from './YunexV4';
+import {YunexV5,YunexV5Final} from './YunexV5';
 import {AssetPreview,CarPlate} from './Car';
 const RotationPlate=()=> <CarPlate view="top" width={1080} height={1100} zoom={180} ghost={.78} engine yaw={-useCurrentFrame()/51*.62}/>;
 const WheelMotionProof=()=> <ModelLedVideo frameOffset={396} includeAudio={false}/>;
@@ -13,6 +14,8 @@ const AeroMotionProof=()=> <ModelLedVideo frameOffset={549} includeAudio={false}
 const TrackFilmOpening=()=> <TrackFilmSegment variant="opening"/>;
 const TrackFilmFinal=()=> <TrackFilmSegment variant="final"/>;
 const Root=()=> <>
+ <Composition id="YUNEX-001-V5" component={YunexV5} width={1080} height={1920} fps={30} durationInFrames={828}/>
+ <Composition id="YUNEX-001-V5-FINAL" component={YunexV5Final} width={1080} height={1920} fps={30} durationInFrames={828}/>
  <Composition id="YUNEX-TRACK-FILM-OPENING" component={TrackFilmOpening} width={1080} height={1920} fps={30} durationInFrames={75}/>
  <Composition id="YUNEX-TRACK-FILM-FINAL" component={TrackFilmFinal} width={1080} height={1920} fps={30} durationInFrames={153}/>
  <Composition id="YUNEX-001-V4" component={YunexV4} width={1080} height={1920} fps={30} durationInFrames={828}/>
