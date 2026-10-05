@@ -1,0 +1,217 @@
+name: YUNEX track motion segmented final
+
+on:
+  push:
+    branches:
+      - sol/yunex-track-motion-final
+    paths:
+      - '.github/workflows/yunex-track-motion-segmented.yml'
+      - 'yunex/src/TrackPreview.tsx'
+      - 'yunex/src/index.tsx'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  render-segment:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - start: 0
+            end: 24
+          - start: 25
+            end: 49
+          - start: 50
+            end: 74
+    env:
+      EXPECTED_EXTERIOR_SHA256: 1c73fcb138c31e2b1d5ed126a2412074bb17f8e960b355436f28139bf518e1eb
+      EXPECTED_ENGINE_SHA256: aa05a760bcc778483c7684653f7200399d3eb540a36b1e7b0e4ec9248bc0841d
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+          cache-dependency-path: yunex/package-lock.json
+
+      - name: Install render dependencies
+        run: |
+          npm ci --prefix yunex --prefer-offline --no-audit --no-fund
+          if ! command -v ffmpeg >/dev/null 2>&1; then
+            sudo apt-get update
+            sudo apt-get install -y ffmpeg
+          fi
+
+      - name: Prepare and verify locked assets
+        run: |
+          mkdir -p yunex/public yunex/track-refinement
+          cp cars/porsche-911-gt3-rs-992/model.glb yunex/public/model.glb
+          printf '%s  %s\n' "$EXPECTED_EXTERIOR_SHA256" cars/porsche-911-gt3-rs-992/model.glb | sha256sum -c -
+          printf '%s  %s\n' "$EXPECTED_ENGINE_SHA256" cars/porsche-911-gt3-rs-992/engine/engine.glb | sha256sum -c -
+          sha256sum cars/porsche-911-gt3-rs-992/model.glb > /tmp/exterior-before.sha256
+          sha256sum cars/porsche-911-gt3-rs-992/engine/engine.glb > /tmp/engine-before.sha256
+
+      - name: Render native frame range
+        working-directory: yunex
+        env:
+          NODE_OPTIONS: --require=./fix-network.cjs
+        run: |
+          npx remotion render src/index.tsx YUNEX-TRACK-MOTION-PROOF \
+            track-refinement/segment_${{ matrix.start }}_${{ matrix.end }}.mp4 \
+            --frames=${{ matrix.start }}-${{ matrix.end }} \
+            --gl=swangle --concurrency=4 --codec=h264 --crf=17 --timeout=120000
+
+      - name: Verify segment and asset identity
+        run: |
+          ffmpeg -v error -i yunex/track-refinement/segment_${{ matrix.start }}_${{ matrix.end }}.mp4 -f null -
+          sha256sum cars/porsche-911-gt3-rs-992/model.glb > /tmp/exterior-after.sha256
+          sha256sum cars/porsche-911-gt3-rs-992/engine/engine.glb > /tmp/engine-after.sha256
+          diff -u /tmp/exterior-before.sha256 /tmp/exterior-after.sha256
+          diff -u /tmp/engine-before.sha256 /tmp/engine-after.sha256
+
+      - name: Upload segment
+        uses: actions/upload-artifact@v4
+        with:
+          name: motion-segment-${{ matrix.start }}-${{ matrix.end }}
+          path: yunex/track-refinement/segment_${{ matrix.start }}_${{ matrix.end }}.mp4
+          if-no-files-found: error
+          retention-days: 7
+
+  assemble:
+    needs: render-segment
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    env:
+      EXPECTED_EXTERIOR_SHA256: 1c73fcb138c31e2b1d5ed126a2412074bb17f8e960b355436f28139bf518e1eb
+      EXPECTED_ENGINE_SHA256: aa05a760bcc778483c7684653f7200399d3eb540a36b1e7b0e4ec9248bc0841d
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Ensure FFmpeg
+        run: |
+          if ! command -v ffmpeg >/dev/null 2>&1; then
+            sudo apt-get update
+            sudo apt-get install -y ffmpeg
+          fi
+
+      - name: Download rendered segments
+        uses: actions/download-artifact@v4
+        with:
+          pattern: motion-segment-*
+          path: segments
+          merge-multiple: true
+
+      - name: Assemble native proof and validate
+        run: |
+          mkdir -p yunex/track-refinement
+          printf "file '%s'\n" "$PWD/segments/segment_0_24.mp4" > /tmp/concat.txt
+          printf "file '%s'\n" "$PWD/segments/segment_25_49.mp4" >> /tmp/concat.txt
+          printf "file '%s'\n" "$PWD/segments/segment_50_74.mp4" >> /tmp/concat.txt
+
+          ffmpeg -y -f concat -safe 0 -i /tmp/concat.txt -c copy \
+            yunex/track-refinement/portrait_motion_proof.mp4
+
+          ffprobe -v error -count_frames -select_streams v:0 \
+            -show_entries stream=width,height,r_frame_rate,codec_name,pix_fmt,nb_read_frames \
+            -of json yunex/track-refinement/portrait_motion_proof.mp4 \
+            > yunex/track-refinement/motion_ffprobe.json
+
+          ffmpeg -v error -i yunex/track-refinement/portrait_motion_proof.mp4 -f null -
+
+          ffmpeg -y -i yunex/track-refinement/portrait_motion_proof.mp4 \
+            -vf "select='eq(n,0)'" -vsync 0 -frames:v 1 \
+            yunex/track-refinement/motion_frame_000.png >/dev/null 2>&1
+          ffmpeg -y -i yunex/track-refinement/portrait_motion_proof.mp4 \
+            -vf "select='eq(n,37)'" -vsync 0 -frames:v 1 \
+            yunex/track-refinement/motion_frame_mid.png >/dev/null 2>&1
+          ffmpeg -y -i yunex/track-refinement/portrait_motion_proof.mp4 \
+            -vf "select='eq(n,74)'" -vsync 0 -frames:v 1 \
+            yunex/track-refinement/motion_frame_end.png >/dev/null 2>&1
+
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          s=json.loads(Path("yunex/track-refinement/motion_ffprobe.json").read_text())["streams"][0]
+          assert (s["width"], s["height"]) == (1080, 1920), s
+          assert s["r_frame_rate"] == "30/1", s
+          assert int(s["nb_read_frames"]) == 75, s
+          PY
+
+      - name: Verify locked asset hashes
+        run: |
+          printf '%s  %s\n' "$EXPECTED_EXTERIOR_SHA256" cars/porsche-911-gt3-rs-992/model.glb | sha256sum -c -
+          printf '%s  %s\n' "$EXPECTED_ENGINE_SHA256" cars/porsche-911-gt3-rs-992/engine/engine.glb | sha256sum -c -
+
+      - name: Write technical QA record
+        run: |
+          MOTION_BYTES=$(stat -c%s yunex/track-refinement/portrait_motion_proof.mp4)
+          cat > yunex/track-refinement/MOTION_QA.md <<EOF
+          # YUNEX track motion proof QA
+
+          Source commit: $GITHUB_SHA
+
+          ## Render
+          Native frame-driven Remotion proof rendered as three frame ranges and concatenated without re-encoding:
+          - frames 0-24
+          - frames 25-49
+          - frames 50-74
+          - each range command used `--gl=swangle --concurrency=4 --codec=h264 --crf=17 --timeout=120000`
+          - final dimensions: 1080 x 1920
+          - final frame rate: 30/1
+          - final frame count: 75
+          - final codec: H.264
+          - final bytes: $MOTION_BYTES
+          - full FFmpeg decode: PASS
+
+          ## Locked assets
+          - Exterior SHA-256: $EXPECTED_EXTERIOR_SHA256
+          - Engine SHA-256: $EXPECTED_ENGINE_SHA256
+          - Hash verification before/after segment rendering: PASS
+
+          ## Inspection frames
+          - motion_frame_000.png: frame 0
+          - motion_frame_mid.png: frame 37
+          - motion_frame_end.png: frame 74
+
+          ## Visual inspection
+          Pending agent inspection of the generated proof bundle.
+
+          ## Corrective pass
+          Pending agent decision after visual inspection.
+          EOF
+
+      - name: Upload inspection bundle before push
+        uses: actions/upload-artifact@v4
+        with:
+          name: yunex-track-motion-final-inspection
+          path: |
+            yunex/track-refinement/portrait_motion_proof.mp4
+            yunex/track-refinement/motion_ffprobe.json
+            yunex/track-refinement/motion_frame_000.png
+            yunex/track-refinement/motion_frame_mid.png
+            yunex/track-refinement/motion_frame_end.png
+            yunex/track-refinement/MOTION_QA.md
+          if-no-files-found: error
+          retention-days: 7
+
+      - name: Commit Agent B motion outputs
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -f yunex/track-refinement/portrait_motion_proof.mp4
+          git add yunex/track-refinement/motion_ffprobe.json
+          git add yunex/track-refinement/motion_frame_000.png
+          git add yunex/track-refinement/motion_frame_mid.png
+          git add yunex/track-refinement/motion_frame_end.png
+          git add yunex/track-refinement/MOTION_QA.md
+          git diff --cached --quiet || git commit -m "YUNEX track motion: segmented native proof [skip ci]"
+          git push origin HEAD:sol/yunex-track-motion-final
