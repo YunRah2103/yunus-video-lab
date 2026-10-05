@@ -1,0 +1,22 @@
+{
+  "source": {
+    "name": "openai-fm-alloy-audio.mp3",
+    "duration_seconds": 27.0,
+    "size_bytes": 432000,
+    "sha256": "899514c1a72080d87b76a5155841cb727b43644d6c636aa16f8eb28c83f60171",
+    "sample_rate_hz": 24000,
+    "channels": 1
+  },
+  "transcript_status": "unverified_no_local_asr",
+  "transcript_note": "Agent D did not invent a transcript. No Whisper/Vosk/faster-whisper model was available locally. Phrase slots are waveform-derived voiced regions, not claimed words.",
+  "silence_detection": {"threshold_db": -38, "minimum_duration_seconds": 0.12, "maximum_kept_pause_seconds": 0.26},
+  "edited": {
+    "duration_seconds": 25.019792,
+    "sha256": "c023dd93a3dda53015107c0c670c046b1a6ce19db4785b23557394443a340d39",
+    "operation": "Only detected silent intervals longer than 0.26 s were shortened to 0.26 s. Speech samples, pitch and word order were not time-stretched or synthesized."
+  },
+  "detected_silences_source_seconds": [
+    [0.917667,1.190167],[2.335208,2.969958],[5.397583,5.636125],[8.435917,8.981542],[9.65325,10.067417],[13.840875,14.365375],[15.171708,15.498083],[18.154917,18.679542],[19.873,20.196625],[21.795667,22.463583],[25.504958,25.851083],[26.803208,27.0]
+  ],
+  "integration_requirement": "Manager/Astra should listen to the supplied VO and verify spoken words/order before final full render if transcript-level QA is required."
+}
