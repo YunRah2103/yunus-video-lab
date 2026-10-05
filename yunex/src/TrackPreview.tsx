@@ -5,7 +5,7 @@ import {AbsoluteFill,cancelRender,continueRender,delayRender,interpolate,staticF
 import * as THREE from 'three';
 import {GLTFLoader} from 'three/examples/jsm/loaders/GLTFLoader.js';
 
-type TrackMode='landscape'|'portrait'|'motion';
+type TrackMode='landscape'|'portrait'|'motion'|'film-opening'|'film-final';
 
 const makeNoiseTexture=(kind:'asphalt'|'grass')=>{
   const size=384,data=new Uint8Array(size*size*4);
@@ -28,7 +28,7 @@ const makeNoiseTexture=(kind:'asphalt'|'grass')=>{
   }
   const texture=new THREE.DataTexture(data,size,size,THREE.RGBAFormat);
   texture.wrapS=texture.wrapT=THREE.RepeatWrapping;
-  texture.repeat.set(kind==='asphalt'?9:7,kind==='asphalt'?12:18);
+  texture.repeat.set(kind==='asphalt'?17:7,kind==='asphalt'?28:40);
   texture.colorSpace=THREE.SRGBColorSpace;
   texture.needsUpdate=true;
   return texture;
@@ -153,19 +153,19 @@ const Tree:React.FC<{item:ReturnType<typeof makeLayout>['trees'][number];motionL
 
 function TrackEnvironment({asphalt,grass,mode}:{asphalt:THREE.Texture;grass:THREE.Texture;mode:TrackMode}){
   const layout=useMemo(makeLayout,[]);
-  const motionLite=mode==='motion';
+  const motionLite=mode==='motion'||mode==='film-opening'||mode==='film-final';
   return <>
     <mesh receiveShadow position={[0,-.012,0]} rotation={[-Math.PI/2,0,0]}>
-      <planeGeometry args={[24,26]}/><meshStandardMaterial map={asphalt} color="#565a5b" roughness={.94} metalness={.01}/>
+      <planeGeometry args={[44,60]}/><meshStandardMaterial map={asphalt} color="#565a5b" roughness={.94} metalness={.01}/>
     </mesh>
     <mesh receiveShadow position={[-7.15,-.001,0]} rotation={[-Math.PI/2,0,0]}>
-      <planeGeometry args={[7.05,26]}/><meshStandardMaterial map={grass} color="#69705b" roughness={1}/>
+      <planeGeometry args={[7.05,60]}/><meshStandardMaterial map={grass} color="#69705b" roughness={1}/>
     </mesh>
     <mesh receiveShadow position={[-3.63,.005,0]} rotation={[-Math.PI/2,0,0]}>
-      <planeGeometry args={[.42,26]}/><meshStandardMaterial color="#6b654f" roughness={1}/>
+      <planeGeometry args={[.42,60]}/><meshStandardMaterial color="#6b654f" roughness={1}/>
     </mesh>
-    <mesh receiveShadow position={[-10.8,-.03,-1.0]} rotation={[-Math.PI/2,0,0]}>
-      <planeGeometry args={[9.5,34]}/><meshStandardMaterial map={grass} color="#59634f" roughness={1}/>
+    <mesh receiveShadow position={[-16,-.03,-1.0]} rotation={[-Math.PI/2,0,0]}>
+      <planeGeometry args={[24,70]}/><meshStandardMaterial map={grass} color="#59634f" roughness={1}/>
     </mesh>
     <Kerb/><Rail/>
     <group>
@@ -181,6 +181,16 @@ const cameraFor=(mode:TrackMode,frame:number)=>{
   }
   if(mode==='portrait'){
     return {position:new THREE.Vector3(2.20,1.45,5.85),target:new THREE.Vector3(-.05,.38,.18)};
+  }
+  if(mode==='film-opening'||mode==='film-final'){
+    const duration=mode==='film-opening'?74:152;
+    const target=new THREE.Vector3(mode==='film-opening'?-.15:-.05,.40,.18);
+    const position=mode==='film-opening'?new THREE.Vector3(2.0,2.6,5.6):new THREE.Vector3(1.6,4.0,5.5);
+    const orbit=interpolate(frame,[0,duration],mode==='film-opening'?[.045,-.045]:[-.04,.055],{extrapolateLeft:'clamp',extrapolateRight:'clamp'});
+    const offset=position.clone().sub(target).applyAxisAngle(new THREE.Vector3(0,1,0),orbit);
+    position.copy(target).add(offset);
+    position.y+=interpolate(frame,[0,duration],[.02,.09],{extrapolateLeft:'clamp',extrapolateRight:'clamp'});
+    return {position,target};
   }
   const target=new THREE.Vector3(-.05,.60,.18);
   const position=new THREE.Vector3(7.25,2.05,8.55);
@@ -207,7 +217,7 @@ function TrackScene({mode}:{mode:TrackMode}){
   useLayoutEffect(()=>{
     gl.shadowMap.enabled=true;
     gl.shadowMap.type=THREE.PCFSoftShadowMap;
-    gl.shadowMap.autoUpdate=mode!=='motion';
+    gl.shadowMap.autoUpdate=mode!=='motion'&&mode!=='film-opening'&&mode!=='film-final';
     gl.shadowMap.needsUpdate=true;
     gl.toneMapping=THREE.ACESFilmicToneMapping;
     gl.toneMappingExposure=.90;
@@ -255,7 +265,7 @@ function TrackScene({mode}:{mode:TrackMode}){
   return <>
     <hemisphereLight args={['#dce8ed','#303a2e',1.42]}/>
     <directionalLight castShadow position={[-4.5,7.5,5.5]} intensity={3.65} color="#ffe8ca"
-      shadow-mapSize-width={mode==='motion'?1024:2048} shadow-mapSize-height={mode==='motion'?1024:2048}
+      shadow-mapSize-width={mode==='landscape'||mode==='portrait'?2048:1024} shadow-mapSize-height={mode==='landscape'||mode==='portrait'?2048:1024}
       shadow-camera-left={-9} shadow-camera-right={9} shadow-camera-top={9} shadow-camera-bottom={-9}
       shadow-bias={-.00016} shadow-normalBias={.025}/>
     <directionalLight position={[5,3,-4]} intensity={1.05} color="#bfd4e8"/>
@@ -270,8 +280,8 @@ const TrackCanvas:React.FC<{mode:TrackMode;width:number;height:number}> = ({mode
       width={width}
       height={height}
       camera={{
-        position:mode==='landscape'?[3.35,1.50,4.25]:mode==='portrait'?[2.20,1.45,5.85]:[7.25,2.05,8.55],
-        fov:mode==='landscape'?36:mode==='portrait'?55:40,
+        position:mode==='landscape'?[3.35,1.50,4.25]:mode==='portrait'?[2.20,1.45,5.85]:mode==='film-opening'?[2.0,2.6,5.6]:mode==='film-final'?[1.6,4.0,5.5]:[7.25,2.05,8.55],
+        fov:mode==='landscape'?36:mode==='portrait'?55:mode==='film-opening'?54:mode==='film-final'?48:40,
         near:.1,
         far:100,
       }}
@@ -285,3 +295,4 @@ const TrackCanvas:React.FC<{mode:TrackMode;width:number;height:number}> = ({mode
 export const TrackPreview:React.FC=()=> <TrackCanvas mode="landscape" width={1600} height={1000}/>;
 export const TrackPortraitPreview:React.FC=()=> <TrackCanvas mode="portrait" width={1080} height={1920}/>;
 export const TrackMotionProof:React.FC=()=> <TrackCanvas mode="motion" width={1080} height={1920}/>;
+export const TrackFilmSegment:React.FC<{variant:'opening'|'final'}>=({variant})=> <TrackCanvas mode={variant==='opening'?'film-opening':'film-final'} width={1080} height={1920}/>;
