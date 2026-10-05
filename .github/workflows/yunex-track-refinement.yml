@@ -5,6 +5,7 @@ on:
     branches:
       - sol/yunex-track-static-final
     paths:
+      - 'yunex/src/TrackPreview.tsx'
       - '.github/workflows/yunex-track-refinement.yml'
   workflow_dispatch:
 
