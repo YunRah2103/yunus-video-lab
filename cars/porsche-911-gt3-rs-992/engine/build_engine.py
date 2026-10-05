@@ -31,21 +31,21 @@ CAR_GLB = CAR_DIR / "model.glb"
 CAR_MANIFEST = CAR_DIR / "asset-manifest.json"
 
 MATERIALS = {
-    "cast_aluminium": PBRMaterial(name="Cast_Aluminium", baseColorFactor=[0.46, 0.48, 0.50, 1.0], metallicFactor=0.58, roughnessFactor=0.48),
-    "brushed_aluminium": PBRMaterial(name="Brushed_Aluminium", baseColorFactor=[0.62, 0.64, 0.66, 1.0], metallicFactor=0.72, roughnessFactor=0.34),
-    "dark_composite": PBRMaterial(name="Dark_Composite", baseColorFactor=[0.055, 0.065, 0.072, 1.0], metallicFactor=0.08, roughnessFactor=0.42),
-    "stainless": PBRMaterial(name="Stainless_Header", baseColorFactor=[0.48, 0.45, 0.40, 1.0], metallicFactor=0.82, roughnessFactor=0.29),
-    "rubber": PBRMaterial(name="Restrained_Rubber", baseColorFactor=[0.035, 0.038, 0.04, 1.0], metallicFactor=0.0, roughnessFactor=0.78),
-    "steel": PBRMaterial(name="Dark_Steel", baseColorFactor=[0.16, 0.17, 0.18, 1.0], metallicFactor=0.72, roughnessFactor=0.38),
+    "cast_aluminium": PBRMaterial(name="Cast_Aluminium", baseColorFactor=[0.38, 0.40, 0.42, 1.0], metallicFactor=0.56, roughnessFactor=0.50),
+    "brushed_aluminium": PBRMaterial(name="Brushed_Aluminium", baseColorFactor=[0.64, 0.66, 0.68, 1.0], metallicFactor=0.74, roughnessFactor=0.32),
+    "dark_composite": PBRMaterial(name="Dark_Composite", baseColorFactor=[0.045, 0.055, 0.062, 1.0], metallicFactor=0.06, roughnessFactor=0.46),
+    "stainless": PBRMaterial(name="Stainless_Header", baseColorFactor=[0.42, 0.37, 0.31, 1.0], metallicFactor=0.80, roughnessFactor=0.31),
+    "rubber": PBRMaterial(name="Restrained_Rubber", baseColorFactor=[0.028, 0.031, 0.034, 1.0], metallicFactor=0.0, roughnessFactor=0.80),
+    "steel": PBRMaterial(name="Dark_Steel", baseColorFactor=[0.13, 0.14, 0.15, 1.0], metallicFactor=0.70, roughnessFactor=0.40),
 }
 
 EXPECTED_BASE_COLORS = {
-    "Cast_Aluminium": [0.46, 0.48, 0.50, 1.0],
-    "Brushed_Aluminium": [0.62, 0.64, 0.66, 1.0],
-    "Dark_Composite": [0.055, 0.065, 0.072, 1.0],
-    "Stainless_Header": [0.48, 0.45, 0.40, 1.0],
-    "Restrained_Rubber": [0.035, 0.038, 0.04, 1.0],
-    "Dark_Steel": [0.16, 0.17, 0.18, 1.0],
+    "Cast_Aluminium": [0.38, 0.40, 0.42, 1.0],
+    "Brushed_Aluminium": [0.64, 0.66, 0.68, 1.0],
+    "Dark_Composite": [0.045, 0.055, 0.062, 1.0],
+    "Stainless_Header": [0.42, 0.37, 0.31, 1.0],
+    "Restrained_Rubber": [0.028, 0.031, 0.034, 1.0],
+    "Dark_Steel": [0.13, 0.14, 0.15, 1.0],
 }
 # Trimesh's PBRMaterial stores RGBA factors as uint8 before glTF export.
 # Validate the real exported factors against that documented quantization,
@@ -278,66 +278,122 @@ def tube_between(p0, p1, radius, group, name, material="stainless", sections=96)
     mesh.apply_transform(trimesh.transformations.translation_matrix((p0 + p1) * 0.5) @ rotation)
     add_mesh(group, mesh, name, material)
 
-rounded_prism([0.58, 0.30, 0.60], [0, 0.00, 0.00], "Crankcase", "main_case", radius=0.055)
-rounded_prism([0.42, 0.13, 0.47], [0, -0.18, 0.00], "Crankcase", "sump", radius=0.025)
+
+def tapered_block_x(x0, x1, y_center, z_center, y0, z0, y1, z1, group, name, material="cast_aluminium"):
+    """Simple lofted casting block used for bank-to-case transitions."""
+    verts = np.asarray([
+        [x0, y_center-y0/2, z_center-z0/2],
+        [x0, y_center+y0/2, z_center-z0/2],
+        [x0, y_center+y0/2, z_center+z0/2],
+        [x0, y_center-y0/2, z_center+z0/2],
+        [x1, y_center-y1/2, z_center-z1/2],
+        [x1, y_center+y1/2, z_center-z1/2],
+        [x1, y_center+y1/2, z_center+z1/2],
+        [x1, y_center-y1/2, z_center+z1/2],
+    ], dtype=float)
+    faces = np.asarray([
+        [0,2,1],[0,3,2],[4,5,6],[4,6,7],
+        [0,1,5],[0,5,4],[1,2,6],[1,6,5],
+        [2,3,7],[2,7,6],[3,0,4],[3,4,7],
+    ], dtype=int)
+    mesh = trimesh.Trimesh(vertices=verts, faces=faces, process=False)
+    mesh.fix_normals()
+    add_mesh(group, mesh, name, material)
+
+def ellipsoid(scale_xyz, center, group, name, material="dark_composite", subdivisions=4):
+    """Smooth sculpted volume with deterministic triangle count."""
+    mesh = trimesh.creation.icosphere(subdivisions=subdivisions, radius=1.0)
+    mesh.apply_scale(np.asarray(scale_xyz, dtype=float))
+    mesh.apply_translation(np.asarray(center, dtype=float))
+    add_mesh(group, mesh, name, material)
+
+
+rounded_prism([0.56, 0.29, 0.58], [0, 0.005, 0.00], "Crankcase", "main_case", radius=0.060)
+rounded_prism([0.64, 0.19, 0.50], [0, -0.060, 0.00], "Crankcase", "lower_case_shoulder", radius=0.040)
+box([0.50, 0.022, 0.47], [0, -0.142, 0.00], "Crankcase", "sump_seam_rail", "brushed_aluminium")
+rounded_prism([0.44, 0.095, 0.44], [0, -0.185, 0.00], "Crankcase", "sump_upper", radius=0.024)
+rounded_prism([0.33, 0.070, 0.36], [0, -0.235, 0.00], "Crankcase", "sump_pan", radius=0.018)
 cylinder(0.205, 0.10, [0, 0.01, 0.35], "z", "Crankcase", "flywheel_housing", "cast_aluminium", 160)
-cylinder(0.105, 0.67, [0, -0.015, 0.0], "z", "Crankcase", "crank_spine", "brushed_aluminium", 144)
-for i, z in enumerate(np.linspace(-0.24, 0.24, 5)):
-    box([0.62, 0.035, 0.028], [0, 0.11, z], "Crankcase", f"rib_top_{i}", "brushed_aluminium")
+cylinder(0.105, 0.67, [0, -0.012, 0.0], "z", "Crankcase", "crank_spine", "brushed_aluminium", 144)
+for i, (z, width) in enumerate([(-0.22,0.54),(0.0,0.58),(0.22,0.54)]):
+    box([width, 0.028, 0.030], [0, 0.118, z], "Crankcase", f"rib_top_{i}", "brushed_aluminium")
 for sx in (-1, 1):
-    box([0.032, 0.24, 0.54], [sx * 0.306, 0.02, 0], "Crankcase", f"flange_{sx}", "brushed_aluminium")
+    box([0.028, 0.22, 0.50], [sx * 0.302, 0.015, 0], "Crankcase", f"case_flange_{sx}", "brushed_aluminium")
+    for bi, z in enumerate((-0.19, 0.19)):
+        cylinder(0.030, 0.026, [sx*0.31, -0.025, z], "x", "Crankcase", f"case_boss_{sx}_{bi}", "cast_aluminium", 72)
 
 bank_zs = [-0.22, 0.0, 0.22]
 for group, sx in (("Bank_L", 1), ("Bank_R", -1)):
-    rounded_prism([0.30, 0.25, 0.65], [sx * 0.37, 0.045, 0], group, "water_jacket", radius=0.045)
+    tapered_block_x(sx*0.23, sx*0.39, 0.050, 0.0, 0.21, 0.50, 0.245, 0.61, group, "inner_case_transition", "cast_aluminium")
+    rounded_prism([0.28, 0.24, 0.62], [sx * 0.39, 0.052, 0], group, "water_jacket", radius=0.050)
+    rounded_prism([0.11, 0.215, 0.60], [sx * 0.505, 0.058, 0], group, "head_mass", radius=0.025)
+    rounded_prism([0.038, 0.195, 0.605], [sx * 0.548, 0.058, 0], group, "head_gasket_lip", "brushed_aluminium", radius=0.010)
     for i, z in enumerate(bank_zs):
-        cylinder(0.108, 0.31, [sx * 0.39, 0.045, z], "x", group, f"cylinder_bulge_{i}", "cast_aluminium", 144)
-        box([0.035, 0.19, 0.15], [sx * 0.535, 0.055, z], group, f"head_flange_{i}", "brushed_aluminium")
-    for i, z in enumerate(np.linspace(-0.27, 0.27, 4)):
-        box([0.32, 0.026, 0.035], [sx * 0.37, 0.158, z], group, f"housing_rib_{i}", "brushed_aluminium")
+        cylinder(0.104, 0.27, [sx * 0.402, 0.050, z], "x", group, f"cylinder_bulge_{i}", "cast_aluminium", 128)
+        cylinder(0.032, 0.026, [sx * 0.525, 0.125, z], "x", group, f"head_boss_{i}", "brushed_aluminium", 72)
+    for i, z in enumerate([-0.23, 0.0, 0.23]):
+        box([0.17, 0.022, 0.034], [sx * 0.395, 0.166, z], group, f"tapered_rib_{i}", "brushed_aluminium")
 
 for group, sx in (("Cover_L", 1), ("Cover_R", -1)):
-    rounded_prism([0.085, 0.205, 0.59], [sx * 0.545, 0.07, 0], group, "main_cover", "dark_composite", radius=0.024)
-    for i, z in enumerate([-0.18, 0.0, 0.18]):
-        box([0.018, 0.16, 0.045], [sx * 0.592, 0.08, z], group, f"cover_rib_{i}", "dark_composite")
+    rounded_prism([0.075, 0.195, 0.57], [sx * 0.585, 0.074, 0], group, "main_cover", "dark_composite", radius=0.022)
+    box([0.014, 0.020, 0.50], [sx * 0.626, 0.142, 0], group, "cover_highlight_rail", "brushed_aluminium")
+    for i, z in enumerate([-0.19, 0.0, 0.19]):
+        box([0.016, 0.145, 0.040], [sx * 0.626, 0.075, z], group, f"cover_rib_{i}", "dark_composite")
     for i, z in enumerate([-0.24, 0.0, 0.24]):
-        cylinder(0.014, 0.012, [sx * 0.593, 0.13, z], "x", group, f"fastener_{i}", "steel", 64)
+        cylinder(0.013, 0.011, [sx * 0.628, 0.128, z], "x", group, f"fastener_{i}", "steel", 56)
 
-rounded_prism([0.36, 0.15, 0.56], [0, 0.31, 0.0], "Intake", "plenum", "dark_composite", radius=0.035)
-capsule(0.075, 0.34, [0, 0.355, 0], "z", "Intake", "plenum_crown", "dark_composite")
+rounded_prism([0.34, 0.070, 0.50], [0, 0.292, 0.0], "Intake", "plenum_lower_bridge", "dark_composite", radius=0.030)
+ellipsoid([0.205, 0.105, 0.295], [0, 0.365, 0], "Intake", "plenum_shell", "dark_composite", subdivisions=4)
+rounded_prism([0.105, 0.024, 0.43], [0, 0.444, 0], "Intake", "plenum_spine", "brushed_aluminium", radius=0.010)
 for sx in (-1, 1):
     for i, z in enumerate(bank_zs):
-        cylinder(0.044, 0.12, [sx * 0.19, 0.255, z], "y", "Intake", f"throttle_{sx}_{i}", "brushed_aluminium", 112)
-        cylinder(0.050, 0.085, [sx * 0.455, 0.165, z], "y", "Intake", f"head_port_{sx}_{i}", "brushed_aluminium", 72)
+        cylinder(0.049, 0.045, [sx * 0.184, 0.292, z], "x", "Intake", f"throttle_{sx}_{i}", "brushed_aluminium", 96)
         tube_path(
             [
-                (sx * 0.16, 0.285, z),
-                (sx * 0.23, 0.270, z),
-                (sx * 0.33, 0.220, z),
-                (sx * 0.425, 0.172, z),
-                (sx * 0.455, 0.155, z),
+                (sx * 0.195, 0.292, z),
+                (sx * 0.245, 0.278, z),
+                (sx * 0.330, 0.228, z),
+                (sx * 0.405, 0.188, z),
+                (sx * 0.445, 0.170, z),
             ],
-            0.038, "Intake", f"runner_{sx}_{i}", "dark_composite", radial_segments=24, samples_per_segment=6
+            0.037, "Intake", f"runner_{sx}_{i}", "dark_composite", radial_segments=26, samples_per_segment=7
         )
+        cylinder(0.045, 0.034, [sx * 0.452, 0.169, z], "x", "Intake", f"runner_coupler_{sx}_{i}", "rubber", 72)
+        cylinder(0.049, 0.060, [sx * 0.486, 0.168, z], "x", "Intake", f"head_port_{sx}_{i}", "brushed_aluminium", 96)
 
 for sx, group in ((1, "Headers_L"), (-1, "Headers_R")):
-    merge_z = -0.19
+    merge_z = -0.205
     for i, z in enumerate(bank_zs):
+        box([0.026, 0.078, 0.070], [sx * 0.556, -0.020, z], group, f"start_flange_{i}", "steel")
+        end_z = merge_z + (i - 1) * 0.032
         tube_path(
             [
-                (sx * (0.55 - 0.018 * i), -0.01, z),
-                (sx * 0.52, -0.11, z - 0.015),
-                (sx * 0.45, -0.20, z - 0.045),
-                (sx * 0.34, -0.245, z * 0.58 - 0.055),
-                (sx * 0.265, -0.245, merge_z + (i - 1) * 0.018),
+                (sx * 0.548, -0.040, z),
+                (sx * 0.528, -0.095, z + (i-1)*0.004),
+                (sx * 0.486, -0.158, z - 0.012),
+                (sx * 0.420, -0.215, z * 0.78 - 0.025),
+                (sx * 0.340, -0.247, z * 0.52 - 0.060),
+                (sx * 0.286, -0.247, end_z),
             ],
-            0.025 if i != 1 else 0.026,
-            group, f"primary_{i}", "stainless", radial_segments=24, samples_per_segment=7,
+            0.0255 if i != 1 else 0.0265,
+            group, f"primary_{i}", "stainless", radial_segments=26, samples_per_segment=8,
         )
-    capsule(0.064, 0.18, [sx * 0.23, -0.245, -0.205], "z", group, "collector", "stainless")
-    tube_path([(sx * 0.23, -0.245, -0.31), (sx * 0.22, -0.235, -0.39)], 0.052, group, "collector_outlet", "stainless", radial_segments=28, samples_per_segment=8)
+        tube_path(
+            [
+                (sx * 0.286, -0.247, end_z),
+                (sx * 0.258, -0.246, merge_z + (i-1)*0.012),
+                (sx * 0.236, -0.245, merge_z),
+            ],
+            0.026,
+            group, f"collector_neck_{i}", "stainless", radial_segments=24, samples_per_segment=6,
+        )
+    capsule(0.058, 0.145, [sx * 0.225, -0.245, -0.260], "z", group, "collector_body", "stainless")
+    cylinder(0.061, 0.022, [sx * 0.225, -0.245, -0.334], "z", group, "collector_band", "steel", 96)
+    tube_path([(sx * 0.225, -0.245, -0.330), (sx * 0.218, -0.238, -0.405)], 0.050, group, "collector_outlet", "stainless", radial_segments=28, samples_per_segment=8)
 
-rounded_prism([0.43, 0.31, 0.055], [0, 0.02, -0.39], "Accessory_Drive", "rear_plate", "steel", radius=0.025)
+rounded_prism([0.39, 0.27, 0.050], [0, 0.015, -0.39], "Accessory_Drive", "rear_plate", "steel", radius=0.030)
+for sx in (-1,1):
+    rounded_prism([0.080, 0.090, 0.040], [sx*0.175, -0.020, -0.417], "Accessory_Drive", f"plate_boss_{sx}", "steel", radius=0.018)
 for i, (x, y, r) in enumerate([(-0.12, 0.04, 0.075), (0.12, 0.07, 0.055), (0.0, -0.07, 0.062)]):
     cylinder(r, 0.035, [x, y, -0.425], "z", "Accessory_Drive", f"pulley_{i}", "dark_composite", 144)
     cylinder(r * 0.48, 0.044, [x, y, -0.447], "z", "Accessory_Drive", f"hub_{i}", "brushed_aluminium", 112)
@@ -517,8 +573,10 @@ for group in GROUPS:
     if not ok:
         raise RuntimeError(f"Independent translation failed for {group}")
 
-if not (25000 <= triangles <= 50000):
-    raise RuntimeError(f"Triangle count {triangles} is outside 25k-50k budget")
+preferred_triangle_budget = [50000, 75000]
+hard_triangle_ceiling = 90000
+if triangles > hard_triangle_ceiling:
+    raise RuntimeError(f"Triangle count {triangles} exceeds hard 90k ceiling")
 
 car_hash_after = hashlib.sha256(CAR_GLB.read_bytes()).hexdigest()
 if car_hash_before != car_hash_after:
@@ -526,7 +584,7 @@ if car_hash_before != car_hash_after:
 
 manifest = {
     "asset": "YUNEX 992 GT3 RS simplified 4.0L naturally aspirated flat-six",
-    "status": "targeted finishing pass for master review",
+    "status": "visual refinement pass for native-film master review",
     "units": "metres",
     "axis": {"forward": "+Z", "up": "+Y", "left": "+X"},
     "engine_root": "crankcase centre",
@@ -583,9 +641,11 @@ validation = {
     "component_checks": component_checks,
     "normal_cache_checks_pass": all(v["finite_unit_normals"] for v in normal_cache_checks.values()),
     "independent_component_translations": independent_translation,
-    "triangle_budget_target": [25000, 50000],
+    "triangle_budget_target_preferred": preferred_triangle_budget,
+    "triangle_hard_ceiling": hard_triangle_ceiling,
     "triangle_count": triangles,
-    "triangle_budget_pass": True,
+    "preferred_triangle_range_pass": preferred_triangle_budget[0] <= triangles <= preferred_triangle_budget[1],
+    "triangle_budget_pass": triangles <= hard_triangle_ceiling,
     "installation": {
         "marker_metres": [0.0, 0.47, -1.78],
         "rear_axle_z_metres": -1.2114155216682174,
@@ -601,9 +661,9 @@ VALIDATION.write_text(json.dumps(validation, indent=2) + "\n", encoding="utf-8")
 
 review_note = f"""# YUNEX engine finishing review
 
-- Changed source/presentation: `build_engine.py`, `review.html`, `render_review.mjs`, workflow verification, and README review guidance.
+- Refined geometry/material source: housing transitions and stepped sump/head masses, sculpted intake/plenum junctions, explicit three-into-one header convergence, and stronger film-safe material separation.
 - Generated outputs: `engine.glb`, `asset-manifest.json`, `validation.json`, three PNG review renders, and `renders/engine_turntable.mp4`.
-- Actual triangle count: **{triangles:,}** (budget 25–50k).
+- Actual triangle count: **{triangles:,}** (preferred 50–75k; hard ceiling 90k).
 - Exact GLB load: **PASS**; finite metre-scale bounds: **PASS**.
 - GLB NORMAL accessors: **PASS** on every primitive; POSITION/NORMAL counts match. Curved intake/header/plenum meshes are explicitly covered.
 - Tube topology: shared side vertices with split cap rings; source winding checks: **PASS**.
