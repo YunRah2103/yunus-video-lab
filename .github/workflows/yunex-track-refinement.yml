@@ -86,6 +86,13 @@ jobs:
           assert (pc["width"], pc["height"]) == (2160, 1920), pc
           PY
 
+      - name: Build compact private review previews
+        run: |
+          ffmpeg -y -i yunex/track-refinement/visual-polish/landscape_comparison.png -vf "scale=1200:-2" -q:v 3 /tmp/landscape_comparison_review.jpg >/dev/null 2>&1
+          ffmpeg -y -i yunex/track-refinement/visual-polish/portrait_comparison.png -vf "scale=900:-2" -q:v 3 /tmp/portrait_comparison_review.jpg >/dev/null 2>&1
+          base64 -w0 /tmp/landscape_comparison_review.jpg > yunex/track-refinement/visual-polish/landscape_comparison_review.jpg.b64
+          base64 -w0 /tmp/portrait_comparison_review.jpg > yunex/track-refinement/visual-polish/portrait_comparison_review.jpg.b64
+
       - name: Verify locked assets remained byte-identical
         run: |
           sha256sum cars/porsche-911-gt3-rs-992/model.glb > /tmp/exterior-after.sha256
@@ -105,6 +112,8 @@ jobs:
           git add -f yunex/track-refinement/visual-polish/portrait_comparison.png
           git add -f yunex/track-refinement/visual-polish/landscape_polished_ffprobe.json
           git add -f yunex/track-refinement/visual-polish/portrait_polished_ffprobe.json
+          git add -f yunex/track-refinement/visual-polish/landscape_comparison_review.jpg.b64
+          git add -f yunex/track-refinement/visual-polish/portrait_comparison_review.jpg.b64
           git diff --cached --quiet || git commit -m "YUNEX track visual polish: render review bundle [skip ci]"
           git push origin HEAD:sol/yunex-track-visual-polish
 
