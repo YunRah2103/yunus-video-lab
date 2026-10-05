@@ -31,19 +31,19 @@ CAR_GLB = CAR_DIR / "model.glb"
 CAR_MANIFEST = CAR_DIR / "asset-manifest.json"
 
 MATERIALS = {
-    "cast_aluminium": PBRMaterial(name="Cast_Aluminium", baseColorFactor=[0.38, 0.40, 0.42, 1.0], metallicFactor=0.56, roughnessFactor=0.50),
-    "brushed_aluminium": PBRMaterial(name="Brushed_Aluminium", baseColorFactor=[0.64, 0.66, 0.68, 1.0], metallicFactor=0.74, roughnessFactor=0.32),
-    "dark_composite": PBRMaterial(name="Dark_Composite", baseColorFactor=[0.045, 0.055, 0.062, 1.0], metallicFactor=0.06, roughnessFactor=0.46),
-    "stainless": PBRMaterial(name="Stainless_Header", baseColorFactor=[0.42, 0.37, 0.31, 1.0], metallicFactor=0.80, roughnessFactor=0.31),
+    "cast_aluminium": PBRMaterial(name="Cast_Aluminium", baseColorFactor=[0.29, 0.31, 0.33, 1.0], metallicFactor=0.52, roughnessFactor=0.54),
+    "brushed_aluminium": PBRMaterial(name="Brushed_Aluminium", baseColorFactor=[0.49, 0.51, 0.53, 1.0], metallicFactor=0.70, roughnessFactor=0.36),
+    "dark_composite": PBRMaterial(name="Dark_Composite", baseColorFactor=[0.038, 0.046, 0.052, 1.0], metallicFactor=0.05, roughnessFactor=0.48),
+    "stainless": PBRMaterial(name="Stainless_Header", baseColorFactor=[0.34, 0.29, 0.24, 1.0], metallicFactor=0.78, roughnessFactor=0.34),
     "rubber": PBRMaterial(name="Restrained_Rubber", baseColorFactor=[0.028, 0.031, 0.034, 1.0], metallicFactor=0.0, roughnessFactor=0.80),
     "steel": PBRMaterial(name="Dark_Steel", baseColorFactor=[0.13, 0.14, 0.15, 1.0], metallicFactor=0.70, roughnessFactor=0.40),
 }
 
 EXPECTED_BASE_COLORS = {
-    "Cast_Aluminium": [0.38, 0.40, 0.42, 1.0],
-    "Brushed_Aluminium": [0.64, 0.66, 0.68, 1.0],
-    "Dark_Composite": [0.045, 0.055, 0.062, 1.0],
-    "Stainless_Header": [0.42, 0.37, 0.31, 1.0],
+    "Cast_Aluminium": [0.29, 0.31, 0.33, 1.0],
+    "Brushed_Aluminium": [0.49, 0.51, 0.53, 1.0],
+    "Dark_Composite": [0.038, 0.046, 0.052, 1.0],
+    "Stainless_Header": [0.34, 0.29, 0.24, 1.0],
     "Restrained_Rubber": [0.028, 0.031, 0.034, 1.0],
     "Dark_Steel": [0.13, 0.14, 0.15, 1.0],
 }
@@ -343,8 +343,9 @@ for group, sx in (("Cover_L", 1), ("Cover_R", -1)):
         cylinder(0.013, 0.011, [sx * 0.628, 0.128, z], "x", group, f"fastener_{i}", "steel", 56)
 
 rounded_prism([0.34, 0.070, 0.50], [0, 0.292, 0.0], "Intake", "plenum_lower_bridge", "dark_composite", radius=0.030)
-ellipsoid([0.205, 0.105, 0.295], [0, 0.365, 0], "Intake", "plenum_shell", "dark_composite", subdivisions=4)
-rounded_prism([0.105, 0.024, 0.43], [0, 0.444, 0], "Intake", "plenum_spine", "brushed_aluminium", radius=0.010)
+ellipsoid([0.190, 0.088, 0.282], [0, 0.356, 0], "Intake", "plenum_shell", "dark_composite", subdivisions=4)
+rounded_prism([0.095, 0.018, 0.395], [0, 0.423, 0], "Intake", "plenum_spine", "brushed_aluminium", radius=0.009)
+rounded_prism([0.275, 0.020, 0.055], [0, 0.321, -0.225], "Intake", "plenum_rear_lip", "dark_composite", radius=0.010)
 for sx in (-1, 1):
     for i, z in enumerate(bank_zs):
         cylinder(0.049, 0.045, [sx * 0.184, 0.292, z], "x", "Intake", f"throttle_{sx}_{i}", "brushed_aluminium", 96)
