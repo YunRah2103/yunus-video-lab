@@ -84,7 +84,7 @@ The canonical `.github/workflows/yunex-track-refinement.yml` stayed byte-identic
 
 Agent A's portrait correction changes only portrait framing; its QA and source diff confirm the landscape and motion camera/path were not changed. Agent B required no shared scene-source correction after final motion inspection.
 
-The concurrently added `yunex/AGENT_D_TRACK_VISUAL_POLISH.md` handoff was preserved unchanged. It is not part of this completed integration and was not executed.
+Agent D subsequently completed on `sol/yunex-track-visual-polish` and was selectively integrated in commit `29488d6be59cd90b9c05a3252cd4e64a3a369a11`. Its final portrait-camera and restrained tree-silhouette refinements are now canonical; its branch-specific workflow changes were not carried over. See `yunex/POLISH_INTEGRATION_QA.md`.
 
 ## Agent C combined visual inspection
 
@@ -111,9 +111,9 @@ Motion review:
 ## Remaining limitations
 
 - Vegetation is intentionally economical deterministic low-poly procedural geometry, so tree silhouettes remain somewhat stylised at close scrutiny.
-- The portrait proof still has noticeable asphalt/sky negative space. This is acceptable for proof completion, but the separate Agent D handoff documents an optional visual-polish pass if explicitly requested.
+- Agent D's integrated portrait polish materially reduces the earlier asphalt/sky negative space while retaining the complete Porsche silhouette. The vegetation remains intentionally lightweight/procedural rather than photoreal.
 - This task did not edit, re-render or alter the 27.6-second YUNEX film, VO or audio.
 
 ## Result
 
-Track foliage proof integration is COMPLETE. The complete validated bundle is canonical on `sol/yunex-full-film-v2`. Further work requires master review or an explicitly requested optional polish/full-film integration task.
+Track foliage proof integration and the approved Agent D visual-polish pass are COMPLETE on `sol/yunex-full-film-v2`. The original A/B proof bundle remains preserved, with D's polished candidates under `yunex/track-refinement/visual-polish/`. See `yunex/POLISH_INTEGRATION_QA.md` for the later D/E integration state.
