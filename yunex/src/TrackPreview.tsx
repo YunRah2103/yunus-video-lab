@@ -180,7 +180,7 @@ const cameraFor=(mode:TrackMode,frame:number)=>{
     return {position:new THREE.Vector3(3.35,1.50,4.25),target:new THREE.Vector3(-.10,.58,.15)};
   }
   if(mode==='portrait'){
-    return {position:new THREE.Vector3(2.20,1.45,5.85),target:new THREE.Vector3(-.05,.68,.18)};
+    return {position:new THREE.Vector3(2.20,1.45,5.85),target:new THREE.Vector3(-.05,.38,.18)};
   }
   const target=new THREE.Vector3(-.05,.60,.18);
   const position=new THREE.Vector3(7.25,2.05,8.55);
