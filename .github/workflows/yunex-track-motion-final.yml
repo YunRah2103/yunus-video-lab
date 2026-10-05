@@ -15,8 +15,8 @@ permissions:
   contents: write
 
 concurrency:
-  group: yunex-track-motion-final-${{ github.ref }}
-  cancel-in-progress: true
+  group: yunex-track-motion-final-${{ github.sha }}
+  cancel-in-progress: false
 
 jobs:
   render-motion-final:
