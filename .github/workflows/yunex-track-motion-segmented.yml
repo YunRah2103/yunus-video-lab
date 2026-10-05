@@ -65,7 +65,7 @@ jobs:
           npx remotion render src/index.tsx YUNEX-TRACK-MOTION-PROOF \
             track-refinement/segment_${{ matrix.start }}_${{ matrix.end }}.mp4 \
             --frames=${{ matrix.start }}-${{ matrix.end }} \
-            --gl=swangle --concurrency=4 --codec=h264 --crf=17 --timeout=120000
+            --gl=swangle --concurrency=2 --codec=h264 --crf=17 --timeout=120000
 
       - name: Verify segment and asset identity
         run: |
@@ -164,7 +164,7 @@ jobs:
           - frames 0-24
           - frames 25-49
           - frames 50-74
-          - each range command used `--gl=swangle --concurrency=4 --codec=h264 --crf=17 --timeout=120000`
+          - each range command used `--gl=swangle --concurrency=2 --codec=h264 --crf=17 --timeout=120000`
           - final dimensions: 1080 x 1920
           - final frame rate: 30/1
           - final frame count: 75
