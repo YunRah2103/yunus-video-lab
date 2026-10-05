@@ -44,11 +44,11 @@ export const runBCameraChecks = (
     }
     if (a.camera.position[1] < 0.72) issues.push(`camera too close to/below road at frame ${frame}`);
     if (a.camera.focalLength < 24 || a.camera.focalLength > 78) issues.push(`unsafe focal length at frame ${frame}`);
-    if (Math.abs(a.rootPose.rotation[0]) > 0.016) issues.push(`braking pitch exceeds restrained limit at frame ${frame}`);
+    if (Math.abs(a.rootPose.rotation[0]) > 0.004) issues.push(`braking pitch exceeds restrained limit at frame ${frame}`);
   }
   checks.push('sampled poses are deterministic and finite');
   checks.push('camera height and focal-length guardrails are enforced');
-  checks.push('braking pitch stays below one degree');
+  checks.push('whole-car braking pitch stays below 0.25 degrees');
 
   let previousDistance = drivingDistanceAt(0, timing);
   let previousWheel = wheelAngleAt(0, timing);
@@ -65,12 +65,28 @@ export const runBCameraChecks = (
 
   const brakeMid = Math.round((timing.drsEnd + timing.brakingEnd) / 2);
   const brakePose = rootPoseAt(brakeMid, timing);
-  if (!(brakePose.rotation[0] > 0 && brakePose.rotation[0] < 0.016)) {
+  if (!(brakePose.rotation[0] > 0 && brakePose.rotation[0] < 0.004)) {
     issues.push('braking beat does not contain restrained forward pitch');
   }
 
   const finalPose = poseFor(timing.finalEnd, timing);
   if (finalPose.rootPose.position[2] <= 4.5) issues.push('final beat lacks enough forward travel to read as a moving pass');
+  const axleSamples = [
+    {y: 0.3521761, z: 1.2425107},
+    {y: 0.3713973, z: -1.2120098},
+  ];
+  for (let frame = timing.drsEnd; frame <= timing.brakingEnd; frame += 5) {
+    const pose = rootPoseAt(frame, timing);
+    const pitch = pose.rotation[0];
+    for (const axle of axleSamples) {
+      const centreY = axle.y * Math.cos(pitch) - axle.z * Math.sin(pitch) + pose.position[1];
+      const contactY = centreY - 0.34;
+      if (contactY < -0.005 || contactY > 0.055) {
+        issues.push(`tyre contact proxy out of tolerance at frame ${frame}: ${contactY.toFixed(4)}m`);
+      }
+    }
+  }
+  checks.push('front/rear tyre-contact proxy remains within road-contact tolerance during braking');
   checks.push('final hero remains a moving beat rather than a dead outro');
 
   return {ok: issues.length === 0, checks, issues};
