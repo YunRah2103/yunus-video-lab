@@ -15,6 +15,7 @@ import {
 import * as THREE from 'three';
 import {GLTFLoader} from 'three/examples/jsm/loaders/GLTFLoader.js';
 import {RoomEnvironment} from 'three/examples/jsm/environments/RoomEnvironment.js';
+import {TechnicalTrackWorld} from './TrackPreview';
 
 const W = 1080;
 const H = 1920;
@@ -137,14 +138,16 @@ function cloneModel(root:THREE.Object3D) {
   return c as THREE.Group;
 }
 
-function Studio({state}:{state:State}) {
+function Studio({state,trackMode=false}:{state:State;trackMode?:boolean}) {
   const {gl,scene,camera}=useThree();
   useLayoutEffect(()=>{
     gl.localClippingEnabled=true;
     gl.toneMapping=THREE.ACESFilmicToneMapping;
-    gl.toneMappingExposure=1.12;
+    gl.toneMappingExposure=trackMode?1.02:1.12;
     gl.shadowMap.enabled=false;
-  },[gl]);
+    if(trackMode){scene.background=null;gl.setClearAlpha(0);}
+    return()=>{if(trackMode)gl.setClearAlpha(1);};
+  },[gl,scene,trackMode]);
   useLayoutEffect(()=>{
     camera.position.set(...state.camera.position);
     camera.lookAt(...state.camera.target);
@@ -152,16 +155,18 @@ function Studio({state}:{state:State}) {
     camera.updateProjectionMatrix();
   },[camera,state.camera.position[0],state.camera.position[1],state.camera.position[2],state.camera.target[0],state.camera.target[1],state.camera.target[2],state.camera.zoom]);
   useLayoutEffect(()=>{
+    if(trackMode){scene.environment=null;return;}
     const pmrem=new THREE.PMREMGenerator(gl);
     const env=pmrem.fromScene(new RoomEnvironment(),0.05);
     scene.environment=env.texture;
     return()=>{env.dispose();pmrem.dispose();};
-  },[gl,scene]);
+  },[gl,scene,trackMode]);
   return <>
-    <ambientLight intensity={0.36}/>
-    <directionalLight position={[4,7,5]} intensity={4.0} color="#fff4e5"/>
-    <directionalLight position={[-5,4,-4]} intensity={2.9} color="#d9e8ff"/>
-    <spotLight position={[0,4.6,-4.5]} target-position={[0,.45,-1.65]} intensity={50} distance={9} angle={.48} penumbra={.72} color="#f5bf84"/>
+    <ambientLight intensity={trackMode ? .62 : .36}/>
+    <hemisphereLight args={['#dce8ed','#303a2e',trackMode?1.12:0]}/>
+    <directionalLight position={[4,7,5]} intensity={trackMode?3.25:4.0} color="#fff4e5"/>
+    <directionalLight position={[-5,4,-4]} intensity={trackMode?1.45:2.9} color="#d9e8ff"/>
+    {!trackMode&&<spotLight position={[0,4.6,-4.5]} target-position={[0,.45,-1.65]} intensity={50} distance={9} angle={.48} penumbra={.72} color="#f5bf84"/>}
   </>;
 }
 
@@ -235,7 +240,7 @@ function RotationTrail({angle,opacity}:{angle:number;opacity:number}) {
   return <mesh><tubeGeometry args={[curve,36,.022,7,false]}/><meshBasicMaterial color={COPPER} transparent opacity={opacity}/></mesh>;
 }
 
-function Scene({frame,state}:{frame:number;state:State}) {
+function Scene({frame,state,trackMode=false}:{frame:number;state:State;trackMode?:boolean}) {
   const [sources,setSources]=useState<{car:THREE.Group;engine:THREE.Group}|null>(null);
   const [handle]=useState(()=>delayRender('Loading YUNEX V2 hero assets'));
   const ready=useRef(false);
@@ -298,8 +303,9 @@ function Scene({frame,state}:{frame:number;state:State}) {
     {state.aero>.01&&<AeroLines frame={frame} opacity={state.aero}/>} 
   </group>;
   return <>
-    <Studio state={state}/>
-    <mesh position={[0,-.018,-.18]} rotation={[-Math.PI/2,0,0]} scale={[1.05,2.5,1]}><circleGeometry args={[1,64]}/><meshBasicMaterial color="#030404" transparent opacity={frame>=255&&frame<345?0:.22} depthWrite={false}/></mesh>
+    <Studio state={state} trackMode={trackMode}/>
+    {trackMode&&<TechnicalTrackWorld groundY={-.028}/>} 
+    <mesh position={[0,-.018,-.18]} rotation={[-Math.PI/2,0,0]} scale={[1.05,2.5,1]}><circleGeometry args={[1,64]}/><meshBasicMaterial color="#030404" transparent opacity={frame>=255&&frame<345?0:(trackMode ? .15 : .22)} depthWrite={false}/></mesh>
     {car&&<primitive object={car}/>} {ghostCar&&<primitive object={ghostCar}/>} {engine&&<primitive object={engine}/>} {engineDetail&&<primitive object={engineDetail}/>} {markerGroup}
     {frame>257&&frame<343&&Math.abs(state.rotation)>.01&&<RotationTrail angle={state.rotation} opacity={Math.sin(phase(frame,255,345)*Math.PI)*.88}/>}
   </>;
@@ -340,16 +346,16 @@ function Title({frame}:{frame:number}) {
   </div>;
 }
 
-export const ModelLedVideo:React.FC<{frameOffset?:number;includeAudio?:boolean}>=({frameOffset=0,includeAudio=true})=>{
+export const ModelLedVideo:React.FC<{frameOffset?:number;includeAudio?:boolean;trackMode?:boolean}>=({frameOffset=0,includeAudio=true,trackMode=false})=>{
   const frame=useCurrentFrame()+frameOffset;const state=stateFor(frame);
   const labels=state.technical*(frame<255?phase(frame,180,198):frame<345?1:frame<396?0:frame<549?.7:0);
   const showEngineDetail=frame>=105&&frame<255;
   const finalMark=phase(frame,770,810);
-  return <AbsoluteFill style={{background:CHARCOAL,overflow:'hidden'}}>
+  return <AbsoluteFill style={{background:trackMode?'#aebfc2':CHARCOAL,overflow:'hidden'}}>
     <style>{`@font-face{font-family:Yunex;src:url('${staticFile('Display.ttf')}')}*{box-sizing:border-box}`}</style>
-    <AbsoluteFill style={{background:'radial-gradient(ellipse at 52% 53%,#292e2f 0%,#15191a 45%,#0b0e0f 84%)'}}/>
+    <AbsoluteFill style={{background:trackMode?'linear-gradient(180deg,#b8c8c8 0%,#9caeaa 30%,#59605c 72%,#444947 100%)':'radial-gradient(ellipse at 52% 53%,#292e2f 0%,#15191a 45%,#0b0e0f 84%)'}}/>
     <ThreeCanvas width={W} height={H} orthographic camera={{position:state.camera.position,zoom:state.camera.zoom,near:.1,far:100}} gl={{antialias:true,alpha:true,preserveDrawingBuffer:true}}>
-      <Scene frame={frame} state={state}/>
+      <Scene frame={frame} state={state} trackMode={trackMode}/>
     </ThreeCanvas>
     <Title frame={frame}/>
     <Label text="FRONT AXLE" point={FRONT_AXLE} state={state} color={GREEN} opacity={labels} dx={68} dy={-95}/>
