@@ -26,7 +26,7 @@ const proofState = (frame: number): {
   title: string;
   detail: string;
 } => {
-  if (frame < 40) {
+  if (frame < 15) {
     return {
       mode: 'highDownforce',
       fromMode: 'highDownforce',
@@ -35,11 +35,11 @@ const proofState = (frame: number): {
       detail: 'LOAD · FRONT + REAR',
     };
   }
-  if (frame < 80) {
+  if (frame < 30) {
     return {
       mode: 'drs',
       fromMode: 'highDownforce',
-      progress: interpolate(frame, [40, 50], [0, 1], {
+      progress: interpolate(frame, [15, 20], [0, 1], {
         extrapolateLeft: 'clamp',
         extrapolateRight: 'clamp',
       }),
@@ -50,7 +50,7 @@ const proofState = (frame: number): {
   return {
     mode: 'airbrake',
     fromMode: 'drs',
-    progress: interpolate(frame, [80, 90], [0, 1], {
+    progress: interpolate(frame, [30, 35], [0, 1], {
       extrapolateLeft: 'clamp',
       extrapolateRight: 'clamp',
     }),
@@ -88,9 +88,7 @@ const CFlowScene: React.FC<{frame: number; mode: AeroMode; fromMode: AeroMode; p
       (gltf) => {
         if (!live) return;
         gltf.scene.traverse((object: any) => {
-          if (object.isMesh) {
-            object.frustumCulled = false;
-          }
+          if (object.isMesh) object.frustumCulled = false;
         });
         setCar(gltf.scene);
       },

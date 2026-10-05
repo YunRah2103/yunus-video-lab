@@ -11,7 +11,7 @@ const Root: React.FC = () => <Composition
   width={1080}
   height={1920}
   fps={30}
-  durationInFrames={120}
+  durationInFrames={45}
 />;
 
 registerRoot(Root);
