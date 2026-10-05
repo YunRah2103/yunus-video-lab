@@ -1,0 +1,160 @@
+name: YUNEX wheel and aero polish
+
+on:
+  push:
+    branches:
+      - sol/yunex-wheel-aero-polish
+    paths:
+      - 'yunex/src/ModelLedVideo.tsx'
+      - 'yunex/src/index.tsx'
+      - '.github/workflows/yunex-wheel-aero-polish.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: yunex-wheel-aero-polish-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  render-motion-polish:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    env:
+      EXPECTED_EXTERIOR_SHA256: 1c73fcb138c31e2b1d5ed126a2412074bb17f8e960b355436f28139bf518e1eb
+      EXPECTED_ENGINE_SHA256: aa05a760bcc778483c7684653f7200399d3eb540a36b1e7b0e4ec9248bc0841d
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+          cache-dependency-path: yunex/package-lock.json
+
+      - name: Install render dependencies
+        run: |
+          npm ci --prefix yunex
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg
+
+      - name: Prepare and lock approved assets
+        run: |
+          mkdir -p yunex/public yunex/motion-polish
+          cp cars/porsche-911-gt3-rs-992/model.glb yunex/public/model.glb
+          cp cars/porsche-911-gt3-rs-992/engine/engine.glb yunex/public/engine.glb
+          printf '%s  %s\n' "$EXPECTED_EXTERIOR_SHA256" cars/porsche-911-gt3-rs-992/model.glb | sha256sum -c -
+          printf '%s  %s\n' "$EXPECTED_ENGINE_SHA256" cars/porsche-911-gt3-rs-992/engine/engine.glb | sha256sum -c -
+          sha256sum cars/porsche-911-gt3-rs-992/model.glb > /tmp/exterior-before.sha256
+          sha256sum cars/porsche-911-gt3-rs-992/engine/engine.glb > /tmp/engine-before.sha256
+
+      - name: Render short wheel and aero proofs
+        working-directory: yunex
+        env:
+          NODE_OPTIONS: --require=./fix-network.cjs
+        run: |
+          npx remotion render src/index.tsx YUNEX-WHEEL-MOTION-PROOF motion-polish/wheel_motion_proof.mp4 --gl=swangle --concurrency=2 --codec=h264 --crf=17 --timeout=120000
+          npx remotion render src/index.tsx YUNEX-AERO-MOTION-PROOF motion-polish/aero_motion_proof.mp4 --gl=swangle --concurrency=2 --codec=h264 --crf=17 --timeout=120000
+
+      - name: Extract inspection frames and validate media
+        run: |
+          ffmpeg -v error -i yunex/motion-polish/wheel_motion_proof.mp4 -f null -
+          ffmpeg -v error -i yunex/motion-polish/aero_motion_proof.mp4 -f null -
+          ffmpeg -y -i yunex/motion-polish/wheel_motion_proof.mp4 -vf "select='eq(n,9)'" -vsync 0 -frames:v 1 yunex/motion-polish/wheel_frame_start.png >/dev/null 2>&1
+          ffmpeg -y -i yunex/motion-polish/wheel_motion_proof.mp4 -vf "select='eq(n,46)'" -vsync 0 -frames:v 1 yunex/motion-polish/wheel_frame_mid.png >/dev/null 2>&1
+          ffmpeg -y -i yunex/motion-polish/aero_motion_proof.mp4 -vf "select='eq(n,8)'" -vsync 0 -frames:v 1 yunex/motion-polish/aero_frame_start.png >/dev/null 2>&1
+          ffmpeg -y -i yunex/motion-polish/aero_motion_proof.mp4 -vf "select='eq(n,61)'" -vsync 0 -frames:v 1 yunex/motion-polish/aero_frame_mid.png >/dev/null 2>&1
+          ffmpeg -y -i yunex/motion-polish/aero_motion_proof.mp4 -vf "select='eq(n,115)'" -vsync 0 -frames:v 1 yunex/motion-polish/aero_frame_end.png >/dev/null 2>&1
+          ffprobe -v error -count_frames -select_streams v:0 -show_entries stream=width,height,r_frame_rate,codec_name,pix_fmt,nb_read_frames -of json yunex/motion-polish/wheel_motion_proof.mp4 > yunex/motion-polish/wheel_ffprobe.json
+          ffprobe -v error -count_frames -select_streams v:0 -show_entries stream=width,height,r_frame_rate,codec_name,pix_fmt,nb_read_frames -of json yunex/motion-polish/aero_motion_proof.mp4 > yunex/motion-polish/aero_ffprobe.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          base=Path("yunex/motion-polish")
+          wheel=json.loads((base/"wheel_ffprobe.json").read_text())["streams"][0]
+          aero=json.loads((base/"aero_ffprobe.json").read_text())["streams"][0]
+          assert (wheel["width"],wheel["height"]) == (1080,1920), wheel
+          assert (aero["width"],aero["height"]) == (1080,1920), aero
+          assert wheel["r_frame_rate"] == "30/1", wheel
+          assert aero["r_frame_rate"] == "30/1", aero
+          assert int(wheel["nb_read_frames"]) == 90, wheel
+          assert int(aero["nb_read_frames"]) == 120, aero
+          PY
+          sha256sum yunex/motion-polish/wheel_motion_proof.mp4 yunex/motion-polish/aero_motion_proof.mp4 yunex/motion-polish/*.png > yunex/motion-polish/proof_sha256.txt
+
+      - name: Verify locked assets remained byte-identical
+        run: |
+          sha256sum cars/porsche-911-gt3-rs-992/model.glb > /tmp/exterior-after.sha256
+          sha256sum cars/porsche-911-gt3-rs-992/engine/engine.glb > /tmp/engine-after.sha256
+          diff -u /tmp/exterior-before.sha256 /tmp/exterior-after.sha256
+          diff -u /tmp/engine-before.sha256 /tmp/engine-after.sha256
+          printf '%s  %s\n' "$EXPECTED_EXTERIOR_SHA256" cars/porsche-911-gt3-rs-992/model.glb | sha256sum -c -
+          printf '%s  %s\n' "$EXPECTED_ENGINE_SHA256" cars/porsche-911-gt3-rs-992/engine/engine.glb | sha256sum -c -
+
+      - name: Write technical QA record
+        run: |
+          EXTERIOR_SHA=$(sha256sum cars/porsche-911-gt3-rs-992/model.glb | awk '{print $1}')
+          ENGINE_SHA=$(sha256sum cars/porsche-911-gt3-rs-992/engine/engine.glb | awk '{print $1}')
+          WHEEL_BYTES=$(stat -c%s yunex/motion-polish/wheel_motion_proof.mp4)
+          AERO_BYTES=$(stat -c%s yunex/motion-polish/aero_motion_proof.mp4)
+          printf '%s\n' \
+            '# YUNEX wheel + aero polish QA' \
+            '' \
+            "Source render commit: $GITHUB_SHA" \
+            '' \
+            '## Locked assets' \
+            "- Porsche exterior SHA-256: $EXTERIOR_SHA" \
+            "- Engine SHA-256: $ENGINE_SHA" \
+            '- Both hashes were verified before and after rendering.' \
+            '' \
+            '## Proof media' \
+            "- wheel_motion_proof.mp4 - 1080 x 1920, 30 fps, 90 frames, $WHEEL_BYTES bytes" \
+            "- aero_motion_proof.mp4 - 1080 x 1920, 30 fps, 120 frames, $AERO_BYTES bytes" \
+            '- wheel_frame_start.png / wheel_frame_mid.png' \
+            '- aero_frame_start.png / aero_frame_mid.png / aero_frame_end.png' \
+            '- wheel_ffprobe.json / aero_ffprobe.json / proof_sha256.txt' \
+            '' \
+            '## Automated validation' \
+            '- Both MP4s fully decoded with FFmpeg without errors.' \
+            '- Both proofs asserted native 1080 x 1920 at 30 fps.' \
+            '- Wheel proof asserted at 90 frames; aero proof asserted at 120 frames.' \
+            '- No Porsche or engine asset bytes changed.' \
+            '' \
+            '## Visual inspection' \
+            'Pending agent inspection of the generated artifact bundle.' \
+            '' \
+            '## Integration note' \
+            '- ModelLedVideo contains the live wheel/aero changes.' \
+            '- FinalFinish still uses the flattened v3-review.mp4 base and was intentionally not replaced.' \
+            '- Master integration must regenerate the live V3 base before any FinalFinish replacement is considered.' \
+            > yunex/motion-polish/MOTION_POLISH_QA.md
+
+      - name: Commit generated proofs
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add yunex/motion-polish/*.png
+          git add yunex/motion-polish/*.json
+          git add yunex/motion-polish/*.txt
+          git add yunex/motion-polish/MOTION_POLISH_QA.md
+          git add -f yunex/motion-polish/wheel_motion_proof.mp4
+          git add -f yunex/motion-polish/aero_motion_proof.mp4
+          git diff --cached --quiet || git commit -m "Agent E: generated wheel and aero proofs [skip ci]"
+          git pull --rebase origin sol/yunex-wheel-aero-polish
+          git push origin HEAD:sol/yunex-wheel-aero-polish
+
+      - name: Upload review bundle
+        uses: actions/upload-artifact@v4
+        with:
+          name: yunex-wheel-aero-polish-review
+          path: |
+            yunex/motion-polish/
+            yunex/src/ModelLedVideo.tsx
+            yunex/src/index.tsx
+          if-no-files-found: error
+          retention-days: 7
