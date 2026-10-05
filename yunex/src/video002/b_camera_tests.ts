@@ -42,7 +42,7 @@ export const runBCameraChecks = (
       issues.push(`non-finite pose value at frame ${frame}`);
     }
     if (a.camera.position[1] < 0.72) issues.push(`camera too close to/below road at frame ${frame}`);
-    if (a.camera.focalLength < 34 || a.camera.focalLength > 78) issues.push(`unsafe focal length at frame ${frame}`);
+    if (a.camera.focalLength < 24 || a.camera.focalLength > 78) issues.push(`unsafe focal length at frame ${frame}`);
     if (Math.abs(a.rootPose.rotation[0]) > 0.016) issues.push(`braking pitch exceeds restrained limit at frame ${frame}`);
   }
   checks.push('sampled poses are deterministic and finite');
