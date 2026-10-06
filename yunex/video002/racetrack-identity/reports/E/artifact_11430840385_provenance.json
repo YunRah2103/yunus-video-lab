@@ -1,0 +1,37 @@
+{
+  "phase": "Y002-RACETRACK-IDENTITY-02",
+  "role": "E — Independent Track / Visual QA",
+  "github_actions_run_id": 37501731782,
+  "artifact_id": 11430840385,
+  "artifact_name": "y002-track-identity-native-review-evidence",
+  "workflow_head_branch": "sol/y002-track-identity-render",
+  "workflow_head_sha": "fee16641bc1ef80874b258cefa76934e8893bdec",
+  "pinned_render_source_sha": "3ee36a708e2a466c0822431af940cf0be47b1c01",
+  "artifact_zip_sha256": "74959f3f1bfd642504ff29ccab97ea08a4ff03ee1b34961151bf659bb38e260d",
+  "manifest_source_sha_matches": true,
+  "automated_validation_status": "PASS",
+  "native_stills": {
+    "count": 7,
+    "width": 1080,
+    "height": 1920
+  },
+  "moving_proof": {
+    "width": 270,
+    "height": 480,
+    "fps": 30,
+    "frames": 18,
+    "duration_seconds": 0.6,
+    "frame_range": "285-302",
+    "label": "reduced-resolution 270x480 true-30fps consecutive DRS transition proof"
+  },
+  "file_hashes": {
+    "beat-0018-hook.png": "11f318094a3aabdcdd91436a1db9352306af4ff11a98d0972b4282d12d45dad0",
+    "beat-0114-isolate.png": "cbb180651c66ba411e4a2c092b28fb4710270903951357241004e3c443150a8b",
+    "beat-0210-high-downforce.png": "9dddb6f9ff645b89a6e9071bd1ae6e4a86a157da3f045a1ffd20dc6b4eceeb2c",
+    "beat-0336-drs.png": "a8114bacd79251dfff056bdc35319980aa79b867caabb3916de782b7165789cf",
+    "beat-0456-airbrake.png": "80c0ab0a8979f7efa6b237354571644a338ca60254f4ed7dabadceb2ab3c276e",
+    "beat-0600-whole-car.png": "dcc1de3466f6fe57071604a5531eba928dedf77569001fc5ce68f0604612bdec",
+    "beat-0705-payoff.png": "560e90b0d9358fac6e29c7e7c85a2287220cccaa659ffb6c16f6fde22375c502",
+    "moving-proof-reduced.mp4": "70998561149a9b8535590aa82ec5d61e5ef36ea35b8d3058069f222e33206dc9"
+  }
+}
