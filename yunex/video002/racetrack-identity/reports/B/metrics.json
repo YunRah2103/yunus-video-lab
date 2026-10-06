@@ -1,0 +1,29 @@
+{
+  "phase": "Y002-RACETRACK-IDENTITY-02",
+  "role": "B — Racing Surface / Kerbs",
+  "input_sha": "7ecd296b10f6d1d316544f1eb06a84bf5babedf3",
+  "road_width_m": 8.6,
+  "layout_sample_count": 161,
+  "sample_step_m": 0.5,
+  "minimum_locked_car_edge_clearance_m_from_A_contract": 3.125,
+  "surface": {
+    "continuous_asphalt_ribbon": true,
+    "white_edge_paint_both_sides": true,
+    "centre_divider": false,
+    "subtle_racing_line": true,
+    "legacy_rectangular_verge_removed_from_B_renderer": true
+  },
+  "kerbs": {
+    "width_m": 0.46,
+    "rise_above_asphalt_m": 0.034,
+    "right_apex_local_z_m": [17.5, 26.5],
+    "left_exit_local_z_m": [28, 34.5],
+    "paint": "alternating restrained red/ivory",
+    "all_straight_edges_kerbed": false
+  },
+  "ownership": {
+    "B": "asphalt + edge paint + racing-line wear + selected kerbs",
+    "C": "runoff + barriers + terrain",
+    "D": "landscape + lighting"
+  }
+}
