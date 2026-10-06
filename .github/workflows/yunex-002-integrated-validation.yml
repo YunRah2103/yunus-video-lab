@@ -1,0 +1,80 @@
+name: YUNEX 002 integrated validation
+
+on:
+  push:
+    branches:
+      - sol/yunex-002-active-aero
+    paths:
+      - 'yunex/src/video002/**'
+      - 'yunex/src/index.tsx'
+      - '.github/workflows/yunex-002-integrated-validation.yml'
+
+concurrency:
+  group: yunex-002-integrated-validation
+  cancel-in-progress: true
+
+jobs:
+  validate-integrated-film:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    env:
+      EXPECTED_EXTERIOR_SHA256: 1c73fcb138c31e2b1d5ed126a2412074bb17f8e960b355436f28139bf518e1eb
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+          cache-dependency-path: yunex/package-lock.json
+      - name: Stage locked Porsche
+        run: |
+          mkdir -p yunex/public yunex/out/video002
+          cp cars/porsche-911-gt3-rs-992/model.glb yunex/public/model.glb
+          printf '%s  %s\n' "$EXPECTED_EXTERIOR_SHA256" cars/porsche-911-gt3-rs-992/model.glb | sha256sum -c -
+      - name: Install runtime
+        working-directory: yunex
+        run: npm ci
+      - name: Validate D timeline
+        working-directory: yunex
+        run: node video002/validate-d-timeline.cjs
+      - name: Compile compositions
+        working-directory: yunex
+        env:
+          NODE_OPTIONS: --require=./fix-network.cjs
+        run: npx remotion compositions src/index.tsx
+      - name: Render integrated visual proof
+        working-directory: yunex
+        env:
+          NODE_OPTIONS: --require=./fix-network.cjs
+        run: |
+          npx remotion render src/index.tsx YUNEX-002-INTEGRATED-PROOF out/video002/YUNEX_002_INTEGRATED_PROOF.mp4 --gl=swangle --concurrency=2 --codec=h264 --crf=19 --timeout=120000
+      - name: Validate output and extract review frames
+        working-directory: yunex
+        run: |
+          ffmpeg -v error -xerror -i out/video002/YUNEX_002_INTEGRATED_PROOF.mp4 -f null -
+          ffprobe -v error -count_frames -select_streams v:0 -show_entries stream=width,height,r_frame_rate,codec_name,pix_fmt,nb_read_frames -show_entries format=duration -of json out/video002/YUNEX_002_INTEGRATED_PROOF.mp4 > out/video002/ffprobe.json
+          for spec in "0.6 hook" "3.8 isolate" "7.0 high_downforce" "11.2 drs" "15.2 airbrake" "20.0 whole_car" "23.5 payoff"; do
+            set -- $spec
+            ffmpeg -y -ss "$1" -i out/video002/YUNEX_002_INTEGRATED_PROOF.mp4 -frames:v 1 "out/video002/$2.png" >/dev/null 2>&1
+          done
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p=Path('out/video002/ffprobe.json')
+          s=json.loads(p.read_text())
+          stream=s['streams'][0]
+          assert (stream['width'],stream['height'])==(1080,1920),stream
+          assert stream['r_frame_rate']=='30/1',stream
+          assert int(stream['nb_read_frames'])==751,stream
+          duration=float(s['format']['duration'])
+          assert 24.9 <= duration <= 25.2,duration
+          PY
+          test "$(sha256sum public/model.glb | awk '{print $1}')" = "$EXPECTED_EXTERIOR_SHA256"
+          sha256sum out/video002/YUNEX_002_INTEGRATED_PROOF.mp4 > out/video002/proof_sha256.txt
+      - name: Upload integrated proof
+        uses: actions/upload-artifact@v4
+        with:
+          name: yunex-002-integrated-proof
+          path: yunex/out/video002/
+          if-no-files-found: error
+          retention-days: 7
