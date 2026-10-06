@@ -34,8 +34,8 @@ mux () {
   ffmpeg -y -hide_banner -loglevel error \
     -i "$VISUAL" -i "$MIX" \
     -map 0:v:0 -map 1:a:0 \
-    -c:v copy -c:a aac -b:a 192k -ar 24000 -ac 1 \
-    -af "volume=${gain}dB,apad=pad_dur=0.020" \
+    -c:v copy -c:a aac -b:a 192k -ar 48000 -ac 1 \
+    -af "volume=\${gain}dB,apad=pad_dur=0.020" \
     -t 25.033333 \
     -movflags +faststart \
     "$OUT"
@@ -45,8 +45,8 @@ measure () {
   local tag="$1"
   ffmpeg -hide_banner -nostats -i "$OUT" -map 0:a:0 \
     -af "loudnorm=I=-15:TP=-1:LRA=6:print_format=json" \
-    -f null - 2>"$TMP/loudnorm-${tag}.txt" || true
-  python - "$TMP/loudnorm-${tag}.txt" "$TMP/audio_metrics.json" <<'PY'
+    -f null - 2>"$TMP/loudnorm-\${tag}.txt" || true
+  python - "$TMP/loudnorm-\${tag}.txt" "$TMP/audio_metrics.json" <<'PY'
 import json,re,sys
 text=open(sys.argv[1],encoding='utf-8',errors='ignore').read()
 blocks=re.findall(r'\{[^{}]*"input_i"[^{}]*\}',text,re.S)
@@ -86,7 +86,7 @@ assert (int(video["width"]),int(video["height"]))==(1080,1920),video
 assert video["r_frame_rate"]=="30/1" and video["avg_frame_rate"]=="30/1",video
 assert int(video["nb_read_frames"])==751,video
 assert audio["codec_name"]=="aac",audio
-assert int(audio["sample_rate"])==24000,audio
+assert int(audio["sample_rate"])==48000,audio
 assert int(audio["channels"])==1,audio
 duration=float(probe["format"]["duration"])
 assert 25.02 <= duration <= 25.05,duration
@@ -99,14 +99,14 @@ print(json.dumps({
   "dimensions":[1080,1920],
   "duration_seconds":duration,
   "audio_codec":"aac",
-  "audio_sample_rate":24000,
+  "audio_sample_rate":48000,
   "audio_channels":1,
   "integrated_lufs":float(metrics["input_i"]),
   "true_peak_dbfs":float(metrics["input_tp"]),
 },indent=2))
 PY
 
-cp "$TMP/final_ffprobe.json" "${OUT}.ffprobe.json"
-cp "$TMP/audio_metrics.json" "${OUT}.audio_metrics.json"
-sha256sum "$OUT" > "${OUT}.sha256"
+cp "$TMP/final_ffprobe.json" "\${OUT}.ffprobe.json"
+cp "$TMP/audio_metrics.json" "\${OUT}.audio_metrics.json"
+sha256sum "$OUT" > "\${OUT}.sha256"
 echo "final: $OUT"
