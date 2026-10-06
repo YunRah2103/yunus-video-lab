@@ -141,9 +141,10 @@ const buildFurnitureLayout = (seed: number, quality: TrackFurnitureProps['qualit
   const jointPlates: BoxInstance[] = [];
 
   for (let i = 0; i < panelCount; i++) {
-    const z = RAIL_START_Z + PANEL_LENGTH * (i + 0.5);
-    const length = Math.min(PANEL_LENGTH - 0.018, RAIL_END_Z - (RAIL_START_Z + PANEL_LENGTH * i));
+    const panelStart = RAIL_START_Z + PANEL_LENGTH * i;
+    const length = Math.min(PANEL_LENGTH - 0.018, RAIL_END_Z - panelStart);
     if (length <= 0) continue;
+    const z = panelStart + length / 2;
 
     panels.push({
       position: [RAIL_X, RAIL_Y, z],
