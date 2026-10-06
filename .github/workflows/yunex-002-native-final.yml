@@ -76,6 +76,10 @@ jobs:
           end="$(date +%s)"
           elapsed="$((end-start))"
           printf '%s\n' "$elapsed" > out/video002-native-benchmark/elapsed_seconds.txt
+      - name: Install FFmpeg for QA
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq ffmpeg
       - name: Probe benchmark and make temporal samples
         working-directory: yunex
         run: |
@@ -96,6 +100,7 @@ jobs:
           sha256sum out/video002-native-benchmark/native-0330-0359.mp4 > out/video002-native-benchmark/output_sha256.txt
           sha256sum public/model.glb > out/video002-native-benchmark/porsche_sha256.txt
       - uses: actions/upload-artifact@v4
+        if: always()
         with:
           name: yunex-002-native-benchmark
           path: yunex/out/video002-native-benchmark/
@@ -171,7 +176,6 @@ jobs:
             --scale=1 \
             --timeout=120000
           test -s "out/video002-native-chunks/chunk-${{ matrix.part }}.mp4"
-          ffmpeg -v error -xerror -i "out/video002-native-chunks/chunk-${{ matrix.part }}.mp4" -f null -
           test "$(sha256sum public/model.glb | awk '{print $1}')" = "$EXPECTED_EXTERIOR_SHA256"
       - uses: actions/upload-artifact@v4
         with:
@@ -194,11 +198,16 @@ jobs:
           pattern: yunex-002-native-chunk-*
           path: chunks
           merge-multiple: true
+      - name: Install FFmpeg for stitch QA
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq ffmpeg
       - name: Stitch exact native frame coverage
         run: |
-          find chunks -maxdepth 1 -name 'chunk-*.mp4' -print | sort | sed "s#^#file '#;s#$#'#" > chunks/list.txt
-          test "$(wc -l < chunks/list.txt)" -eq 26
-          ffmpeg -y -v error -f concat -safe 0 -i chunks/list.txt -c copy YUNEX_002_NATIVE_VISUAL_MASTER.mp4
+          python yunex/src/video002/trackUpgrade/nativeRender/validate_chunks.py chunks > chunk_manifest.json
+          find chunks -maxdepth 1 -name 'chunk-*.mp4' -print | sort | sed "s#^#file '#;s#$#'#" > list.txt
+          test "$(wc -l < list.txt)" -eq 26
+          ffmpeg -y -v error -f concat -safe 0 -i list.txt -c copy YUNEX_002_NATIVE_VISUAL_MASTER.mp4
           ffmpeg -v error -xerror -i YUNEX_002_NATIVE_VISUAL_MASTER.mp4 -f null -
           ffprobe -v error -count_frames -select_streams v:0 \
             -show_entries stream=width,height,r_frame_rate,avg_frame_rate,codec_name,pix_fmt,nb_read_frames \
@@ -237,6 +246,7 @@ jobs:
             ffprobe.json
             validation.json
             native_manifest.json
+            chunk_manifest.json
             output_sha256.txt
             porsche_sha256.txt
             review/
