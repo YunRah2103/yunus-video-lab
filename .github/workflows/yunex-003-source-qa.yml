@@ -8,6 +8,11 @@ on:
     paths:
       - 'yunex/video003/qa/source-qa-entry.ts'
       - '.github/workflows/yunex-003-source-qa.yml'
+      - 'yunex/src/video003/**'
+concurrency:
+  group: y003-source-qa-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   numeric:
     runs-on: ubuntu-latest
