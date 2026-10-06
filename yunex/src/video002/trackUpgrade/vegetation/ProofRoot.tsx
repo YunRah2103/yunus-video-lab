@@ -267,7 +267,7 @@ const ProofCanvas: React.FC<{variant: Variant; proofFrame: number}> = ({variant,
 
 const ParallaxProof: React.FC = () => {
   const frame = useCurrentFrame();
-  const proofFrame = Math.round(555 + (frame / 71) * 150);
+  const proofFrame = Math.round(570 + (frame / 47) * 120);
   return <ProofCanvas variant="new" proofFrame={proofFrame}/>;
 };
 
@@ -279,7 +279,7 @@ const Root: React.FC = () => (
     <Still id="Y002-C-NEW-F260" component={() => <ProofCanvas variant="new" proofFrame={260}/>} width={1080} height={1920}/>
     <Still id="Y002-C-OLD-F700" component={() => <ProofCanvas variant="old" proofFrame={700}/>} width={1080} height={1920}/>
     <Still id="Y002-C-NEW-F700" component={() => <ProofCanvas variant="new" proofFrame={700}/>} width={1080} height={1920}/>
-    <Composition id="Y002-C-NEW-PARALLAX" component={ParallaxProof} width={1080} height={1920} fps={30} durationInFrames={72}/>
+    <Composition id="Y002-C-NEW-PARALLAX" component={ParallaxProof} width={1080} height={1920} fps={30} durationInFrames={48}/>
   </>
 );
 
