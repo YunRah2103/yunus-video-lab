@@ -81,7 +81,13 @@ const makeTexture = (
   return texture;
 };
 
+export const createAsphaltTexture = (quality: RoadQuality, seed: number) =>
+  makeTexture(quality, seed, 'asphalt');
+
+export const createVergeTexture = (quality: RoadQuality, seed: number) =>
+  makeTexture(quality, seed + 1709, 'verge');
+
 export const createRoadTextures = (quality: RoadQuality, seed: number) => ({
-  asphalt: makeTexture(quality, seed, 'asphalt'),
-  verge: makeTexture(quality, seed + 1709, 'verge'),
+  asphalt: createAsphaltTexture(quality, seed),
+  verge: createVergeTexture(quality, seed),
 });

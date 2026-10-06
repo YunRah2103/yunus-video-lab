@@ -2,7 +2,7 @@ import React, {useEffect, useMemo} from 'react';
 import * as THREE from 'three';
 import {TRACK_LAYOUT_CONFIG, TRACK_LAYOUT_SAMPLES} from './layout';
 import type {TrackLayoutSample, TrackVec2} from './types';
-import {createRoadTextures} from '../road/proceduralRoadTexture';
+import {createAsphaltTexture} from '../road/proceduralRoadTexture';
 import type {RoadQuality} from '../road/layout';
 
 export type SurfaceProps = {
@@ -103,7 +103,7 @@ const racingPair = (sample: TrackLayoutSample): [TrackVec2, TrackVec2] => {
 };
 
 export const Surface: React.FC<SurfaceProps> = ({quality, seed = 2103}) => {
-  const textures = useMemo(() => createRoadTextures(quality, seed), [quality, seed]);
+  const asphaltTexture = useMemo(() => createAsphaltTexture(quality, seed), [quality, seed]);
   const asphaltGeometry = useMemo(
     () => makeRibbonGeometry(TRACK_LAYOUT_SAMPLES, roadPair, ASPHALT_Y),
     [],
@@ -124,12 +124,12 @@ export const Surface: React.FC<SurfaceProps> = ({quality, seed = 2103}) => {
   const asphaltMaterial = useMemo(
     () =>
       new THREE.MeshStandardMaterial({
-        map: textures.asphalt,
+        map: asphaltTexture,
         color: '#f2f2ef',
         roughness: 0.92,
         metalness: 0.012,
       }),
-    [textures.asphalt],
+    [asphaltTexture],
   );
   const paintMaterial = useMemo(
     () =>
@@ -168,8 +168,7 @@ export const Surface: React.FC<SurfaceProps> = ({quality, seed = 2103}) => {
       asphaltMaterial.dispose();
       paintMaterial.dispose();
       racingMaterial.dispose();
-      textures.asphalt.dispose();
-      textures.verge.dispose();
+      asphaltTexture.dispose();
     },
     [
       asphaltGeometry,
@@ -179,8 +178,7 @@ export const Surface: React.FC<SurfaceProps> = ({quality, seed = 2103}) => {
       racingGeometry,
       racingMaterial,
       rightPaintGeometry,
-      textures.asphalt,
-      textures.verge,
+      asphaltTexture,
     ],
   );
 
