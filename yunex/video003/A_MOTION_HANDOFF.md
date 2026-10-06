@@ -1,23 +1,36 @@
-# YUNEX 003 — A — Driving and runtime articulation
+# YUNEX 003 — AGENT A — Driving dynamics and runtime articulation
 
 Phase: Y003-SUSPENSION-AERO-01
-Repository: YunRah2103/yunus-video-lab
-Canonical coordination: sol/y003-suspension-manager
-Your work branch: sol/y003-driving
+Work branch: sol/y003-driving
+Owned source: yunex/src/video003/motion/
+Reports: yunex/video003/reports/A/
 
-## Read / start
-Read yunex/video003/START_HERE.md, MASTER_HANDOFF.md and TASKS.json on coordination branch. Manager pins your exact input SHA before coding. This is a separate user-started chat. Do not spawn agents or follow old Y002 role handoffs.
+## Required operating rules
+Read START_HERE.md, MASTER_HANDOFF.md, MANAGER_EXECUTION_HANDOFF.md and TASKS.json on sol/y003-suspension-manager. This is Y003, not historical Y002. Separate user-started chat; do not spawn agents.
+Inspect current remote state/AGENTS instructions before edits. Manager owns registry and central integration. Use isolated work branch from Manager-pinned input. Initial preparation baseline is 50fd478256bbe12d37410e78678bd7c302d96434; contract release pins supersede it for dependent work.
+Only edit listed source directory and reports/<role>/. Never casually edit types.ts, timeline.ts, Video003.tsx, index.tsx or another role. Send interface proposal in your report/commit; Manager installs it. Keep original Y001/Y002 reproducible.
+Approved Porsche bytes/livery/source materials are locked. Model SHA256 1c73fcb138c31e2b1d5ed126a2412074bb17f8e960b355436f28139bf518e1eb. Metres, +Y up, +Z forward, +X left. Source asset has Steer_FL/FR, Spin_FL/FR/RL/RR and independent calipers; no detailed suspension CAD.
+User may be offline. Execute reversible authorized work without optional approval loops. At real dependency blockage, complete independent work and report precise blocker. Do not silently guess unavailable interfaces or claim integration. No force-push, no full film render except G, no alternate creative direction.
 
-## Ownership
-yunex/src/video003/motion/
-Your report/proof sources: yunex/video003/reports/A/ (E as registry).
-No edits to shared timeline/types/registration/integration/registry or another specialist's files. Propose shared interface changes to Manager.
+## Proof and remote completion
+Push actual implementation, tests, reproduction commands and proof evidence. Large media uses artifacts/persistent file delivery, not git history; commit paths/URLs/provenance. Native stills 1080x1920 scale1; smaller motion proofs explicitly labelled. Inspect your real renders. Verify remote head after push.
+Return phase/role, exact input SHA, output branch/full remote SHA, changed files, proof links, tests and known limitations/dependencies. If blocked, return BLOCKED with completed work and exact next requirement. Hand-off/report-only output is not completion.
+Escalate model redesign, major environment/story/VO changes, unsure reference mechanics, false scientific claims or persistent fake driving to Manager. Routine errors stay with implementer.
 
-## Actual work
-Inspect model pivots and track bounds. Publish a deterministic typed motion API early with measured radii, wheel anchors and coordinate contract. Implement credible path/speed, curvature steering, distance-derived spin, subtle chassis load and independently grounded wheel/upright transforms. Never reuse Y002 5.15m curve. Provide attachment-ready adapter/hooks for B geometry and C cameras. Runtime wrappers only; approved GLB unchanged. Pure arbitrary-frame evaluation, no accumulated playback state. Prove 4–6s tracking + fixed trackside travel, braking and turn-in. Test spin/distance, steering sign, contact and determinism.
+## Goal
+The Porsche must look genuinely driven. Y002 travels only 5.15m over ~25s; do not reuse or speed-scale that curve blindly.
 
-## Dependencies
-No dependencies for initial implementation; Manager approves API before others bind.
+## Concrete implementation
+1. Inspect GLB hierarchy/base transforms and measure actual tyre radii/axle centres. Document how wheel spin, steering, calipers and wrappers relate.
+2. Publish early minimal pure motion API proposal: frame/fps -> time, distance, speed, root pose, chassis attitude, four wheel/upright poses, steering/spin. Include anchors, sign convention, tests and sample states. Manager owns shared types.
+3. Build coherent approach/braking/corner/exit path with smooth speed/curvature and containment on actual available track. Coordinate targeted path adaptation with C, not a new circuit.
+4. Integrate distance accurately; derive spin from distance/radius and wheel-specific paths where useful. Steering follows curvature; don't steer rear wheels gratuitously.
+5. Articulate body load separately from wheel contact. Small pitch/roll/heave, grounded tyre bottoms, connected upright/calipers. No random per-frame bounce, floating body or wheel hops.
+6. Preserve source GLB; adapters restore exact base transforms before applying frame state. B attaches links to approved anchors. Pure arbitrary-frame evaluation; no useFrame delta accumulation.
+7. Provide simple local proof scene/harness in owned directory; no central registration edits.
 
-## Verification / completion
-Respect Master story, technical limits, approved white/green exterior and model hash. Read-only inspection may start before dependencies; do not guess unpublished interfaces. Manager integrates; do not independently merge others or redesign story. Push implemented code and reproducible proofs to your work branch. Verify remote full SHA. Return phase, role, pinned input SHA, output branch/full remote SHA, changed files, proof URLs, tests, limitations and outstanding dependencies. Native stills 1080x1920 scale1; smaller motion drafts clearly labelled. A report or handoff alone is not completion. No force-push. Escalate scope/architecture/accuracy concerns to Manager.
+## Dependencies / checks
+Start now from Manager baseline. B/C/D need your contract early, not after every animation is polished. Publish contract-ready milestone with remote SHA.
+Test distance derivative/speed, steering sign, spin consistency, finite transforms, deterministic random-order frame calls, contact at braking/turn extremes and chunk boundaries. Inspect 4–6s moving proof including fixed trackside crossing. At least opening and exit movement must convincingly travel, not hover.
+Reject motion that requires tyres to deform unrealistically. Tire deformation is optional; ground contact is mandatory.
+Return motion manifest, anchors/radii, API example, proof and limitations.
