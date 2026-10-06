@@ -1,0 +1,16 @@
+{
+  "phase": "Y002-RACETRACK-IDENTITY-02",
+  "role": "B — Racing Surface / Kerbs",
+  "input_sha": "7ecd296b10f6d1d316544f1eb06a84bf5babedf3",
+  "contract_sample_count": 161,
+  "centerline_length_m": 80.174593,
+  "max_sample_center_step_m": 0.506803685,
+  "ribbon_join_strategy": "adjacent triangles share the same sampled road-edge vertices",
+  "projected_geometric_join_gap_m": 0,
+  "uv_progression": "monotonic cumulative centerline distance normalized 0..1",
+  "asphalt_texture_repeat_inherited": "proceduralRoadTexture repeat 1.35 x 4.65",
+  "right_apex_kerb_segments": 18,
+  "left_exit_kerb_segments": 13,
+  "locked_car_min_edge_clearance_m_from_A": 3.125,
+  "native_beauty_render_status": "deferred to coordinated render queue; these proofs are deterministic geometry projections"
+}
