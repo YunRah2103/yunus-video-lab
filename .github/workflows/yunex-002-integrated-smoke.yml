@@ -1,0 +1,58 @@
+name: YUNEX 002 integrated smoke review
+
+on:
+  push:
+    branches:
+      - sol/yunex-002-active-aero
+    paths:
+      - '.github/workflows/yunex-002-integrated-smoke.yml'
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      EXPECTED_EXTERIOR_SHA256: 1c73fcb138c31e2b1d5ed126a2412074bb17f8e960b355436f28139bf518e1eb
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+          cache-dependency-path: yunex/package-lock.json
+      - name: Stage locked Porsche
+        run: |
+          mkdir -p yunex/public yunex/out/video002-smoke
+          cp cars/porsche-911-gt3-rs-992/model.glb yunex/public/model.glb
+          printf '%s  %s\n' "$EXPECTED_EXTERIOR_SHA256" cars/porsche-911-gt3-rs-992/model.glb | sha256sum -c -
+      - name: Install
+        working-directory: yunex
+        run: npm ci
+      - name: Render review stills
+        working-directory: yunex
+        env:
+          NODE_OPTIONS: --require=./fix-network.cjs
+        run: |
+          for spec in "18 hook" "114 isolate" "210 high_downforce" "336 drs" "456 airbrake" "600 whole_car" "705 payoff"; do
+            set -- $spec
+            npx remotion still src/index.tsx YUNEX-002-INTEGRATED-PROOF "out/video002-smoke/$2.png" --frame="$1" --gl=swangle --timeout=120000
+          done
+      - name: Verify images
+        working-directory: yunex
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          from PIL import Image
+          files=sorted(Path('out/video002-smoke').glob('*.png'))
+          assert len(files)==7, files
+          for p in files:
+              with Image.open(p) as im:
+                  assert im.size==(1080,1920),(p,im.size)
+          PY
+      - name: Upload smoke review
+        uses: actions/upload-artifact@v4
+        with:
+          name: yunex-002-integrated-smoke
+          path: yunex/out/video002-smoke/
+          retention-days: 7
+          if-no-files-found: error
