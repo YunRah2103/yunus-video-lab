@@ -1,14 +1,19 @@
 {
   "phase": "Y003-SUSPENSION-AERO-01",
+  "revision": "EXPANDED-A-H",
   "repository": "YunRah2103/yunus-video-lab",
   "integration_branch": "sol/y003-suspension-manager",
   "base_sha": "50fd478256bbe12d37410e78678bd7c302d96434",
-  "execution": "Separate user-started chats; no internal agents",
+  "execution": "Nine separate user-started chats: Manager + A–H. No automatic/nested agents.",
   "render_source_sha": null,
+  "motion_contract_sha": null,
+  "suspension_contract_sha": null,
+  "audio_cue_sha": null,
+  "manager_instruction": "Manager alone updates this registry and shared composition. Initial baseline allows preparation; dependent implementation binds exact published contract pins. Verify all remote outputs. No full render before integrated moving-proof review.",
   "tasks": [
     {
       "id": "MANAGER",
-      "handoff": "MASTER_HANDOFF.md",
+      "handoff": "MANAGER_EXECUTION_HANDOFF.md",
       "branch": "sol/y003-suspension-manager",
       "status": "ready",
       "owned_files": [
@@ -22,68 +27,128 @@
     },
     {
       "id": "A",
+      "role": "Driving dynamics and runtime articulation",
       "handoff": "A_MOTION_HANDOFF.md",
       "branch": "sol/y003-driving",
-      "status": "ready_for_manager_pin",
+      "status": "preparation_ready",
+      "input_sha": null,
+      "initial_preparation_sha": "50fd478256bbe12d37410e78678bd7c302d96434",
+      "output_sha": null,
       "owned_files": [
-        "yunex/src/video003/motion/"
+        "yunex/src/video003/motion/",
+        "yunex/video003/reports/A/"
       ],
-      "dependencies": []
+      "proofs": []
     },
     {
       "id": "B",
+      "role": "Front suspension mechanical geometry",
       "handoff": "B_SUSPENSION_HANDOFF.md",
       "branch": "sol/y003-suspension",
-      "status": "ready_for_manager_pin",
+      "status": "preparation_ready",
+      "input_sha": null,
+      "initial_preparation_sha": "50fd478256bbe12d37410e78678bd7c302d96434",
+      "output_sha": null,
       "owned_files": [
-        "yunex/src/video003/suspension/"
+        "yunex/src/video003/suspension/",
+        "yunex/video003/reports/B/"
       ],
-      "dependencies": [
-        "A anchors/contract for rig binding"
-      ]
+      "proofs": []
     },
     {
       "id": "C",
+      "role": "Automotive cameras, moving reveal and track adapter",
       "handoff": "C_CAMERA_HANDOFF.md",
       "branch": "sol/y003-cameras",
-      "status": "inspection_ready",
+      "status": "preparation_ready",
+      "input_sha": null,
+      "initial_preparation_sha": "50fd478256bbe12d37410e78678bd7c302d96434",
+      "output_sha": null,
       "owned_files": [
         "yunex/src/video003/cameras/",
         "yunex/src/video003/reveal/",
-        "yunex/src/video003/track/"
+        "yunex/src/video003/track/",
+        "yunex/video003/reports/C/"
       ],
-      "dependencies": [
-        "A motion contract"
-      ]
+      "proofs": []
     },
     {
       "id": "D",
+      "role": "Suspension aerodynamic explanation",
       "handoff": "D_AIRFLOW_HANDOFF.md",
       "branch": "sol/y003-airflow",
-      "status": "inspection_ready",
+      "status": "preparation_ready",
+      "input_sha": null,
+      "initial_preparation_sha": "50fd478256bbe12d37410e78678bd7c302d96434",
+      "output_sha": null,
       "owned_files": [
-        "yunex/src/video003/airflow/"
+        "yunex/src/video003/airflow/",
+        "yunex/video003/reports/D/"
       ],
-      "dependencies": [
-        "A motion contract",
-        "B geometry anchors"
-      ]
+      "proofs": []
     },
     {
       "id": "E",
-      "handoff": "E_DELIVERY_HANDOFF.md",
-      "branch": "sol/y003-delivery",
-      "status": "preflight_ready",
+      "role": "Edit timing, typography and finishing",
+      "handoff": "E_EDIT_HANDOFF.md",
+      "branch": "sol/y003-edit",
+      "status": "preparation_ready",
+      "input_sha": null,
+      "initial_preparation_sha": "50fd478256bbe12d37410e78678bd7c302d96434",
+      "output_sha": null,
       "owned_files": [
         "yunex/src/video003/edit/",
-        "yunex/src/video003/audio/",
-        "yunex/video003/render/",
-        "yunex/video003/reports/E/",
-        ".github/workflows/yunex-003-render.yml"
+        "yunex/video003/reports/E/"
       ],
-      "dependencies": [
-        "Manager pinned integrated source for final render"
-      ]
+      "proofs": []
+    },
+    {
+      "id": "F",
+      "role": "Supplied narration, automotive sound and timing",
+      "handoff": "F_AUDIO_HANDOFF.md",
+      "branch": "sol/y003-audio",
+      "status": "preparation_ready",
+      "input_sha": null,
+      "initial_preparation_sha": "50fd478256bbe12d37410e78678bd7c302d96434",
+      "output_sha": null,
+      "owned_files": [
+        "yunex/src/video003/audio/",
+        "yunex/video003/audio/",
+        "yunex/video003/reports/F/"
+      ],
+      "proofs": []
+    },
+    {
+      "id": "G",
+      "role": "Native render pipeline and final export",
+      "handoff": "G_RENDER_HANDOFF.md",
+      "branch": "sol/y003-render",
+      "status": "preparation_ready",
+      "input_sha": null,
+      "initial_preparation_sha": "50fd478256bbe12d37410e78678bd7c302d96434",
+      "output_sha": null,
+      "owned_files": [
+        "yunex/video003/render/",
+        ".github/workflows/yunex-003-render.yml",
+        "yunex/video003/reports/G/"
+      ],
+      "proofs": []
+    },
+    {
+      "id": "H",
+      "role": "Independent driving, mechanical and visual QA",
+      "handoff": "H_QA_HANDOFF.md",
+      "branch": "sol/y003-qa",
+      "status": "preparation_ready",
+      "input_sha": null,
+      "initial_preparation_sha": "50fd478256bbe12d37410e78678bd7c302d96434",
+      "output_sha": null,
+      "owned_files": [
+        "yunex/video003/qa/",
+        "yunex/video003/reports/H/",
+        "yunex/video003/reports/H/"
+      ],
+      "proofs": []
     }
   ]
 }
