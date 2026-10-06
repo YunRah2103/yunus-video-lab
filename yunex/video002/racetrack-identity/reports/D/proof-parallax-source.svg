@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="1920" viewBox="0 0 1080 1920">
+<rect width="1080" height="1920" fill="#111416"/>
+<text x="70" y="80" fill="#f2f3f3" font-family="Arial" font-size="32" font-weight="700">YUNEX 002 — Landscape depth source proof</text>
+<text x="70" y="122" fill="#aeb8b5" font-family="Arial" font-size="20">Three deterministic phase samples • NOT native motion</text>
+<g>
+  <rect x="70" y="190" width="940" height="445" rx="18" fill="#202628" stroke="#3b4548"/>
+  <rect x="70" y="490" width="940" height="145" fill="#394038"/>
+  <circle cx="185" cy="435" r="55" fill="#425447"/><circle cx="390" cy="410" r="66" fill="#50604d"/>
+  <circle cx="640" cy="440" r="72" fill="#3f5144"/><circle cx="865" cy="420" r="58" fill="#596653"/>
+  <path d="M170 600 C360 525, 650 535, 900 582" fill="none" stroke="#303638" stroke-width="112"/>
+  <text x="95" y="228" fill="#d5dbd8" font-family="Arial" font-size="18">Phase 1: near/mid/far layers shift at different rates</text>
+  </g>
+<g>
+  <rect x="70" y="725" width="940" height="445" rx="18" fill="#202628" stroke="#3b4548"/>
+  <rect x="70" y="1025" width="940" height="145" fill="#394038"/>
+  <circle cx="178" cy="970" r="55" fill="#425447"/><circle cx="377.4" cy="945" r="66" fill="#50604d"/>
+  <circle cx="620.4" cy="975" r="72" fill="#3f5144"/><circle cx="839.8" cy="955" r="58" fill="#596653"/>
+  <path d="M170 1135 C360 1060, 650 1070, 900 1117" fill="none" stroke="#303638" stroke-width="112"/>
+  <text x="95" y="763" fill="#d5dbd8" font-family="Arial" font-size="18">Phase 2: near/mid/far layers shift at different rates</text>
+  </g>
+<g>
+  <rect x="70" y="1260" width="940" height="445" rx="18" fill="#202628" stroke="#3b4548"/>
+  <rect x="70" y="1560" width="940" height="145" fill="#394038"/>
+  <circle cx="171" cy="1505" r="55" fill="#425447"/><circle cx="364.8" cy="1480" r="66" fill="#50604d"/>
+  <circle cx="600.8" cy="1510" r="72" fill="#3f5144"/><circle cx="814.6" cy="1490" r="58" fill="#596653"/>
+  <path d="M170 1670 C360 1595, 650 1605, 900 1652" fill="none" stroke="#303638" stroke-width="112"/>
+  <text x="95" y="1298" fill="#d5dbd8" font-family="Arial" font-size="18">Phase 3: near/mid/far layers shift at different rates</text>
+  </g>
+</svg>
