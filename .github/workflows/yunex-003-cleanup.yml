@@ -1,0 +1,28 @@
+name: YUNEX 003 cleanup obsolete proofs
+
+permissions:
+  actions: write
+  contents: read
+
+on:
+  push:
+    branches:
+      - sol/y003-suspension-manager
+    paths:
+      - '.github/workflows/yunex-003-cleanup.yml'
+
+jobs:
+  cancel-obsolete:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Cancel obsolete proof runs
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          for id in 37545181253 37544481189 37542913938 37542316994 37540988720; do
+            echo "Cancelling obsolete Y003 proof run $id"
+            gh api --method POST "repos/$REPO/actions/runs/$id/cancel" >/dev/null 2>&1 || true
+          done
