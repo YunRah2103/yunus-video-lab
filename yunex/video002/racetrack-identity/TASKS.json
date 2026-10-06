@@ -18,7 +18,7 @@
         "yunex/video002/racetrack-identity/START_HERE.md",
         "yunex/video002/racetrack-identity/TASKS.json"
       ],
-      "status": "waiting_for_f_review_evidence",
+      "status": "waiting_for_e_final_visual_pass",
       "input_sha": "8a02cc405d0f9958301c24cc4ce3add824f28288",
       "output_sha": "3ee36a708e2a466c0822431af940cf0be47b1c01",
       "proofs": []
@@ -100,7 +100,7 @@
         "yunex/src/video002/trackUpgrade/qa/trackIdentity/",
         "yunex/video002/racetrack-identity/reports/E/"
       ],
-      "status": "static_pass_waiting_native_evidence",
+      "status": "ready_for_final_visual_review",
       "input_sha": "3ee36a708e2a466c0822431af940cf0be47b1c01",
       "output_sha": "4e9e70ab9343e9d7c9f23d9a21e06492da45a71a",
       "proofs": [
@@ -120,10 +120,13 @@
         "yunex/src/video002/trackUpgrade/nativeRender/trackIdentity/",
         "yunex/video002/racetrack-identity/reports/F/"
       ],
-      "status": "ready_to_render_review_evidence",
+      "status": "review_evidence_complete_waiting_e_visual_pass",
       "input_sha": "3ee36a708e2a466c0822431af940cf0be47b1c01",
-      "output_sha": "2496ff0e9d3d55bd7f2e18de95aaaaca9b8814d6",
-      "proofs": []
+      "output_sha": "637b040162f9b4c76a8b18af04a1b79e59051a7b",
+      "proofs": [
+        "GitHub Actions run 37501731782",
+        "artifact 11430840385: y002-track-identity-native-review-evidence"
+      ]
     },
     {
       "id": "G_INTEGRATION",
