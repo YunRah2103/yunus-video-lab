@@ -30,7 +30,7 @@ on:
         type: string
 
 concurrency:
-  group: y002-track-identity-render-${{ github.ref }}-${{ github.event_name }}
+  group: y002-track-identity-render-${{ github.sha }}-${{ github.event_name }}
   cancel-in-progress: false
 
 env:
@@ -188,78 +188,146 @@ jobs:
           if-no-files-found: error
           retention-days: 14
 
-  render-review-evidence:
+  render-review-stills:
     needs: gate-review
     runs-on: ubuntu-latest
-    timeout-minutes: 45
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      max-parallel: 7
+      matrix:
+        include:
+          - frame: 18
+            file: beat-0018-hook.png
+          - frame: 114
+            file: beat-0114-isolate.png
+          - frame: 210
+            file: beat-0210-high-downforce.png
+          - frame: 336
+            file: beat-0336-drs.png
+          - frame: 456
+            file: beat-0456-airbrake.png
+          - frame: 600
+            file: beat-0600-whole-car.png
+          - frame: 705
+            file: beat-0705-payoff.png
     steps:
       - uses: actions/checkout@v4
         with:
           ref: ${{ needs.gate-review.outputs.source_sha }}
           path: source
-      - uses: actions/checkout@v4
-        with:
-          ref: ${{ needs.gate-review.outputs.e_qa_sha }}
-          path: qa
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
           cache: npm
           cache-dependency-path: source/yunex/package-lock.json
-      - name: Stage and verify locked assets
+      - name: Stage and verify locked Porsche
         run: |
           set -euo pipefail
-          mkdir -p source/yunex/public source/review-evidence
+          mkdir -p source/yunex/public source/review-still
+          cp source/cars/porsche-911-gt3-rs-992/model.glb source/yunex/public/model.glb
+          test "$(sha256sum source/cars/porsche-911-gt3-rs-992/model.glb | awk '{print $1}')" = "$EXPECTED_CAR_SHA256"
+      - name: Install runtime
+        working-directory: source/yunex
+        run: npm ci
+      - name: Render one native 1080x1920 review still
+        working-directory: source/yunex
+        env:
+          NODE_OPTIONS: --require=./fix-network.cjs
+        run: |
+          set -euo pipefail
+          npx remotion still src/index.tsx "$VISUAL_COMPOSITION" "../review-still/${{ matrix.file }}" \
+            --frame="${{ matrix.frame }}" \
+            --gl=swangle \
+            --scale=1 \
+            --timeout=120000
+          test -s "../review-still/${{ matrix.file }}"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: y002-track-identity-native-still-${{ matrix.frame }}
+          path: source/review-still/${{ matrix.file }}
+          if-no-files-found: error
+          retention-days: 14
+
+  render-review-motion:
+    needs: gate-review
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.gate-review.outputs.source_sha }}
+          path: source
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: source/yunex/package-lock.json
+      - name: Stage assets and media tools
+        run: |
+          set -euo pipefail
+          mkdir -p source/yunex/public source/review-motion
           cp source/cars/porsche-911-gt3-rs-992/model.glb source/yunex/public/model.glb
           test "$(sha256sum source/cars/porsche-911-gt3-rs-992/model.glb | awk '{print $1}')" = "$EXPECTED_CAR_SHA256"
           if ! command -v ffmpeg >/dev/null 2>&1 || ! command -v ffprobe >/dev/null 2>&1; then
             sudo apt-get update
             sudo apt-get install -y ffmpeg
           fi
-          command -v ffmpeg
-          command -v ffprobe
-      - name: Install render runtime
+      - name: Install runtime
         working-directory: source/yunex
         run: npm ci
-      - name: Render seven native review stills
+      - name: Render short labelled 30 fps DRS transition proof
         working-directory: source/yunex
         env:
           NODE_OPTIONS: --require=./fix-network.cjs
         run: |
           set -euo pipefail
-          while read -r frame file; do
-            npx remotion still src/index.tsx "$VISUAL_COMPOSITION" "../review-evidence/$file" \
-              --frame="$frame" \
-              --gl=swangle \
-              --scale=1 \
-              --timeout=120000
-          done <<'EOF'
-          18 beat-0018-hook.png
-          114 beat-0114-isolate.png
-          210 beat-0210-high-downforce.png
-          336 beat-0336-drs.png
-          456 beat-0456-airbrake.png
-          600 beat-0600-whole-car.png
-          705 beat-0705-payoff.png
-          EOF
-      - name: Render reduced-resolution 30 fps continuity proof
-        working-directory: source/yunex
-        env:
-          NODE_OPTIONS: --require=./fix-network.cjs
-        run: |
-          set -euo pipefail
-          npx remotion render src/index.tsx "$VISUAL_COMPOSITION" "../review-evidence/moving-proof-reduced.mp4" \
-            --frames=300-539 \
+          npx remotion render src/index.tsx "$VISUAL_COMPOSITION" "../review-motion/moving-proof-reduced.mp4" \
+            --frames=270-329 \
             --gl=swangle \
             --concurrency=2 \
             --codec=h264 \
             --pixel-format=yuv420p \
             --crf=18 \
-            --scale=0.5 \
+            --scale=0.25 \
             --timeout=120000 \
             --muted
-          ffmpeg -v error -xerror -i ../review-evidence/moving-proof-reduced.mp4 -f null -
-      - name: Write proof manifest and validate evidence package
+          ffmpeg -v error -xerror -i ../review-motion/moving-proof-reduced.mp4 -f null -
+          ffprobe -v error -count_frames -show_streams -show_format -of json \
+            ../review-motion/moving-proof-reduced.mp4 > ../review-motion/moving-proof-probe.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: y002-track-identity-motion-proof
+          path: source/review-motion/
+          if-no-files-found: error
+          retention-days: 14
+
+  package-review-evidence:
+    needs: [gate-review, render-review-stills, render-review-motion]
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.gate-review.outputs.e_qa_sha }}
+          path: qa
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: y002-track-identity-native-still-*
+          path: evidence
+          merge-multiple: true
+      - uses: actions/download-artifact@v4
+        with:
+          name: y002-track-identity-motion-proof
+          path: evidence
+      - name: Ensure FFmpeg is available
+        run: |
+          set -euo pipefail
+          if ! command -v ffmpeg >/dev/null 2>&1 || ! command -v ffprobe >/dev/null 2>&1; then
+            sudo apt-get update
+            sudo apt-get install -y ffmpeg
+          fi
+      - name: Write manifest and run E's evidence validator
         env:
           SOURCE_SHA: ${{ needs.gate-review.outputs.source_sha }}
         run: |
@@ -267,11 +335,11 @@ jobs:
           python - <<'PY'
           import json, os
           from pathlib import Path
-          d=Path("source/review-evidence")
+          d=Path("evidence")
           manifest={
             "phase":"Y002-RACETRACK-IDENTITY-02",
             "source_sha":os.environ["SOURCE_SHA"],
-            "moving_proof_label":"reduced-resolution 30 fps continuity proof, frames 300-539",
+            "moving_proof_label":"reduced-resolution 270x480 30 fps DRS transition proof, frames 270-329",
             "frames":[
               {"beat":"hook","frame":18,"file":"beat-0018-hook.png"},
               {"beat":"isolate","frame":114,"file":"beat-0114-isolate.png"},
@@ -285,15 +353,15 @@ jobs:
           (d/"proof-manifest.json").write_text(json.dumps(manifest,indent=2)+"\n")
           PY
           python qa/yunex/src/video002/trackUpgrade/qa/trackIdentity/validate_visual_proofs.py \
-            --manifest source/review-evidence/proof-manifest.json \
-            --moving-proof source/review-evidence/moving-proof-reduced.mp4 \
+            --manifest evidence/proof-manifest.json \
+            --moving-proof evidence/moving-proof-reduced.mp4 \
             --expected-source-sha "$SOURCE_SHA" \
-            --json-out source/review-evidence/automated-validation.json
-          (cd source/review-evidence && sha256sum *.png *.mp4 > sha256.txt)
+            --json-out evidence/automated-validation.json
+          (cd evidence && sha256sum *.png *.mp4 > sha256.txt)
       - uses: actions/upload-artifact@v4
         with:
           name: y002-track-identity-native-review-evidence
-          path: source/review-evidence/
+          path: evidence/
           if-no-files-found: error
           retention-days: 14
 
