@@ -1,0 +1,30 @@
+{
+  "phase": "Y002-RACETRACK-IDENTITY-02",
+  "role": "A — Layout",
+  "input_sha": "8a02cc405d0f9958301c24cc4ce3add824f28288",
+  "coordinate_space": "YUNEX 002 track-local before TrackWorld root transform",
+  "road_width_m": 8.6,
+  "sample_step_m": 0.5,
+  "sample_count": 161,
+  "straight_corridor_local_z_m": [
+    -8,
+    8
+  ],
+  "distant_bend_local_z_m": [
+    10,
+    34
+  ],
+  "bend_offset_x_m": 2.65,
+  "max_heading_degrees": 9.40424235,
+  "locked_car_footprint_proxy_m": {
+    "half_width": 1.12,
+    "half_length": 2.45
+  },
+  "minimum_car_footprint_edge_clearance_m": 3.125,
+  "proofs": [
+    "proof-current-camera-opening.svg",
+    "proof-current-camera-payoff.svg",
+    "proof-high-angle.svg"
+  ],
+  "note": "Proof SVGs are deterministic layout/debug projections at 1080x1920, not native beauty renders."
+}
