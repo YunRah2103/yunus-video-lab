@@ -21,6 +21,12 @@ const _object = new THREE.Object3D();
 const _qFlat = new THREE.Quaternion().setFromAxisAngle(X_AXIS, -Math.PI / 2);
 const _qYaw = new THREE.Quaternion();
 const _q = new THREE.Quaternion();
+const ROAD_WIDTH = ROAD_LOCAL.roadMaxX - ROAD_LOCAL.roadMinX;
+const ROAD_CENTER_X = (ROAD_LOCAL.roadMinX + ROAD_LOCAL.roadMaxX) / 2;
+const ROAD_LENGTH = ROAD_LOCAL.roadMaxZ - ROAD_LOCAL.roadMinZ;
+const ROAD_CENTER_Z = (ROAD_LOCAL.roadMinZ + ROAD_LOCAL.roadMaxZ) / 2;
+const VERGE_WIDTH = ROAD_LOCAL.vergeMaxX - ROAD_LOCAL.vergeMinX;
+const VERGE_CENTER_X = (ROAD_LOCAL.vergeMinX + ROAD_LOCAL.vergeMaxX) / 2;
 
 const setFlatInstance = (
   mesh: THREE.InstancedMesh,
@@ -92,6 +98,8 @@ export const RoadSurfaces: React.FC<RoadSurfacesProps> = ({quality, seed = 2103}
   );
   const planeGeometry = useMemo(() => new THREE.PlaneGeometry(1, 1), []);
   const chipGeometry = useMemo(() => new THREE.BoxGeometry(1, 0.005, 1), []);
+  const asphaltGeometry = useMemo(() => new THREE.PlaneGeometry(ROAD_WIDTH, ROAD_LENGTH), []);
+  const vergeGeometry = useMemo(() => new THREE.PlaneGeometry(VERGE_WIDTH, ROAD_LENGTH), []);
 
   const macroRef = useRef<THREE.InstancedMesh>(null);
   const rubberRef = useRef<THREE.InstancedMesh>(null);
@@ -238,6 +246,8 @@ export const RoadSurfaces: React.FC<RoadSurfacesProps> = ({quality, seed = 2103}
       circleGeometry.dispose();
       planeGeometry.dispose();
       chipGeometry.dispose();
+      asphaltGeometry.dispose();
+      vergeGeometry.dispose();
       asphaltMaterial.dispose();
       vergeMaterial.dispose();
       macroMaterial.dispose();
@@ -247,6 +257,7 @@ export const RoadSurfaces: React.FC<RoadSurfacesProps> = ({quality, seed = 2103}
       chipMaterial.dispose();
     },
     [
+      asphaltGeometry,
       asphaltMaterial,
       chipGeometry,
       chipMaterial,
@@ -259,16 +270,10 @@ export const RoadSurfaces: React.FC<RoadSurfacesProps> = ({quality, seed = 2103}
       rubberMaterial,
       textures.asphalt,
       textures.verge,
+      vergeGeometry,
       vergeMaterial,
     ],
   );
-
-  const roadWidth = ROAD_LOCAL.roadMaxX - ROAD_LOCAL.roadMinX;
-  const roadCenterX = (ROAD_LOCAL.roadMinX + ROAD_LOCAL.roadMaxX) / 2;
-  const roadLength = ROAD_LOCAL.roadMaxZ - ROAD_LOCAL.roadMinZ;
-  const roadCenterZ = (ROAD_LOCAL.roadMinZ + ROAD_LOCAL.roadMaxZ) / 2;
-  const vergeWidth = ROAD_LOCAL.vergeMaxX - ROAD_LOCAL.vergeMinX;
-  const vergeCenterX = (ROAD_LOCAL.vergeMinX + ROAD_LOCAL.vergeMaxX) / 2;
 
   return (
     <group
@@ -283,18 +288,18 @@ export const RoadSurfaces: React.FC<RoadSurfacesProps> = ({quality, seed = 2103}
       <mesh
         name="Road_Asphalt_Authored"
         receiveShadow
-        position={[roadCenterX, ROAD_LOCAL.asphaltY, roadCenterZ]}
+        position={[ROAD_CENTER_X, ROAD_LOCAL.asphaltY, ROAD_CENTER_Z]}
         rotation={[-Math.PI / 2, 0, 0]}
-        geometry={new THREE.PlaneGeometry(roadWidth, roadLength)}
+        geometry={asphaltGeometry}
         material={asphaltMaterial}
       />
 
       <mesh
         name="Road_Verge_Authored"
         receiveShadow
-        position={[vergeCenterX, ROAD_LOCAL.vergeY, roadCenterZ]}
+        position={[VERGE_CENTER_X, ROAD_LOCAL.vergeY, ROAD_CENTER_Z]}
         rotation={[-Math.PI / 2, 0, 0]}
-        geometry={new THREE.PlaneGeometry(vergeWidth, roadLength)}
+        geometry={vergeGeometry}
         material={vergeMaterial}
       />
 
