@@ -31,6 +31,13 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Prepare locked Porsche asset
+        run: |
+          mkdir -p public
+          cp ../cars/porsche-911-gt3-rs-992/model.glb public/model.glb
+          sha256sum public/model.glb | tee out-car-sha.txt
+          grep -q '^1c73fcb138c31e2b1d5ed126a2412074bb17f8e960b355436f28139bf518e1eb ' out-car-sha.txt
+
       - name: Validate proof bundle
         run: NODE_OPTIONS=--require=./fix-network.cjs npx remotion compositions src/video002/trackUpgrade/vegetation/ProofRoot.tsx
 
