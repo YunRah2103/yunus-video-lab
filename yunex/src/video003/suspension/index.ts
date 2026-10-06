@@ -1,6 +1,7 @@
 export {FrontSuspension, type FrontSuspensionProps} from './FrontSuspension';
 export {SuspensionFixtureProof, type SuspensionFixtureProofProps} from './SuspensionFixtureProof';
 export {fixtureStateAtFrame, neutralSuspensionState} from './referenceFixture';
+export {frontSuspensionStateFromMotion, type MotionContractLike, type MotionFrontWheelLike} from './motionAdapter';
 export {createTeardropLinkGeometry, profileInspection} from './profileGeometry';
 export {
   FRONT_WHEEL_CENTRES,
