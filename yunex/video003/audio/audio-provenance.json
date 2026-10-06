@@ -1,0 +1,14 @@
+{
+  "voice": {
+    "source": "User supplied OpenAI FM Cedar MP3",
+    "library_id": "libfile_6e284ae6e75c819197dd652690e22ae8",
+    "sha256": "826d7863cd4ec135e0352e9800f47b54239f8ba1d4c0d98ff5909a071905cfbb",
+    "license": "user supplied",
+    "treatment": "Narration words and timing unchanged. Preflight only resamples to 48 kHz stereo and applies +0.50 dB gain (1.06x). No trim, time-stretch or replacement."
+  },
+  "engine_bed": {"source":"procedural sine harmonics","license":"generated in-session","status":"preflight/reference; final gain follows motion state"},
+  "road": {"source":"procedural filtered pink noise","license":"generated in-session","status":"preflight/reference; final gain follows speed"},
+  "wind": {"source":"procedural filtered white noise","license":"generated in-session","status":"preflight/reference; final gain follows speed/camera distance"},
+  "pass": {"source":"no third-party pass SFX introduced","license":"n/a","status":"final pass envelope is API-driven; optional sourced pass must add provenance before use"},
+  "repository_audit": "Y002 audio provenance documents only procedural engine/wind/mechanical beds; no suitable provenance-complete real Porsche pass/engine recording was present in production base."
+}
