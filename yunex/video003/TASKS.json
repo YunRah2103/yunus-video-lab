@@ -1,0 +1,89 @@
+{
+  "phase": "Y003-SUSPENSION-AERO-01",
+  "repository": "YunRah2103/yunus-video-lab",
+  "integration_branch": "sol/y003-suspension-manager",
+  "base_sha": "50fd478256bbe12d37410e78678bd7c302d96434",
+  "execution": "Separate user-started chats; no internal agents",
+  "render_source_sha": null,
+  "tasks": [
+    {
+      "id": "MANAGER",
+      "handoff": "MASTER_HANDOFF.md",
+      "branch": "sol/y003-suspension-manager",
+      "status": "ready",
+      "owned_files": [
+        "yunex/video003/START_HERE.md",
+        "yunex/video003/TASKS.json",
+        "yunex/src/video003/Video003.tsx",
+        "yunex/src/video003/timeline.ts",
+        "yunex/src/video003/types.ts",
+        "yunex/src/index.tsx"
+      ]
+    },
+    {
+      "id": "A",
+      "handoff": "A_MOTION_HANDOFF.md",
+      "branch": "sol/y003-driving",
+      "status": "ready_for_manager_pin",
+      "owned_files": [
+        "yunex/src/video003/motion/"
+      ],
+      "dependencies": []
+    },
+    {
+      "id": "B",
+      "handoff": "B_SUSPENSION_HANDOFF.md",
+      "branch": "sol/y003-suspension",
+      "status": "ready_for_manager_pin",
+      "owned_files": [
+        "yunex/src/video003/suspension/"
+      ],
+      "dependencies": [
+        "A anchors/contract for rig binding"
+      ]
+    },
+    {
+      "id": "C",
+      "handoff": "C_CAMERA_HANDOFF.md",
+      "branch": "sol/y003-cameras",
+      "status": "inspection_ready",
+      "owned_files": [
+        "yunex/src/video003/cameras/",
+        "yunex/src/video003/reveal/",
+        "yunex/src/video003/track/"
+      ],
+      "dependencies": [
+        "A motion contract"
+      ]
+    },
+    {
+      "id": "D",
+      "handoff": "D_AIRFLOW_HANDOFF.md",
+      "branch": "sol/y003-airflow",
+      "status": "inspection_ready",
+      "owned_files": [
+        "yunex/src/video003/airflow/"
+      ],
+      "dependencies": [
+        "A motion contract",
+        "B geometry anchors"
+      ]
+    },
+    {
+      "id": "E",
+      "handoff": "E_DELIVERY_HANDOFF.md",
+      "branch": "sol/y003-delivery",
+      "status": "preflight_ready",
+      "owned_files": [
+        "yunex/src/video003/edit/",
+        "yunex/src/video003/audio/",
+        "yunex/video003/render/",
+        "yunex/video003/reports/E/",
+        ".github/workflows/yunex-003-render.yml"
+      ],
+      "dependencies": [
+        "Manager pinned integrated source for final render"
+      ]
+    }
+  ]
+}
