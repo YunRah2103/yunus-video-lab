@@ -1,0 +1,28 @@
+{
+  "phase": "Y002-RACETRACK-IDENTITY-02",
+  "role": "D — Landscape / Outdoor Look Development",
+  "input_sha": "7ecd296b10f6d1d316544f1eb06a84bf5babedf3",
+  "branch": "sol/y002-track-identity-lookdev",
+  "seed": 2103,
+  "preview": {
+    "trees": 25,
+    "shrubs": 45,
+    "grass": 150,
+    "approximate_triangles": 24350,
+    "validation_violations": 0
+  },
+  "final": {
+    "trees": 47,
+    "shrubs": 84,
+    "grass": 300,
+    "approximate_triangles": 67820,
+    "validation_violations": 0
+  },
+  "lighting": {
+    "fog_near_final": 34,
+    "fog_far_final": 128,
+    "key_multiplier": 0.96,
+    "fill_multiplier": 0.82
+  },
+  "native_render_status": "not_run_in_agent_environment; Manager/E/F native pipeline remains responsible"
+}
