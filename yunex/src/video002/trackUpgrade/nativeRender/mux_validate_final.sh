@@ -61,11 +61,11 @@ PY
 mux 0
 measure pass1
 TP="$(python -c 'import json; print(float(json.load(open("'"$TMP/audio_metrics.json"'"))["input_tp"]))')"
-python - "$TP" <<'PY'
+if ! python - "$TP" <<'PY'
 import sys
 raise SystemExit(0 if float(sys.argv[1]) <= -1.0 else 1)
 PY
-if [ "$?" -ne 0 ]; then
+then
   mux -0.5
   measure pass2
 fi
