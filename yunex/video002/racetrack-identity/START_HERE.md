@@ -8,9 +8,9 @@ This branch contains handoffs, not an implemented environment upgrade. Source fi
 1. Start Manager with MANAGER_HANDOFF.md and A with A_LAYOUT_HANDOFF.md.
 2. E can begin baseline QA; F can begin render-pipeline preflight immediately.
 3. B/C/D inspect their files now, but implement only after Manager publishes layout_contract_sha in TASKS.json.
-4. Manager integrates A–D; E audits the integrated native proofs; F renders the complete first reviewable candidate from pinned render_source_sha. Astra reviews and approves the actual movie.
+4. Agent G integrates A–D on `sol/y002-track-identity-integration`; Manager verifies and pins G's exact output as `render_source_sha`; E audits the integrated native proofs; F renders the complete first reviewable candidate from the pinned source. Astra reviews and approves the actual movie.
 
-There are **seven chats total: Manager + A–F**. Do not spawn more agents. Specialists do actual work on their owned branch. Manager coordinates via GitHub registry and reports; user-opened separate chats cannot assume a shared filesystem or direct inter-agent messaging.
+There are **eight chats total: Manager + A–G**. Agent G is the sole integration agent for this phase. Do not spawn more agents. Specialists do actual work on their owned branch. Manager coordinates via GitHub registry and reports; user-opened separate chats cannot assume a shared filesystem or direct inter-agent messaging.
 
 ## Exact role routing
 - **Manager**: [MANAGER_HANDOFF.md](MANAGER_HANDOFF.md) — `sol/y002-track-identity-manager`
@@ -20,6 +20,7 @@ There are **seven chats total: Manager + A–F**. Do not spawn more agents. Spec
 - **D — Landscape / Outdoor Look Development**: [D_LOOKDEV_HANDOFF.md](D_LOOKDEV_HANDOFF.md) — `sol/y002-track-identity-lookdev`
 - **E — Independent Track / Visual QA**: [E_QA_HANDOFF.md](E_QA_HANDOFF.md) — `sol/y002-track-identity-qa`
 - **F — Native Render / Final Delivery**: [F_RENDER_HANDOFF.md](F_RENDER_HANDOFF.md) — `sol/y002-track-identity-render`
+- **G — Integration**: [G_INTEGRATION_HANDOFF.md](G_INTEGRATION_HANDOFF.md) — `sol/y002-track-identity-integration`
 
 Read [COMMON_BRIEF.md](COMMON_BRIEF.md) then [TASKS.json](TASKS.json) and your exact role file. Ignore historical track-upgrade/airflow/vegetation handoffs. Agent C in THIS phase owns runoff/barriers, not airflow or foliage.
 
