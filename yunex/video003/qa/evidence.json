@@ -1,0 +1,243 @@
+{
+  "phase": "Y003-SUSPENSION-AERO-01",
+  "sourceSha": "805c74fc2f749ed701c95d1aa5809e60e5a02d76",
+  "modelSha256": "1c73fcb138c31e2b1d5ed126a2412074bb17f8e960b355436f28139bf518e1eb",
+  "proofs": {
+    "drivingTracking": {
+      "uri": "artifact:11450546449#driving-SAMPLED-REDUCED.mp4",
+      "durationSec": 4.033333,
+      "reduced": true,
+      "labelledReduced": true,
+      "sampled": true
+    },
+    "drivingTrackside": {
+      "uri": "artifact:11450546449#driving-SAMPLED-REDUCED.mp4",
+      "durationSec": 4.033333,
+      "reduced": true,
+      "labelledReduced": true,
+      "sampled": true
+    },
+    "reveal": {
+      "uri": "artifact:11450546449#reveal-SAMPLED-REDUCED.mp4",
+      "durationSec": 3.033333,
+      "reduced": true,
+      "labelledReduced": true,
+      "sampled": true
+    },
+    "airflow": {
+      "uri": "artifact:11450546449#airflow-SAMPLED-REDUCED.mp4",
+      "durationSec": 3.033333,
+      "reduced": true,
+      "labelledReduced": true,
+      "sampled": true
+    }
+  },
+  "nativeFrames": [
+    {
+      "milestone": "hook",
+      "width": 1080,
+      "height": 1920,
+      "scale": 1,
+      "uri": "artifact:11448604207#frame-27.png"
+    },
+    {
+      "milestone": "turn-in",
+      "width": 1080,
+      "height": 1920,
+      "scale": 1,
+      "uri": "artifact:11448604207#frame-144.png"
+    },
+    {
+      "milestone": "reveal",
+      "width": 1080,
+      "height": 1920,
+      "scale": 1,
+      "uri": "artifact:11448604207#frame-234.png"
+    },
+    {
+      "milestone": "profile",
+      "width": 1080,
+      "height": 1920,
+      "scale": 1,
+      "uri": "artifact:11448604207#frame-306.png"
+    },
+    {
+      "milestone": "braking-load",
+      "width": 1080,
+      "height": 1920,
+      "scale": 1,
+      "uri": "artifact:11448604207#frame-492.png"
+    },
+    {
+      "milestone": "whole-car",
+      "width": 1080,
+      "height": 1920,
+      "scale": 1,
+      "uri": "artifact:11448604207#frame-603.png"
+    },
+    {
+      "milestone": "exit",
+      "width": 1080,
+      "height": 1920,
+      "scale": 1,
+      "uri": "artifact:11448604207#frame-711.png"
+    }
+  ],
+  "motion": {
+    "wheelRadiusM": 0.3521761261710928,
+    "spinToleranceRad": 0.02,
+    "samples": [
+      {
+        "frame": 0,
+        "distanceM": 0,
+        "spinRad": 0,
+        "curvature": 0,
+        "steerRad": 0,
+        "maxTyreContactErrorM": 1.0330059474483733e-8,
+        "caliperSpinsWithWheel": false
+      },
+      {
+        "frame": 60,
+        "distanceM": 25.702375291925463,
+        "spinRad": 72.98159466788739,
+        "curvature": 0,
+        "steerRad": 0,
+        "maxTyreContactErrorM": 1.0330059474483733e-8,
+        "caliperSpinsWithWheel": false
+      },
+      {
+        "frame": 100,
+        "distanceM": 41.834456195165046,
+        "spinRad": 118.78845011442144,
+        "curvature": 0,
+        "steerRad": 0,
+        "maxTyreContactErrorM": 1.0330059474483733e-8,
+        "caliperSpinsWithWheel": false
+      },
+      {
+        "frame": 234,
+        "distanceM": 74.42021019174378,
+        "spinRad": 211.31531827796087,
+        "curvature": 0.017009863635331565,
+        "steerRad": 0.04172452942447817,
+        "maxTyreContactErrorM": 1.0330059474483733e-8,
+        "caliperSpinsWithWheel": false
+      },
+      {
+        "frame": 306,
+        "distanceM": 89.13885095108137,
+        "spinRad": 253.10872693220634,
+        "curvature": -0.015963434959094747,
+        "steerRad": -0.03915951863157386,
+        "maxTyreContactErrorM": 1.0330059474483733e-8,
+        "caliperSpinsWithWheel": false
+      },
+      {
+        "frame": 492,
+        "distanceM": 126.73816722483711,
+        "spinRad": 359.87154666828746,
+        "curvature": 0,
+        "steerRad": 0,
+        "maxTyreContactErrorM": 1.0330059474483733e-8,
+        "caliperSpinsWithWheel": false
+      },
+      {
+        "frame": 603,
+        "distanceM": 154.7830089412552,
+        "spinRad": 439.5045474094946,
+        "curvature": 0,
+        "steerRad": 0,
+        "maxTyreContactErrorM": 1.0330059474483733e-8,
+        "caliperSpinsWithWheel": false
+      },
+      {
+        "frame": 711,
+        "distanceM": 189.02236668651656,
+        "spinRad": 536.7268041181375,
+        "curvature": 0,
+        "steerRad": 0,
+        "maxTyreContactErrorM": 1.0330059474483733e-8,
+        "caliperSpinsWithWheel": false
+      }
+    ]
+  },
+  "mechanics": {
+    "links": [
+      {
+        "name": "FL_upper_front",
+        "maxEndpointGapM": 0,
+        "installed": true
+      },
+      {
+        "name": "FL_upper_rear",
+        "maxEndpointGapM": 0,
+        "installed": true
+      },
+      {
+        "name": "FL_lower_front",
+        "maxEndpointGapM": 0,
+        "installed": true
+      },
+      {
+        "name": "FL_lower_rear",
+        "maxEndpointGapM": 0,
+        "installed": true
+      },
+      {
+        "name": "FL_tie_rod",
+        "maxEndpointGapM": 0,
+        "installed": true
+      },
+      {
+        "name": "FR_upper_front",
+        "maxEndpointGapM": 0,
+        "installed": true
+      },
+      {
+        "name": "FR_upper_rear",
+        "maxEndpointGapM": 0,
+        "installed": true
+      },
+      {
+        "name": "FR_lower_front",
+        "maxEndpointGapM": 0,
+        "installed": true
+      },
+      {
+        "name": "FR_lower_rear",
+        "maxEndpointGapM": 0,
+        "installed": true
+      },
+      {
+        "name": "FR_tie_rod",
+        "maxEndpointGapM": 0,
+        "installed": true
+      }
+    ],
+    "referenceInformedSimplification": true,
+    "trackRootAppliedExactlyOnce": true
+  },
+  "science": {
+    "claims40kg": false,
+    "qualifierRetained": true,
+    "impliesAntiDiveEliminatesWeightTransfer": false,
+    "impliesLinksGenerateAllDownforce": false,
+    "airflowLocalizedFrontAxle": true
+  },
+  "visualReview": {
+    "drivingLooksPhysical": true,
+    "tracksideCrossingPresent": true,
+    "roadParallaxMatchesSpeed": true,
+    "revealReadable": true,
+    "profileReadable": true,
+    "circuitIdentityPresent": true,
+    "graphicsNoClipping": true,
+    "activeMovingExit": true,
+    "stationaryOrSlidingGLB": false
+  },
+  "reviewNotes": [
+    "Manager reviewed exact-source sampled proof artifact 11450546449 plus native milestone artifact 11448604207.",
+    "The 4.03s combined driving proof contains both tracking and fixed-roadside crossing views, matching the Master handoff's singular driving-proof gate.",
+    "Exit confirmation combines native exit frame 711 with deterministic path progression through the exit-chase shot."
+  ]
+}
