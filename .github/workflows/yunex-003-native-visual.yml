@@ -1,0 +1,169 @@
+name: YUNEX 003 proof-approved native visual
+
+permissions:
+  contents: read
+  actions: read
+
+on:
+  push:
+    branches:
+      - sol/y003-suspension-manager
+    paths:
+      - '.github/workflows/yunex-003-native-visual.yml'
+      - 'yunex/video003/render/request.json'
+
+concurrency:
+  group: y003-native-visual-${{ github.ref }}-${{ github.run_id }}
+  cancel-in-progress: false
+
+env:
+  EXPECTED_MODEL_SHA: 1c73fcb138c31e2b1d5ed126a2412074bb17f8e960b355436f28139bf518e1eb
+
+jobs:
+  config:
+    runs-on: ubuntu-latest
+    outputs:
+      mode: ${{ steps.c.outputs.mode }}
+      source: ${{ steps.c.outputs.source }}
+      total: ${{ steps.c.outputs.total }}
+      matrix: ${{ steps.c.outputs.matrix }}
+    steps:
+      - uses: actions/checkout@v4
+      - id: c
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json, os, re
+          from pathlib import Path
+          r=json.loads(Path('yunex/video003/render/request.json').read_text())
+          source=str(r.get('render_source_sha') or '')
+          total=int(r.get('total_frames',0))
+          msg=os.environ.get('MSG','')
+          mode='full' if '[y003-native-visual]' in msg else 'selftest'
+          if mode=='full':
+              if not re.fullmatch(r'[0-9a-f]{40}',source):
+                  raise SystemExit('full render requires exact source SHA')
+              if total != 735:
+                  raise SystemExit(f'Y003 manager timeline must be exactly 735 frames, got {total}')
+          chunk=20
+          rows=[]
+          for start in range(0,max(total,1),chunk):
+              end=min(total-1,start+chunk-1)
+              if end>=start:
+                  rows.append({'part':f'{start:04d}-{end:04d}','start':start,'end':end,'frames':f'{start}-{end}'})
+          with open(os.environ['GITHUB_OUTPUT'],'a') as f:
+              f.write(f'mode={mode}\nsource={source}\ntotal={total}\n')
+              f.write('matrix='+json.dumps({'include':rows},separators=(',',':'))+'\n')
+          PY
+        env:
+          MSG: ${{ github.event.head_commit.message }}
+
+  selftest:
+    needs: config
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: |
+          python -m py_compile yunex/video003/render/*.py
+          echo "YUNEX 003 native visual pipeline selftest PASS"
+
+  render:
+    needs: [config,selftest]
+    if: needs.config.outputs.mode == 'full'
+    strategy:
+      fail-fast: false
+      max-parallel: 20
+      matrix: ${{ fromJSON(needs.config.outputs.matrix) }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.config.outputs.source }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: yunex/package-lock.json
+      - name: Verify source and model
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "${{ needs.config.outputs.source }}"
+          test "$(sha256sum cars/porsche-911-gt3-rs-992/model.glb | awk '{print $1}')" = "$EXPECTED_MODEL_SHA"
+          mkdir -p yunex/public yunex/out/y003-native
+          cp cars/porsche-911-gt3-rs-992/model.glb yunex/public/model.glb
+      - name: Install runtime
+        working-directory: yunex
+        run: npm ci --no-audit --no-fund
+      - name: Render native visual chunk
+        working-directory: yunex
+        env:
+          NODE_OPTIONS: --require=./fix-network.cjs
+        run: |
+          set -euo pipefail
+          npx remotion render src/index.tsx YUNEX-003-VISUAL "out/y003-native/chunk-${{ matrix.part }}.mp4" \
+            --frames="${{ matrix.frames }}" --gl=swangle --concurrency=2 --codec=h264 \
+            --pixel-format=yuv420p --crf=14 --scale=1 --timeout=120000 --muted
+          printf '%s\n' "${{ needs.config.outputs.source }}" > "out/y003-native/source-${{ matrix.part }}.txt"
+          sha256sum "out/y003-native/chunk-${{ matrix.part }}.mp4" > "out/y003-native/chunk-${{ matrix.part }}.sha256"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: y003-native-${{ matrix.part }}
+          path: yunex/out/y003-native/
+          retention-days: 14
+
+  assemble:
+    needs: [config,render]
+    if: needs.render.result == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.config.outputs.source }}
+          path: source
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: y003-native-*
+          path: chunks
+          merge-multiple: true
+      - name: Install ffmpeg
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq ffmpeg
+      - name: Assemble and validate native visual
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          from pathlib import Path
+          files=sorted(Path('chunks').glob('chunk-*.mp4'))
+          if not files: raise SystemExit('no rendered chunks')
+          Path('concat.txt').write_text(''.join("file '"+str(p.resolve())+"'\n" for p in files))
+          print('chunks',len(files))
+          PY
+          ffmpeg -y -v error -f concat -safe 0 -i concat.txt -c copy -movflags +faststart YUNEX_003_NATIVE_VISUAL.mp4
+          python source/yunex/video003/render/validate_export.py YUNEX_003_NATIVE_VISUAL.mp4 --total-frames "${{ needs.config.outputs.total }}" > validation.json
+          ffmpeg -v error -xerror -i YUNEX_003_NATIVE_VISUAL.mp4 -f null -
+          sha256sum YUNEX_003_NATIVE_VISUAL.mp4 > visual.sha256
+      - name: Extract seven native frames
+        run: |
+          set -euo pipefail
+          mkdir -p review
+          for frame in 27 144 234 306 492 603 711; do
+            ffmpeg -y -v error -i YUNEX_003_NATIVE_VISUAL.mp4 -vf "select=eq(n\,$frame)" -vsync 0 -frames:v 1 "review/frame-${frame}.png"
+          done
+          ffmpeg -y -v error -framerate 1 -pattern_type glob -i 'review/frame-*.png' -vf "scale=270:480,tile=4x2:padding=6:margin=6" -frames:v 1 review/contact-sheet.png
+          printf '{"phase":"Y003-SUSPENSION-AERO-01","status":"NATIVE_VISUAL_VALIDATED","source_sha":"%s","frames":735,"fps":30,"width":1080,"height":1920,"model_sha256":"%s"}\n' \
+            "${{ needs.config.outputs.source }}" "$EXPECTED_MODEL_SHA" > visual-manifest.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: YUNEX-003-NATIVE-VISUAL-${{ needs.config.outputs.source }}
+          path: |
+            YUNEX_003_NATIVE_VISUAL.mp4
+            validation.json
+            visual.sha256
+            visual-manifest.json
+            review/
+          retention-days: 14
