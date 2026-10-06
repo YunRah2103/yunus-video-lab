@@ -93,7 +93,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: 3c1c035618c41ebe51df261235bd2b44a490ddc8
+          ref: c3f4569a926d61bb7475b0949ae11b59c3765220
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
@@ -109,9 +109,9 @@ jobs:
         env:
           NODE_OPTIONS: --require=./fix-network.cjs
         run: |
-          npm ci --no-audit --no-fund
+          env -u NODE_OPTIONS npm ci --no-audit --no-fund
           npx remotion render src/index.tsx YUNEX-002-INTEGRATED-PROOF out/chunk-${{ matrix.part }}.mp4 --frames=${{ matrix.frames }} --gl=swangle --concurrency=2 --codec=h264 --crf=14 --scale=1 --timeout=120000 --muted
-          printf '%s\n' '3c1c035618c41ebe51df261235bd2b44a490ddc8' > out/source-sha.txt
+          printf '%s\n' 'c3f4569a926d61bb7475b0949ae11b59c3765220' > out/source-sha.txt
           ffprobe -v error -count_frames -show_streams -of json out/chunk-${{ matrix.part }}.mp4 > out/probe-${{ matrix.part }}.json
       - uses: actions/upload-artifact@v4
         with:
