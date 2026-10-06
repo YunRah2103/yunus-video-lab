@@ -1,0 +1,242 @@
+name: YUNEX 002 native render E
+
+on:
+  push:
+    branches:
+      - sol/yunex-002-native-final
+      - sol/yunex-002-active-aero
+    paths:
+      - '.github/workflows/yunex-002-native-final.yml'
+      - 'yunex/src/video002/trackUpgrade/nativeRender/**'
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: 'benchmark or full'
+        required: true
+        default: benchmark
+        type: choice
+        options:
+          - benchmark
+          - full
+      source_ref:
+        description: 'Git ref containing the Manager-approved integrated scene'
+        required: true
+        default: sol/yunex-002-active-aero
+        type: string
+
+concurrency:
+  group: yunex-002-native-render-${{ github.ref }}-${{ github.event_name }}
+  cancel-in-progress: false
+
+env:
+  EXPECTED_EXTERIOR_SHA256: 1c73fcb138c31e2b1d5ed126a2412074bb17f8e960b355436f28139bf518e1eb
+  COMPOSITION: YUNEX-002-INTEGRATED-PROOF
+  FPS: '30'
+  TOTAL_FRAMES: '751'
+  WIDTH: '1080'
+  HEIGHT: '1920'
+
+jobs:
+  benchmark:
+    if: github.event_name == 'push' || inputs.mode == 'benchmark'
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event_name == 'workflow_dispatch' && inputs.source_ref || github.sha }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+          cache-dependency-path: yunex/package-lock.json
+      - name: Stage locked Porsche
+        run: |
+          mkdir -p yunex/public yunex/out/video002-native-benchmark
+          cp cars/porsche-911-gt3-rs-992/model.glb yunex/public/model.glb
+          printf '%s  %s\n' "$EXPECTED_EXTERIOR_SHA256" cars/porsche-911-gt3-rs-992/model.glb | sha256sum -c -
+      - name: Install runtime
+        working-directory: yunex
+        run: npm ci
+      - name: Render 30 native representative frames
+        working-directory: yunex
+        env:
+          NODE_OPTIONS: --require=./fix-network.cjs
+        run: |
+          start="$(date +%s)"
+          npx remotion render src/index.tsx "$COMPOSITION" out/video002-native-benchmark/native-0330-0359.mp4 \
+            --frames=330-359 \
+            --gl=swangle \
+            --concurrency=2 \
+            --codec=h264 \
+            --crf=14 \
+            --scale=1 \
+            --timeout=120000
+          end="$(date +%s)"
+          elapsed="$((end-start))"
+          printf '%s\n' "$elapsed" > out/video002-native-benchmark/elapsed_seconds.txt
+      - name: Probe benchmark and make temporal samples
+        working-directory: yunex
+        run: |
+          ffmpeg -v error -xerror -i out/video002-native-benchmark/native-0330-0359.mp4 -f null -
+          ffprobe -v error -count_frames -select_streams v:0 \
+            -show_entries stream=width,height,r_frame_rate,avg_frame_rate,codec_name,pix_fmt,nb_read_frames \
+            -show_entries format=duration \
+            -of json out/video002-native-benchmark/native-0330-0359.mp4 \
+            > out/video002-native-benchmark/ffprobe.json
+          python src/video002/trackUpgrade/nativeRender/validate_native.py \
+            benchmark \
+            out/video002-native-benchmark/ffprobe.json \
+            out/video002-native-benchmark/elapsed_seconds.txt \
+            > out/video002-native-benchmark/benchmark.json
+          mkdir -p out/video002-native-benchmark/review
+          ffmpeg -y -v error -i out/video002-native-benchmark/native-0330-0359.mp4 -vf "select='eq(n,0)+eq(n,14)+eq(n,29)'" -vsync 0 out/video002-native-benchmark/review/frame-%02d.png
+          sha256sum out/video002-native-benchmark/native-0330-0359.mp4 > out/video002-native-benchmark/output_sha256.txt
+          sha256sum public/model.glb > out/video002-native-benchmark/porsche_sha256.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: yunex-002-native-benchmark
+          path: yunex/out/video002-native-benchmark/
+          if-no-files-found: error
+          retention-days: 7
+
+  prepare-full:
+    if: (github.event_name == 'workflow_dispatch' && inputs.mode == 'full') || (github.event_name == 'push' && contains(github.event.head_commit.message, '[native-full]'))
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.matrix.outputs.matrix }}
+      source_ref: ${{ steps.source.outputs.source_ref }}
+    steps:
+      - id: source
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "source_ref=${{ inputs.source_ref }}" >> "$GITHUB_OUTPUT"
+          else
+            echo "source_ref=${{ github.sha }}" >> "$GITHUB_OUTPUT"
+          fi
+      - id: matrix
+        env:
+          CHUNK_SIZE: '30'
+        run: |
+          python - <<'PY'
+          import json, os
+          chunk=int(os.environ['CHUNK_SIZE'])
+          rows=[]
+          for start in range(0,751,chunk):
+              end=min(750,start+chunk-1)
+              rows.append({'part':f'{start:04d}-{end:04d}','frames':f'{start}-{end}'})
+          with open(os.environ['GITHUB_OUTPUT'],'a') as f:
+              f.write('matrix='+json.dumps({'include':rows},separators=(',',':'))+'\n')
+          PY
+
+  render-native-chunks:
+    needs: prepare-full
+    if: needs.prepare-full.result == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    strategy:
+      fail-fast: false
+      max-parallel: 8
+      matrix: ${{ fromJSON(needs.prepare-full.outputs.matrix) }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.prepare-full.outputs.source_ref }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+          cache-dependency-path: yunex/package-lock.json
+      - name: Stage locked Porsche
+        run: |
+          mkdir -p yunex/public yunex/out/video002-native-chunks
+          cp cars/porsche-911-gt3-rs-992/model.glb yunex/public/model.glb
+          printf '%s  %s\n' "$EXPECTED_EXTERIOR_SHA256" cars/porsche-911-gt3-rs-992/model.glb | sha256sum -c -
+      - name: Install runtime
+        working-directory: yunex
+        run: npm ci
+      - name: Render native chunk
+        working-directory: yunex
+        env:
+          NODE_OPTIONS: --require=./fix-network.cjs
+        run: |
+          npx remotion render src/index.tsx "$COMPOSITION" "out/video002-native-chunks/chunk-${{ matrix.part }}.mp4" \
+            --frames="${{ matrix.frames }}" \
+            --gl=swangle \
+            --concurrency=2 \
+            --codec=h264 \
+            --crf=14 \
+            --scale=1 \
+            --timeout=120000
+          test -s "out/video002-native-chunks/chunk-${{ matrix.part }}.mp4"
+          ffmpeg -v error -xerror -i "out/video002-native-chunks/chunk-${{ matrix.part }}.mp4" -f null -
+          test "$(sha256sum public/model.glb | awk '{print $1}')" = "$EXPECTED_EXTERIOR_SHA256"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: yunex-002-native-chunk-${{ matrix.part }}
+          path: yunex/out/video002-native-chunks/chunk-${{ matrix.part }}.mp4
+          if-no-files-found: error
+          retention-days: 7
+
+  stitch-native-visual:
+    needs: [prepare-full, render-native-chunks]
+    if: needs.render-native-chunks.result == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.prepare-full.outputs.source_ref }}
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: yunex-002-native-chunk-*
+          path: chunks
+          merge-multiple: true
+      - name: Stitch exact native frame coverage
+        run: |
+          find chunks -maxdepth 1 -name 'chunk-*.mp4' -print | sort | sed "s#^#file '#;s#$#'#" > chunks/list.txt
+          test "$(wc -l < chunks/list.txt)" -eq 26
+          ffmpeg -y -v error -f concat -safe 0 -i chunks/list.txt -c copy YUNEX_002_NATIVE_VISUAL_MASTER.mp4
+          ffmpeg -v error -xerror -i YUNEX_002_NATIVE_VISUAL_MASTER.mp4 -f null -
+          ffprobe -v error -count_frames -select_streams v:0 \
+            -show_entries stream=width,height,r_frame_rate,avg_frame_rate,codec_name,pix_fmt,nb_read_frames \
+            -show_entries format=duration \
+            -of json YUNEX_002_NATIVE_VISUAL_MASTER.mp4 > ffprobe.json
+          python yunex/src/video002/trackUpgrade/nativeRender/validate_native.py final-visual ffprobe.json > validation.json
+          mkdir -p review
+          for spec in "18 hook" "114 isolate" "210 high_downforce" "336 drs" "456 airbrake" "600 whole_car" "705 payoff"; do
+            set -- $spec
+            ffmpeg -y -v error -i YUNEX_002_NATIVE_VISUAL_MASTER.mp4 -vf "select=eq(n\,$1)" -frames:v 1 "review/$2.png"
+          done
+          sha256sum YUNEX_002_NATIVE_VISUAL_MASTER.mp4 > output_sha256.txt
+          sha256sum cars/porsche-911-gt3-rs-992/model.glb > porsche_sha256.txt
+          cat > native_manifest.json <<EOF
+          {
+            "source_ref": "${{ needs.prepare-full.outputs.source_ref }}",
+            "workflow_run_id": "${{ github.run_id }}",
+            "composition": "$COMPOSITION",
+            "source_width": 1080,
+            "source_height": 1920,
+            "scale": 1,
+            "fps": 30,
+            "frames": 751,
+            "frame_range": "0-750 inclusive exactly once",
+            "chunk_size": 30,
+            "codec": "h264",
+            "crf": 14,
+            "audio": "not muxed in GitHub; approved locked mix is external and must be muxed once after Manager lookdev approval"
+          }
+          EOF
+      - uses: actions/upload-artifact@v4
+        with:
+          name: yunex-002-native-visual-master
+          path: |
+            YUNEX_002_NATIVE_VISUAL_MASTER.mp4
+            ffprobe.json
+            validation.json
+            native_manifest.json
+            output_sha256.txt
+            porsche_sha256.txt
+            review/
+          if-no-files-found: error
+          retention-days: 7
