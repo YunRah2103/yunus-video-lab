@@ -4,11 +4,11 @@ Phase: `Y002-TRACK-UPGRADE-01`
 Role: `F` — track integration preflight / QA  
 Base branch: `sol/yunex-002-active-aero`  
 Work branch: `sol/yunex-002-track-preflight`  
-Scope: A road + B furniture + D lighting. C vegetation is intentionally not required for this pass.
+Scope: A road + B furniture + C vegetation + D lighting. C final receipt was added after the initial A/B/D preflight.
 
 ## Verdict
 
-**Overall: WARN — A/B/D are source-compatible and can be integrated, but only with the manager-owned replacement/wiring fixes below. There is no specialist-to-specialist same-file conflict and no Porsche mutation.**
+**Overall: WARN — A/B/C/D are source-compatible and can be integrated. No specialist source-file conflict or Porsche mutation was found. Manager must replace the legacy kerb, rail, vegetation and lighting paths rather than stacking the upgrades additively.**
 
 Do **not** mount the new components additively on top of every legacy `TechnicalTrackWorld` primitive. The current base still contains legacy kerb, rail and lighting that overlap or double the new specialist work.
 
@@ -19,9 +19,10 @@ Do **not** mount the new components additively on top of every legacy `Technical
 | Manager base | `2e0f8fa6d9eae3ee8cef59d954766811e2841e6e` | PASS |
 | A — road | `3893c35596943f8fd1eeec5017f8a4c2d6f47b34` | WARN |
 | B — furniture | `adc17d6539bead1fae8d67283f565429a83de1d8` | WARN |
+| C — vegetation | `10ea53862d696fbf49e67a9a6227284da0622069` | PASS/WARN |
 | D — lighting | `7f95c2000eef6635b395fcc275e069f5dea3350b` | WARN |
 
-A/B/D all fork from merge-base `c7b2be16526eeed9e5635c6462887fa92be94353` and are currently **2 manager commits behind** the audited base. Their changed paths are disjoint and remain inside their owned specialist areas. Manager should cherry-pick the specialist implementation commits; do not merge/rebase whole divergent branch histories just to gain the two routing/documentation commits.
+A/B/D fork from merge-base `c7b2be16526eeed9e5635c6462887fa92be94353` and are currently **2 manager commits behind** the audited base. C is cleaner: it is **13 commits ahead / 0 behind** the audited manager base `2e0f8fa6d9eae3ee8cef59d954766811e2841e6e`. A/B/C/D implementation paths are mutually disjoint. Manager should cherry-pick the specialist source commits conservatively rather than merge divergent A/B/D branch histories.
 
 ## A — RoadSurfaces
 
@@ -59,6 +60,31 @@ WARN:
 
 **Manager fix:** when B is enabled, suppress the legacy `Rail()` in the YUNEX 002 path. Do not stack B over the old rail.
 
+## C — TrackVegetation
+
+**Status: PASS/WARN (implementation and native specialist proof PASS; legacy vegetation replacement + workflow ownership WARN)**
+
+PASS:
+- Final remote head: `10ea53862d696fbf49e67a9a6227284da0622069`.
+- C is based on the current audited manager head: **13 commits ahead / 0 behind**.
+- API is compatible: `quality: 'preview' | 'final'`, optional `seed?: number`.
+- Layout uses a deterministic seeded LCG and is memoized by `quality + seed`; no `Math.random`, wall-clock or per-frame layout rebuild.
+- Source component uses six instanced layers and no transparent foliage objects.
+- Final deterministic layout contract: **44 trees, 70 shrubs, 380 grass clumps, ~6 draw calls, ~51,684 approximate triangles**.
+- Protected camera corridors are encoded in the layout and the proof contract validates camera/tree and camera/shrub clearance across the timeline at five-frame intervals.
+- No C source path overlaps A, B or D implementation paths.
+- No central scene, camera, driving, timing, aero or Porsche path is changed.
+- Porsche `model.glb` remains Git blob `d5d746376a2e6753ae1bbb1ee638c160a3ef32ab`; manifest remains `6ee6affd75bc7ea4affcf5caabee6e42554060f2`.
+- GitHub Actions vegetation proof run **37446553642** completed successfully: dependency install, Porsche SHA validation, composition validation, six native 1080×1920 before/after stills, 48-frame / 30-fps native parallax render, output validation and artifact upload all passed.
+- Proof artifact `y002-c-vegetation-proof` was uploaded successfully (artifact id `11403837872`).
+
+WARN:
+- The current `TechnicalTrackWorld` still renders its legacy tree/shrub group. C is a replacement foliage system; stacking it with the old foliage would create duplicate vegetation, excess cost and potentially reintroduce the faceted silhouettes C was built to remove.
+- C grass centres are authored as far trackside as local X `-3.98`, while B furniture declares bounds through local X `-4.34 .. -3.48`. Their low-level envelopes therefore overlap. This is not a hero-car occlusion failure, but native integration should inspect grass intersecting posts/rail bases and prune locally if necessary.
+- C added `.github/workflows/y002-c-vegetation-proof.yml`. The C handoff assigns implementation ownership to `TrackVegetation.tsx` + `vegetation/*`, while workflow paths are manager/E territory. The workflow was useful and passed, but the manager should integrate the C **source implementation** independently and only retain the workflow if intentionally desired.
+
+**Manager fix:** mount `<TrackVegetation quality="final" seed={2103}/>` inside the same shared local track root as A/B, suppress the old `layout.shrubs/layout.trees` foliage group for the YUNEX 002 upgraded path, and inspect the grass/rail base region in the combined native proof.
+
 ## D — TrackLighting
 
 **Status: WARN (component PASS, manager wiring required)**
@@ -79,13 +105,13 @@ WARN:
 
 ## Shared coordinates / road-barrier geometry
 
-Shared A/B root:
+Shared A/B/C root:
 
 ```tsx
 <group position={[-1, -0.028, 0]} rotation={[0, Math.PI, 0]}>
   <RoadSurfaces quality="final" seed={2103} />
   <TrackFurniture quality="final" seed={2103} />
-  {/* C vegetation can join this local root after its own receipt/QA. */}
+  <TrackVegetation quality="final" seed={2103} />
 </group>
 ```
 
@@ -96,33 +122,34 @@ Analytic transformed coverage for A road + verge is world X `-15.2 .. 15.0`, wor
 ## Integration conflict audit
 
 PASS:
-- A/B/D changed-file sets are disjoint.
-- No specialist branch changes `Video002Integrated.tsx`, `TrackPreview.tsx`, camera/story/timing/aero files or Porsche assets.
+- A/B/C/D implementation changed-file sets are disjoint.
+- No specialist implementation changes `Video002Integrated.tsx`, `TrackPreview.tsx`, camera/story/timing/aero files or Porsche assets.
 - A road vs B furniture has positive physical separation at the kerb/rail side.
 
 WARN:
-- Each specialist branch is 2 manager commits behind the audited active-aero head. This is history divergence, not a source-file collision.
-- Legacy base primitives conflict with new A/B/D if the manager simply appends components.
+- A/B/D are 2 manager commits behind the audited active-aero head; C is 0 behind. A/B/D history divergence is not a source-file collision.
+- Legacy base primitives conflict with new A/B/C/D if the manager simply appends components.
+- C's proof workflow is outside the C source-ownership contract; integrate it only deliberately.
 
 Recommended manager integration order:
-1. Cherry-pick A/B/D specialist source commits only.
-2. Create/use the manager-owned shared track root once for A/B (and later C).
-3. Suppress legacy `Kerb()` and `Rail()` when A/B are active.
+1. Cherry-pick A/B/C/D specialist **source** commits conservatively.
+2. Create/use the manager-owned shared track root once for A/B/C.
+3. Suppress legacy `Kerb()`, `Rail()` and legacy tree/shrub foliage when A/B/C are active.
 4. Mount D at world level and replace old lighting/background/renderer settings as described above.
-5. Run this preflight again.
-6. Run native same-frame visual QA before the full 751-frame render; specifically inspect road edge seam, rail parallax and Porsche contact/shadow quality.
+5. Run this preflight again with C enabled.
+6. Run the combined native same-frame/motion proof before the full 751-frame render; specifically inspect road edge seam, rail parallax, grass/rail-base intersections, foliage hero clearance and Porsche contact/shadow quality.
 
 ## Porsche lock
 
 PASS:
 - Approved SHA-256 in the manifest remains `1c73fcb138c31e2b1d5ed126a2412074bb17f8e960b355436f28139bf518e1eb`.
-- `model.glb` Git blob is identical on base/A/B/D: `d5d746376a2e6753ae1bbb1ee638c160a3ef32ab` (10,512,896 bytes).
-- Manifest Git blob is identical on base/A/B/D: `6ee6affd75bc7ea4affcf5caabee6e42554060f2`.
-- None of the A/B/D branch diffs touches the Porsche source, manifest, staged model or protected camera/aero files.
+- `model.glb` Git blob is identical on base/A/B/C/D: `d5d746376a2e6753ae1bbb1ee638c160a3ef32ab` (10,512,896 bytes).
+- Manifest Git blob is identical on base/A/B/C/D: `6ee6affd75bc7ea4affcf5caabee6e42554060f2`.
+- None of the A/B/C/D implementation diffs touches the Porsche source, manifest, staged model or protected camera/aero files.
 
 ## Rerunnable tooling
 
-From a checkout with the four refs fetched:
+From a checkout with the specialist refs fetched:
 
 ```bash
 node yunex/src/video002/trackUpgrade/qa/preflight.cjs
@@ -140,19 +167,20 @@ The all-frame geometric audit can run independently:
 node yunex/src/video002/trackUpgrade/qa/sightline-audit.cjs
 ```
 
-When C arrives, F does not need to be rewritten. Add its ref for generic protected-path, branch-divergence, file-conflict and obvious determinism checks:
+C is now complete. Include its final ref in the rerunnable preflight:
 
 ```bash
 node yunex/src/video002/trackUpgrade/qa/preflight.cjs --c=sol/yunex-002-track-vegetation
 ```
 
-The C option intentionally does not make vegetation-specific visual claims; the manager still owns final C visual integration QA.
+The C option performs protected-path, branch-divergence, file-conflict and obvious determinism checks. The successful C native proof is recorded above; the manager still owns the combined A/B/C/D visual integration QA.
 
 ## Validation performed for this F pass
 
 - Remote branch/file audit through the GitHub repository: PASS.
-- Exact A/B/D current heads recorded: PASS.
-- Porsche model/manifest Git-object identity across base/A/B/D: PASS.
+- Exact A/B/C/D current heads recorded: PASS.
+- Porsche model/manifest Git-object identity across base/A/B/C/D: PASS.
+- C dedicated native proof workflow run 37446553642: PASS (all steps successful, proof artifact uploaded).
 - `sightline-audit.cjs` syntax check: PASS.
 - Independent execution of the 751-frame geometric audit: PASS.
 - `preflight.cjs` syntax check: PASS.
@@ -160,6 +188,6 @@ The C option intentionally does not make vegetation-specific visual claims; the 
 
 ## Final manager decision
 
-**READY FOR INTEGRATION: YES, with the three required manager fixes (replace legacy kerb, replace legacy rail, replace/wire legacy lighting).**
+**READY FOR INTEGRATION: YES. A/B/C/D are all available. Required manager actions: replace legacy kerb, replace legacy rail, replace legacy foliage, and replace/wire legacy lighting.**
 
-There is no reason to wait for C before integrating or validating A/B/D source. Re-run the preflight with `--c=...` once C is available, then do the manager-owned native visual proof.
+The specialist phase no longer has a C dependency. The next blocking work is manager integration + combined native proof, followed by E's native final render/audio pipeline.
