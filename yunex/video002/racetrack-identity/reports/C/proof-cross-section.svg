@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="1920" viewBox="0 0 1080 1920">
+<rect width="1080" height="1920" fill="#111315"/>
+<text x="70" y="110" fill="#f2f2f2" font-family="Arial, sans-serif" font-size="40" font-weight="700">C PROOF — TRACK CROSS-SECTION</text>
+<text x="70" y="158" fill="#aeb5b5" font-family="Arial, sans-serif" font-size="22">Y002-RACETRACK-IDENTITY-02 · Agent C deterministic contract proof</text>
+
+<rect x="110" y="620" width="860" height="300" rx="12" fill="#303436"/>
+<rect x="110" y="920" width="860" height="155" fill="#555953"/>
+<rect x="110" y="1075" width="860" height="80" fill="#746f5e"/>
+<rect x="110" y="1155" width="860" height="60" fill="#5d684d"/>
+<line x1="210" y1="1155" x2="210" y2="990" stroke="#c1c5c4" stroke-width="12"/>
+<line x1="870" y1="1155" x2="870" y2="990" stroke="#c1c5c4" stroke-width="12"/>
+<text x="540" y="790" text-anchor="middle" fill="#ffffff" font-family="Arial" font-size="30">8.6 m RACING SURFACE</text>
+<text x="540" y="1010" text-anchor="middle" fill="#ffffff" font-family="Arial" font-size="28">PAVED RUNOFF · contract-driven width</text>
+<text x="540" y="1124" text-anchor="middle" fill="#ffffff" font-family="Arial" font-size="26">0.7 m GRAVEL / SHOULDER TO BARRIER</text>
+<text x="540" y="1199" text-anchor="middle" fill="#ffffff" font-family="Arial" font-size="23">BARRIER → 1.35 m LANDSCAPE EXCLUSION → TERRAIN</text>
+<text x="70" y="1450" fill="#d9dddd" font-family="Arial" font-size="25">No road-side guessing: every band terminates on A's shared boundaries.</text>
+
+</svg>
