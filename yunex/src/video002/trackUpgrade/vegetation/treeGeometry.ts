@@ -36,11 +36,11 @@ export const makeCanopyGeometry = (
 export const makeGrassClumpGeometry = () => {
   const positions: number[] = [];
   const blades = [
-    {angle: 0.0, x: 0.00, z: 0.00, h: 0.42, w: 0.08},
-    {angle: 0.72, x: 0.11, z: -0.04, h: 0.33, w: 0.07},
-    {angle: 1.48, x: -0.10, z: 0.03, h: 0.38, w: 0.07},
-    {angle: 2.24, x: 0.05, z: 0.11, h: 0.29, w: 0.06},
-    {angle: 2.92, x: -0.05, z: -0.11, h: 0.35, w: 0.065},
+    {angle: 0.0, x: 0.00, z: 0.00, h: 0.34, w: 0.065},
+    {angle: 0.72, x: 0.10, z: -0.04, h: 0.27, w: 0.055},
+    {angle: 1.48, x: -0.09, z: 0.03, h: 0.31, w: 0.058},
+    {angle: 2.24, x: 0.05, z: 0.10, h: 0.24, w: 0.05},
+    {angle: 2.92, x: -0.05, z: -0.10, h: 0.29, w: 0.052},
   ];
   for (const blade of blades) {
     const dx = Math.cos(blade.angle) * blade.w;
