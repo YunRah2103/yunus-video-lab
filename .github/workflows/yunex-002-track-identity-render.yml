@@ -1,0 +1,393 @@
+name: YUNEX 002 racetrack identity native render F
+
+permissions:
+  contents: read
+  actions: read
+
+on:
+  push:
+    branches:
+      - sol/y002-track-identity-render
+    paths:
+      - '.github/workflows/yunex-002-track-identity-render.yml'
+      - 'yunex/src/video002/trackUpgrade/nativeRender/trackIdentity/**'
+      - 'yunex/video002/racetrack-identity/reports/F/**'
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: 'preflight or full'
+        required: true
+        default: preflight
+        type: choice
+        options:
+          - preflight
+          - full
+      render_source_sha:
+        description: 'Optional exact Manager-pinned SHA; blank reads current registry'
+        required: false
+        default: ''
+        type: string
+
+concurrency:
+  group: y002-track-identity-render-${{ github.ref }}-${{ github.event_name }}
+  cancel-in-progress: false
+
+env:
+  MANAGER_REF: sol/y002-track-identity-manager
+  EXPECTED_CAR_SHA256: 1c73fcb138c31e2b1d5ed126a2412074bb17f8e960b355436f28139bf518e1eb
+  EXPECTED_MIX_SHA256: 217e5efe0619d922a215c7572c4cc205731b79e57b65267bfdf39daf6280a8b9
+  VISUAL_COMPOSITION: YUNEX-002-INTEGRATED-PROOF
+  AUDIO_COMPOSITION: YUNEX-002-FINAL
+  TOTAL_FRAMES: '751'
+  FPS: '30'
+  WIDTH: '1080'
+  HEIGHT: '1920'
+
+jobs:
+  preflight:
+    if: >
+      (github.event_name == 'push' && !contains(github.event.head_commit.message, '[track-identity-full]')) ||
+      (github.event_name == 'workflow_dispatch' && inputs.mode == 'preflight')
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: sol/y002-track-identity-render
+          fetch-depth: 1
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: yunex/package-lock.json
+      - name: Verify preinstalled media tools
+        run: |
+          set -euo pipefail
+          command -v ffmpeg
+          command -v ffprobe
+          ffmpeg -version | head -n 1
+          ffprobe -version | head -n 1
+      - name: Verify locked assets and source contracts
+        run: |
+          set -euo pipefail
+          test "$(sha256sum cars/porsche-911-gt3-rs-992/model.glb | awk '{print $1}')" = "$EXPECTED_CAR_SHA256"
+          test "$(sha256sum yunex/public/video002/d_mix.wav | awk '{print $1}')" = "$EXPECTED_MIX_SHA256"
+          python yunex/src/video002/trackUpgrade/nativeRender/trackIdentity/preflight.py . | tee preflight.json
+      - name: Install runtime and verify compositions
+        working-directory: yunex
+        env:
+          NODE_OPTIONS: --require=./fix-network.cjs
+        run: |
+          set -euo pipefail
+          npm ci
+          mkdir -p public
+          cp ../cars/porsche-911-gt3-rs-992/model.glb public/model.glb
+          npx remotion compositions src/index.tsx | tee ../compositions.txt
+          grep -F "YUNEX-002-INTEGRATED-PROOF" ../compositions.txt
+          grep -F "YUNEX-002-FINAL" ../compositions.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: y002-track-identity-f-preflight
+          path: |
+            preflight.json
+            compositions.txt
+          if-no-files-found: error
+          retention-days: 14
+
+  gate-full:
+    if: >
+      (github.event_name == 'push' && contains(github.event.head_commit.message, '[track-identity-full]')) ||
+      (github.event_name == 'workflow_dispatch' && inputs.mode == 'full')
+    runs-on: ubuntu-latest
+    outputs:
+      source_sha: ${{ steps.gate.outputs.source_sha }}
+      manager_sha: ${{ steps.gate.outputs.manager_sha }}
+      e_qa_sha: ${{ steps.gate.outputs.e_qa_sha }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: sol/y002-track-identity-render
+          fetch-depth: 0
+      - id: gate
+        name: Require Manager pin and E pass for the exact source
+        env:
+          REQUESTED_SHA: ${{ github.event_name == 'workflow_dispatch' && inputs.render_source_sha || '' }}
+        run: |
+          set -euo pipefail
+          git fetch origin "$MANAGER_REF:refs/remotes/origin/y002-manager" --force
+          git show origin/y002-manager:yunex/video002/racetrack-identity/TASKS.json > manager-tasks.json
+          MANAGER_SHA="$(git rev-parse origin/y002-manager)"
+          export REQUESTED_SHA MANAGER_SHA
+          python - <<'PY'
+          import json, os, re
+          from pathlib import Path
+          data=json.loads(Path("manager-tasks.json").read_text())
+          source=data.get("render_source_sha")
+          if not source or not re.fullmatch(r"[0-9a-f]{40}", source):
+              raise SystemExit("Manager has not pinned a full render_source_sha")
+          requested=os.environ.get("REQUESTED_SHA","").strip()
+          if requested and requested != source:
+              raise SystemExit(f"requested SHA {requested} != Manager render_source_sha {source}")
+          e=next((t for t in data.get("tasks",[]) if t.get("id")=="E_QA"), None)
+          if not e:
+              raise SystemExit("E_QA task missing from Manager registry")
+          status=str(e.get("status") or "").lower()
+          if not any(token in status for token in ("pass","complete","done","approved")):
+              raise SystemExit(f"E_QA is not passed/complete: {status!r}")
+          if e.get("input_sha") != source:
+              raise SystemExit(f"E_QA input_sha {e.get('input_sha')} != render_source_sha {source}")
+          eout=e.get("output_sha")
+          if not eout or not re.fullmatch(r"[0-9a-f]{40}", eout):
+              raise SystemExit("E_QA has no verified full output_sha")
+          Path("gate.json").write_text(json.dumps({
+              "phase": data.get("phase"),
+              "manager_sha": os.environ["MANAGER_SHA"],
+              "render_source_sha": source,
+              "e_status": e.get("status"),
+              "e_input_sha": e.get("input_sha"),
+              "e_output_sha": eout,
+          }, indent=2, sort_keys=True)+"\n")
+          with open(os.environ["GITHUB_OUTPUT"],"a") as f:
+              f.write(f"source_sha={source}\n")
+              f.write(f"manager_sha={os.environ['MANAGER_SHA']}\n")
+              f.write(f"e_qa_sha={eout}\n")
+          PY
+          SOURCE_SHA="$(python -c 'import json; print(json.load(open("gate.json"))["render_source_sha"])')"
+          git fetch origin "$SOURCE_SHA" --depth=1
+          git cat-file -e "$SOURCE_SHA^{commit}"
+          git show "$SOURCE_SHA:cars/porsche-911-gt3-rs-992/model.glb" | sha256sum | grep -F "$EXPECTED_CAR_SHA256"
+          git show "$SOURCE_SHA:yunex/public/video002/d_mix.wav" | sha256sum | grep -F "$EXPECTED_MIX_SHA256"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: y002-track-identity-f-gate
+          path: |
+            gate.json
+            manager-tasks.json
+          if-no-files-found: error
+          retention-days: 14
+
+  prepare-full:
+    needs: gate-full
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.matrix.outputs.matrix }}
+    steps:
+      - id: matrix
+        env:
+          CHUNK_SIZE: '20'
+        run: |
+          python - <<'PY'
+          import json, os
+          chunk=int(os.environ["CHUNK_SIZE"])
+          rows=[]
+          for start in range(0,751,chunk):
+              end=min(750,start+chunk-1)
+              rows.append({"part":f"{start:04d}-{end:04d}","frames":f"{start}-{end}"})
+          with open(os.environ["GITHUB_OUTPUT"],"a") as f:
+              f.write("matrix="+json.dumps({"include":rows},separators=(",",":"))+"\n")
+          PY
+
+  render-native-chunks:
+    needs: [gate-full, prepare-full]
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    strategy:
+      fail-fast: false
+      max-parallel: 16
+      matrix: ${{ fromJSON(needs.prepare-full.outputs.matrix) }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.gate-full.outputs.source_sha }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: yunex/package-lock.json
+      - name: Stage and verify locked assets
+        run: |
+          set -euo pipefail
+          mkdir -p yunex/public yunex/out/track-identity-native
+          cp cars/porsche-911-gt3-rs-992/model.glb yunex/public/model.glb
+          test "$(sha256sum cars/porsche-911-gt3-rs-992/model.glb | awk '{print $1}')" = "$EXPECTED_CAR_SHA256"
+          test "$(sha256sum yunex/public/video002/d_mix.wav | awk '{print $1}')" = "$EXPECTED_MIX_SHA256"
+      - name: Install runtime
+        working-directory: yunex
+        run: npm ci
+      - name: Render fresh native visual chunk
+        working-directory: yunex
+        env:
+          NODE_OPTIONS: --require=./fix-network.cjs
+        run: |
+          set -euo pipefail
+          npx remotion render src/index.tsx "$VISUAL_COMPOSITION" "out/track-identity-native/chunk-${{ matrix.part }}.mp4"             --frames="${{ matrix.frames }}"             --gl=swangle             --concurrency=2             --codec=h264             --pixel-format=yuv420p             --crf=14             --scale=1             --timeout=120000             --muted
+          test -s "out/track-identity-native/chunk-${{ matrix.part }}.mp4"
+          command -v ffprobe
+          ffprobe -v error -count_frames -select_streams v:0             -show_entries stream=width,height,r_frame_rate,avg_frame_rate,codec_name,pix_fmt,nb_read_frames             -of json "out/track-identity-native/chunk-${{ matrix.part }}.mp4"             > "out/track-identity-native/chunk-${{ matrix.part }}.json"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: y002-track-identity-native-chunk-${{ matrix.part }}
+          path: |
+            yunex/out/track-identity-native/chunk-${{ matrix.part }}.mp4
+            yunex/out/track-identity-native/chunk-${{ matrix.part }}.json
+          if-no-files-found: error
+          retention-days: 14
+
+  render-approved-audio:
+    needs: gate-full
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.gate-full.outputs.source_sha }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: yunex/package-lock.json
+      - name: Verify approved mix and stage Porsche
+        run: |
+          set -euo pipefail
+          test "$(sha256sum yunex/public/video002/d_mix.wav | awk '{print $1}')" = "$EXPECTED_MIX_SHA256"
+          test "$(sha256sum cars/porsche-911-gt3-rs-992/model.glb | awk '{print $1}')" = "$EXPECTED_CAR_SHA256"
+          cp cars/porsche-911-gt3-rs-992/model.glb yunex/public/model.glb
+      - name: Render audio only from approved final composition
+        working-directory: yunex
+        env:
+          NODE_OPTIONS: --require=./fix-network.cjs
+        run: |
+          set -euo pipefail
+          npm ci
+          mkdir -p out/track-identity-audio
+          npx remotion render src/index.tsx "$AUDIO_COMPOSITION" out/track-identity-audio/final-audio.aac             --frames=0-750             --codec=aac             --timeout=120000
+          test -s out/track-identity-audio/final-audio.aac
+          command -v ffprobe
+          ffprobe -v error -show_streams -show_format -of json             out/track-identity-audio/final-audio.aac > out/track-identity-audio/audio-probe.json
+          sha256sum out/track-identity-audio/final-audio.aac > out/track-identity-audio/audio-sha256.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: y002-track-identity-approved-audio
+          path: yunex/out/track-identity-audio/
+          if-no-files-found: error
+          retention-days: 14
+
+  stitch-validate-deliver:
+    needs: [gate-full, render-native-chunks, render-approved-audio]
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: sol/y002-track-identity-render
+          fetch-depth: 0
+      - name: Fetch exact source for provenance
+        run: |
+          set -euo pipefail
+          git fetch origin "${{ needs.gate-full.outputs.source_sha }}" --depth=1
+          git cat-file -e "${{ needs.gate-full.outputs.source_sha }}^{commit}"
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: y002-track-identity-native-chunk-*
+          path: chunks
+          merge-multiple: true
+      - uses: actions/download-artifact@v4
+        with:
+          name: y002-track-identity-approved-audio
+          path: audio
+      - name: Verify preinstalled FFmpeg and exact fresh coverage
+        run: |
+          set -euo pipefail
+          command -v ffmpeg
+          command -v ffprobe
+          python yunex/src/video002/trackUpgrade/nativeRender/trackIdentity/validate_chunks.py chunks | tee chunk_manifest.json
+          python - <<'PY'
+          from pathlib import Path
+          files=sorted(Path("chunks").glob("chunk-*.mp4"))
+          Path("concat.txt").write_text("".join(f"file '{p.resolve()}'\n" for p in files))
+          PY
+      - name: Stitch, mux approved audio once, and decode full delivery
+        run: |
+          set -euo pipefail
+          ffmpeg -y -v error -f concat -safe 0 -i concat.txt -c copy YUNEX_002_TRACK_IDENTITY_NATIVE_VISUAL.mp4
+          ffmpeg -v error -xerror -i YUNEX_002_TRACK_IDENTITY_NATIVE_VISUAL.mp4 -f null -
+          ffmpeg -y -v error             -i YUNEX_002_TRACK_IDENTITY_NATIVE_VISUAL.mp4             -i audio/final-audio.aac             -map 0:v:0 -map 1:a:0             -c:v copy -c:a copy             -movflags +faststart             -shortest             YUNEX_002_TRACK_IDENTITY_FIRST_REVIEW.mp4
+          ffmpeg -v error -xerror -i YUNEX_002_TRACK_IDENTITY_FIRST_REVIEW.mp4 -f null -
+      - name: Probe and validate final master
+        run: |
+          set -euo pipefail
+          ffprobe -v error -count_frames -show_streams -show_format -of json             YUNEX_002_TRACK_IDENTITY_FIRST_REVIEW.mp4 > ffprobe-final.json
+          python yunex/src/video002/trackUpgrade/nativeRender/trackIdentity/validate_final.py ffprobe-final.json | tee final-validation.json
+          python yunex/src/video002/trackUpgrade/nativeRender/validate_delivery_motion.py             YUNEX_002_TRACK_IDENTITY_FIRST_REVIEW.mp4 | tee motion-validation.json
+          python yunex/src/video002/trackUpgrade/nativeRender/trackIdentity/validate_audio.py             YUNEX_002_TRACK_IDENTITY_FIRST_REVIEW.mp4 | tee audio-validation.json
+      - name: Extract seven native beat frames
+        run: |
+          set -euo pipefail
+          mkdir -p review
+          for spec in "18 hook" "114 isolate" "210 high_downforce" "336 drs" "456 airbrake" "600 whole_car" "705 payoff"; do
+            set -- $spec
+            ffmpeg -y -v error -i YUNEX_002_TRACK_IDENTITY_FIRST_REVIEW.mp4               -vf "select=eq(n\,$1)" -frames:v 1 "review/$2.png"
+          done
+      - name: Write hashes and provenance manifest
+        env:
+          SOURCE_SHA: ${{ needs.gate-full.outputs.source_sha }}
+          MANAGER_SHA: ${{ needs.gate-full.outputs.manager_sha }}
+          E_QA_SHA: ${{ needs.gate-full.outputs.e_qa_sha }}
+          RUN_ID: ${{ github.run_id }}
+        run: |
+          set -euo pipefail
+          sha256sum YUNEX_002_TRACK_IDENTITY_FIRST_REVIEW.mp4 > final-sha256.txt
+          sha256sum YUNEX_002_TRACK_IDENTITY_NATIVE_VISUAL.mp4 > visual-sha256.txt
+          sha256sum audio/final-audio.aac > rendered-audio-sha256.txt
+          CAR_HASH="$(git show "$SOURCE_SHA:cars/porsche-911-gt3-rs-992/model.glb" | sha256sum | awk '{print $1}')"
+          MIX_HASH="$(git show "$SOURCE_SHA:yunex/public/video002/d_mix.wav" | sha256sum | awk '{print $1}')"
+          test "$CAR_HASH" = "$EXPECTED_CAR_SHA256"
+          test "$MIX_HASH" = "$EXPECTED_MIX_SHA256"
+          export CAR_HASH MIX_HASH
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          manifest={
+              "phase":"Y002-RACETRACK-IDENTITY-02",
+              "role":"F_RENDER",
+              "manager_sha":os.environ["MANAGER_SHA"],
+              "render_source_sha":os.environ["SOURCE_SHA"],
+              "e_qa_output_sha":os.environ["E_QA_SHA"],
+              "workflow_run_id":os.environ["RUN_ID"],
+              "visual_composition":"YUNEX-002-INTEGRATED-PROOF",
+              "audio_composition":"YUNEX-002-FINAL",
+              "source_width":1080,
+              "source_height":1920,
+              "scale":1,
+              "fps":30,
+              "frames":751,
+              "frame_range":"0-750 inclusive exactly once",
+              "visual_chunk_policy":"fresh-only; no historical chunk reuse",
+              "video_codec":"h264",
+              "pixel_format":"yuv420p",
+              "audio_codec":"aac",
+              "faststart":True,
+              "approved_car_sha256":os.environ["CAR_HASH"],
+              "approved_mix_sha256":os.environ["MIX_HASH"],
+              "finishing_policy":"visual composition rendered once; approved audio rendered separately and muxed once",
+          }
+          Path("delivery-manifest.json").write_text(json.dumps(manifest,indent=2,sort_keys=True)+"\n")
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: y002-track-identity-first-review
+          path: |
+            YUNEX_002_TRACK_IDENTITY_FIRST_REVIEW.mp4
+            YUNEX_002_TRACK_IDENTITY_NATIVE_VISUAL.mp4
+            ffprobe-final.json
+            final-validation.json
+            motion-validation.json
+            audio-validation.json
+            chunk_manifest.json
+            delivery-manifest.json
+            final-sha256.txt
+            visual-sha256.txt
+            rendered-audio-sha256.txt
+            review/
+          if-no-files-found: error
+          retention-days: 14
