@@ -469,9 +469,16 @@ jobs:
           e=next((t for t in data.get("tasks",[]) if t.get("id")=="E_QA"), None)
           if not e:
               raise SystemExit("E_QA task missing from Manager registry")
-          status=str(e.get("status") or "").lower()
-          if not any(token in status for token in ("pass","complete","done","approved")):
-              raise SystemExit(f"E_QA is not passed/complete: {status!r}")
+          status=str(e.get("status") or "").strip().lower()
+          blocked_tokens=("blocked","fail","waiting","static","preflight","pending")
+          if any(token in status for token in blocked_tokens):
+              raise SystemExit(f"E_QA is not a final visual PASS: {status!r}")
+          allowed_final_statuses={
+              "pass","passed","final_pass","final-pass","visual_pass","visual-pass",
+              "approved","final_approved","final-approved","complete","completed",
+          }
+          if status not in allowed_final_statuses:
+              raise SystemExit(f"E_QA status is not an explicit final visual PASS: {status!r}")
           if e.get("input_sha") != source:
               raise SystemExit(f"E_QA input_sha {e.get('input_sha')} != render_source_sha {source}")
           eout=e.get("output_sha")
