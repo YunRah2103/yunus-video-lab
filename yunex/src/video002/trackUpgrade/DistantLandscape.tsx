@@ -1,5 +1,6 @@
 import React,{useEffect,useLayoutEffect,useMemo,useRef} from 'react';
 import * as THREE from 'three';
+import {makeFoliageGeometry,makeFoliageTexture} from './vegetation/foliageGeometry';
 type Instance={p:[number,number,number];s:[number,number,number];c:string};
 function Layer({geometry,material,items}:{geometry:THREE.BufferGeometry;material:THREE.Material;items:Instance[]}){
  const ref=useRef<THREE.InstancedMesh>(null);
@@ -16,10 +17,10 @@ export function DistantLandscape({seed=2103}:{seed?:number}){
  // Coordinates are WORLD space; do not apply the rotated track-local transform.
  for(let band=0;band<2;band++)for(let i=0;i<112;i++){
   const a=(i+rnd()*.55)*Math.PI*2/112;
-  const radius=band===0?38+rnd()*7:63+rnd()*13;
+  const radius=band===0?52+rnd()*7:82+rnd()*13;
   const x=-6+Math.cos(a)*radius,z=3+Math.sin(a)*radius;
-  const h=(band===0?6:8)+rnd()*5;
-  const w=2.6+rnd()*2.4;
+  const h=(band===0?5:7)+rnd()*3;
+  const w=2.1+rnd()*1.6;
   const color=band===0?['#465848','#526449','#5b6950','#3d5143'][i%4]:['#697a6a','#74816c','#627669'][i%3];
   trunks.push({p:[x,h*.27,z],s:[.22,h*.54,.22],c:band===0?'#665b46':'#798071'});
   for(let j=0;j<4;j++)crowns.push({p:[x+(rnd()-.5)*w*.6,h*(.50+j*.10),z+(rnd()-.5)*w*.5],s:[w*(.85-j*.08),h*(.20-j*.015),w*(.80-j*.06)],c:color});
@@ -27,12 +28,12 @@ export function DistantLandscape({seed=2103}:{seed?:number}){
  // Low verge clusters on the formerly empty side, beyond the wide asphalt.
  for(let i=0;i<68;i++){const x=-18-rnd()*5,z=-37+rnd()*79,h=.5+rnd()*.9;shrubs.push({p:[x,h*.55,z],s:[1.2+rnd()*1.3,h,1+rnd()],c:['#5b694b','#68764f','#54634b'][i%3]});}
  return {trunks,crowns,shrubs};},[seed]);
- const crown=useMemo(()=>{const g=new THREE.SphereGeometry(1,10,7);const p=g.attributes.position;
- for(let i=0;i<p.count;i++){const x=p.getX(i),y=p.getY(i),z=p.getZ(i);const f=1+.09*Math.sin(x*13+z*7+y*9);p.setXYZ(i,x*f,y*f,z*f);}g.computeVertexNormals();return g;},[]);
+ const crown=useMemo(()=>makeFoliageGeometry(1,seed,64),[seed]);
+ const leafTexture=useMemo(makeFoliageTexture,[]);
  const trunk=useMemo(()=>new THREE.CylinderGeometry(1,1.28,1,5),[]);
- const matte=useMemo(()=>new THREE.MeshLambertMaterial({color:'#ffffff'}),[]);
+ const matte=useMemo(()=>new THREE.MeshLambertMaterial({color:'#ffffff',map:leafTexture,alphaTest:.45,side:THREE.DoubleSide}),[leafTexture]);
  const grass=useMemo(()=>{const size=128,a=new Uint8Array(size*size*4);let n=seed>>>0;for(let i=0;i<size*size;i++){n=(Math.imul(n,1664525)+1013904223)>>>0;const v=(n>>>24)/255;a[i*4]=83+v*20;a[i*4+1]=96+v*21;a[i*4+2]=65+v*13;a[i*4+3]=255;}const t=new THREE.DataTexture(a,size,size);t.wrapS=t.wrapT=THREE.RepeatWrapping;t.repeat.set(24,28);t.colorSpace=THREE.SRGBColorSpace;t.needsUpdate=true;return t;},[seed]);
- useEffect(()=>()=>{crown.dispose();trunk.dispose();matte.dispose();grass.dispose();},[crown,trunk,matte,grass]);
+ useEffect(()=>()=>{crown.dispose();trunk.dispose();matte.dispose();grass.dispose();leafTexture.dispose();},[crown,trunk,matte,grass,leafTexture]);
  return <group name="Y002_WORLD_LANDSCAPE">
   <Layer geometry={trunk} material={matte} items={data.trunks}/>
   <Layer geometry={crown} material={matte} items={data.crowns}/>

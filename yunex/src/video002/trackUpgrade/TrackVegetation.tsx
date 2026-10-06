@@ -1,5 +1,6 @@
 import React, {useEffect, useLayoutEffect, useMemo, useRef} from 'react';
 import * as THREE from 'three';
+import {makeFoliageTexture} from './vegetation/foliageGeometry';
 import {
   buildVegetationLayout,
   type ShrubSpec,
@@ -190,14 +191,17 @@ export const TrackVegetation: React.FC<TrackVegetationProps> = ({
   const branchGeometry = useMemo(() => new THREE.CylinderGeometry(0.35, 0.48, 1, 6, 1), []);
   const grassGeometry = useMemo(makeGrassClumpGeometry, []);
 
+  const leafTexture=useMemo(makeFoliageTexture,[]);
+  useEffect(()=>()=>leafTexture.dispose(),[leafTexture]);
   const foliageMaterial = useMemo(
     () =>
       new THREE.MeshLambertMaterial({
         color: '#ffffff',
         emissive: '#182119',
-        emissiveIntensity: 0.34,
+        emissiveIntensity: 0.12,
+        map:leafTexture,alphaTest:.45,side:THREE.DoubleSide,
       }),
-    [],
+    [leafTexture],
   );
   const trunkMaterial = useMemo(
     () =>

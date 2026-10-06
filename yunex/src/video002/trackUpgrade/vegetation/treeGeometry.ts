@@ -1,37 +1,8 @@
 import * as THREE from 'three';
 import type {VegetationQuality} from './layout';
 
-export const makeCanopyGeometry = (
-  quality: VegetationQuality,
-  variant: 0 | 1 | 2,
-) => {
-  const widthSegments = quality === 'final' ? 10 : 8;
-  const heightSegments = quality === 'final' ? 7 : 5;
-  const geometry = new THREE.SphereGeometry(0.5, widthSegments, heightSegments);
-  const position = geometry.attributes.position as THREE.BufferAttribute;
-  for (let i = 0; i < position.count; i++) {
-    const x = position.getX(i);
-    const y = position.getY(i);
-    const z = position.getZ(i);
-    const azimuth = Math.atan2(z, x);
-    const vertical = y * 3.7;
-    const breakup =
-      1 +
-      Math.sin(azimuth * (3 + variant) + vertical * 1.35 + variant * 0.8) * 0.085 +
-      Math.sin(azimuth * 5.0 - vertical * 2.2 + variant * 1.9) * 0.04;
-    const shoulder = 1 + Math.max(0, 0.22 - Math.abs(y)) * (0.16 + variant * 0.025);
-    const taper = y > 0.28 ? 1 - (y - 0.28) * (0.18 + variant * 0.03) : 1;
-    position.setXYZ(
-      i,
-      x * breakup * shoulder * taper,
-      y * (1 + Math.sin(azimuth * 2 + variant) * 0.045),
-      z * breakup * shoulder * taper,
-    );
-  }
-  position.needsUpdate = true;
-  geometry.computeVertexNormals();
-  return geometry;
-};
+import {makeFoliageGeometry} from './foliageGeometry';
+export const makeCanopyGeometry=(quality:VegetationQuality,variant:0|1|2)=>makeFoliageGeometry(.5,2103+variant,quality==='final'?64:40);
 
 export const makeGrassClumpGeometry = () => {
   const positions: number[] = [];
