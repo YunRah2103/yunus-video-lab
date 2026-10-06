@@ -9,7 +9,7 @@ const {
 } = require('@remotion/renderer');
 
 (async () => {
-  const outputDir = path.resolve(__dirname, '../../../../out/y003-agent-a');
+  const outputDir = path.resolve(__dirname, '../../../out/y003-agent-a');
   fs.mkdirSync(outputDir, {recursive: true});
 
   const serveUrl = await bundle({
