@@ -3,69 +3,73 @@
 Phase: **Y002-RACETRACK-IDENTITY-02**  
 Role: **E — Independent Track / Visual QA**  
 Input source: **3ee36a708e2a466c0822431af940cf0be47b1c01**  
+GitHub Actions run: **37501731782**  
+Artifact: **11430840385 — y002-track-identity-native-review-evidence**  
 Branch: **sol/y002-track-identity-qa**
 
 ## Final verdict
 
-**FAIL / BLOCKED — native visual evidence is missing.**
+**FAIL — real visual QA completed.**
 
-This is not a failure of the integrated racetrack source. The independent static/source audit passes. It is a failure of the mandatory final evidence gate: E cannot honestly approve visuals that have not been rendered and supplied.
+The evidence package is valid and complete. This is no longer a missing-evidence/process failure. The pinned source itself fails the racetrack-identity visual gate.
 
-## Integrated static/source QA — PASS
+## Evidence provenance — PASS
 
-The Manager registry pins the exact requested source SHA. G integrated the pinned A/B/C/D source and the resulting TrackWorld is internally coherent:
+- artifact ZIP SHA256: `74959f3f1bfd642504ff29ccab97ea08a4ff03ee1b34961151bf659bb38e260d`;
+- manifest pins source `3ee36a708e2a466c0822431af940cf0be47b1c01`;
+- seven stills are true native **1080×1920** at frames 18 / 114 / 210 / 336 / 456 / 600 / 705;
+- moving proof is **270×480**, **18 consecutive frames**, **30 fps**, **0.6 s**, frames 285–302;
+- all evidence hashes verified against the artifact's `sha256.txt`;
+- automated evidence validator reports PASS.
 
-- shared root remains `[-1,-0.028,0]`, yaw `Math.PI`;
-- legacy `TechnicalTrackWorld` is removed from YUNEX 002;
-- one lowered neutral backing ground replaces the legacy asphalt/grass bands;
-- connected `RoadSurfaces -> Runoff -> Terrain -> TrackFurniture -> TrackVegetation` are mounted in the shared track-local root;
-- `DistantLandscape` and `TrackLighting` remain world-space;
-- both barriers derive from course-relative barrier lines;
-- vegetation remains seeded and includes landscape/camera exclusion validation;
-- selected kerbs remain limited to explicit apex/exit zones;
-- Porsche/camera/edit/audio/typography/active-aero files were not changed by G's integration diff.
+## Static/source QA — PASS
 
-Independent geometry recomputation from the pinned source produced:
+The earlier integrated source audit remains valid:
 
-- **161** layout samples at 0.5 m;
-- **8.6 m** racing-surface width;
-- **3.125 m** minimum conservative Porsche road-edge clearance across all 751 locked frames;
-- **9.4042423703285°** maximum bend heading;
-- **0 m** straight-corridor centre drift;
-- **0.506803684928332 m** maximum sampled centreline step.
+- 161 layout samples at 0.5 m;
+- 8.6 m road width;
+- 3.125 m minimum conservative Porsche edge clearance;
+- 9.404242° maximum bend heading;
+- 0 m straight-corridor drift;
+- correct track root and course-derived surface/runoff/barrier/vegetation source hierarchy.
 
-These satisfy the static acceptance thresholds.
+## Manual seven-frame review — FAIL
 
-## Mandatory native evidence — BLOCKED
+**Frame 18 — hook:** Porsche is clean and grounded, but it sits on a broad olive-green plane. No readable asphalt edge, kerb or runoff hierarchy is visible.
 
-The E handoff requires all seven native 1080×1920 beat frames from the same pinned source:
+**Frame 114 — isolate:** wing detail is unobstructed, but the technical close-up retains only guardrail/trees as track context. The driven surface still reads as olive backing/terrain rather than asphalt.
 
-- frame 18 — hook;
-- frame 114 — isolate;
-- frame 210 — high-downforce;
-- frame 336 — DRS;
-- frame 456 — airbrake;
-- frame 600 — whole-car;
-- frame 705 — payoff.
+**Frame 210 — high-downforce:** aero detail is clear and stable, but the same green driven plane dominates and no surface/runoff/kerb relationship is visible.
 
-It also requires a short decoded 30 fps moving proof.
+**Frame 336 — DRS:** **blocking frame.** The full side view exposes a conspicuous full-width hard horizontal transition from the olive driven surface into a flat gray foreground plane. This looks like a backing/apron seam, exactly the failure E was required to reject.
 
-I checked the pinned integration commit and its compare range. It contains G's `RESULTS.md`, `metrics.json` and `proof-layer-order.svg`, but **no native PNG or MP4 review bundle**. The pinned source has no attached workflow artifact visible through the available GitHub Actions evidence either.
+**Frame 456 — airbrake:** car, barrier and foliage are unobstructed, but the main surface remains a featureless olive plane. The shot reads more like a car beside barriers/foliage than a premium circuit.
 
-Therefore I cannot inspect the required final visual questions: course readability without labels, seam/apron visibility, grass intrusion, barrier/foliage occlusion, wheel contact/grounded shadow, or whether every aero beat remains visually clean.
+**Frame 600 — whole-car:** selected red/white kerbs, catch fence and a gray runoff/edge finally establish that circuit geometry exists. However, this makes the core problem clearer: the Porsche is visually sitting on the broad olive plane while the more road-like gray edge/ribbon is displaced away from it. The racing surface does not visually read as asphalt.
 
-## Process blocker
+**Frame 705 — payoff:** clean hero framing, but the olive surface dominates again and the final shot does not establish racetrack identity without relying on the guardrail.
 
-F's current full-render workflow requires E's registry status to already contain `pass`, `complete`, `done` or `approved`. E's handoff simultaneously requires native review evidence before final PASS.
+## Moving proof — technical PASS / visual FAIL
 
-That is a circular gate. Do **not** solve it by marking E passed without evidence.
+Frames 285–302 are stable and decode at true 30 fps. No obvious geometry popping or Porsche/foliage/furniture clipping is visible.
 
-The safe correction is for Manager/F to provide a first-review render path from exactly `3ee36a708e2a466c0822431af940cf0be47b1c01` that does not require final E approval. Once those seven native frames and the moving proof exist, E can inspect them and issue the real final PASS/FAIL.
+However, the same olive driven surface and hard green-to-gray foreground boundary persist through the entire proof. The blocker is continuous, not a single-frame artifact.
 
-## Evidence files
+## Blocking diagnosis
 
-- `integrated_preflight.json` — exact-source static/source audit and recomputed geometry metrics.
-- `visual_evidence_validation.json` — explicit missing native evidence record.
-- `FINAL_QA.json` — machine-readable final verdict and required next action.
+The authored asphalt source is gray, while `TrackWorld.tsx` also contains `Y002_CIRCUIT_BACKING_GROUND` with olive material `#48563e`. In the actual rendered evidence, the plane directly under the Porsche visually matches the olive backing/terrain read rather than distinct gray racing asphalt.
 
-No A–D/G/F source was modified by E. No camera, car, edit or audio change was made.
+E is not asserting the exact implementation cause from screenshots alone, but the **rendered result is unacceptable regardless of cause**.
+
+## Required correction
+
+Manager should route a correction to the integration/environment owner:
+
+1. make `RacingSurface_Asphalt` visibly distinct gray asphalt under the Porsche;
+2. prevent the olive backing/terrain from visually replacing or merging with the driven surface;
+3. remove/hide the hard full-width foreground transition visible at frame 336;
+4. re-render all seven native beats and the short 30 fps motion proof from a **new pinned source SHA**.
+
+Do **not** release F final delivery from `3ee36a708e2a466c0822431af940cf0be47b1c01`.
+
+No car, camera, edit, audio, A-D/G/F implementation source or Manager registry was modified by E.
