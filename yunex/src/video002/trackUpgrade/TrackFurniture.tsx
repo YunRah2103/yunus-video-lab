@@ -44,9 +44,6 @@ const makeRng = (seed: number) => {
 const barrierPoint = (sample: TrackLayoutSample, side: TrackSide): TrackVec2 =>
   side === 'left' ? sample.barrierLeft : sample.barrierRight;
 
-const landscapePoint = (sample: TrackLayoutSample, side: TrackSide): TrackVec2 =>
-  side === 'left' ? sample.landscapeLeft : sample.landscapeRight;
-
 const lerpPoint = (a: TrackVec2, b: TrackVec2, t: number): TrackVec2 => [
   a[0] + (b[0] - a[0]) * t,
   a[1] + (b[1] - a[1]) * t,
