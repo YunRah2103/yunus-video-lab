@@ -32,10 +32,11 @@ export function DistantLandscape({seed=2103}:{seed?:number}){
  const leafTexture=useMemo(makeFoliageTexture,[]);
  const trunk=useMemo(()=>new THREE.CylinderGeometry(1,1.28,1,5),[]);
  const matte=useMemo(()=>new THREE.MeshLambertMaterial({color:'#ffffff',map:leafTexture,alphaTest:.45,side:THREE.DoubleSide}),[leafTexture]);
+ const bark=useMemo(()=>new THREE.MeshLambertMaterial({color:'#ffffff'}),[]);
  const grass=useMemo(()=>{const size=128,a=new Uint8Array(size*size*4);let n=seed>>>0;for(let i=0;i<size*size;i++){n=(Math.imul(n,1664525)+1013904223)>>>0;const v=(n>>>24)/255;a[i*4]=83+v*20;a[i*4+1]=96+v*21;a[i*4+2]=65+v*13;a[i*4+3]=255;}const t=new THREE.DataTexture(a,size,size);t.wrapS=t.wrapT=THREE.RepeatWrapping;t.repeat.set(24,28);t.colorSpace=THREE.SRGBColorSpace;t.needsUpdate=true;return t;},[seed]);
- useEffect(()=>()=>{crown.dispose();trunk.dispose();matte.dispose();grass.dispose();leafTexture.dispose();},[crown,trunk,matte,grass,leafTexture]);
+ useEffect(()=>()=>{crown.dispose();trunk.dispose();matte.dispose();bark.dispose();grass.dispose();leafTexture.dispose();},[crown,trunk,matte,bark,grass,leafTexture]);
  return <group name="Y002_WORLD_LANDSCAPE">
-  <Layer geometry={trunk} material={matte} items={data.trunks}/>
+  <Layer geometry={trunk} material={bark} items={data.trunks}/>
   <Layer geometry={crown} material={matte} items={data.crowns}/>
   <Layer geometry={crown} material={matte} items={data.shrubs}/>
   {/* Grass beyond both asphalt edges and beyond the small road section. */}
