@@ -4,6 +4,8 @@ import {
   airflowVisibility,
   auditSuspensionFlowPaths,
   createSuspensionFlowPaths,
+  expandedBounds,
+  pointInsideBounds,
   suspensionTracerT,
   type FrontSide,
   type SuspensionFlowAnchor,
@@ -73,6 +75,27 @@ export const SuspensionAirflow: React.FC<SuspensionAirflowProps> = ({
     0.35,
   )), [pathSpecs]);
 
+  const renderedCurveAudit = useMemo(() => {
+    const issues: string[] = [];
+    pathSpecs.forEach((path, index) => {
+      const anchor = visibleAnchors.find((candidate) => candidate.id === path.anchorId);
+      if (!anchor) {
+        issues.push(`${path.id}: missing rendered-curve anchor`);
+        return;
+      }
+      const safe = expandedBounds(anchor.profileBoundsCar, anchor.clearance ?? 0.055);
+      for (let sample = 0; sample <= 64; sample++) {
+        const point = curves[index].getPoint(sample / 64);
+        const tuple: [number, number, number] = [point.x, point.y, point.z];
+        if (pointInsideBounds(tuple, safe)) {
+          issues.push(`${path.id}: rendered spline enters protected profile volume at sample ${sample}`);
+          break;
+        }
+      }
+    });
+    return {ok: issues.length === 0, issues};
+  }, [anchorKey, curves, focusSide, pathSpecs, visibleAnchors]);
+
   const geometries = useMemo(() => curves.map((curve, index) => new THREE.TubeGeometry(
     curve,
     32,
@@ -90,8 +113,9 @@ export const SuspensionAirflow: React.FC<SuspensionAirflowProps> = ({
     [anchorKey, focusSide, pathSpecs],
   );
 
-  if (!audit.ok) {
-    throw new Error(`Y003 suspension airflow audit failed: ${audit.issues.join('; ')}`);
+  if (!audit.ok || !renderedCurveAudit.ok) {
+    const issues = [...audit.issues, ...renderedCurveAudit.issues];
+    throw new Error(`Y003 suspension airflow audit failed: ${issues.join('; ')}`);
   }
 
   const fade = airflowVisibility(visibility);
