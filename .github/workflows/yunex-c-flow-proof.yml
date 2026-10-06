@@ -11,7 +11,7 @@ on:
 jobs:
   render:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
 
@@ -24,6 +24,11 @@ jobs:
       - name: Install existing YUNEX runtime
         working-directory: yunex
         run: npm ci
+
+      - name: Install proof inspection tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg
 
       - name: Stage locked approved Porsche
         run: |
