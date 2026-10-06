@@ -1,4 +1,5 @@
 import React from 'react';
+import {DistantLandscape} from './DistantLandscape';
 import {TechnicalTrackWorld} from '../../TrackPreview';
 import {RoadSurfaces} from './RoadSurfaces';
 import {TrackFurniture} from './TrackFurniture';
@@ -22,5 +23,6 @@ export const TrackWorld:React.FC<TrackWorldProps>=({quality='final',seed=2103})=
     <TrackVegetation quality={quality} seed={seed}/>
   </group>
   {/* Lighting is deliberately world-space and must not inherit the rotated track-local root. */}
+  <DistantLandscape seed={seed}/>
   <TrackLighting quality={quality} seed={seed}/>
 </>;
