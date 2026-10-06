@@ -1,0 +1,30 @@
+name: YUNEX 003 H evidence QA
+
+permissions:
+  contents: read
+
+on:
+  push:
+    branches:
+      - sol/y003-suspension-manager
+    paths:
+      - 'yunex/video003/qa/evidence.json'
+
+jobs:
+  h-qa:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run H rubric
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p yunex/video003/reports/H/runtime
+          node yunex/video003/qa/y003-qa.mjs yunex/video003/qa/evidence.json | tee yunex/video003/reports/H/runtime/H_EVIDENCE_QA.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: YUNEX-003-H-QA-${{ github.sha }}
+          path: yunex/video003/reports/H/runtime/H_EVIDENCE_QA.json
+          retention-days: 14
+          if-no-files-found: warn
