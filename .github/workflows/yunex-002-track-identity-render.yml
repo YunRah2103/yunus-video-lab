@@ -102,9 +102,9 @@ jobs:
       (github.event_name == 'workflow_dispatch' && inputs.mode == 'review')
     runs-on: ubuntu-latest
     outputs:
-      source_sha: \${{ steps.gate.outputs.source_sha }}
-      manager_sha: \${{ steps.gate.outputs.manager_sha }}
-      e_qa_sha: \${{ steps.gate.outputs.e_qa_sha }}
+      source_sha: ${{ steps.gate.outputs.source_sha }}
+      manager_sha: ${{ steps.gate.outputs.manager_sha }}
+      e_qa_sha: ${{ steps.gate.outputs.e_qa_sha }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -113,7 +113,7 @@ jobs:
       - id: gate
         name: Require Manager pin and E static pass for review evidence
         env:
-          REQUESTED_SHA: \${{ github.event_name == 'workflow_dispatch' && inputs.render_source_sha || '' }}
+          REQUESTED_SHA: ${{ github.event_name == 'workflow_dispatch' && inputs.render_source_sha || '' }}
         run: |
           set -euo pipefail
           git fetch origin "$MANAGER_REF:refs/remotes/origin/y002-manager" --force
@@ -192,11 +192,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: \${{ needs.gate-review.outputs.source_sha }}
+          ref: ${{ needs.gate-review.outputs.source_sha }}
           path: source
       - uses: actions/checkout@v4
         with:
-          ref: \${{ needs.gate-review.outputs.e_qa_sha }}
+          ref: ${{ needs.gate-review.outputs.e_qa_sha }}
           path: qa
       - uses: actions/setup-node@v4
         with:
@@ -255,7 +255,7 @@ jobs:
           ffmpeg -v error -xerror -i ../review-evidence/moving-proof-reduced.mp4 -f null -
       - name: Write proof manifest and validate evidence package
         env:
-          SOURCE_SHA: \${{ needs.gate-review.outputs.source_sha }}
+          SOURCE_SHA: ${{ needs.gate-review.outputs.source_sha }}
         run: |
           set -euo pipefail
           python - <<'PY'
