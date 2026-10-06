@@ -1,0 +1,66 @@
+name: YUNEX 003 ultra moving proof
+
+permissions:
+  contents: read
+  actions: read
+
+on:
+  push:
+    branches:
+      - sol/y003-suspension-manager
+    paths:
+      - '.github/workflows/yunex-003-ultra-proof.yml'
+
+concurrency:
+  group: y003-ultra-proof
+  cancel-in-progress: true
+
+jobs:
+  moving:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: driving-trackside
+            frames: 0-119
+          - name: moving-reveal
+            frames: 190-279
+          - name: installed-airflow
+            frames: 260-349
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: 805c74fc2f749ed701c95d1aa5809e60e5a02d76
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: yunex/package-lock.json
+      - name: Stage exact source
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "805c74fc2f749ed701c95d1aa5809e60e5a02d76"
+          test "$(sha256sum cars/porsche-911-gt3-rs-992/model.glb | awk '{print $1}')" = "1c73fcb138c31e2b1d5ed126a2412074bb17f8e960b355436f28139bf518e1eb"
+          mkdir -p yunex/public yunex/out/y003-ultra
+          cp cars/porsche-911-gt3-rs-992/model.glb yunex/public/model.glb
+          cd yunex
+          npm ci --no-audit --no-fund
+      - name: Render continuous reduced moving proof
+        working-directory: yunex
+        env:
+          NODE_OPTIONS: --require=./fix-network.cjs
+        run: |
+          set -euo pipefail
+          npx remotion render src/index.tsx YUNEX-003-VISUAL "out/y003-ultra/${{ matrix.name }}-REDUCED.mp4" \
+            --frames="${{ matrix.frames }}" --gl=swangle --concurrency=4 --codec=h264 \
+            --pixel-format=yuv420p --crf=24 --scale=0.20 --timeout=300000 --muted
+          ffprobe -v error -show_entries format=duration:stream=width,height,r_frame_rate,codec_name -of json "out/y003-ultra/${{ matrix.name }}-REDUCED.mp4" > "out/y003-ultra/${{ matrix.name }}-probe.json"
+          printf '%s\n' "805c74fc2f749ed701c95d1aa5809e60e5a02d76" > "out/y003-ultra/${{ matrix.name }}-source.txt"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Y003-ULTRA-${{ matrix.name }}-${{ github.sha }}
+          path: yunex/out/y003-ultra/
+          retention-days: 14
+          if-no-files-found: error
