@@ -5,7 +5,7 @@
   "source_branch": "sol/yunex-002-landscape-fix",
   "source_sha": "8a02cc405d0f9958301c24cc4ce3add824f28288",
   "layout_contract_sha": "7ecd296b10f6d1d316544f1eb06a84bf5babedf3",
-  "render_source_sha": null,
+  "render_source_sha": "3ee36a708e2a466c0822431af940cf0be47b1c01",
   "manager_instruction": "Only Manager updates this registry. Pin exact input SHAs before releasing dependent implementation. No task is done without verified pushed implementation and actual proofs.",
   "tasks": [
     {
@@ -18,9 +18,9 @@
         "yunex/video002/racetrack-identity/START_HERE.md",
         "yunex/video002/racetrack-identity/TASKS.json"
       ],
-      "status": "coordinating_g_integration",
+      "status": "waiting_for_e_final_qa",
       "input_sha": "8a02cc405d0f9958301c24cc4ce3add824f28288",
-      "output_sha": null,
+      "output_sha": "3ee36a708e2a466c0822431af940cf0be47b1c01",
       "proofs": []
     },
     {
@@ -55,7 +55,7 @@
         "yunex/src/video002/trackUpgrade/racetrack/Surface.tsx",
         "yunex/src/video002/trackUpgrade/racetrack/Kerbs.tsx"
       ],
-      "status": "implementation_complete_waiting_integration",
+      "status": "complete_integrated_by_g",
       "input_sha": "7ecd296b10f6d1d316544f1eb06a84bf5babedf3",
       "output_sha": "ca42043a6124a98d78f89cfd1964aa9635866b55",
       "proofs": []
@@ -70,7 +70,7 @@
         "yunex/src/video002/trackUpgrade/racetrack/Runoff.tsx",
         "yunex/src/video002/trackUpgrade/racetrack/Terrain.tsx"
       ],
-      "status": "implementation_complete_waiting_integration",
+      "status": "complete_integrated_by_g",
       "input_sha": "7ecd296b10f6d1d316544f1eb06a84bf5babedf3",
       "output_sha": "10780592824776357c2e6eb751ec2542e34fecb7",
       "proofs": []
@@ -86,7 +86,7 @@
         "yunex/src/video002/trackUpgrade/TrackVegetation.tsx",
         "yunex/src/video002/trackUpgrade/vegetation/"
       ],
-      "status": "implementation_complete_waiting_integration",
+      "status": "complete_integrated_by_g",
       "input_sha": "7ecd296b10f6d1d316544f1eb06a84bf5babedf3",
       "output_sha": "15dc8ffc33a17520abf82f5042e422311c7488cf",
       "proofs": []
@@ -100,8 +100,8 @@
         "yunex/src/video002/trackUpgrade/qa/trackIdentity/",
         "yunex/video002/racetrack-identity/reports/E/"
       ],
-      "status": "baseline_complete_waiting_integrated_source",
-      "input_sha": null,
+      "status": "ready_for_final_integrated_qa",
+      "input_sha": "3ee36a708e2a466c0822431af940cf0be47b1c01",
       "output_sha": "d395efd3c6c762d3ce943d3a89f273bd851b7e4a",
       "proofs": []
     },
@@ -115,8 +115,8 @@
         "yunex/src/video002/trackUpgrade/nativeRender/trackIdentity/",
         "yunex/video002/racetrack-identity/reports/F/"
       ],
-      "status": "preflight_complete_waiting_render_source",
-      "input_sha": null,
+      "status": "waiting_for_e_final_pass",
+      "input_sha": "3ee36a708e2a466c0822431af940cf0be47b1c01",
       "output_sha": "2496ff0e9d3d55bd7f2e18de95aaaaca9b8814d6",
       "proofs": []
     },
@@ -129,10 +129,14 @@
         "yunex/src/video002/trackUpgrade/TrackWorld.tsx",
         "yunex/video002/racetrack-identity/reports/G/"
       ],
-      "status": "ready",
-      "input_sha": "ca2775853d5daca22f483b30612dabc3ec559c84",
-      "output_sha": null,
-      "proofs": []
+      "status": "complete",
+      "input_sha": "711f8432d79d2570e27d47dae7d916f72be7e10f",
+      "output_sha": "3ee36a708e2a466c0822431af940cf0be47b1c01",
+      "proofs": [
+        "yunex/video002/racetrack-identity/reports/G/RESULTS.md",
+        "yunex/video002/racetrack-identity/reports/G/metrics.json",
+        "yunex/video002/racetrack-identity/reports/G/proof-layer-order.svg"
+      ]
     }
   ]
 }
