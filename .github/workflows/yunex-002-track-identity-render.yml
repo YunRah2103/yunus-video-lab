@@ -15,12 +15,13 @@ on:
   workflow_dispatch:
     inputs:
       mode:
-        description: 'preflight or full'
+        description: 'preflight, review, or full'
         required: true
         default: preflight
         type: choice
         options:
           - preflight
+          - review
           - full
       render_source_sha:
         description: 'Optional exact Manager-pinned SHA; blank reads current registry'
@@ -46,7 +47,7 @@ env:
 jobs:
   preflight:
     if: >
-      (github.event_name == 'push' && !contains(github.event.head_commit.message, '[track-identity-full]')) ||
+      (github.event_name == 'push' && !contains(github.event.head_commit.message, '[track-identity-full]') && !contains(github.event.head_commit.message, '[track-identity-review]')) ||
       (github.event_name == 'workflow_dispatch' && inputs.mode == 'preflight')
     runs-on: ubuntu-latest
     timeout-minutes: 20
@@ -91,6 +92,202 @@ jobs:
           path: |
             preflight.json
             compositions.txt
+          if-no-files-found: error
+          retention-days: 14
+
+
+  gate-review:
+    if: >
+      (github.event_name == 'push' && contains(github.event.head_commit.message, '[track-identity-review]')) ||
+      (github.event_name == 'workflow_dispatch' && inputs.mode == 'review')
+    runs-on: ubuntu-latest
+    outputs:
+      source_sha: \${{ steps.gate.outputs.source_sha }}
+      manager_sha: \${{ steps.gate.outputs.manager_sha }}
+      e_qa_sha: \${{ steps.gate.outputs.e_qa_sha }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: sol/y002-track-identity-render
+          fetch-depth: 0
+      - id: gate
+        name: Require Manager pin and E static pass for review evidence
+        env:
+          REQUESTED_SHA: \${{ github.event_name == 'workflow_dispatch' && inputs.render_source_sha || '' }}
+        run: |
+          set -euo pipefail
+          git fetch origin "$MANAGER_REF:refs/remotes/origin/y002-manager" --force
+          git show origin/y002-manager:yunex/video002/racetrack-identity/TASKS.json > manager-tasks.json
+          MANAGER_SHA="$(git rev-parse origin/y002-manager)"
+          export REQUESTED_SHA MANAGER_SHA
+          python - <<'PY'
+          import json, os, re
+          from pathlib import Path
+          data=json.loads(Path("manager-tasks.json").read_text())
+          source=data.get("render_source_sha")
+          if not source or not re.fullmatch(r"[0-9a-f]{40}", source):
+              raise SystemExit("Manager has not pinned a valid render_source_sha")
+          requested=os.environ.get("REQUESTED_SHA","").strip()
+          if requested and requested != source:
+              raise SystemExit(f"requested SHA {requested} != Manager render_source_sha {source}")
+          e=next((t for t in data.get("tasks",[]) if t.get("id")=="E_QA"), None)
+          if not e:
+              raise SystemExit("E_QA task missing from Manager registry")
+          status=str(e.get("status") or "").lower()
+          if "static_pass" not in status or "native_evidence" not in status:
+              raise SystemExit(f"E_QA is not in static-pass/evidence-blocked review state: {status!r}")
+          if e.get("input_sha") != source:
+              raise SystemExit(f"E_QA input_sha {e.get('input_sha')} != render_source_sha {source}")
+          eout=e.get("output_sha")
+          if not eout or not re.fullmatch(r"[0-9a-f]{40}", eout):
+              raise SystemExit("E_QA has no verified output_sha")
+          Path("review-gate.json").write_text(json.dumps({
+              "phase":data.get("phase"),
+              "manager_sha":os.environ["MANAGER_SHA"],
+              "render_source_sha":source,
+              "e_status":e.get("status"),
+              "e_input_sha":e.get("input_sha"),
+              "e_output_sha":eout,
+              "purpose":"native review evidence only; not final approval",
+          }, indent=2, sort_keys=True)+"\n")
+          with open(os.environ["GITHUB_OUTPUT"],"a") as fh:
+              fh.write(f"source_sha={source}\n")
+              fh.write(f"manager_sha={os.environ['MANAGER_SHA']}\n")
+              fh.write(f"e_qa_sha={eout}\n")
+          PY
+          SOURCE_SHA="$(python -c 'import json; print(json.load(open("review-gate.json"))["render_source_sha"])')"
+          E_QA_SHA="$(python -c 'import json; print(json.load(open("review-gate.json"))["e_output_sha"])')"
+          git fetch origin "$SOURCE_SHA" --depth=1
+          git fetch origin "$E_QA_SHA" --depth=1
+          git cat-file -e "$SOURCE_SHA^{commit}"
+          git cat-file -e "$E_QA_SHA^{commit}"
+          git show "$SOURCE_SHA:cars/porsche-911-gt3-rs-992/model.glb" | sha256sum | grep -F "$EXPECTED_CAR_SHA256"
+          git show "$SOURCE_SHA:yunex/public/video002/d_mix.wav" | sha256sum | grep -F "$EXPECTED_MIX_SHA256"
+          git show "$E_QA_SHA:yunex/video002/racetrack-identity/reports/E/FINAL_QA.json" > e-final-qa.json
+          export SOURCE_SHA
+          python - <<'PY'
+          import json, os
+          q=json.load(open("e-final-qa.json"))
+          if q.get("input_sha") != os.environ["SOURCE_SHA"]:
+              raise SystemExit("E FINAL_QA input SHA does not match pinned render source")
+          if q.get("static_integrated_preflight") != "PASS":
+              raise SystemExit("E static integrated preflight is not PASS")
+          if q.get("verdict") != "FAIL_BLOCKED" or q.get("native_evidence_validation") != "BLOCKED_MISSING_EVIDENCE":
+              raise SystemExit("E is not blocked specifically on missing native evidence")
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: y002-track-identity-review-gate
+          path: |
+            review-gate.json
+            manager-tasks.json
+            e-final-qa.json
+          if-no-files-found: error
+          retention-days: 14
+
+  render-review-evidence:
+    needs: gate-review
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: \${{ needs.gate-review.outputs.source_sha }}
+          path: source
+      - uses: actions/checkout@v4
+        with:
+          ref: \${{ needs.gate-review.outputs.e_qa_sha }}
+          path: qa
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: source/yunex/package-lock.json
+      - name: Stage and verify locked assets
+        run: |
+          set -euo pipefail
+          mkdir -p source/yunex/public source/review-evidence
+          cp source/cars/porsche-911-gt3-rs-992/model.glb source/yunex/public/model.glb
+          test "$(sha256sum source/cars/porsche-911-gt3-rs-992/model.glb | awk '{print $1}')" = "$EXPECTED_CAR_SHA256"
+          test "$(sha256sum source/yunex/public/video002/d_mix.wav | awk '{print $1}')" = "$EXPECTED_MIX_SHA256"
+          command -v ffmpeg
+          command -v ffprobe
+      - name: Install render runtime
+        working-directory: source/yunex
+        run: npm ci
+      - name: Render seven native review stills
+        working-directory: source/yunex
+        env:
+          NODE_OPTIONS: --require=./fix-network.cjs
+        run: |
+          set -euo pipefail
+          while read -r frame file; do
+            npx remotion still src/index.tsx "$VISUAL_COMPOSITION" "../review-evidence/$file" \
+              --frame="$frame" \
+              --gl=swangle \
+              --scale=1 \
+              --timeout=120000
+          done <<'EOF'
+          18 beat-0018-hook.png
+          114 beat-0114-isolate.png
+          210 beat-0210-high-downforce.png
+          336 beat-0336-drs.png
+          456 beat-0456-airbrake.png
+          600 beat-0600-whole-car.png
+          705 beat-0705-payoff.png
+          EOF
+      - name: Render reduced-resolution 30 fps continuity proof
+        working-directory: source/yunex
+        env:
+          NODE_OPTIONS: --require=./fix-network.cjs
+        run: |
+          set -euo pipefail
+          npx remotion render src/index.tsx "$VISUAL_COMPOSITION" "../review-evidence/moving-proof-reduced.mp4" \
+            --frames=300-539 \
+            --gl=swangle \
+            --concurrency=2 \
+            --codec=h264 \
+            --pixel-format=yuv420p \
+            --crf=18 \
+            --scale=0.5 \
+            --timeout=120000 \
+            --muted
+          ffmpeg -v error -xerror -i ../review-evidence/moving-proof-reduced.mp4 -f null -
+      - name: Write proof manifest and validate evidence package
+        env:
+          SOURCE_SHA: \${{ needs.gate-review.outputs.source_sha }}
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          d=Path("source/review-evidence")
+          manifest={
+            "phase":"Y002-RACETRACK-IDENTITY-02",
+            "source_sha":os.environ["SOURCE_SHA"],
+            "moving_proof_label":"reduced-resolution 30 fps continuity proof, frames 300-539",
+            "frames":[
+              {"beat":"hook","frame":18,"file":"beat-0018-hook.png"},
+              {"beat":"isolate","frame":114,"file":"beat-0114-isolate.png"},
+              {"beat":"high_downforce","frame":210,"file":"beat-0210-high-downforce.png"},
+              {"beat":"drs","frame":336,"file":"beat-0336-drs.png"},
+              {"beat":"airbrake","frame":456,"file":"beat-0456-airbrake.png"},
+              {"beat":"whole_car","frame":600,"file":"beat-0600-whole-car.png"},
+              {"beat":"payoff","frame":705,"file":"beat-0705-payoff.png"},
+            ],
+          }
+          (d/"proof-manifest.json").write_text(json.dumps(manifest,indent=2)+"\n")
+          PY
+          python qa/yunex/src/video002/trackUpgrade/qa/trackIdentity/validate_visual_proofs.py \
+            --manifest source/review-evidence/proof-manifest.json \
+            --moving-proof source/review-evidence/moving-proof-reduced.mp4 \
+            --expected-source-sha "$SOURCE_SHA" \
+            --json-out source/review-evidence/automated-validation.json
+          (cd source/review-evidence && sha256sum *.png *.mp4 > sha256.txt)
+      - uses: actions/upload-artifact@v4
+        with:
+          name: y002-track-identity-native-review-evidence
+          path: source/review-evidence/
           if-no-files-found: error
           retention-days: 14
 
