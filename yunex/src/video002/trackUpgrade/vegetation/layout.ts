@@ -201,15 +201,15 @@ export const validateVegetationLayout = (layout: VegetationLayout) => {
   const violations: string[] = [];
   for (const tree of layout.trees) {
     if (tree.x > -6.15) violations.push(`tree inside protected trackside region at x=${tree.x.toFixed(2)}`);
-    if (inOpeningCameraCorridor(tree.x, tree.z)) violations.push('tree inside protected camera corridor');
+    if (inCameraCorridor(tree.x, tree.z)) violations.push('tree inside protected camera corridor');
   }
   for (const shrub of layout.shrubs) {
     if (shrub.x > -4.4) violations.push(`shrub inside protected trackside region at x=${shrub.x.toFixed(2)}`);
-    if (inOpeningCameraCorridor(shrub.x, shrub.z)) violations.push('shrub inside protected camera corridor');
+    if (inCameraCorridor(shrub.x, shrub.z)) violations.push('shrub inside protected camera corridor');
   }
   for (const clump of layout.grass) {
     if (clump.x > -3.95) violations.push(`grass inside protected trackside region at x=${clump.x.toFixed(2)}`);
-    if (inOpeningCameraCorridor(clump.x, clump.z)) violations.push('grass inside protected camera corridor');
+    if (inCameraCorridor(clump.x, clump.z)) violations.push('grass inside protected camera corridor');
   }
   return violations;
 };
