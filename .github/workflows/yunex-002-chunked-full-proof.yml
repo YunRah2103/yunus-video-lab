@@ -56,7 +56,7 @@ jobs:
         env:
           NODE_OPTIONS: --require=./fix-network.cjs
         run: |
-          npx remotion render src/index.tsx YUNEX-002-INTEGRATED-PROOF "out/chunks/part-${{ matrix.part }}.mp4" --frames="${{ matrix.frames }}" --gl=swangle --concurrency=2 --codec=h264 --crf=19 --timeout=120000
+          npx remotion render src/index.tsx YUNEX-002-INTEGRATED-PROOF "out/chunks/part-${{ matrix.part }}.mp4" --frames="${{ matrix.frames }}" --gl=swangle --concurrency=2 --codec=h264 --crf=18 --scale=0.5 --timeout=120000
           ffmpeg -v error -xerror -i "out/chunks/part-${{ matrix.part }}.mp4" -f null -
       - uses: actions/upload-artifact@v4
         with:
@@ -78,7 +78,7 @@ jobs:
       - name: Stitch and validate
         run: |
           printf "file 'part-a.mp4'\nfile 'part-b.mp4'\nfile 'part-c.mp4'\nfile 'part-d.mp4'\nfile 'part-e.mp4'\nfile 'part-f.mp4'\nfile 'part-g.mp4'\nfile 'part-h.mp4'\nfile 'part-i.mp4'\n" > chunks/list.txt
-          ffmpeg -y -v error -f concat -safe 0 -i chunks/list.txt -c copy YUNEX_002_INTEGRATED_PROOF.mp4
+          ffmpeg -y -v error -f concat -safe 0 -i chunks/list.txt -c copy YUNEX_002_INTEGRATED_PROXY_540x960.mp4\n          ffmpeg -y -v error -i YUNEX_002_INTEGRATED_PROXY_540x960.mp4 -vf scale=1080:1920:flags=lanczos -c:v libx264 -crf 18 -preset medium -pix_fmt yuv420p YUNEX_002_INTEGRATED_PROOF.mp4
           ffmpeg -v error -xerror -i YUNEX_002_INTEGRATED_PROOF.mp4 -f null -
           ffprobe -v error -count_frames -select_streams v:0 -show_entries stream=width,height,r_frame_rate,codec_name,pix_fmt,nb_read_frames -show_entries format=duration -of json YUNEX_002_INTEGRATED_PROOF.mp4 > ffprobe.json
           python - <<'PY'
