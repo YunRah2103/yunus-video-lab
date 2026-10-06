@@ -54,8 +54,8 @@ yunex/video002/master-dual/README.md
 Reuse airflow construction techniques, not old rear-wing paths/force placement.
 
 ## WORKSTREAMS / SAFETY
-A motion/runtime articulation; B suspension geometry; C cameras/reveal/track adapter; D suspension airflow; E edit/audio/render/tooling. Manager owns central integration and independent acceptance.
-A publishes contract early; B can inspect/model in parallel but binds approved anchors; C consumes A; D consumes A+B; E preflights audio/render early and integrates only pinned Manager source.
+A motion/runtime articulation; B suspension geometry; C cameras/reveal/track adapter; D suspension airflow; E edit/typography; F narration/sound; G native render; H independent integrated QA. Manager owns central integration and independent acceptance.
+A publishes contract early; B can inspect/model in parallel but binds approved anchors; C consumes A; D consumes A+B; E preflights typography/cues, F preflights supplied narration/sound, G preflights rendering, H prepares independent checks. Only G renders the full film from Manager-pinned source after H reviews proofs.
 Specialists work only assigned branches/files. Manager alone changes central registration, unified timeline, registry and integrated scene. No story changes by specialists. No full-film renders by competing agents.
 Manager pins role input SHA before releasing dependencies. Work shared through GitHub, not shared local files. No force-push. Every completion includes phase/role/input/output full SHAs, changed files, tests, actual proof links, limitations; verify remote head.
 
@@ -69,3 +69,7 @@ Native 1080x1920 scale1, 30fps H264 yuv420p/AAC faststart. Pin integrated source
 Return playable MP4, seven native frames, concise QA, exact source/remote SHAs and reproduction commands. Watch/listen actual film where supported; disclose playback limitations.
 Success: convincing driving, beautiful recognizable Porsche, readable aero shape, connected mechanical explanation, premium restrained graphics, active ending; understandable muted.
 Escalate required car redesign, uncertain reference topology, major environment/story/VO change, misleading mechanism or persistent artificial driving to Master. Routine fixes remain Sol.
+
+
+## EXPANDED SEPARATE-CHAT EXECUTION
+This revision uses Manager + A–H (nine separate user-started chats). No internal agents. Read MANAGER_EXECUTION_HANDOFF.md for integration, start gates, unattended routine decisions and failure recovery. E_DELIVERY_HANDOFF.md is superseded; E now follows E_EDIT_HANDOFF.md. All eight specialist roles are defined in TASKS.json. Manager alone updates registry/shared composition. The user may be offline; do not block routine authorized work on optional questions. Keep creative escalations documented; do not claim Master creative approval.
