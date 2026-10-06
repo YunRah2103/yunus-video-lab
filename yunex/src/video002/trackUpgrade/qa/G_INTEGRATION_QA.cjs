@@ -2,7 +2,7 @@
 const fs=require('fs');
 const crypto=require('crypto');
 const path=require('path');
-const root=path.resolve(__dirname,'../../../../..');
+const root=path.resolve(__dirname,'../../../..');
 const read=(p)=>fs.readFileSync(path.join(root,p),'utf8');
 const assert=(ok,msg)=>{if(!ok)throw new Error(msg);};
 const count=(src,needle)=>src.split(needle).length-1;
