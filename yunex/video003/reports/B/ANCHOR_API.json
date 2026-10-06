@@ -1,0 +1,41 @@
+{
+  "phase": "Y003-SUSPENSION-AERO-01",
+  "role": "B",
+  "status": "reference-fixture implementation; final A-motion binding pending manager contract release",
+  "coordinate_system": {
+    "units": "metres",
+    "up": "+Y",
+    "forward": "+Z",
+    "left": "+X",
+    "relative_airflow": "+Z to -Z in car-local coordinates"
+  },
+  "model_sha256": "1c73fcb138c31e2b1d5ed126a2412074bb17f8e960b355436f28139bf518e1eb",
+  "reference_wheel_centres": {
+    "FL": [0.8047665688272774, 0.3521761158410333, 1.242510736222192],
+    "FR": [-0.8047665640219048, 0.35217613650115226, 1.2425106101149082]
+  },
+  "runtime_contract": {
+    "chassis": "RigidPose delta in car-local coordinates; quaternion [x,y,z,w], rotation about car-local origin",
+    "upright": "wheelCenter + upright quaternion only; excludes rim spin so caliper/upright stay stationary relative to each other",
+    "manager_binding": "Map Manager/A chassis and FL/FR upright poses to FrontSuspensionState. Do not feed Spin_FL/FR rotation into B geometry."
+  },
+  "camera_suggestions": {
+    "leftMacro": {"position": [1.85, 0.72, 1.92], "target": [0.61, 0.34, 1.22], "focalLengthMm": 68},
+    "rightMacro": {"position": [-1.85, 0.72, 1.92], "target": [-0.61, 0.34, 1.22], "focalLengthMm": 68},
+    "frontAxleContext": {"position": [2.65, 1.18, 3.45], "target": [0.34, 0.42, 1.16], "focalLengthMm": 48}
+  },
+  "accuracy_boundary": {
+    "documented": [
+      "992 GT3 RS uses a double-wishbone front axle.",
+      "Front-axle links use teardrop-shaped aerodynamic profiles.",
+      "Porsche reports around 40 kg additional front-axle downforce at top speed from these aero links.",
+      "Reduced braking pitch is a separate suspension-geometry measure; Porsche describes the front ball joint of the lower trailing arm as set lower."
+    ],
+    "illustrative_not_factory_dimensions": [
+      "All B pickup-point coordinates except approved wheel centres.",
+      "Profile chord/thickness dimensions.",
+      "Spring/damper placement and upright context geometry.",
+      "Kinematic fixture amplitudes used before A contract release."
+    ]
+  }
+}
