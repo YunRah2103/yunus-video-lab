@@ -1,78 +1,71 @@
-# Agent E — Independent Track / Visual QA Results
+# Agent E — Final Integrated Track / Visual QA
 
 Phase: **Y002-RACETRACK-IDENTITY-02**  
 Role: **E — Independent Track / Visual QA**  
+Input source: **3ee36a708e2a466c0822431af940cf0be47b1c01**  
 Branch: **sol/y002-track-identity-qa**
 
-## Current verdict
+## Final verdict
 
-**BASELINE / PREFLIGHT: READY**  
-**FINAL INTEGRATED VISUAL QA: BLOCKED ON MANAGER PIN**
+**FAIL / BLOCKED — native visual evidence is missing.**
 
-The QA implementation is complete for the current registry state. `TASKS.json` still has `render_source_sha: null`, so a final PASS would be false until Manager integrates A–D, pins the exact source SHA, and F/E receive the native proof package.
+This is not a failure of the integrated racetrack source. The independent static/source audit passes. It is a failure of the mandatory final evidence gate: E cannot honestly approve visuals that have not been rendered and supplied.
 
-## Implemented QA
+## Integrated static/source QA — PASS
 
-- Added a repeatable baseline/integrated preflight that validates:
-  - locked Porsche SHA256;
-  - 30 fps / 751-frame / 25.02 s chronology;
-  - locked camera timing;
-  - TrackWorld root transform;
-  - racetrack layout sampling, width, straight corridor and bend restraint;
-  - conservative Porsche footprint edge clearance;
-  - road → runoff → barrier → landscape ordering;
-  - selected apex/exit kerb intent;
-  - quality/seed component APIs;
-  - no direct `Math.random()` in integrated track identity components;
-  - course-derived runoff/barrier geometry;
-  - opening-camera catch-fence exclusion;
-  - seeded vegetation landscape/camera exclusion validation.
-- Added a seven-beat native proof validator.
-- Added an explicit manual visual gate for continuity, occlusion, seams, wheel contact and premium track readability.
-- Added a proof manifest template with fixed chronological frames:
-  - 18 hook
-  - 114 isolate
-  - 210 high-downforce
-  - 336 DRS
-  - 456 airbrake
-  - 600 whole-car
-  - 705 payoff
+The Manager registry pins the exact requested source SHA. G integrated the pinned A/B/C/D source and the resulting TrackWorld is internally coherent:
 
-## Baseline audit
+- shared root remains `[-1,-0.028,0]`, yaw `Math.PI`;
+- legacy `TechnicalTrackWorld` is removed from YUNEX 002;
+- one lowered neutral backing ground replaces the legacy asphalt/grass bands;
+- connected `RoadSurfaces -> Runoff -> Terrain -> TrackFurniture -> TrackVegetation` are mounted in the shared track-local root;
+- `DistantLandscape` and `TrackLighting` remain world-space;
+- both barriers derive from course-relative barrier lines;
+- vegetation remains seeded and includes landscape/camera exclusion validation;
+- selected kerbs remain limited to explicit apex/exit zones;
+- Porsche/camera/edit/audio/typography/active-aero files were not changed by G's integration diff.
 
-The old environment contains the exact identity problems this phase is meant to replace:
+Independent geometry recomputation from the pinned source produced:
 
-1. **HIGH — all frames / RoadSurfaces.tsx**  
-   Baseline racing surface is a single rectangular `PlaneGeometry(ROAD_WIDTH, ROAD_LENGTH)`, so it cannot establish connected circuit direction or a bend.
+- **161** layout samples at 0.5 m;
+- **8.6 m** racing-surface width;
+- **3.125 m** minimum conservative Porsche road-edge clearance across all 751 locked frames;
+- **9.4042423703285°** maximum bend heading;
+- **0 m** straight-corridor centre drift;
+- **0.506803684928332 m** maximum sampled centreline step.
 
-2. **HIGH — all frames / TrackFurniture.tsx**  
-   Baseline guardrail is fixed at `RAIL_X=-3.62` rather than following course-relative barrier lines. This reads as a roadside rail.
+These satisfy the static acceptance thresholds.
 
-3. **MEDIUM — inspect all native beats / TrackWorld.tsx**  
-   Legacy wide TechnicalTrackWorld backing plane is intentionally retained below the authored track. Integrated visual QA must reject any visible broad apron/backing seam.
+## Mandatory native evidence — BLOCKED
 
-4. **MEDIUM — wide/hero views / DistantLandscape.tsx**  
-   Baseline large world-space grass planes and enclosing foliage are not driven by the new course-relative landscape exclusion contract.
+The E handoff requires all seven native 1080×1920 beat frames from the same pinned source:
 
-## Independent layout-contract verification
+- frame 18 — hook;
+- frame 114 — isolate;
+- frame 210 — high-downforce;
+- frame 336 — DRS;
+- frame 456 — airbrake;
+- frame 600 — whole-car;
+- frame 705 — payoff.
 
-The pinned A layout contract at `7ecd296b10f6d1d316544f1eb06a84bf5babedf3` was independently recomputed from its published geometry:
+It also requires a short decoded 30 fps moving proof.
 
-- road width: **8.6 m**
-- samples: **161**
-- minimum conservative locked-car road-edge clearance: **3.125 m**
-- maximum distant-bend heading: **9.404242°**
-- straight-corridor centre drift: **0 m**
+I checked the pinned integration commit and its compare range. It contains G's `RESULTS.md`, `metrics.json` and `proof-layer-order.svg`, but **no native PNG or MP4 review bundle**. The pinned source has no attached workflow artifact visible through the available GitHub Actions evidence either.
 
-These pass the static geometric acceptance thresholds.
+Therefore I cannot inspect the required final visual questions: course readability without labels, seam/apron visibility, grass intrusion, barrier/foliage occlusion, wheel contact/grounded shadow, or whether every aero beat remains visually clean.
 
-## Remaining gate
+## Process blocker
 
-Final Agent E PASS requires all of the following from one Manager-pinned `render_source_sha`:
+F's current full-render workflow requires E's registry status to already contain `pass`, `complete`, `done` or `approved`. E's handoff simultaneously requires native review evidence before final PASS.
 
-- integrated static preflight PASS;
-- seven true native 1080×1920 beat frames;
-- short 30 fps moving proof that fully decodes and is correctly labelled if reduced resolution;
-- human inspection showing connected racetrack identity, correctly ordered runoff/barriers, no broad apron seam, no grass intrusion, no Porsche/aero occlusion and convincing grounded contact.
+That is a circular gate. Do **not** solve it by marking E passed without evidence.
 
-Astra retains final creative approval.
+The safe correction is for Manager/F to provide a first-review render path from exactly `3ee36a708e2a466c0822431af940cf0be47b1c01` that does not require final E approval. Once those seven native frames and the moving proof exist, E can inspect them and issue the real final PASS/FAIL.
+
+## Evidence files
+
+- `integrated_preflight.json` — exact-source static/source audit and recomputed geometry metrics.
+- `visual_evidence_validation.json` — explicit missing native evidence record.
+- `FINAL_QA.json` — machine-readable final verdict and required next action.
+
+No A–D/G/F source was modified by E. No camera, car, edit or audio change was made.
