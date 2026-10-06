@@ -49,7 +49,7 @@ const makeRibbonGeometry = (
     uvs.push(0, v, 1, v);
     if (index < samples.length - 1) {
       const i = index * 2;
-      indices.push(i, i + 1, i + 2, i + 1, i + 3, i + 2);
+      indices.push(i, i + 2, i + 1, i + 1, i + 2, i + 3);
     }
   });
 

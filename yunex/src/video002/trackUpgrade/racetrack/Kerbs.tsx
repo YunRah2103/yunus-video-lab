@@ -113,6 +113,14 @@ const makeKerbGeometry = (segments: KerbSegment[]) => {
   const geometry = new THREE.BufferGeometry();
   geometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
   geometry.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
+  // Each segment is authored in opposite winding on the two sides.
+  segments.forEach((segment, index) => {
+    if (segment.side === 'right') {
+      const start = index * 30;
+      for (let i = start; i < start + 30; i += 3)
+        [indices[i + 1], indices[i + 2]] = [indices[i + 2], indices[i + 1]];
+    }
+  });
   geometry.setIndex(indices);
   geometry.computeVertexNormals();
   geometry.computeBoundingBox();

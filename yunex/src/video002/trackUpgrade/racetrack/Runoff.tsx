@@ -59,6 +59,13 @@ const buildStripGeometry = (
   const geometry = new THREE.BufferGeometry();
   geometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
   geometry.setAttribute('uv', new THREE.Float32BufferAttribute(uvs, 2));
+  // Left and right strips have opposite pair ordering: orient every face upward.
+  for (let i = 0; i < indices.length; i += 3) {
+    const a = indices[i] * 3, b = indices[i + 1] * 3, c = indices[i + 2] * 3;
+    const normalY = (positions[b + 2] - positions[a + 2]) * (positions[c] - positions[a])
+      - (positions[b] - positions[a]) * (positions[c + 2] - positions[a + 2]);
+    if (normalY < 0) [indices[i + 1], indices[i + 2]] = [indices[i + 2], indices[i + 1]];
+  }
   geometry.setIndex(indices);
   geometry.computeVertexNormals();
   geometry.computeBoundingBox();
