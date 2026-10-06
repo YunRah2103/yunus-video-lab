@@ -1,0 +1,21 @@
+{
+  "verdict": "PASS",
+  "layout": {
+    "ok": true,
+    "issues": [],
+    "metrics": {
+      "sampleCount": 561,
+      "roadWidth": 8.6,
+      "minCarFootprintEdgeClearance": 3.125,
+      "maxHeadingDegrees": 9.4042423703285,
+      "maxCenterStep": 0.506803684928332,
+      "straightCorridorMaxCenterError": 0
+    }
+  },
+  "upwardSurfaces": [
+    "asphalt",
+    "left/right runoff",
+    "left/right terrain",
+    "left/right kerb tops"
+  ]
+}
