@@ -10,6 +10,11 @@ on:
       - sol/y003-suspension-manager
     paths:
       - '.github/workflows/yunex-003-fast-proof.yml'
+      - 'yunex/src/video003/**'
+
+concurrency:
+  group: y003-fast-proof-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   compile:
