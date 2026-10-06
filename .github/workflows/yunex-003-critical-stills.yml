@@ -18,7 +18,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: cd5c865220ce492899c3bce4afddb2b61ca45e77
+          ref: 805c74fc2f749ed701c95d1aa5809e60e5a02d76
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
@@ -32,6 +32,6 @@ jobs:
           NODE_OPTIONS=--require=./fix-network.cjs npx remotion still src/index.tsx YUNEX-003-VISUAL "out/y003-critical/frame-${{ matrix.frame }}.png" --frame="${{ matrix.frame }}" --gl=swangle --scale=1 --timeout=120000
       - uses: actions/upload-artifact@v4
         with:
-          name: Y003-CRITICAL-${{ matrix.frame }}-cd5c8652
+          name: Y003-CRITICAL-${{ matrix.frame }}-805c74fc
           path: yunex/out/y003-critical/frame-${{ matrix.frame }}.png
           retention-days: 14
