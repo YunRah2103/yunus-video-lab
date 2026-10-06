@@ -40,12 +40,19 @@ jobs:
       - name: Verify images
         working-directory: yunex
         run: |
-          test "$(find out/video002-smoke -name '*.png' | wc -l)" -eq 7
-          for p in out/video002-smoke/*.png; do
-            dims="$(ffprobe -v error -select_streams v:0 -show_entries stream=width,height -of csv=s=x:p=0 "$p")"
-            test "$dims" = "1080x1920"
-          done
+          python - <<'PY'
+          from pathlib import Path
+          import struct
+          files=sorted(Path('out/video002-smoke').glob('*.png'))
+          assert len(files)==7, files
+          for p in files:
+              data=p.read_bytes()
+              assert data[:8]==b'\\x89PNG\\r\\n\\x1a\\n', p
+              width,height=struct.unpack('>II',data[16:24])
+              assert (width,height)==(1080,1920),(p,width,height)
+          PY
       - name: Upload smoke review
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: yunex-002-integrated-smoke
