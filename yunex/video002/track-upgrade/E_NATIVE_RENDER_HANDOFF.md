@@ -1,3 +1,6 @@
+# ACTIVE PHASE: Y002-TRACK-UPGRADE-01
+Read [../START_HERE.md](../START_HERE.md) FIRST. Task identity: E_NATIVE_RENDER. Follow its exact work branch, ownership and remote-push verification contract. Existing valid implementation must be continued, not reset to the historical base stated below. Manager verifies remote source before integration.
+
 # YUNEX 002 — E_NATIVE_RENDER
 Repo YunRah2103/yunus-video-lab, branch sol/yunex-002-active-aero, base c7b2be16526eeed9e5635c6462887fa92be94353.
 Read yunex/video002/MANAGER_INTEGRATION_FINAL_QA.md and src/video002/Video002Integrated.tsx before work. Separate USER-OPENED chats only: no internal agents. Implement your chunk, not more handoffs.
