@@ -1,0 +1,48 @@
+{
+  "phase": "Y002-TRACK-UPGRADE-01",
+  "role": "H",
+  "g_source_commit": "7e169ae7ac1555493c47ab4152e38c998b608374",
+  "render_runs": [
+    37450752136,
+    37453727041
+  ],
+  "g_proof_run": 37449536228,
+  "output": {
+    "filename": "YUNEX_002_FINAL_MASTER.mp4",
+    "sha256": "63f8186e9d178cdd6892b2662473ddf823c3e9388655627a299a532141ef20a5",
+    "bytes": 83248541,
+    "width": 1080,
+    "height": 1920,
+    "fps": "30/1",
+    "avg_fps": "30/1",
+    "frames": 751,
+    "duration_seconds": 25.033333,
+    "video_codec": "h264",
+    "pixel_format": "yuv420p",
+    "audio_codec": "aac",
+    "audio_sample_rate": 48000,
+    "audio_channels": 1,
+    "integrated_lufs": -15.76,
+    "true_peak_dbtp": -1.09
+  },
+  "audio": {
+    "source_vo_sha256": "899514c1a72080d87b76a5155841cb727b43644d6c636aa16f8eb28c83f60171",
+    "approved_mix_sha256": "217e5efe0619d922a215c7572c4cc205731b79e57b65267bfdf39daf6280a8b9"
+  },
+  "motion": {
+    "exact_duplicate_pairs": 0,
+    "low_motion_pairs_below_0_05": 0,
+    "median_delta": 0.7186,
+    "min_delta": 0.2425,
+    "max_delta": 36.2515,
+    "intentional_cut_frames": [
+      540,
+      660
+    ],
+    "worst_non_cut_boundary_ratio": 1.171
+  },
+  "porsche_sha256": "1c73fcb138c31e2b1d5ed126a2412074bb17f8e960b355436f28139bf518e1eb",
+  "full_decode_pass": true,
+  "native_source_scale": 1,
+  "accidental_upscale": false
+}
