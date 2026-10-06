@@ -55,30 +55,36 @@ const InstancedLayer: React.FC<{
 
 const canopyPatterns = [
   [
-    [-0.28, 0.67, 0.02, 0.56, 0.44, 0.50],
-    [0.30, 0.72, -0.09, 0.51, 0.48, 0.46],
-    [-0.06, 0.92, 0.13, 0.58, 0.50, 0.54],
-    [-0.39, 0.93, -0.06, 0.43, 0.40, 0.42],
-    [0.22, 1.13, 0.02, 0.42, 0.37, 0.40],
+    [-0.34, 0.18, 0.03, 0.62, 0.50, 0.57],
+    [0.31, 0.20, -0.10, 0.60, 0.52, 0.55],
+    [-0.05, 0.37, 0.16, 0.66, 0.56, 0.62],
+    [-0.47, 0.44, -0.07, 0.48, 0.44, 0.47],
+    [0.40, 0.48, 0.08, 0.50, 0.45, 0.49],
+    [-0.14, 0.64, -0.10, 0.52, 0.46, 0.50],
+    [0.19, 0.80, 0.03, 0.39, 0.35, 0.38],
   ],
   [
-    [-0.14, 0.65, -0.05, 0.48, 0.50, 0.46],
-    [0.34, 0.83, 0.04, 0.44, 0.45, 0.42],
-    [-0.36, 0.84, 0.09, 0.47, 0.43, 0.44],
-    [0.06, 1.02, -0.10, 0.52, 0.47, 0.49],
-    [0.16, 1.24, 0.04, 0.36, 0.34, 0.35],
+    [-0.22, 0.16, -0.06, 0.58, 0.55, 0.54],
+    [0.35, 0.24, 0.05, 0.55, 0.50, 0.51],
+    [-0.42, 0.37, 0.12, 0.52, 0.48, 0.49],
+    [0.08, 0.40, -0.12, 0.64, 0.58, 0.60],
+    [0.43, 0.51, -0.05, 0.46, 0.43, 0.44],
+    [-0.12, 0.62, 0.09, 0.50, 0.46, 0.48],
+    [0.18, 0.79, 0.03, 0.37, 0.34, 0.36],
   ],
   [
-    [-0.31, 0.71, 0.08, 0.50, 0.42, 0.47],
-    [0.29, 0.66, -0.08, 0.55, 0.42, 0.50],
-    [-0.02, 0.91, 0.01, 0.61, 0.46, 0.56],
-    [-0.43, 1.02, -0.04, 0.38, 0.36, 0.39],
-    [0.31, 1.12, 0.07, 0.40, 0.34, 0.38],
+    [-0.37, 0.21, 0.09, 0.57, 0.49, 0.54],
+    [0.29, 0.17, -0.09, 0.64, 0.49, 0.59],
+    [-0.04, 0.36, 0.02, 0.69, 0.56, 0.64],
+    [-0.49, 0.49, -0.05, 0.45, 0.41, 0.44],
+    [0.42, 0.46, 0.10, 0.48, 0.41, 0.47],
+    [-0.16, 0.64, -0.09, 0.48, 0.43, 0.46],
+    [0.21, 0.78, 0.05, 0.38, 0.34, 0.37],
   ],
 ] as const;
 
 const treeCanopyInstances = (tree: TreeSpec): InstanceTransform[] => {
-  const trunkTop = tree.height * 0.47;
+  const trunkTop = tree.height * 0.34;
   const pattern = canopyPatterns[tree.variant];
   return pattern.map((v, index) => ({
     position: [
@@ -125,7 +131,7 @@ const buildRenderInstances = (quality: VegetationQuality, seed: number) => {
   const canopy: [InstanceTransform[], InstanceTransform[], InstanceTransform[]] = [[], [], []];
 
   layout.trees.forEach((tree, treeIndex) => {
-    const trunkHeight = tree.height * 0.58;
+    const trunkHeight = tree.height * 0.52;
     const trunkRadius = Math.max(0.07, tree.height * 0.038);
     trunks.push({
       position: [tree.x, trunkHeight * 0.5, tree.z],
@@ -134,18 +140,18 @@ const buildRenderInstances = (quality: VegetationQuality, seed: number) => {
       color: tree.trunkColor,
     });
 
-    const branchY = trunkHeight * 0.72;
-    const branchLength = tree.height * 0.34;
+    const branchY = trunkHeight * 0.78;
+    const branchLength = tree.height * 0.19;
     branches.push(
       {
         position: [tree.x - tree.crownWidth * 0.11, branchY, tree.z],
-        rotation: [0.08, tree.yaw + 0.45, 0.72 + tree.lean],
+        rotation: [0.08, tree.yaw + 0.45, 0.88 + tree.lean],
         scale: [trunkRadius * 0.55, branchLength, trunkRadius * 0.55],
         color: tree.trunkColor,
       },
       {
         position: [tree.x + tree.crownWidth * 0.10, branchY + tree.height * 0.04, tree.z - 0.04],
-        rotation: [-0.12, tree.yaw - 0.8, -0.66 + tree.lean],
+        rotation: [-0.12, tree.yaw - 0.8, -0.82 + tree.lean],
         scale: [trunkRadius * 0.48, branchLength * 0.86, trunkRadius * 0.48],
         color: tree.trunkColor,
       },
@@ -186,30 +192,30 @@ export const TrackVegetation: React.FC<TrackVegetationProps> = ({
 
   const foliageMaterial = useMemo(
     () =>
-      new THREE.MeshStandardMaterial({
+      new THREE.MeshLambertMaterial({
         color: '#ffffff',
-        roughness: 0.97,
-        metalness: 0,
+        emissive: '#182119',
+        emissiveIntensity: 0.34,
         vertexColors: true,
       }),
     [],
   );
   const trunkMaterial = useMemo(
     () =>
-      new THREE.MeshStandardMaterial({
+      new THREE.MeshLambertMaterial({
         color: '#ffffff',
-        roughness: 0.94,
-        metalness: 0,
+        emissive: '#17120e',
+        emissiveIntensity: 0.18,
         vertexColors: true,
       }),
     [],
   );
   const grassMaterial = useMemo(
     () =>
-      new THREE.MeshStandardMaterial({
+      new THREE.MeshLambertMaterial({
         color: '#ffffff',
-        roughness: 1,
-        metalness: 0,
+        emissive: '#1b2217',
+        emissiveIntensity: 0.30,
         side: THREE.DoubleSide,
         vertexColors: true,
       }),
