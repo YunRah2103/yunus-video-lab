@@ -9,7 +9,8 @@ fi
 VISUAL="$1"
 SOURCE_VO="$2"
 OUT="$3"
-ROOT="$(cd "$(dirname "$0")/../../../../.." && pwd)"
+TOOL_ROOT="$(cd "$(dirname "$0")/../../../../.." && pwd)"
+ROOT="${YUNEX002_SOURCE_ROOT:-$TOOL_ROOT}"
 YUNEX="$ROOT/yunex"
 TMP="$(mktemp -d)"
 trap 'rm -rf "$TMP"' EXIT
@@ -20,6 +21,8 @@ EXPECTED_CAR_SHA="1c73fcb138c31e2b1d5ed126a2412074bb17f8e960b355436f28139bf518e1
 
 test -s "$VISUAL"
 test -s "$SOURCE_VO"
+test -x "$YUNEX/video002/build-d-audio.sh"
+test -s "$ROOT/cars/porsche-911-gt3-rs-992/model.glb"
 test "$(sha256sum "$SOURCE_VO" | awk '{print $1}')" = "$EXPECTED_SOURCE_SHA"
 test "$(sha256sum "$ROOT/cars/porsche-911-gt3-rs-992/model.glb" | awk '{print $1}')" = "$EXPECTED_CAR_SHA"
 
@@ -61,12 +64,18 @@ PY
 mux 0
 measure pass1
 TP="$(python -c 'import json; print(float(json.load(open("'"$TMP/audio_metrics.json"'"))["input_tp"]))')"
-if ! python - "$TP" <<'PY'
+GAIN="$(python - "$TP" <<'PY'
 import sys
-raise SystemExit(0 if float(sys.argv[1]) <= -1.0 else 1)
+tp=float(sys.argv[1])
+print(f"{min(0.0, -1.05-tp):.3f}")
+PY
+)"
+if ! python - "$GAIN" <<'PY'
+import sys
+raise SystemExit(0 if abs(float(sys.argv[1])) < 0.0005 else 1)
 PY
 then
-  mux -0.5
+  mux "$GAIN"
   measure pass2
 fi
 
