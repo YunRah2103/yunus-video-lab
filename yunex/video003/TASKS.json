@@ -5,7 +5,7 @@
   "integration_branch": "sol/y003-suspension-manager",
   "base_sha": "50fd478256bbe12d37410e78678bd7c302d96434",
   "execution": "Nine separate user-started chats: Manager + A–H. No automatic/nested agents.",
-  "render_source_sha": null,
+  "render_source_sha": "805c74fc2f749ed701c95d1aa5809e60e5a02d76",
   "motion_contract_sha": "e13c7c58993e05a4ea10ca5edda207170db48b0f",
   "suspension_contract_sha": "e4e6ee3538d5fc993d945629a941e3ece0814e5c",
   "audio_cue_sha": "0620d094c5ab38373de18857a7f37c813b84b3a0",
@@ -15,7 +15,7 @@
       "id": "MANAGER",
       "handoff": "MANAGER_EXECUTION_HANDOFF.md",
       "branch": "sol/y003-suspension-manager",
-      "status": "integration_proofing",
+      "status": "native_rendering",
       "owned_files": [
         "yunex/video003/START_HERE.md",
         "yunex/video003/TASKS.json",
@@ -30,7 +30,7 @@
       "role": "Driving dynamics and runtime articulation",
       "handoff": "A_MOTION_HANDOFF.md",
       "branch": "sol/y003-driving",
-      "status": "integrated_pending_manager_proofs",
+      "status": "integrated_accepted",
       "input_sha": "50fd478256bbe12d37410e78678bd7c302d96434",
       "initial_preparation_sha": "50fd478256bbe12d37410e78678bd7c302d96434",
       "output_sha": "e13c7c58993e05a4ea10ca5edda207170db48b0f",
@@ -45,7 +45,7 @@
       "role": "Front suspension mechanical geometry",
       "handoff": "B_SUSPENSION_HANDOFF.md",
       "branch": "sol/y003-suspension",
-      "status": "integrated_pending_manager_proofs",
+      "status": "integrated_accepted",
       "input_sha": "50fd478256bbe12d37410e78678bd7c302d96434",
       "initial_preparation_sha": "50fd478256bbe12d37410e78678bd7c302d96434",
       "output_sha": "e4e6ee3538d5fc993d945629a941e3ece0814e5c",
@@ -60,7 +60,7 @@
       "role": "Automotive cameras, moving reveal and track adapter",
       "handoff": "C_CAMERA_HANDOFF.md",
       "branch": "sol/y003-cameras",
-      "status": "integrated_pending_manager_proofs",
+      "status": "integrated_accepted",
       "input_sha": "50fd478256bbe12d37410e78678bd7c302d96434",
       "initial_preparation_sha": "50fd478256bbe12d37410e78678bd7c302d96434",
       "output_sha": "c98e8662b21633a678caf0a6b44d63131dcd28d9",
@@ -77,7 +77,7 @@
       "role": "Suspension aerodynamic explanation",
       "handoff": "D_AIRFLOW_HANDOFF.md",
       "branch": "sol/y003-airflow",
-      "status": "integrated_pending_manager_proofs",
+      "status": "integrated_accepted",
       "input_sha": "50fd478256bbe12d37410e78678bd7c302d96434",
       "initial_preparation_sha": "50fd478256bbe12d37410e78678bd7c302d96434",
       "output_sha": "baeb419249ddebc327d746f43fa50b9c1db2edd2",
@@ -92,7 +92,7 @@
       "role": "Edit timing, typography and finishing",
       "handoff": "E_EDIT_HANDOFF.md",
       "branch": "sol/y003-edit",
-      "status": "integrated_pending_manager_proofs",
+      "status": "integrated_accepted",
       "input_sha": "50fd478256bbe12d37410e78678bd7c302d96434",
       "initial_preparation_sha": "50fd478256bbe12d37410e78678bd7c302d96434",
       "output_sha": "f09a6f062f7befa4927772e5b94e523c62a0125f",
@@ -107,7 +107,7 @@
       "role": "Supplied narration, automotive sound and timing",
       "handoff": "F_AUDIO_HANDOFF.md",
       "branch": "sol/y003-audio",
-      "status": "integrated_pending_manager_proofs",
+      "status": "integrated_accepted",
       "input_sha": "50fd478256bbe12d37410e78678bd7c302d96434",
       "initial_preparation_sha": "50fd478256bbe12d37410e78678bd7c302d96434",
       "output_sha": "0620d094c5ab38373de18857a7f37c813b84b3a0",
@@ -123,8 +123,8 @@
       "role": "Native render pipeline and final export",
       "handoff": "G_RENDER_HANDOFF.md",
       "branch": "sol/y003-render",
-      "status": "pipeline_ready_waiting_render_release",
-      "input_sha": "50fd478256bbe12d37410e78678bd7c302d96434",
+      "status": "native_visual_rendering",
+      "input_sha": "805c74fc2f749ed701c95d1aa5809e60e5a02d76",
       "initial_preparation_sha": "50fd478256bbe12d37410e78678bd7c302d96434",
       "output_sha": "739a214b1d47955cba21a34b29cb67b1911135a3",
       "owned_files": [
@@ -139,7 +139,7 @@
       "role": "Independent driving, mechanical and visual QA",
       "handoff": "H_QA_HANDOFF.md",
       "branch": "sol/y003-qa",
-      "status": "integrated_pending_moving_proof_review",
+      "status": "integrated_proof_pass",
       "input_sha": "50fd478256bbe12d37410e78678bd7c302d96434",
       "initial_preparation_sha": "50fd478256bbe12d37410e78678bd7c302d96434",
       "output_sha": "1408f1d1b6a525c182385b8bf302b7fea0ad7cf6",
@@ -148,7 +148,11 @@
         "yunex/video003/reports/H/",
         "yunex/video003/reports/H/"
       ],
-      "proofs": []
+      "proofs": [
+        "H evidence QA run 37545958293 PASS",
+        "sampled proof artifact 11450546449",
+        "native still artifact 11448604207"
+      ]
     }
   ]
 }
