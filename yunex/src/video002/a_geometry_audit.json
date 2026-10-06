@@ -1,0 +1,35 @@
+{
+  "asset": "cars/porsche-911-gt3-rs-992/model.glb",
+  "sha256": "1c73fcb138c31e2b1d5ed126a2412074bb17f8e960b355436f28139bf518e1eb",
+  "wingTriangles": 11552,
+  "wingFlapSourceTriangles": 9588,
+  "classification": {
+    "movingUpperPlaneTriangles": 6166,
+    "fixedMisclassifiedFragmentsTriangles": 3422,
+    "movingFraction": 0.6430955360878181,
+    "componentCount": 307,
+    "movingComponentCount": 284,
+    "fixedComponentCount": 23
+  },
+  "materials": {
+    "Wing_Flap_Paint": {"movingTriangles": 1937, "fixedTriangles": 1247},
+    "Wing_Flap_Coloured": {"movingTriangles": 3535, "fixedTriangles": 2175},
+    "Wing_Flap_BadgeA": {"movingTriangles": 694, "fixedTriangles": 0}
+  },
+  "hingeCar": [0.0, 1.24, -1.8],
+  "movingBoundsCar": {
+    "min": [-0.85784453, 1.21384128, -2.20465537],
+    "max": [0.85910428, 1.3517386, -1.79484148]
+  },
+  "fixedFragmentBoundsCar": {
+    "min": [-0.8713699, 1.16947069, -2.21230285],
+    "max": [0.8713699, 1.36605278, -1.73210098]
+  },
+  "parentWorldScale": [1.0, 1.0, 1.0],
+  "notes": [
+    "The original Wing_Flap label is not mechanically trustworthy: it contains narrow/vertical endplate or support fragments caught by the asset pipeline's Y cutoff.",
+    "The existing local origin lies at the forward edge of the identified wide upper-plane cluster and is retained as the visual spanwise-X hinge for this production asset.",
+    "No source GLB bytes are modified; runtime geometry indices are partitioned while vertex attributes, UVs, normals and materials are retained.",
+    "The direct indexed-triangle audit totals 9588 Wing_Flap triangles, matching the asset manifest. The implementation trusts inspected connected components rather than the node label alone."
+  ]
+}
