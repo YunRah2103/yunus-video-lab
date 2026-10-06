@@ -26,7 +26,7 @@ on:
 
 concurrency:
   group: yunex-002-native-render-${{ github.ref }}-${{ github.event_name }}
-  cancel-in-progress: false
+  cancel-in-progress: ${{ !(github.event_name == 'push' && contains(github.event.head_commit.message, '[native-full]')) }}
 
 env:
   EXPECTED_EXTERIOR_SHA256: 1c73fcb138c31e2b1d5ed126a2412074bb17f8e960b355436f28139bf518e1eb
