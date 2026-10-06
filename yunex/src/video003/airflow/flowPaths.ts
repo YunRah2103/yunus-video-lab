@@ -100,8 +100,8 @@ export const createSuspensionFlowPaths = (
       [centreX, upperY + 0.008, rearShoulderZ],
       [centreX - sideSign * 0.030, upperY + 0.030, rearZ],
     ],
-    radius: 0.0072,
-    opacity: 0.34,
+    radius: 0.0105,
+    opacity: 0.68,
     tracerPhase: fract(0.17 + index * 0.31),
   };
 
@@ -121,8 +121,8 @@ export const createSuspensionFlowPaths = (
       [outboardX + sideSign * 0.010, centreY - 0.004, rearShoulderZ],
       [outboardX + sideSign * 0.040, centreY + 0.020, rearZ],
     ],
-    radius: 0.0064,
-    opacity: 0.28,
+    radius: 0.0090,
+    opacity: 0.56,
     tracerPhase: fract(0.53 + index * 0.29),
   };
 
