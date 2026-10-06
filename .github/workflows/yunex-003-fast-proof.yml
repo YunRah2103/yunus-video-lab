@@ -21,6 +21,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: 805c74fc2f749ed701c95d1aa5809e60e5a02d76
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
@@ -44,13 +46,15 @@ jobs:
           - name: driving-trackside
             frames: 0-124
           - name: moving-reveal
-            frames: 190-304
+            frames: 190-279
           - name: installed-airflow
             frames: 260-409
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: 805c74fc2f749ed701c95d1aa5809e60e5a02d76
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
@@ -62,7 +66,7 @@ jobs:
           cd yunex
           npm ci --no-audit --no-fund
           NODE_OPTIONS=--require=./fix-network.cjs npx remotion render src/index.tsx YUNEX-003-VISUAL "out/y003-fast/${{ matrix.name }}-REDUCED.mp4" \
-            --frames="${{ matrix.frames }}" --gl=swangle --concurrency=4 --codec=h264 --pixel-format=yuv420p --crf=17 --scale=0.5 --timeout=120000 --muted
+            --frames="${{ matrix.frames }}" --gl=swangle --concurrency=1 --codec=h264 --pixel-format=yuv420p --crf=17 --scale=0.35 --timeout=300000 --muted
       - uses: actions/upload-artifact@v4
         with:
           name: Y003-PROOF-${{ matrix.name }}-${{ github.sha }}
@@ -75,6 +79,8 @@ jobs:
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: 805c74fc2f749ed701c95d1aa5809e60e5a02d76
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
