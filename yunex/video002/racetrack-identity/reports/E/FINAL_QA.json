@@ -3,27 +3,26 @@
   "role": "E — Independent Track / Visual QA",
   "branch": "sol/y002-track-identity-qa",
   "input_sha": "3ee36a708e2a466c0822431af940cf0be47b1c01",
-  "verdict": "FAIL_BLOCKED",
+  "github_actions_run_id": 37501731782,
+  "artifact_id": 11430840385,
+  "verdict": "FAIL",
   "static_integrated_preflight": "PASS",
-  "native_evidence_validation": "BLOCKED_MISSING_EVIDENCE",
+  "automated_evidence_validation": "PASS",
+  "manual_visual_review": "FAIL",
   "final_visual_approval": false,
-  "blockers": [
-    {
-      "severity": "BLOCKER",
-      "scope": "native evidence",
-      "finding": "Seven required native 1080x1920 beat frames are absent."
-    },
-    {
-      "severity": "BLOCKER",
-      "scope": "moving proof",
-      "finding": "Required 30 fps moving proof is absent."
-    },
-    {
-      "severity": "PROCESS",
-      "scope": "render gate",
-      "finding": "F full-render workflow currently requires E status to already contain pass/complete/done/approved, while E final PASS requires F-style native review evidence. This creates a circular gate unless Manager/F provides a pre-pass review render path."
-    }
+  "primary_blockers": [
+    "Rendered driven surface is olive-green and visually merges with the backing/terrain instead of reading as racing asphalt.",
+    "Frame 336 and frames 285-302 moving proof show a hard full-width transition from the green driven plane to a flat gray foreground surface.",
+    "Most beats lack a readable surface -> runoff -> barrier hierarchy, so the environment still does not unambiguously read as a premium racetrack."
   ],
-  "required_next_action": "Produce the native first-review evidence from exactly 3ee36a708e2a466c0822431af940cf0be47b1c01 without treating E as finally approved; then E can inspect and publish the real visual PASS/FAIL.",
-  "creative_approval": "Astra remains final creative approver after E visual QA."
+  "non_blocking_passes": [
+    "Seven native 1080x1920 stills verified.",
+    "Moving proof verified 270x480, 18 frames, 30 fps, 0.6 s.",
+    "Porsche unobstructed; no obvious foliage/furniture clipping.",
+    "Grounding/contact shadow acceptable.",
+    "Moving proof continuity stable.",
+    "Static geometry/invariant QA remains PASS."
+  ],
+  "required_next_action": "Correct the rendered racing-surface/backing-ground visual separation and the frame-336 foreground seam on the integration source, then provide fresh evidence from a new pinned SHA. Do not release F final delivery from source 3ee36a708e2a466c0822431af940cf0be47b1c01.",
+  "creative_approval": "Astra final creative approval remains pending after E passes corrected evidence."
 }
