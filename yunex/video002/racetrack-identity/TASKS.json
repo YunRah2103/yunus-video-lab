@@ -4,7 +4,7 @@
   "integration_branch": "sol/y002-track-identity-manager",
   "source_branch": "sol/yunex-002-landscape-fix",
   "source_sha": "8a02cc405d0f9958301c24cc4ce3add824f28288",
-  "layout_contract_sha": null,
+  "layout_contract_sha": "7ecd296b10f6d1d316544f1eb06a84bf5babedf3",
   "render_source_sha": null,
   "manager_instruction": "Only Manager updates this registry. Pin exact input SHAs before releasing dependent implementation. No task is done without verified pushed implementation and actual proofs.",
   "tasks": [
@@ -33,10 +33,16 @@
         "yunex/src/video002/trackUpgrade/racetrack/types.ts",
         "yunex/src/video002/trackUpgrade/racetrack/LayoutDebug.tsx"
       ],
-      "status": "ready",
+      "status": "complete",
       "input_sha": "8a02cc405d0f9958301c24cc4ce3add824f28288",
-      "output_sha": null,
-      "proofs": []
+      "output_sha": "7ecd296b10f6d1d316544f1eb06a84bf5babedf3",
+      "proofs": [
+        "yunex/video002/racetrack-identity/reports/A/proof-current-camera-opening.svg",
+        "yunex/video002/racetrack-identity/reports/A/proof-current-camera-payoff.svg",
+        "yunex/video002/racetrack-identity/reports/A/proof-high-angle.svg",
+        "yunex/video002/racetrack-identity/reports/A/metrics.json",
+        "yunex/video002/racetrack-identity/reports/A/RESULTS.md"
+      ]
     },
     {
       "id": "B_SURFACES",
@@ -49,8 +55,8 @@
         "yunex/src/video002/trackUpgrade/racetrack/Surface.tsx",
         "yunex/src/video002/trackUpgrade/racetrack/Kerbs.tsx"
       ],
-      "status": "waiting_layout_contract",
-      "input_sha": null,
+      "status": "ready",
+      "input_sha": "7ecd296b10f6d1d316544f1eb06a84bf5babedf3",
       "output_sha": null,
       "proofs": []
     },
@@ -64,8 +70,8 @@
         "yunex/src/video002/trackUpgrade/racetrack/Runoff.tsx",
         "yunex/src/video002/trackUpgrade/racetrack/Terrain.tsx"
       ],
-      "status": "waiting_layout_contract",
-      "input_sha": null,
+      "status": "ready",
+      "input_sha": "7ecd296b10f6d1d316544f1eb06a84bf5babedf3",
       "output_sha": null,
       "proofs": []
     },
@@ -80,8 +86,8 @@
         "yunex/src/video002/trackUpgrade/TrackVegetation.tsx",
         "yunex/src/video002/trackUpgrade/vegetation/"
       ],
-      "status": "waiting_layout_contract",
-      "input_sha": null,
+      "status": "ready",
+      "input_sha": "7ecd296b10f6d1d316544f1eb06a84bf5babedf3",
       "output_sha": null,
       "proofs": []
     },
