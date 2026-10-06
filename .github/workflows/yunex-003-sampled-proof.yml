@@ -1,0 +1,95 @@
+name: YUNEX 003 sampled motion QA
+
+permissions:
+  contents: read
+  actions: read
+
+on:
+  push:
+    branches:
+      - sol/y003-suspension-manager
+    paths:
+      - '.github/workflows/yunex-003-sampled-proof.yml'
+
+jobs:
+  sampled:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: driving-trackside
+            start: 0
+            count: 20
+            expected_duration: "4.0"
+          - name: moving-reveal
+            start: 190
+            count: 15
+            expected_duration: "3.0"
+          - name: installed-airflow
+            start: 260
+            count: 15
+            expected_duration: "3.0"
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: 805c74fc2f749ed701c95d1aa5809e60e5a02d76
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: yunex/package-lock.json
+      - name: Stage exact source with proof-only presentation sampling
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "805c74fc2f749ed701c95d1aa5809e60e5a02d76"
+          test "$(sha256sum cars/porsche-911-gt3-rs-992/model.glb | awk '{print $1}')" = "1c73fcb138c31e2b1d5ed126a2412074bb17f8e960b355436f28139bf518e1eb"
+          mkdir -p yunex/public yunex/out/y003-sampled
+          cp cars/porsche-911-gt3-rs-992/model.glb yunex/public/model.glb
+          python - <<'PY'
+          from pathlib import Path
+          import os
+          p=Path("yunex/src/video003/Video003.tsx")
+          s=p.read_text()
+          s=s.replace('<TrackWorld quality="final" seed={3003}/>','<TrackWorld quality="preview" seed={3003}/>')
+          old='const frame=useCurrentFrame();'
+          new=f"const frame={os.environ['START']}+useCurrentFrame()*6;"
+          if old not in s:
+              raise SystemExit("frame hook not found")
+          s=s.replace(old,new,1)
+          p.write_text(s)
+          PY
+          grep -q 'TrackWorld quality="preview"' yunex/src/video003/Video003.tsx
+          cd yunex
+          npm ci --no-audit --no-fund
+        env:
+          START: ${{ matrix.start }}
+      - name: Render sampled exact-source frames and restore timeline duration
+        working-directory: yunex
+        env:
+          NODE_OPTIONS: --require=./fix-network.cjs
+        shell: bash
+        run: |
+          set -euo pipefail
+          end=$((${{ matrix.count }}-1))
+          npx remotion render src/index.tsx YUNEX-003-VISUAL "out/y003-sampled/${{ matrix.name }}-sampled-raw.mp4" \
+            --frames="0-$end" --gl=swangle --concurrency=4 --codec=h264 \
+            --pixel-format=yuv420p --crf=25 --scale=0.20 --timeout=300000 --muted
+          ffmpeg -y -v error -i "out/y003-sampled/${{ matrix.name }}-sampled-raw.mp4" \
+            -vf "setpts=6*PTS,fps=30" -an -c:v libx264 -preset veryfast -crf 23 -pix_fmt yuv420p \
+            "out/y003-sampled/${{ matrix.name }}-SAMPLED-REDUCED.mp4"
+          ffprobe -v error -show_entries format=duration:stream=width,height,r_frame_rate,codec_name -of json \
+            "out/y003-sampled/${{ matrix.name }}-SAMPLED-REDUCED.mp4" > "out/y003-sampled/${{ matrix.name }}-probe.json"
+          printf '{"source_sha":"805c74fc2f749ed701c95d1aa5809e60e5a02d76","sample_step_source_frames":6,"reduced":true,"labelledReduced":true,"preview_track_only":true,"start_source_frame":%s,"sample_count":%s,"expected_duration_sec":%s}\n' \
+            "${{ matrix.start }}" "${{ matrix.count }}" "${{ matrix.expected_duration }}" > "out/y003-sampled/${{ matrix.name }}-provenance.json"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Y003-SAMPLED-${{ matrix.name }}-${{ github.sha }}
+          path: |
+            yunex/out/y003-sampled/*-SAMPLED-REDUCED.mp4
+            yunex/out/y003-sampled/*-probe.json
+            yunex/out/y003-sampled/*-provenance.json
+          retention-days: 14
+          if-no-files-found: error
