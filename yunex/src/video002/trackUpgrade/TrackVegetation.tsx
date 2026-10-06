@@ -94,9 +94,9 @@ const treeCanopyInstances = (tree: TreeSpec): InstanceTransform[] => {
     ],
     rotation: [0, tree.yaw + index * 0.73, 0],
     scale: [
-      v[3] * tree.crownWidth * tree.density,
-      v[4] * tree.crownHeight * tree.density,
-      v[5] * tree.crownWidth * tree.density,
+      v[3] * tree.crownWidth * tree.density * 1.12,
+      v[4] * tree.crownHeight * tree.density * 1.08,
+      v[5] * tree.crownWidth * tree.density * 1.12,
     ],
     color: tree.crownColor,
   }));
@@ -196,7 +196,6 @@ export const TrackVegetation: React.FC<TrackVegetationProps> = ({
         color: '#ffffff',
         emissive: '#182119',
         emissiveIntensity: 0.34,
-        vertexColors: true,
       }),
     [],
   );
@@ -206,7 +205,6 @@ export const TrackVegetation: React.FC<TrackVegetationProps> = ({
         color: '#ffffff',
         emissive: '#17120e',
         emissiveIntensity: 0.18,
-        vertexColors: true,
       }),
     [],
   );
@@ -217,7 +215,6 @@ export const TrackVegetation: React.FC<TrackVegetationProps> = ({
         emissive: '#1b2217',
         emissiveIntensity: 0.30,
         side: THREE.DoubleSide,
-        vertexColors: true,
       }),
     [],
   );
