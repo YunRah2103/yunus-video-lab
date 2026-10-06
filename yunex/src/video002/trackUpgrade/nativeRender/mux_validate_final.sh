@@ -66,7 +66,7 @@ import sys
 raise SystemExit(0 if float(sys.argv[1]) <= -1.0 else 1)
 PY
 then
-  mux -0.5
+  mux -0.1
   measure pass2
 fi
 
