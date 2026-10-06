@@ -42,11 +42,15 @@ export type VegetationLayout = {
   grass: GrassSpec[];
 };
 
-const CAMERA_CORRIDOR_Z_MIN = 4.1;
-const CAMERA_CORRIDOR_Z_MAX = 10.6;
+const CAMERA_CORRIDORS = [
+  {zMin: 4.1, zMax: 10.6, xMin: -10.4},
+  {zMin: -14.8, zMax: -8.2, xMin: -8.8},
+] as const;
 
-const inOpeningCameraCorridor = (x: number, z: number) =>
-  z >= CAMERA_CORRIDOR_Z_MIN && z <= CAMERA_CORRIDOR_Z_MAX && x > -10.4;
+const inCameraCorridor = (x: number, z: number) =>
+  CAMERA_CORRIDORS.some(
+    (corridor) => z >= corridor.zMin && z <= corridor.zMax && x > corridor.xMin,
+  );
 
 const pushTreeCluster = (
   trees: TreeSpec[],
@@ -61,7 +65,7 @@ const pushTreeCluster = (
       ? randomRange(random, -15.8, -10.7)
       : randomRange(random, -10.8, -6.2);
     let z = centerZ + randomSigned(random, 3.2) + randomSigned(random, 1.4);
-    if (inOpeningCameraCorridor(x, z)) {
+    if (inCameraCorridor(x, z)) {
       x = randomRange(random, -15.8, -11.1);
       z += randomSigned(random, 0.7);
     }
@@ -94,8 +98,8 @@ const pushShrubCluster = (
   for (let i = 0; i < count; i++) {
     let x = randomRange(random, -9.4, -4.45);
     let z = centerZ + randomSigned(random, 4.0) + randomSigned(random, 1.25);
-    if (inOpeningCameraCorridor(x, z)) {
-      x = randomRange(random, -11.2, -9.4);
+    if (inCameraCorridor(x, z)) {
+      x = randomRange(random, -12.6, -10.7);
     }
     shrubs.push({
       x,
@@ -121,7 +125,7 @@ const pushGrass = (
     attempts++;
     const x = randomRange(random, -5.45, -3.98);
     const z = randomRange(random, zMin, zMax);
-    if (inOpeningCameraCorridor(x, z)) continue;
+    if (inCameraCorridor(x, z)) continue;
     const clusterWave = Math.sin(z * 0.52) + Math.sin(z * 0.17 + 1.7);
     if (random() > 0.66 + clusterWave * 0.11) continue;
     grass.push({
@@ -197,15 +201,15 @@ export const validateVegetationLayout = (layout: VegetationLayout) => {
   const violations: string[] = [];
   for (const tree of layout.trees) {
     if (tree.x > -6.15) violations.push(`tree inside protected trackside region at x=${tree.x.toFixed(2)}`);
-    if (inOpeningCameraCorridor(tree.x, tree.z)) violations.push('tree inside opening camera corridor');
+    if (inOpeningCameraCorridor(tree.x, tree.z)) violations.push('tree inside protected camera corridor');
   }
   for (const shrub of layout.shrubs) {
     if (shrub.x > -4.4) violations.push(`shrub inside protected trackside region at x=${shrub.x.toFixed(2)}`);
-    if (inOpeningCameraCorridor(shrub.x, shrub.z)) violations.push('shrub inside opening camera corridor');
+    if (inOpeningCameraCorridor(shrub.x, shrub.z)) violations.push('shrub inside protected camera corridor');
   }
   for (const clump of layout.grass) {
     if (clump.x > -3.95) violations.push(`grass inside protected trackside region at x=${clump.x.toFixed(2)}`);
-    if (inOpeningCameraCorridor(clump.x, clump.z)) violations.push('grass inside opening camera corridor');
+    if (inOpeningCameraCorridor(clump.x, clump.z)) violations.push('grass inside protected camera corridor');
   }
   return violations;
 };
