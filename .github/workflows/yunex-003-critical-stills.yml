@@ -1,0 +1,37 @@
+name: YUNEX 003 critical detail frames
+permissions:
+  contents: read
+on:
+  push:
+    branches:
+      - sol/y003-suspension-manager
+    paths:
+      - '.github/workflows/yunex-003-critical-stills.yml'
+jobs:
+  still:
+    strategy:
+      fail-fast: false
+      matrix:
+        frame: [234,306,492]
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: cd5c865220ce492899c3bce4afddb2b61ca45e77
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: yunex/package-lock.json
+      - run: |
+          mkdir -p yunex/public yunex/out/y003-critical
+          cp cars/porsche-911-gt3-rs-992/model.glb yunex/public/model.glb
+          cd yunex
+          npm ci --no-audit --no-fund
+          NODE_OPTIONS=--require=./fix-network.cjs npx remotion still src/index.tsx YUNEX-003-VISUAL "out/y003-critical/frame-${{ matrix.frame }}.png" --frame="${{ matrix.frame }}" --gl=swangle --scale=1 --timeout=120000
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Y003-CRITICAL-${{ matrix.frame }}-cd5c8652
+          path: yunex/out/y003-critical/frame-${{ matrix.frame }}.png
+          retention-days: 14
