@@ -18,7 +18,7 @@
         "yunex/video002/racetrack-identity/START_HERE.md",
         "yunex/video002/racetrack-identity/TASKS.json"
       ],
-      "status": "waiting_for_e_final_qa",
+      "status": "waiting_for_f_review_evidence",
       "input_sha": "8a02cc405d0f9958301c24cc4ce3add824f28288",
       "output_sha": "3ee36a708e2a466c0822431af940cf0be47b1c01",
       "proofs": []
@@ -100,10 +100,15 @@
         "yunex/src/video002/trackUpgrade/qa/trackIdentity/",
         "yunex/video002/racetrack-identity/reports/E/"
       ],
-      "status": "ready_for_final_integrated_qa",
+      "status": "static_pass_waiting_native_evidence",
       "input_sha": "3ee36a708e2a466c0822431af940cf0be47b1c01",
-      "output_sha": "d395efd3c6c762d3ce943d3a89f273bd851b7e4a",
-      "proofs": []
+      "output_sha": "4e9e70ab9343e9d7c9f23d9a21e06492da45a71a",
+      "proofs": [
+        "yunex/video002/racetrack-identity/reports/E/RESULTS.md",
+        "yunex/video002/racetrack-identity/reports/E/FINAL_QA.json",
+        "yunex/video002/racetrack-identity/reports/E/integrated_preflight.json",
+        "yunex/video002/racetrack-identity/reports/E/visual_evidence_validation.json"
+      ]
     },
     {
       "id": "F_RENDER",
@@ -115,7 +120,7 @@
         "yunex/src/video002/trackUpgrade/nativeRender/trackIdentity/",
         "yunex/video002/racetrack-identity/reports/F/"
       ],
-      "status": "waiting_for_e_final_pass",
+      "status": "ready_to_render_review_evidence",
       "input_sha": "3ee36a708e2a466c0822431af940cf0be47b1c01",
       "output_sha": "2496ff0e9d3d55bd7f2e18de95aaaaca9b8814d6",
       "proofs": []
