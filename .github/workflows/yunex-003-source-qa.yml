@@ -7,6 +7,7 @@ on:
       - sol/y003-suspension-manager
     paths:
       - 'yunex/video003/qa/source-qa-entry.ts'
+      - '.github/workflows/yunex-003-source-qa.yml'
 jobs:
   numeric:
     runs-on: ubuntu-latest
