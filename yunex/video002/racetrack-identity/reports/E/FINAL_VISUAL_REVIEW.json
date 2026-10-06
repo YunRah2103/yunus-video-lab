@@ -1,0 +1,164 @@
+{
+  "phase": "Y002-RACETRACK-IDENTITY-02",
+  "role": "E — Independent Track / Visual QA",
+  "input_sha": "3ee36a708e2a466c0822431af940cf0be47b1c01",
+  "artifact_provenance": {
+    "phase": "Y002-RACETRACK-IDENTITY-02",
+    "role": "E — Independent Track / Visual QA",
+    "github_actions_run_id": 37501731782,
+    "artifact_id": 11430840385,
+    "artifact_name": "y002-track-identity-native-review-evidence",
+    "workflow_head_branch": "sol/y002-track-identity-render",
+    "workflow_head_sha": "fee16641bc1ef80874b258cefa76934e8893bdec",
+    "pinned_render_source_sha": "3ee36a708e2a466c0822431af940cf0be47b1c01",
+    "artifact_zip_sha256": "74959f3f1bfd642504ff29ccab97ea08a4ff03ee1b34961151bf659bb38e260d",
+    "manifest_source_sha_matches": true,
+    "automated_validation_status": "PASS",
+    "native_stills": {
+      "count": 7,
+      "width": 1080,
+      "height": 1920
+    },
+    "moving_proof": {
+      "width": 270,
+      "height": 480,
+      "fps": 30,
+      "frames": 18,
+      "duration_seconds": 0.6,
+      "frame_range": "285-302",
+      "label": "reduced-resolution 270x480 true-30fps consecutive DRS transition proof"
+    },
+    "file_hashes": {
+      "beat-0018-hook.png": "11f318094a3aabdcdd91436a1db9352306af4ff11a98d0972b4282d12d45dad0",
+      "beat-0114-isolate.png": "cbb180651c66ba411e4a2c092b28fb4710270903951357241004e3c443150a8b",
+      "beat-0210-high-downforce.png": "9dddb6f9ff645b89a6e9071bd1ae6e4a86a157da3f045a1ffd20dc6b4eceeb2c",
+      "beat-0336-drs.png": "a8114bacd79251dfff056bdc35319980aa79b867caabb3916de782b7165789cf",
+      "beat-0456-airbrake.png": "80c0ab0a8979f7efa6b237354571644a338ca60254f4ed7dabadceb2ab3c276e",
+      "beat-0600-whole-car.png": "dcc1de3466f6fe57071604a5531eba928dedf77569001fc5ce68f0604612bdec",
+      "beat-0705-payoff.png": "560e90b0d9358fac6e29c7e7c85a2287220cccaa659ffb6c16f6fde22375c502",
+      "moving-proof-reduced.mp4": "70998561149a9b8535590aa82ec5d61e5ef36ea35b8d3058069f222e33206dc9"
+    }
+  },
+  "manual_visual_review_completed": true,
+  "overall_verdict": "FAIL",
+  "blocking_theme": "The rendered driven surface does not read as racing asphalt and visually merges with the olive backing/terrain; frame 336 and the moving proof also expose a hard full-width foreground seam.",
+  "frame_reviews": [
+    {
+      "frame": 18,
+      "beat": "hook",
+      "verdict": "FAIL_TRACK_IDENTITY",
+      "positives": [
+        "Porsche is unobstructed and grounded; shadow/contact read cleanly.",
+        "Barrier/foliage provide outdoor context and typography is legible."
+      ],
+      "blockers": [
+        "Driven surface is a broad olive-green plane and does not read as gray racing asphalt.",
+        "No readable kerb/runoff/road-edge hierarchy is visible, so the shot still reads closer to a roadside/green hardstand than a premium racetrack."
+      ]
+    },
+    {
+      "frame": 114,
+      "beat": "isolate",
+      "verdict": "FAIL_TRACK_IDENTITY",
+      "positives": [
+        "Wing detail remains unobstructed; no furniture or foliage clips the car."
+      ],
+      "blockers": [
+        "Close-up retains only guardrail/trees as context; the surface under the Porsche remains olive-green and visually indistinguishable from backing/terrain.",
+        "Technical shot does not retain enough readable track-surface identity."
+      ]
+    },
+    {
+      "frame": 210,
+      "beat": "high_downforce",
+      "verdict": "FAIL_TRACK_IDENTITY",
+      "positives": [
+        "Aero/wing detail is clear and no geometry pop or occlusion is visible."
+      ],
+      "blockers": [
+        "The visible driven plane remains olive-green rather than asphalt; no road edge/runoff/kerb relationship is visible.",
+        "Barrier alone is insufficient to establish a connected circuit section."
+      ]
+    },
+    {
+      "frame": 336,
+      "beat": "drs",
+      "verdict": "FAIL_BLOCKER",
+      "positives": [
+        "Side profile is clean; Porsche is fully readable and barrier follows the course-side context."
+      ],
+      "blockers": [
+        "Strongest visual blocker: a full-width hard horizontal boundary splits the olive driven surface from a flat gray foreground plane.",
+        "The driven surface itself reads as turf/backing rather than asphalt, defeating the racetrack-identity goal."
+      ]
+    },
+    {
+      "frame": 456,
+      "beat": "airbrake",
+      "verdict": "FAIL_TRACK_IDENTITY",
+      "positives": [
+        "Porsche, active-aero state, barrier and trees remain unobstructed; contact shadow reads consistently."
+      ],
+      "blockers": [
+        "Main surface is still a featureless olive plane with no readable asphalt/runoff separation in the shot.",
+        "Environment therefore still reads like a car beside barriers and foliage rather than on a premium circuit."
+      ]
+    },
+    {
+      "frame": 600,
+      "beat": "whole_car",
+      "verdict": "FAIL_BLOCKER",
+      "positives": [
+        "Selected red/white kerbs, catch fencing and a gray runoff/edge shape are finally visible; geometry hierarchy exists.",
+        "Car remains grounded and unobstructed."
+      ],
+      "blockers": [
+        "Those peripheral circuit elements expose the central issue: the Porsche is visually sitting on the broad olive plane, while the more road-like gray ribbon/edge appears away from the car.",
+        "The main racing surface does not visually read as authored asphalt, so the circuit hierarchy is not convincing."
+      ]
+    },
+    {
+      "frame": 705,
+      "beat": "payoff",
+      "verdict": "FAIL_TRACK_IDENTITY",
+      "positives": [
+        "Hero framing is clean; car, barrier and foliage are stable with no obvious clipping."
+      ],
+      "blockers": [
+        "Olive surface dominates the frame; kerb/runoff/edge hierarchy disappears again.",
+        "Final payoff still does not read unambiguously as a racetrack without relying on the guardrail."
+      ]
+    }
+  ],
+  "moving_proof_review": {
+    "verdict": "FAIL_TRACK_IDENTITY_STABLE_MOTION",
+    "technical_status": "PASS",
+    "observations": [
+      "18 consecutive frames decode at true 30 fps; evidence is correctly labelled reduced-resolution.",
+      "Camera/car/environment continuity is stable across frames 285-302; no obvious geometry popping or foliage/furniture clipping was observed.",
+      "The same olive driven surface and hard horizontal transition into the gray lower foreground persist throughout the proof.",
+      "Motion continuity therefore passes, but the visual racetrack identity blocker is continuous rather than a single-frame artifact."
+    ]
+  },
+  "pass_checks": [
+    "Evidence provenance and dimensions/fps are valid.",
+    "Porsche remains visually unobstructed in all seven beats.",
+    "No obvious furniture/foliage clipping into the Porsche was observed.",
+    "Ground/contact shadow remains convincing enough in the reviewed beats.",
+    "Selected kerbs and course-relative barriers exist in the integrated environment.",
+    "Moving proof is stable and decodes correctly at 30 fps."
+  ],
+  "fail_checks": [
+    "Course does not consistently read as asphalt/racetrack without labels.",
+    "Road -> runoff -> barrier visual hierarchy is not readable in most reviewed beats.",
+    "Broad olive driven plane visually merges with backing/terrain.",
+    "Frame 336/moving proof show a conspicuous full-width surface/backing boundary.",
+    "Final payoff does not establish premium racetrack identity."
+  ],
+  "required_correction": [
+    "Correct the visual relationship between RacingSurface_Asphalt and Y002_CIRCUIT_BACKING_GROUND so the Porsche visibly sits on distinct gray asphalt rather than the olive backing/terrain read.",
+    "Remove or hide the hard full-width foreground transition visible in frame 336 and the DRS moving proof.",
+    "Re-render the same seven native frames and a short 30 fps moving proof from the corrected pinned source for E re-review."
+  ],
+  "scope_note": "E did not modify A-D/G/F environment source. Manager should route correction to the integration/environment owner."
+}
