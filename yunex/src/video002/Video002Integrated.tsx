@@ -86,19 +86,19 @@ const IntegratedThreeScene:React.FC<{timing:Video002SceneProps}>=({timing})=>{
     // Manager integration corrections after native portrait-frame review:
     // keep B's deterministic travel/shot progression, but move three camera stations
     // to the vegetation-free side of the approved technical track.
-    if(next.shot==='drs-side-track'){
+    if(timing.beat.id==='drs'){
       next.camera={
         position:[rootX-8.6,1.72,rootZ+0.18],
         target:[rootX,0.65,rootZ+0.08],
         focalLength:28,
       };
-    }else if(next.shot==='braking-quarter'){
+    }else if(timing.beat.id==='airbrake'){
       next.camera={
         position:[rootX-5.8,2.18,rootZ-7.2],
         target:[rootX,0.72,rootZ-0.72],
         focalLength:31,
       };
-    }else if(next.shot==='final-hero-pass'){
+    }else if(timing.beat.id==='payoff'){
       next.camera={
         position:[rootX-5.6,1.68,rootZ+7.5],
         target:[rootX,0.58,rootZ+0.55],
@@ -106,7 +106,7 @@ const IntegratedThreeScene:React.FC<{timing:Video002SceneProps}>=({timing})=>{
       };
     }
     return next;
-  },[timing.frame]);
+  },[timing.frame,timing.beat.id]);
   const aeroState=useMemo(()=>aeroStateFor(timing),[
     timing.beat.id,
     timing.transition,
