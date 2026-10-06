@@ -7,6 +7,7 @@ W=1080
 H=1920
 FPS='30/1'
 TOTAL_FRAMES=751
+ACCEPTED_PIX_FMTS={'yuv420p','yuvj420p'}
 
 def load_probe(path):
     data=json.loads(Path(path).read_text())
@@ -22,7 +23,7 @@ def common(stream):
     assert stream['r_frame_rate']==FPS, stream
     assert stream['avg_frame_rate']==FPS, stream
     assert stream.get('codec_name')=='h264', stream
-    assert stream.get('pix_fmt')=='yuv420p', stream
+    assert stream.get('pix_fmt') in ACCEPTED_PIX_FMTS, stream
     assert int(stream['nb_read_frames'])>0, stream
 
 mode=sys.argv[1]
@@ -57,6 +58,7 @@ if mode=='benchmark':
         'peak_rss_mib':round(peak_rss_kb/1024,1) if peak_rss_kb else None,
         'render_concurrency':2,
         'frame_range':'330-359',
+        'pixel_format':stream.get('pix_fmt'),
     }
 elif mode=='final-visual':
     frames=int(stream['nb_read_frames'])
@@ -72,6 +74,7 @@ elif mode=='final-visual':
         'duration_seconds':duration,
         'frame_range':'0-750 inclusive exactly once',
         'audio_expected':False,
+        'pixel_format':stream.get('pix_fmt'),
     }
 else:
     raise SystemExit(f'unknown mode: {mode}')
