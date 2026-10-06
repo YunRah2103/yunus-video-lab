@@ -19,9 +19,19 @@ on:
           - benchmark
           - full
       source_ref:
-        description: 'Git ref containing the Manager-approved integrated scene'
+        description: 'Manager-approved scene ref to pin and render'
         required: true
         default: sol/yunex-002-active-aero
+        type: string
+      approved_vo_run_id:
+        description: 'Optional workflow run ID containing the approved VO artifact; leave blank for visual-only full render'
+        required: false
+        default: ''
+        type: string
+      approved_vo_artifact_name:
+        description: 'Artifact name containing exactly one approved MP3'
+        required: false
+        default: yunex-002-approved-vo
         type: string
 
 concurrency:
@@ -35,6 +45,7 @@ env:
   TOTAL_FRAMES: '751'
   WIDTH: '1080'
   HEIGHT: '1920'
+  MANAGER_REF: sol/yunex-002-active-aero
 
 jobs:
   benchmark:
@@ -42,9 +53,21 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 25
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout Manager-approved source
+        uses: actions/checkout@v4
         with:
-          ref: ${{ github.event_name == 'workflow_dispatch' && inputs.source_ref || github.sha }}
+          ref: ${{ github.event_name == 'workflow_dispatch' && inputs.source_ref || env.MANAGER_REF }}
+      - name: Record exact source SHA
+        id: source
+        run: echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+      - name: Checkout E tooling at workflow SHA
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.workflow_sha }}
+          path: .native-render-tooling
+          sparse-checkout: |
+            yunex/src/video002/trackUpgrade/nativeRender
+          sparse-checkout-cone-mode: false
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
@@ -82,24 +105,35 @@ jobs:
           sudo apt-get update -qq
           sudo apt-get install -y -qq ffmpeg
       - name: Probe benchmark and make temporal samples
-        working-directory: yunex
         run: |
-          ffmpeg -v error -xerror -i out/video002-native-benchmark/native-0330-0359.mp4 -f null -
+          ffmpeg -v error -xerror -i yunex/out/video002-native-benchmark/native-0330-0359.mp4 -f null -
           ffprobe -v error -count_frames -select_streams v:0 \
             -show_entries stream=width,height,r_frame_rate,avg_frame_rate,codec_name,pix_fmt,nb_read_frames \
             -show_entries format=duration \
-            -of json out/video002-native-benchmark/native-0330-0359.mp4 \
-            > out/video002-native-benchmark/ffprobe.json
-          python src/video002/trackUpgrade/nativeRender/validate_native.py \
+            -of json yunex/out/video002-native-benchmark/native-0330-0359.mp4 \
+            > yunex/out/video002-native-benchmark/ffprobe.json
+          python .native-render-tooling/yunex/src/video002/trackUpgrade/nativeRender/validate_native.py \
             benchmark \
-            out/video002-native-benchmark/ffprobe.json \
-            out/video002-native-benchmark/elapsed_seconds.txt \
-            out/video002-native-benchmark/resource_usage.txt \
-            > out/video002-native-benchmark/benchmark.json
-          mkdir -p out/video002-native-benchmark/review
-          ffmpeg -y -v error -i out/video002-native-benchmark/native-0330-0359.mp4 -vf "select='eq(n,0)+eq(n,14)+eq(n,29)'" -vsync 0 out/video002-native-benchmark/review/frame-%02d.png
-          sha256sum out/video002-native-benchmark/native-0330-0359.mp4 > out/video002-native-benchmark/output_sha256.txt
-          sha256sum public/model.glb > out/video002-native-benchmark/porsche_sha256.txt
+            yunex/out/video002-native-benchmark/ffprobe.json \
+            yunex/out/video002-native-benchmark/elapsed_seconds.txt \
+            yunex/out/video002-native-benchmark/resource_usage.txt \
+            > yunex/out/video002-native-benchmark/benchmark.json
+          mkdir -p yunex/out/video002-native-benchmark/review
+          ffmpeg -y -v error -i yunex/out/video002-native-benchmark/native-0330-0359.mp4 -vf "select='eq(n,0)+eq(n,14)+eq(n,29)'" -vsync 0 yunex/out/video002-native-benchmark/review/frame-%02d.png
+          sha256sum yunex/out/video002-native-benchmark/native-0330-0359.mp4 > yunex/out/video002-native-benchmark/output_sha256.txt
+          sha256sum yunex/public/model.glb > yunex/out/video002-native-benchmark/porsche_sha256.txt
+          cat > yunex/out/video002-native-benchmark/source_manifest.json <<EOF
+          {
+            "source_ref": "${{ github.event_name == 'workflow_dispatch' && inputs.source_ref || env.MANAGER_REF }}",
+            "source_sha": "${{ steps.source.outputs.sha }}",
+            "tooling_sha": "${{ github.workflow_sha }}",
+            "composition": "$COMPOSITION",
+            "native_source": [1080, 1920],
+            "scale": 1,
+            "frame_range": "330-359",
+            "audio": false
+          }
+          EOF
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -114,14 +148,25 @@ jobs:
     outputs:
       matrix: ${{ steps.matrix.outputs.matrix }}
       source_ref: ${{ steps.source.outputs.source_ref }}
+      source_sha: ${{ steps.source.outputs.source_sha }}
+      tooling_sha: ${{ steps.source.outputs.tooling_sha }}
     steps:
-      - id: source
+      - id: requested
         run: |
           if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
-            echo "source_ref=${{ inputs.source_ref }}" >> "$GITHUB_OUTPUT"
+            echo "ref=${{ inputs.source_ref }}" >> "$GITHUB_OUTPUT"
           else
-            echo "source_ref=${{ github.sha }}" >> "$GITHUB_OUTPUT"
+            echo "ref=$MANAGER_REF" >> "$GITHUB_OUTPUT"
           fi
+      - name: Checkout requested Manager source
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ steps.requested.outputs.ref }}
+      - id: source
+        run: |
+          echo "source_ref=${{ steps.requested.outputs.ref }}" >> "$GITHUB_OUTPUT"
+          echo "source_sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+          echo "tooling_sha=${{ github.workflow_sha }}" >> "$GITHUB_OUTPUT"
       - id: matrix
         env:
           CHUNK_SIZE: '30'
@@ -149,7 +194,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: ${{ needs.prepare-full.outputs.source_ref }}
+          ref: ${{ needs.prepare-full.outputs.source_sha }}
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
@@ -192,9 +237,18 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout pinned Manager source
+        uses: actions/checkout@v4
         with:
-          ref: ${{ needs.prepare-full.outputs.source_ref }}
+          ref: ${{ needs.prepare-full.outputs.source_sha }}
+      - name: Checkout E tooling at workflow SHA
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.prepare-full.outputs.tooling_sha }}
+          path: .native-render-tooling
+          sparse-checkout: |
+            yunex/src/video002/trackUpgrade/nativeRender
+          sparse-checkout-cone-mode: false
       - uses: actions/download-artifact@v4
         with:
           pattern: yunex-002-native-chunk-*
@@ -206,7 +260,7 @@ jobs:
           sudo apt-get install -y -qq ffmpeg
       - name: Stitch exact native frame coverage
         run: |
-          python yunex/src/video002/trackUpgrade/nativeRender/validate_chunks.py chunks > chunk_manifest.json
+          python .native-render-tooling/yunex/src/video002/trackUpgrade/nativeRender/validate_chunks.py chunks > chunk_manifest.json
           find chunks -maxdepth 1 -name 'chunk-*.mp4' -print | sort | sed "s#^#file '#;s#$#'#" > list.txt
           test "$(wc -l < list.txt)" -eq 26
           ffmpeg -y -v error -f concat -safe 0 -i list.txt -c copy YUNEX_002_NATIVE_VISUAL_MASTER.mp4
@@ -215,7 +269,7 @@ jobs:
             -show_entries stream=width,height,r_frame_rate,avg_frame_rate,codec_name,pix_fmt,nb_read_frames \
             -show_entries format=duration \
             -of json YUNEX_002_NATIVE_VISUAL_MASTER.mp4 > ffprobe.json
-          python yunex/src/video002/trackUpgrade/nativeRender/validate_native.py final-visual ffprobe.json > validation.json
+          python .native-render-tooling/yunex/src/video002/trackUpgrade/nativeRender/validate_native.py final-visual ffprobe.json > validation.json
           mkdir -p review
           for spec in "18 hook" "114 isolate" "210 high_downforce" "336 drs" "456 airbrake" "600 whole_car" "705 payoff"; do
             set -- $spec
@@ -226,6 +280,8 @@ jobs:
           cat > native_manifest.json <<EOF
           {
             "source_ref": "${{ needs.prepare-full.outputs.source_ref }}",
+            "source_sha": "${{ needs.prepare-full.outputs.source_sha }}",
+            "tooling_sha": "${{ needs.prepare-full.outputs.tooling_sha }}",
             "workflow_run_id": "${{ github.run_id }}",
             "composition": "$COMPOSITION",
             "source_width": 1080,
@@ -237,7 +293,7 @@ jobs:
             "chunk_size": 30,
             "codec": "h264",
             "crf": 14,
-            "audio": "not muxed in GitHub; approved locked mix is external and must be muxed once after Manager lookdev approval"
+            "audio": "not muxed unless approved_vo_run_id is supplied"
           }
           EOF
       - uses: actions/upload-artifact@v4
@@ -252,5 +308,77 @@ jobs:
             output_sha256.txt
             porsche_sha256.txt
             review/
+          if-no-files-found: error
+          retention-days: 7
+
+  mux-approved-audio:
+    needs: [prepare-full, stitch-native-visual]
+    if: github.event_name == 'workflow_dispatch' && inputs.mode == 'full' && inputs.approved_vo_run_id != '' && needs.stitch-native-visual.result == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      actions: read
+      contents: read
+    steps:
+      - name: Checkout pinned Manager source
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.prepare-full.outputs.source_sha }}
+      - name: Checkout E tooling at workflow SHA
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.prepare-full.outputs.tooling_sha }}
+          path: .native-render-tooling
+          sparse-checkout: |
+            yunex/src/video002/trackUpgrade/nativeRender
+          sparse-checkout-cone-mode: false
+      - uses: actions/download-artifact@v4
+        with:
+          name: yunex-002-native-visual-master
+          path: visual
+      - name: Download approved VO artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ inputs.approved_vo_artifact_name }}
+          path: approved-vo
+          github-token: ${{ github.token }}
+          repository: ${{ github.repository }}
+          run-id: ${{ inputs.approved_vo_run_id }}
+      - name: Install FFmpeg
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq ffmpeg
+      - name: Mux and validate upload-ready master
+        env:
+          YUNEX002_SOURCE_ROOT: ${{ github.workspace }}
+        run: |
+          mapfile -t vo_files < <(find approved-vo -type f -name '*.mp3' -print)
+          test "${#vo_files[@]}" -eq 1
+          test -s visual/YUNEX_002_NATIVE_VISUAL_MASTER.mp4
+          mkdir -p final
+          .native-render-tooling/yunex/src/video002/trackUpgrade/nativeRender/mux_validate_final.sh \
+            visual/YUNEX_002_NATIVE_VISUAL_MASTER.mp4 \
+            "${vo_files[0]}" \
+            final/YUNEX_002_NATIVE_FINAL_AUDIO.mp4
+          cat > final/final_manifest.json <<EOF
+          {
+            "source_ref": "${{ needs.prepare-full.outputs.source_ref }}",
+            "source_sha": "${{ needs.prepare-full.outputs.source_sha }}",
+            "tooling_sha": "${{ needs.prepare-full.outputs.tooling_sha }}",
+            "workflow_run_id": "${{ github.run_id }}",
+            "approved_vo_source_run_id": "${{ inputs.approved_vo_run_id }}",
+            "approved_vo_artifact_name": "${{ inputs.approved_vo_artifact_name }}",
+            "source_width": 1080,
+            "source_height": 1920,
+            "scale": 1,
+            "fps": 30,
+            "frames": 751,
+            "audio": true
+          }
+          EOF
+      - uses: actions/upload-artifact@v4
+        with:
+          name: yunex-002-native-final-audio
+          path: final/
           if-no-files-found: error
           retention-days: 7
