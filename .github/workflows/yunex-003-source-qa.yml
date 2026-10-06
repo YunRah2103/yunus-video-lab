@@ -1,0 +1,30 @@
+name: YUNEX 003 integrated numeric source QA
+permissions:
+  contents: read
+on:
+  push:
+    branches:
+      - sol/y003-suspension-manager
+    paths:
+      - 'yunex/video003/qa/source-qa-entry.ts'
+jobs:
+  numeric:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: yunex/package-lock.json
+      - working-directory: yunex
+        run: npm ci --no-audit --no-fund
+      - working-directory: yunex
+        run: |
+          npx esbuild video003/qa/source-qa-entry.ts --bundle --platform=node --format=cjs --outfile=/tmp/y003-source-qa.cjs
+          node /tmp/y003-source-qa.cjs | tee video003/qa/source-qa-result.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: YUNEX-003-SOURCE-QA-${{ github.sha }}
+          path: yunex/video003/qa/source-qa-result.json
+          retention-days: 14
