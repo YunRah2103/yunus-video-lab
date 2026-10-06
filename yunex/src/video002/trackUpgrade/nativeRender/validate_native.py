@@ -35,6 +35,13 @@ if mode=='benchmark':
     assert frames==30, stream
     duration=float(fmt['duration'])
     assert 0.99 <= duration <= 1.01, duration
+    peak_rss_kb=None
+    if len(sys.argv) > 4:
+        resource=Path(sys.argv[4]).read_text(errors='ignore')
+        for line in resource.splitlines():
+            if 'Maximum resident set size (kbytes)' in line:
+                peak_rss_kb=int(line.rsplit(':',1)[1].strip())
+                break
     result={
         'mode':'benchmark',
         'native_source':[W,H],
@@ -45,6 +52,9 @@ if mode=='benchmark':
         'elapsed_seconds':elapsed,
         'render_seconds_per_frame':round(elapsed/frames,3),
         'realtime_factor':round(elapsed/max(duration,0.001),2),
+        'peak_rss_kb':peak_rss_kb,
+        'peak_rss_mib':round(peak_rss_kb/1024,1) if peak_rss_kb else None,
+        'render_concurrency':2,
         'frame_range':'330-359',
     }
 elif mode=='final-visual':
