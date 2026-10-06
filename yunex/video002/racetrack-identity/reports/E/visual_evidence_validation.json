@@ -1,0 +1,89 @@
+{
+  "phase": "Y002-RACETRACK-IDENTITY-02",
+  "role": "E — Independent Track / Visual QA",
+  "input_sha": "3ee36a708e2a466c0822431af940cf0be47b1c01",
+  "automated_evidence_status": "BLOCKED",
+  "required_native_stills": [
+    {
+      "beat": "hook",
+      "frame": 18,
+      "required_dimensions": [
+        1080,
+        1920
+      ],
+      "found": false
+    },
+    {
+      "beat": "isolate",
+      "frame": 114,
+      "required_dimensions": [
+        1080,
+        1920
+      ],
+      "found": false
+    },
+    {
+      "beat": "high_downforce",
+      "frame": 210,
+      "required_dimensions": [
+        1080,
+        1920
+      ],
+      "found": false
+    },
+    {
+      "beat": "drs",
+      "frame": 336,
+      "required_dimensions": [
+        1080,
+        1920
+      ],
+      "found": false
+    },
+    {
+      "beat": "airbrake",
+      "frame": 456,
+      "required_dimensions": [
+        1080,
+        1920
+      ],
+      "found": false
+    },
+    {
+      "beat": "whole_car",
+      "frame": 600,
+      "required_dimensions": [
+        1080,
+        1920
+      ],
+      "found": false
+    },
+    {
+      "beat": "payoff",
+      "frame": 705,
+      "required_dimensions": [
+        1080,
+        1920
+      ],
+      "found": false
+    }
+  ],
+  "moving_proof": {
+    "required": true,
+    "required_fps": 30,
+    "found": false
+  },
+  "evidence_search": [
+    "Pinned source commit 3ee36a708e2a466c0822431af940cf0be47b1c01 contains G static/source proofs only.",
+    "G compare range contains no PNG/MP4 native review evidence.",
+    "No workflow runs/artifacts are attached to the pinned source commit through the available GitHub Actions evidence.",
+    "F branch contains a gated fresh native render workflow but its full job requires E already be pass/complete, so no first-review native bundle exists yet."
+  ],
+  "failures": [
+    "Missing seven required native 1080x1920 beat frames from the exact pinned source SHA.",
+    "Missing required 30 fps moving proof from the exact pinned source SHA.",
+    "Human visual gate cannot inspect track continuity, apron/seam visibility, grass intrusion, Porsche/aero occlusion, or wheel contact without those renders."
+  ],
+  "blocker_owner": "Manager/F render orchestration: produce a first-review proof bundle from the pinned source before asking E for final visual PASS.",
+  "manual_visual_review_completed": false
+}
