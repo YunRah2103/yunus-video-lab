@@ -1,0 +1,86 @@
+name: Y002 C Vegetation Proof
+
+on:
+  pull_request:
+    branches:
+      - sol/yunex-002-active-aero
+    paths:
+      - 'yunex/src/video002/trackUpgrade/TrackVegetation.tsx'
+      - 'yunex/src/video002/trackUpgrade/vegetation/**'
+      - '.github/workflows/y002-c-vegetation-proof.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  proof:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    defaults:
+      run:
+        working-directory: yunex
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: yunex/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Prepare locked Porsche asset
+        run: |
+          mkdir -p public
+          cp ../cars/porsche-911-gt3-rs-992/model.glb public/model.glb
+          sha256sum public/model.glb | tee out-car-sha.txt
+          grep -q '^1c73fcb138c31e2b1d5ed126a2412074bb17f8e960b355436f28139bf518e1eb ' out-car-sha.txt
+
+      - name: Validate proof bundle
+        run: NODE_OPTIONS=--require=./fix-network.cjs npx remotion compositions src/video002/trackUpgrade/vegetation/ProofRoot.tsx
+
+      - name: Render native before after stills
+        run: |
+          mkdir -p out/y002-c-vegetation
+          export NODE_OPTIONS=--require=./fix-network.cjs
+          npx remotion still src/video002/trackUpgrade/vegetation/ProofRoot.tsx Y002-C-OLD-F40 out/y002-c-vegetation/old-f40.png --gl=swangle
+          npx remotion still src/video002/trackUpgrade/vegetation/ProofRoot.tsx Y002-C-NEW-F40 out/y002-c-vegetation/new-f40.png --gl=swangle
+          npx remotion still src/video002/trackUpgrade/vegetation/ProofRoot.tsx Y002-C-OLD-F260 out/y002-c-vegetation/old-f260.png --gl=swangle
+          npx remotion still src/video002/trackUpgrade/vegetation/ProofRoot.tsx Y002-C-NEW-F260 out/y002-c-vegetation/new-f260.png --gl=swangle
+          npx remotion still src/video002/trackUpgrade/vegetation/ProofRoot.tsx Y002-C-OLD-F700 out/y002-c-vegetation/old-f700.png --gl=swangle
+          npx remotion still src/video002/trackUpgrade/vegetation/ProofRoot.tsx Y002-C-NEW-F700 out/y002-c-vegetation/new-f700.png --gl=swangle
+
+      - name: Render short native parallax proof
+        run: |
+          export NODE_OPTIONS=--require=./fix-network.cjs
+          npx remotion render src/video002/trackUpgrade/vegetation/ProofRoot.tsx Y002-C-NEW-PARALLAX out/y002-c-vegetation/parallax.mp4 --codec=h264 --crf=19 --pixel-format=yuv420p --gl=swangle --concurrency=2
+
+      - name: Validate outputs
+        run: |
+          set -euo pipefail
+          for f in out/y002-c-vegetation/*.png; do
+            test -s "$f"
+            file "$f"
+          done
+          test -s out/y002-c-vegetation/parallax.mp4
+          test "$(stat -c%s out/y002-c-vegetation/parallax.mp4)" -gt 100000
+          cat > out/y002-c-vegetation/render-contract.txt <<'EOF'
+          parallax composition: 1080x1920, 30 fps, 48 frames, native scale
+          native stills: 1080x1920
+          EOF
+          cat > out/y002-c-vegetation/budget.txt <<'EOF'
+          preview: trees=28 shrubs=40 grass=180 triangles~=25148 draw_calls~=6 transparent=0
+          final: trees=44 shrubs=70 grass=380 triangles~=61188 draw_calls~=6 transparent=0
+          contract: deterministic seed/quality layout, protected trackside region, opening camera corridor, camera clearance validation every 5 frames
+          EOF
+
+      - name: Upload Agent C proof bundle
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: y002-c-vegetation-proof
+          path: yunex/out/y002-c-vegetation
+          if-no-files-found: error
+          retention-days: 14
