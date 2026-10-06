@@ -249,10 +249,51 @@ jobs:
           if-no-files-found: error
           retention-days: 14
 
-  render-review-motion:
+  render-review-motion-frames:
     needs: gate-review
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      max-parallel: 18
+      matrix:
+        include:
+          - frame: 285
+            file: motion-0285.png
+          - frame: 286
+            file: motion-0286.png
+          - frame: 287
+            file: motion-0287.png
+          - frame: 288
+            file: motion-0288.png
+          - frame: 289
+            file: motion-0289.png
+          - frame: 290
+            file: motion-0290.png
+          - frame: 291
+            file: motion-0291.png
+          - frame: 292
+            file: motion-0292.png
+          - frame: 293
+            file: motion-0293.png
+          - frame: 294
+            file: motion-0294.png
+          - frame: 295
+            file: motion-0295.png
+          - frame: 296
+            file: motion-0296.png
+          - frame: 297
+            file: motion-0297.png
+          - frame: 298
+            file: motion-0298.png
+          - frame: 299
+            file: motion-0299.png
+          - frame: 300
+            file: motion-0300.png
+          - frame: 301
+            file: motion-0301.png
+          - frame: 302
+            file: motion-0302.png
     steps:
       - uses: actions/checkout@v4
         with:
@@ -263,47 +304,73 @@ jobs:
           node-version: '22'
           cache: npm
           cache-dependency-path: source/yunex/package-lock.json
-      - name: Stage assets and media tools
+      - name: Stage locked Porsche
         run: |
           set -euo pipefail
-          mkdir -p source/yunex/public source/review-motion
+          mkdir -p source/yunex/public source/motion-frame
           cp source/cars/porsche-911-gt3-rs-992/model.glb source/yunex/public/model.glb
           test "$(sha256sum source/cars/porsche-911-gt3-rs-992/model.glb | awk '{print $1}')" = "$EXPECTED_CAR_SHA256"
-          if ! command -v ffmpeg >/dev/null 2>&1 || ! command -v ffprobe >/dev/null 2>&1; then
-            sudo apt-get update
-            sudo apt-get install -y ffmpeg
-          fi
       - name: Install runtime
         working-directory: source/yunex
         run: npm ci
-      - name: Render short labelled 30 fps DRS transition proof
+      - name: Render one consecutive reduced-resolution motion frame
         working-directory: source/yunex
         env:
           NODE_OPTIONS: --require=./fix-network.cjs
         run: |
           set -euo pipefail
-          npx remotion render src/index.tsx "$VISUAL_COMPOSITION" "../review-motion/moving-proof-reduced.mp4" \
-            --frames=270-329 \
+          npx remotion still src/index.tsx "$VISUAL_COMPOSITION" "../motion-frame/${{ matrix.file }}" \
+            --frame="${{ matrix.frame }}" \
             --gl=swangle \
-            --concurrency=2 \
-            --codec=h264 \
-            --pixel-format=yuv420p \
-            --crf=18 \
             --scale=0.25 \
-            --timeout=120000 \
-            --muted
-          ffmpeg -v error -xerror -i ../review-motion/moving-proof-reduced.mp4 -f null -
+            --timeout=120000
+          test -s "../motion-frame/${{ matrix.file }}"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: y002-track-identity-motion-frame-${{ matrix.frame }}
+          path: source/motion-frame/${{ matrix.file }}
+          if-no-files-found: error
+          retention-days: 14
+
+  assemble-review-motion:
+    needs: [gate-review, render-review-motion-frames]
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: y002-track-identity-motion-frame-*
+          path: motion-frames
+          merge-multiple: true
+      - name: Ensure FFmpeg is available
+        run: |
+          set -euo pipefail
+          if ! command -v ffmpeg >/dev/null 2>&1 || ! command -v ffprobe >/dev/null 2>&1; then
+            sudo apt-get update
+            sudo apt-get install -y ffmpeg
+          fi
+      - name: Assemble exact consecutive frames at 30 fps
+        run: |
+          set -euo pipefail
+          test "$(find motion-frames -maxdepth 1 -name 'motion-*.png' | wc -l)" -eq 18
+          ffmpeg -y -v error -framerate 30 -start_number 285 \
+            -i motion-frames/motion-%04d.png \
+            -c:v libx264 -pix_fmt yuv420p -crf 18 -movflags +faststart \
+            moving-proof-reduced.mp4
+          ffmpeg -v error -xerror -i moving-proof-reduced.mp4 -f null -
           ffprobe -v error -count_frames -show_streams -show_format -of json \
-            ../review-motion/moving-proof-reduced.mp4 > ../review-motion/moving-proof-probe.json
+            moving-proof-reduced.mp4 > moving-proof-probe.json
       - uses: actions/upload-artifact@v4
         with:
           name: y002-track-identity-motion-proof
-          path: source/review-motion/
+          path: |
+            moving-proof-reduced.mp4
+            moving-proof-probe.json
           if-no-files-found: error
           retention-days: 14
 
   package-review-evidence:
-    needs: [gate-review, render-review-stills, render-review-motion]
+    needs: [gate-review, render-review-stills, assemble-review-motion]
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
@@ -339,7 +406,7 @@ jobs:
           manifest={
             "phase":"Y002-RACETRACK-IDENTITY-02",
             "source_sha":os.environ["SOURCE_SHA"],
-            "moving_proof_label":"reduced-resolution 270x480 30 fps DRS transition proof, frames 270-329",
+            "moving_proof_label":"reduced-resolution 270x480 true-30fps consecutive DRS transition proof, frames 285-302",
             "frames":[
               {"beat":"hook","frame":18,"file":"beat-0018-hook.png"},
               {"beat":"isolate","frame":114,"file":"beat-0114-isolate.png"},
