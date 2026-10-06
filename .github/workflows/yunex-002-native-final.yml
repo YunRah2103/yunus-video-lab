@@ -64,14 +64,15 @@ jobs:
           NODE_OPTIONS: --require=./fix-network.cjs
         run: |
           start="$(date +%s)"
-          npx remotion render src/index.tsx "$COMPOSITION" out/video002-native-benchmark/native-0330-0359.mp4 \
-            --frames=330-359 \
-            --gl=swangle \
-            --concurrency=2 \
-            --codec=h264 \
-            --crf=14 \
-            --scale=1 \
-            --timeout=120000
+          /usr/bin/time -v -o out/video002-native-benchmark/resource_usage.txt \
+            npx remotion render src/index.tsx "$COMPOSITION" out/video002-native-benchmark/native-0330-0359.mp4 \
+              --frames=330-359 \
+              --gl=swangle \
+              --concurrency=2 \
+              --codec=h264 \
+              --crf=14 \
+              --scale=1 \
+              --timeout=120000
           end="$(date +%s)"
           elapsed="$((end-start))"
           printf '%s\n' "$elapsed" > out/video002-native-benchmark/elapsed_seconds.txt
@@ -88,6 +89,7 @@ jobs:
             benchmark \
             out/video002-native-benchmark/ffprobe.json \
             out/video002-native-benchmark/elapsed_seconds.txt \
+            out/video002-native-benchmark/resource_usage.txt \
             > out/video002-native-benchmark/benchmark.json
           mkdir -p out/video002-native-benchmark/review
           ffmpeg -y -v error -i out/video002-native-benchmark/native-0330-0359.mp4 -vf "select='eq(n,0)+eq(n,14)+eq(n,29)'" -vsync 0 out/video002-native-benchmark/review/frame-%02d.png
