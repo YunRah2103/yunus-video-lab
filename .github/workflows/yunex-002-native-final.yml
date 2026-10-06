@@ -131,7 +131,7 @@ jobs:
           import json, os
           chunk=int(os.environ['CHUNK_SIZE'])
           rows=[]
-          for start in range(90,751,chunk):
+          for start in range(120,751,chunk):
               end=min(750,start+chunk-1)
               rows.append({'part':f'{start:04d}-{end:04d}','frames':f'{start}-{end}'})
           with open(os.environ['GITHUB_OUTPUT'],'a') as f:
@@ -196,7 +196,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           ref: ${{ needs.prepare-full.outputs.source_ref }}
-      - name: Reuse completed native chunks 0-89 from prior H run
+      - name: Reuse completed native chunks 0-119 from prior H run
         uses: actions/download-artifact@v4
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
@@ -218,7 +218,7 @@ jobs:
         run: |
           python yunex/src/video002/trackUpgrade/nativeRender/validate_chunks.py chunks > chunk_manifest.json
           find chunks -maxdepth 1 -name 'chunk-*.mp4' -print | sort | sed "s#^#file '#;s#$#'#" > list.txt
-          test "$(wc -l < list.txt)" -eq 37
+          test "$(wc -l < list.txt)" -eq 36
           ffmpeg -y -v error -f concat -safe 0 -i list.txt -c copy YUNEX_002_NATIVE_VISUAL_MASTER.mp4
           ffmpeg -v error -xerror -i YUNEX_002_NATIVE_VISUAL_MASTER.mp4 -f null -
           ffprobe -v error -count_frames -select_streams v:0 \
@@ -244,7 +244,7 @@ jobs:
             "fps": 30,
             "frames": 751,
             "frame_range": "0-750 inclusive exactly once",
-            "chunk_strategy": "reuse prior validated 0-89 as three 30-frame chunks; continue 90-750 in 20-frame chunks",
+            "chunk_strategy": "reuse prior validated 0-119 as four 30-frame chunks; continue 120-750 in 20-frame chunks",
             "codec": "h264",
             "crf": 14,
             "audio": "not muxed in GitHub; approved locked mix is external and must be muxed once after Manager lookdev approval"
