@@ -1,0 +1,24 @@
+{
+  "source_sha256": "63f8186e9d178cdd6892b2662473ddf823c3e9388655627a299a532141ef20a5",
+  "output_sha256": "09d39bc91eb87728fe839a86745aece5b66f022f96282ff7670ed1251bf62a28",
+  "render": "Editorial finish of native master; restrained digital reframing; no new 3D render",
+  "audio": "Original approved AAC copied unchanged",
+  "changes": [
+    "Stronger YUNEX typography",
+    "Grip/airbrake state emphasis",
+    "Restrained contrast/color finish",
+    "Subtle opening/final reframing"
+  ],
+  "limitations": [
+    "Track and camera architecture preserved",
+    "No claim of new native 3D render"
+  ],
+  "decode_pass": true,
+  "width": 1080,
+  "height": 1920,
+  "fps": 30,
+  "frames": 751,
+  "duration_seconds": 25.033333,
+  "review": "Chronological 2fps frame sequences inspected; no realtime playback or listening available in this session",
+  "audio_aac_byte_identical": true
+}
