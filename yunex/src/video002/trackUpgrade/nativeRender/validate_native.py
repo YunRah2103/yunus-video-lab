@@ -22,6 +22,7 @@ def common(stream):
     assert stream['r_frame_rate']==FPS, stream
     assert stream['avg_frame_rate']==FPS, stream
     assert stream.get('codec_name')=='h264', stream
+    assert stream.get('pix_fmt')=='yuv420p', stream
     assert int(stream['nb_read_frames'])>0, stream
 
 mode=sys.argv[1]
