@@ -147,11 +147,11 @@ export const SuspensionAirflow: React.FC<SuspensionAirflowProps> = ({
         </mesh>
 
         {showTracers && <mesh position={tracerPoint} renderOrder={5}>
-          <sphereGeometry args={[path.kind === 'upper' ? 0.018 : 0.015, 7, 7]}/>
+          <sphereGeometry args={[path.kind === 'upper' ? 0.023 : 0.019, 7, 7]}/>
           <meshBasicMaterial
             color={color}
             transparent
-            opacity={baseOpacity * 0.58 * pulse}
+            opacity={baseOpacity * 0.76 * pulse}
             depthWrite={false}
             depthTest
             toneMapped={false}
