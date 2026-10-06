@@ -18,7 +18,7 @@
         "yunex/video002/racetrack-identity/START_HERE.md",
         "yunex/video002/racetrack-identity/TASKS.json"
       ],
-      "status": "integration_ready",
+      "status": "coordinating_g_integration",
       "input_sha": "8a02cc405d0f9958301c24cc4ce3add824f28288",
       "output_sha": null,
       "proofs": []
@@ -118,6 +118,20 @@
       "status": "preflight_complete_waiting_render_source",
       "input_sha": null,
       "output_sha": "2496ff0e9d3d55bd7f2e18de95aaaaca9b8814d6",
+      "proofs": []
+    },
+    {
+      "id": "G_INTEGRATION",
+      "role": "G — Final Track Integration",
+      "handoff": "G_INTEGRATION_HANDOFF.md",
+      "branch": "sol/y002-track-identity-integration",
+      "owned_files": [
+        "yunex/src/video002/trackUpgrade/TrackWorld.tsx",
+        "yunex/video002/racetrack-identity/reports/G/"
+      ],
+      "status": "ready",
+      "input_sha": "aa4ab642f6563461b1da41b872428386ffeef8bb",
+      "output_sha": null,
       "proofs": []
     }
   ]
