@@ -244,7 +244,7 @@ const sfxVolumeAt=(frame:number)=>{
   return Math.min(.82,dbToLinear(Math.max(mix.engineDb,mix.passDb,mix.mechanicalDb)));
 };
 
-export const Yunex003Final:React.FC=><AbsoluteFill>
+export const Yunex003Final:React.FC=()=> <AbsoluteFill>
   <Yunex003Visual/>
   <Audio src={staticFile('y003-narration.mp3')} volume={1}/>
   <Audio src={staticFile('y003-sfx.wav')} volume={(f)=>sfxVolumeAt(f)}/>
