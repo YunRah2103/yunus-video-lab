@@ -1,0 +1,17 @@
+[Script Info]
+ScriptType: v4.00+
+PlayResX: 1080
+PlayResY: 1920
+ScaledBorderAndShadow: yes
+[V4+ Styles]
+Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
+Style: Hero,Barlow Condensed ExtraBold,108,&H00ECEFEF,&H00ECEFEF,&H00171D1A,&H70171D1A,-1,0,0,0,100,100,0,0,1,0,1,7,0,0,0,1
+Style: Small,Barlow Condensed ExtraBold,29,&H00ECEFEF,&H00ECEFEF,&H00171D1A,&H70171D1A,-1,0,0,0,100,100,4,0,1,0,0,7,0,0,0,1
+[Events]
+Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
+Dialogue: 1,0:00:02.75,0:00:04.15,Hero,,0,0,0,,{\pos(88,255)\fad(100,130)}FIXED MAIN PLANE\N{\c&H0078DBBD&}MOVING UPPER FLAP
+Dialogue: 1,0:00:02.75,0:00:04.15,Small,,0,0,0,,{\pos(92,207)\fad(100,130)}ACTIVE AERODYNAMICS
+Dialogue: 1,0:00:06.15,0:00:08.70,Hero,,0,0,0,,{\pos(88,255)\fad(100,130)}MORE DOWNFORCE\N{\c&H0078DBBD&}MORE GRIP
+Dialogue: 1,0:00:06.15,0:00:08.70,Small,,0,0,0,,{\pos(92,207)\fad(100,130)}CORNERING
+Dialogue: 1,0:00:14.05,0:00:16.85,Hero,,0,0,0,,{\pos(88,255)\fad(100,130)}HIGH-SPEED BRAKING\N{\c&H00508ED5&}AIRBRAKE
+Dialogue: 1,0:00:23.10,0:00:25.03,Small,,0,0,0,,{\pos(88,290)\fs58\fsp9\fad(240,0)}YUNEX
