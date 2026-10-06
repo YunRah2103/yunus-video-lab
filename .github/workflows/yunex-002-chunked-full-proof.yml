@@ -17,7 +17,7 @@ jobs:
     timeout-minutes: 20
     strategy:
       fail-fast: false
-      max-parallel: 10
+      max-parallel: 15
       matrix:
         include:
           - part: a
@@ -67,13 +67,14 @@ jobs:
       - name: Install runtime
         working-directory: yunex
         run: npm ci
-      - name: Render chunk
+      - name: Render continuity chunk
         working-directory: yunex
         env:
           NODE_OPTIONS: --require=./fix-network.cjs
         run: |
-          npx remotion render src/index.tsx YUNEX-002-INTEGRATED-PROOF "out/chunks/part-${{ matrix.part }}.mp4" --frames="${{ matrix.frames }}" --gl=swangle --concurrency=2 --codec=h264 --crf=18 --scale=0.25 --timeout=120000
-          ffmpeg -v error -xerror -i "out/chunks/part-${{ matrix.part }}.mp4" -f null -
+          npx remotion render src/index.tsx YUNEX-002-INTEGRATED-PROOF "out/chunks/part-${{ matrix.part }}.mp4" --frames="${{ matrix.frames }}" --gl=swangle --concurrency=2 --codec=h264 --crf=20 --scale=0.25 --timeout=120000
+          test -s "out/chunks/part-${{ matrix.part }}.mp4"
+          test "$(sha256sum public/model.glb | awk '{print $1}')" = "$EXPECTED_EXTERIOR_SHA256"
       - uses: actions/upload-artifact@v4
         with:
           name: yunex-002-chunk-${{ matrix.part }}
@@ -84,8 +85,18 @@ jobs:
   stitch:
     needs: render
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 12
+    env:
+      EXPECTED_EXTERIOR_SHA256: 1c73fcb138c31e2b1d5ed126a2412074bb17f8e960b355436f28139bf518e1eb
     steps:
+      - uses: actions/checkout@v4
+      - name: Verify locked Porsche
+        run: printf '%s  %s\n' "$EXPECTED_EXTERIOR_SHA256" cars/porsche-911-gt3-rs-992/model.glb | sha256sum -c -
+      - name: Install FFmpeg once
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq ffmpeg
+          ffmpeg -version | head -1
       - uses: actions/download-artifact@v4
         with:
           pattern: yunex-002-chunk-*
@@ -96,17 +107,19 @@ jobs:
           printf "file 'part-a.mp4'\nfile 'part-b.mp4'\nfile 'part-c.mp4'\nfile 'part-d.mp4'\nfile 'part-e.mp4'\nfile 'part-f.mp4'\nfile 'part-g.mp4'\nfile 'part-h.mp4'\nfile 'part-i.mp4'\nfile 'part-j.mp4'\nfile 'part-k.mp4'\nfile 'part-l.mp4'\nfile 'part-m.mp4'\nfile 'part-n.mp4'\nfile 'part-o.mp4'\n" > chunks/list.txt
           ffmpeg -y -v error -f concat -safe 0 -i chunks/list.txt -c copy YUNEX_002_CONTINUITY_PROXY_270x480.mp4
           ffmpeg -v error -xerror -i YUNEX_002_CONTINUITY_PROXY_270x480.mp4 -f null -
-          ffmpeg -y -v error -i YUNEX_002_CONTINUITY_PROXY_270x480.mp4 -vf scale=1080:1920:flags=lanczos -c:v libx264 -crf 18 -preset medium -pix_fmt yuv420p YUNEX_002_INTEGRATED_PROOF.mp4
-          ffprobe -v error -count_frames -select_streams v:0 -show_entries stream=width,height,r_frame_rate,codec_name,pix_fmt,nb_read_frames -show_entries format=duration -of json YUNEX_002_INTEGRATED_PROOF.mp4 > ffprobe.json
+          ffmpeg -y -v error -i YUNEX_002_CONTINUITY_PROXY_270x480.mp4 -vf scale=1080:1920:flags=lanczos -c:v libx264 -crf 18 -preset fast -pix_fmt yuv420p -r 30 YUNEX_002_INTEGRATED_PROOF.mp4
+          ffmpeg -v error -xerror -i YUNEX_002_INTEGRATED_PROOF.mp4 -f null -
+          ffprobe -v error -count_frames -select_streams v:0 -show_entries stream=width,height,r_frame_rate,avg_frame_rate,codec_name,pix_fmt,nb_read_frames -show_entries format=duration -of json YUNEX_002_INTEGRATED_PROOF.mp4 > ffprobe.json
           python - <<'PY'
           import json
           s=json.load(open('ffprobe.json'))
           stream=s['streams'][0]
           assert (stream['width'],stream['height'])==(1080,1920),stream
           assert stream['r_frame_rate']=='30/1',stream
+          assert stream['avg_frame_rate']=='30/1',stream
           assert int(stream['nb_read_frames'])==751,stream
           duration=float(s['format']['duration'])
-          assert 24.9 <= duration <= 25.2,duration
+          assert 25.02 <= duration <= 25.05,duration
           PY
           mkdir review
           for spec in "0.6 hook" "3.8 isolate" "7.0 high_downforce" "11.2 drs" "15.2 airbrake" "20.0 whole_car" "23.5 payoff"; do
@@ -114,6 +127,7 @@ jobs:
             ffmpeg -y -v error -ss "$1" -i YUNEX_002_INTEGRATED_PROOF.mp4 -frames:v 1 "review/$2.png"
           done
           sha256sum YUNEX_002_INTEGRATED_PROOF.mp4 > proof_sha256.txt
+          sha256sum cars/porsche-911-gt3-rs-992/model.glb > porsche_sha256.txt
       - uses: actions/upload-artifact@v4
         with:
           name: yunex-002-integrated-full-proof
@@ -122,6 +136,7 @@ jobs:
             YUNEX_002_CONTINUITY_PROXY_270x480.mp4
             ffprobe.json
             proof_sha256.txt
+            porsche_sha256.txt
             review/
           if-no-files-found: error
           retention-days: 7
