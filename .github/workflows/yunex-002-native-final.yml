@@ -5,6 +5,7 @@ on:
     branches:
       - sol/yunex-002-native-final
       - sol/yunex-002-active-aero
+      - sol/yunex-002-final-render
     paths:
       - '.github/workflows/yunex-002-native-final.yml'
       - 'yunex/src/video002/trackUpgrade/nativeRender/**'

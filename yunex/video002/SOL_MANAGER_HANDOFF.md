@@ -1,3 +1,6 @@
+# SUPERSEDED — HISTORICAL AERO PHASE
+Do NOT execute this handoff. Original aero work is integrated. Read [START_HERE.md](START_HERE.md) for current track assignments. Retained below as reference only.
+
 # YUNEX 002 — ASTRA LOCKED SOL MANAGER HANDOFF
 Date: 2026-10-05. User authorizes immediate substantial parallel implementation by FOUR specialists, coordinated by Sol Manager. Astra owns creative/technical decisions and final approval. Do actual implementation/proofs, not another chain of planning handoffs.
 

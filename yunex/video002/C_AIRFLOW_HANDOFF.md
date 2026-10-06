@@ -1,3 +1,6 @@
+# SUPERSEDED — HISTORICAL AERO PHASE
+Do NOT execute this handoff. Original aero work is integrated. Read [START_HERE.md](START_HERE.md) for current track assignments. Retained below as reference only.
+
 # YUNEX 002 — C — AIRFLOW AND TECHNICAL VISUALIZATION
 
 # Shared instructions — separate user-opened chats
