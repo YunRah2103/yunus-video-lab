@@ -1,0 +1,109 @@
+{
+  "phase": "Y002-RACETRACK-IDENTITY-02",
+  "role": "E — Independent Track / Visual QA",
+  "input_sha": "3ee36a708e2a466c0822431af940cf0be47b1c01",
+  "mode": "integrated_static_source_audit",
+  "status": "PASS",
+  "checks": [
+    {
+      "id": "manager_pin_exact",
+      "status": "PASS",
+      "detail": "TASKS.json render_source_sha exactly matches 3ee36a708e2a466c0822431af940cf0be47b1c01"
+    },
+    {
+      "id": "integration_source_identity",
+      "status": "PASS",
+      "detail": "Pinned commit is Agent G final integration output."
+    },
+    {
+      "id": "locked_environment_scope",
+      "status": "PASS",
+      "detail": "G diff changes racetrack/environment implementation and G evidence only; Porsche/camera/edit/audio/typography/active-aero files are not changed by G."
+    },
+    {
+      "id": "track_root_transform",
+      "status": "PASS",
+      "detail": "TrackWorld root remains [-1,-0.028,0] with yaw Math.PI."
+    },
+    {
+      "id": "legacy_technical_world_removed",
+      "status": "PASS",
+      "detail": "Pinned TrackWorld no longer mounts TechnicalTrackWorld; it uses a lowered neutral backing ground sheet."
+    },
+    {
+      "id": "layer_order",
+      "status": "PASS",
+      "detail": "RoadSurfaces -> Runoff -> Terrain -> TrackFurniture -> TrackVegetation share the track-local root; DistantLandscape and TrackLighting remain world-space."
+    },
+    {
+      "id": "layout_samples",
+      "status": "PASS",
+      "detail": "Independent recomputation: 161 samples at 0.5 m."
+    },
+    {
+      "id": "road_width",
+      "status": "PASS",
+      "detail": "8.6 m."
+    },
+    {
+      "id": "locked_car_edge_clearance",
+      "status": "PASS",
+      "detail": "Independent 751-frame conservative footprint recomputation: minimum clearance 3.125 m, threshold >=0.6 m."
+    },
+    {
+      "id": "restrained_bend",
+      "status": "PASS",
+      "detail": "Independent recomputation: maximum heading 9.4042423703285 degrees, threshold <=10 degrees."
+    },
+    {
+      "id": "straight_corridor",
+      "status": "PASS",
+      "detail": "Independent recomputation: maximum center drift 0 m."
+    },
+    {
+      "id": "cross_section_order",
+      "status": "PASS",
+      "detail": "Positive road/runoff/barrier/landscape offsets; G reports 0 boundary inversions."
+    },
+    {
+      "id": "selected_kerbs",
+      "status": "PASS",
+      "detail": "Right apex kerb only at z 17.5–26.5; left exit kerb only at z 28–34.5."
+    },
+    {
+      "id": "course_relative_barriers",
+      "status": "PASS",
+      "detail": "TrackFurniture derives both guardrail runs from sample.barrierLeft/sample.barrierRight."
+    },
+    {
+      "id": "opening_camera_fence_exclusion",
+      "status": "PASS",
+      "detail": "Tall fence range is outside the documented opening-camera exclusion corridor [4.1,10.6]."
+    },
+    {
+      "id": "vegetation_seed_exclusion",
+      "status": "PASS",
+      "detail": "Vegetation uses createSeededRandom and validates landscape/camera exclusion."
+    },
+    {
+      "id": "quality_seed_contract",
+      "status": "PASS",
+      "detail": "Integrated track components retain preview/final quality and deterministic seed interfaces."
+    },
+    {
+      "id": "locked_timeline",
+      "status": "PASS",
+      "detail": "30 fps, 751 frames, 25.02 s and seven beat boundaries remain unchanged in the pinned source."
+    }
+  ],
+  "metrics": {
+    "sample_count": 161,
+    "sample_step_m": 0.5,
+    "road_width_m": 8.6,
+    "minimum_locked_car_edge_clearance_m": 3.125,
+    "max_heading_degrees": 9.4042423703285,
+    "max_center_step_m": 0.506803684928332,
+    "straight_corridor_center_drift_m": 0
+  },
+  "limitation": "Static/source QA cannot establish visual continuity, occlusion, backing seams, wheel contact, or premium racetrack readability. Native evidence remains mandatory."
+}
