@@ -175,7 +175,7 @@ export type VegetationBudget = {
 
 export const estimateVegetationBudget = (layout: VegetationLayout, quality: VegetationQuality): VegetationBudget => {
   const canopyTriangles = quality === 'final' ? 108 : 70;
-  const treeLobes = layout.trees.length * 5;
+  const treeLobes = layout.trees.length * 7;
   const shrubLobes = layout.shrubs.length * 3;
   const trunkTriangles = layout.trees.length * 28;
   const branchTriangles = layout.trees.length * 2 * 24;
