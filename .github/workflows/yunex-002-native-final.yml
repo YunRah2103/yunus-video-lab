@@ -1,5 +1,9 @@
 name: YUNEX 002 native render E
 
+permissions:
+  actions: read
+  contents: read
+
 on:
   push:
     branches:
@@ -257,6 +261,86 @@ jobs:
             YUNEX_002_NATIVE_VISUAL_MASTER.mp4
             ffprobe.json
             validation.json
+            native_manifest.json
+            chunk_manifest.json
+            output_sha256.txt
+            porsche_sha256.txt
+            review/
+          if-no-files-found: error
+          retention-days: 7
+
+
+  stitch-recovery:
+    if: github.event_name == 'push' && contains(github.event.head_commit.message, '[stitch-only]')
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download preserved 0-119 chunks
+        uses: actions/download-artifact@v4
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          run-id: 37450752136
+          pattern: yunex-002-native-chunk-*
+          path: chunks
+          merge-multiple: true
+      - name: Download continuation 120-750 chunks
+        uses: actions/download-artifact@v4
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          run-id: 37453727041
+          pattern: yunex-002-native-chunk-*
+          path: chunks
+          merge-multiple: true
+      - name: Install FFmpeg
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq ffmpeg
+      - name: Stitch and validate recovered native master
+        run: |
+          python yunex/src/video002/trackUpgrade/nativeRender/validate_chunks.py chunks > chunk_manifest.json
+          find chunks -maxdepth 1 -name 'chunk-*.mp4' -print | sort | sed "s#^#file '#;s#$#'#" > list.txt
+          test "$(wc -l < list.txt)" -eq 36
+          ffmpeg -y -v error -f concat -safe 0 -i list.txt -c copy YUNEX_002_NATIVE_VISUAL_MASTER.mp4
+          ffmpeg -v error -xerror -i YUNEX_002_NATIVE_VISUAL_MASTER.mp4 -f null -
+          ffprobe -v error -count_frames -select_streams v:0 \
+            -show_entries stream=width,height,r_frame_rate,avg_frame_rate,codec_name,pix_fmt,nb_read_frames \
+            -show_entries format=duration \
+            -of json YUNEX_002_NATIVE_VISUAL_MASTER.mp4 > ffprobe.json
+          python yunex/src/video002/trackUpgrade/nativeRender/validate_native.py final-visual ffprobe.json > validation.json
+          python yunex/src/video002/trackUpgrade/nativeRender/validate_delivery_motion.py YUNEX_002_NATIVE_VISUAL_MASTER.mp4 > motion_validation.json
+          mkdir -p review
+          for spec in "18 hook" "114 isolate" "210 high_downforce" "336 drs" "456 airbrake" "600 whole_car" "705 payoff"; do
+            set -- $spec
+            ffmpeg -y -v error -i YUNEX_002_NATIVE_VISUAL_MASTER.mp4 -vf "select=eq(n\,$1)" -frames:v 1 "review/$2.png"
+          done
+          sha256sum YUNEX_002_NATIVE_VISUAL_MASTER.mp4 > output_sha256.txt
+          sha256sum cars/porsche-911-gt3-rs-992/model.glb > porsche_sha256.txt
+          cat > native_manifest.json <<EOF
+          {
+            "source_ref": "623fc15ee82bfe85b884756c6aac236bda1062e4",
+            "workflow_run_id": "${{ github.run_id }}",
+            "composition": "$COMPOSITION",
+            "source_width": 1080,
+            "source_height": 1920,
+            "scale": 1,
+            "fps": 30,
+            "frames": 751,
+            "frame_range": "0-750 inclusive exactly once",
+            "chunk_strategy": "reuse native 0-119 from run 37450752136 plus native 120-750 from run 37453727041",
+            "codec": "h264",
+            "crf": 14,
+            "audio": "mux after visual QA using approved deterministic D mix"
+          }
+          EOF
+      - uses: actions/upload-artifact@v4
+        with:
+          name: yunex-002-native-visual-master-h
+          path: |
+            YUNEX_002_NATIVE_VISUAL_MASTER.mp4
+            ffprobe.json
+            validation.json
+            motion_validation.json
             native_manifest.json
             chunk_manifest.json
             output_sha256.txt
