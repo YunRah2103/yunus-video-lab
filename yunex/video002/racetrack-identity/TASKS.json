@@ -1,0 +1,118 @@
+{
+  "phase": "Y002-RACETRACK-IDENTITY-02",
+  "repository": "YunRah2103/yunus-video-lab",
+  "integration_branch": "sol/y002-track-identity-manager",
+  "source_branch": "sol/yunex-002-landscape-fix",
+  "source_sha": "8a02cc405d0f9958301c24cc4ce3add824f28288",
+  "layout_contract_sha": null,
+  "render_source_sha": null,
+  "manager_instruction": "Only Manager updates this registry. Pin exact input SHAs before releasing dependent implementation. No task is done without verified pushed implementation and actual proofs.",
+  "tasks": [
+    {
+      "id": "MANAGER",
+      "role": "Manager",
+      "handoff": "MANAGER_HANDOFF.md",
+      "branch": "sol/y002-track-identity-manager",
+      "owned_files": [
+        "yunex/src/video002/trackUpgrade/TrackWorld.tsx",
+        "yunex/video002/racetrack-identity/START_HERE.md",
+        "yunex/video002/racetrack-identity/TASKS.json"
+      ],
+      "status": "ready",
+      "input_sha": "8a02cc405d0f9958301c24cc4ce3add824f28288",
+      "output_sha": null,
+      "proofs": []
+    },
+    {
+      "id": "A_LAYOUT",
+      "role": "A — Layout",
+      "handoff": "A_LAYOUT_HANDOFF.md",
+      "branch": "sol/y002-track-identity-layout",
+      "owned_files": [
+        "yunex/src/video002/trackUpgrade/racetrack/layout.ts",
+        "yunex/src/video002/trackUpgrade/racetrack/types.ts",
+        "yunex/src/video002/trackUpgrade/racetrack/LayoutDebug.tsx"
+      ],
+      "status": "ready",
+      "input_sha": "8a02cc405d0f9958301c24cc4ce3add824f28288",
+      "output_sha": null,
+      "proofs": []
+    },
+    {
+      "id": "B_SURFACES",
+      "role": "B — Racing Surface / Kerbs",
+      "handoff": "B_SURFACES_HANDOFF.md",
+      "branch": "sol/y002-track-identity-surface",
+      "owned_files": [
+        "yunex/src/video002/trackUpgrade/RoadSurfaces.tsx",
+        "yunex/src/video002/trackUpgrade/road/",
+        "yunex/src/video002/trackUpgrade/racetrack/Surface.tsx",
+        "yunex/src/video002/trackUpgrade/racetrack/Kerbs.tsx"
+      ],
+      "status": "waiting_layout_contract",
+      "input_sha": null,
+      "output_sha": null,
+      "proofs": []
+    },
+    {
+      "id": "C_RUNOFF",
+      "role": "C — Runoff / Barriers / Circuit Furniture",
+      "handoff": "C_RUNOFF_HANDOFF.md",
+      "branch": "sol/y002-track-identity-runoff",
+      "owned_files": [
+        "yunex/src/video002/trackUpgrade/TrackFurniture.tsx",
+        "yunex/src/video002/trackUpgrade/racetrack/Runoff.tsx",
+        "yunex/src/video002/trackUpgrade/racetrack/Terrain.tsx"
+      ],
+      "status": "waiting_layout_contract",
+      "input_sha": null,
+      "output_sha": null,
+      "proofs": []
+    },
+    {
+      "id": "D_LOOKDEV",
+      "role": "D — Landscape / Outdoor Look Development",
+      "handoff": "D_LOOKDEV_HANDOFF.md",
+      "branch": "sol/y002-track-identity-lookdev",
+      "owned_files": [
+        "yunex/src/video002/trackUpgrade/TrackLighting.tsx",
+        "yunex/src/video002/trackUpgrade/DistantLandscape.tsx",
+        "yunex/src/video002/trackUpgrade/TrackVegetation.tsx",
+        "yunex/src/video002/trackUpgrade/vegetation/"
+      ],
+      "status": "waiting_layout_contract",
+      "input_sha": null,
+      "output_sha": null,
+      "proofs": []
+    },
+    {
+      "id": "E_QA",
+      "role": "E — Independent Track / Visual QA",
+      "handoff": "E_QA_HANDOFF.md",
+      "branch": "sol/y002-track-identity-qa",
+      "owned_files": [
+        "yunex/src/video002/trackUpgrade/qa/trackIdentity/",
+        "yunex/video002/racetrack-identity/reports/E/"
+      ],
+      "status": "baseline_preflight_ready",
+      "input_sha": null,
+      "output_sha": null,
+      "proofs": []
+    },
+    {
+      "id": "F_RENDER",
+      "role": "F — Native Render / Final Delivery",
+      "handoff": "F_RENDER_HANDOFF.md",
+      "branch": "sol/y002-track-identity-render",
+      "owned_files": [
+        ".github/workflows/yunex-002-track-identity-render.yml",
+        "yunex/src/video002/trackUpgrade/nativeRender/trackIdentity/",
+        "yunex/video002/racetrack-identity/reports/F/"
+      ],
+      "status": "baseline_preflight_ready",
+      "input_sha": null,
+      "output_sha": null,
+      "proofs": []
+    }
+  ]
+}
