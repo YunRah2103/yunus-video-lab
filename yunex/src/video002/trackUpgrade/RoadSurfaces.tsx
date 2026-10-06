@@ -91,6 +91,7 @@ export const ROAD_SURFACE_INTEGRATION = {
 export const RoadSurfaces: React.FC<RoadSurfacesProps> = ({quality, seed = 2103}) => {
   const textures = useMemo(() => createRoadTextures(quality, seed), [quality, seed]);
   const decor = useMemo(() => buildRoadDecor(seed, quality), [quality, seed]);
+  const cost = useMemo(() => estimateRoadSurfaceCost(quality), [quality]);
   const kerbGeometry = useMemo(() => makeKerbGeometry(quality), [quality]);
   const circleGeometry = useMemo(
     () => new THREE.CircleGeometry(1, quality === 'final' ? 40 : 24),
@@ -282,7 +283,7 @@ export const RoadSurfaces: React.FC<RoadSurfacesProps> = ({quality, seed = 2103}
         yunexTrackUpgrade: 'road',
         deterministicSeed: seed,
         quality,
-        cost: estimateRoadSurfaceCost(quality),
+        cost,
       }}
     >
       <mesh
