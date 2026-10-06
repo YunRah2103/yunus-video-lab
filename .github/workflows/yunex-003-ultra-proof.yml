@@ -45,6 +45,10 @@ jobs:
           test "$(sha256sum cars/porsche-911-gt3-rs-992/model.glb | awk '{print $1}')" = "1c73fcb138c31e2b1d5ed126a2412074bb17f8e960b355436f28139bf518e1eb"
           mkdir -p yunex/public yunex/out/y003-ultra
           cp cars/porsche-911-gt3-rs-992/model.glb yunex/public/model.glb
+          # Proof-only presentation reduction: keep exact 805c source logic but use the
+          # repository's sanctioned preview track quality to accelerate software WebGL.
+          sed -i 's/<TrackWorld quality="final" seed={3003}\/>/<TrackWorld quality="preview" seed={3003}\/>/' yunex/src/video003/Video003.tsx
+          grep -q 'TrackWorld quality="preview"' yunex/src/video003/Video003.tsx
           cd yunex
           npm ci --no-audit --no-fund
       - name: Render continuous reduced moving proof
