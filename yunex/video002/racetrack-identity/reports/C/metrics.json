@@ -1,0 +1,47 @@
+{
+  "phase": "Y002-RACETRACK-IDENTITY-02",
+  "role": "C — Runoff / Barriers / Circuit Furniture",
+  "input_sha": "7ecd296b10f6d1d316544f1eb06a84bf5babedf3",
+  "coordinate_space": "YUNEX 002 track-local coordinates before TrackWorld root transform",
+  "contract": {
+    "road_width_m": 8.6,
+    "base_runoff_width_m": 2.15,
+    "max_left_runoff_width_m": 2.95,
+    "max_right_runoff_width_m": 2.4,
+    "runoff_to_barrier_setback_m": 0.7,
+    "barrier_to_landscape_setback_m": 1.35,
+    "distant_bend_offset_m": 2.65,
+    "max_heading_degrees": 9.40424235
+  },
+  "furniture": {
+    "barrier_range_local_z_m": [
+      -25,
+      35.5
+    ],
+    "final_guardrail_panels": 90,
+    "final_guardrail_posts": 90,
+    "final_guardrail_bolts": 180,
+    "tall_catch_fence_side": "left/outside of bend",
+    "tall_catch_fence_range_local_z_m": [
+      12.5,
+      34.2
+    ],
+    "known_opening_camera_exclusion_local_z_m": [
+      4.1,
+      10.6
+    ]
+  },
+  "geometry": {
+    "runoff_final_samples_per_strip": 161,
+    "runoff_strips": 4,
+    "terrain_outer_extension_m": 6.5,
+    "terrain_strips": 4
+  },
+  "invariants": [
+    "road edge -> paved runoff -> gravel shoulder -> barrier -> grass/terrain",
+    "barrier positions derive from layout barrierLeft/barrierRight",
+    "catch fence stays outside the opening-camera obstruction corridor",
+    "quality/seed API preserved",
+    "no Porsche, camera, VO, audio, typography, timeline, RoadSurfaces, TrackWorld, vegetation or lighting files changed"
+  ]
+}
