@@ -2,14 +2,19 @@ from pathlib import Path
 import subprocess, json, hashlib, argparse
 ASSETS=Path(__file__).resolve().parent
 parser=argparse.ArgumentParser()
-parser.add_argument('--source',type=Path,default=ASSETS.parent/'yunex/out/native-master.mp4')
-parser.add_argument('--audio',type=Path,default=ASSETS.parent/'approved-audio.aac')
+parser.add_argument('--source',type=Path,required=True)
+parser.add_argument('--audio',type=Path,required=True)
 parser.add_argument('--out',type=Path,default=ASSETS)
 parser.add_argument('--fonts',type=Path,default=ASSETS/'fonts')
 args=parser.parse_args()
 ROOT=args.out.resolve();ROOT.mkdir(parents=True,exist_ok=True)
 SOURCE=args.source.resolve();AUDIO=args.audio.resolve();FONTS=args.fonts.resolve()
 DURATION=751/30
+REFERENCE_AUDIO=ROOT/'approved-source.aac'
+subprocess.run(['ffmpeg','-y','-v','error','-i',str(AUDIO),'-map','0:a:0','-c:a','copy',str(REFERENCE_AUDIO)],check=True)
+EXPECTED_AUDIO_HASH=hashlib.sha256(REFERENCE_AUDIO.read_bytes()).hexdigest()
+assert EXPECTED_AUDIO_HASH=='53179827c21557acf1ebc0e7eae374736889e43c7615c220dc500cbc24021d2a'
+
 ass=(ASSETS/'finish.ass').read_text()
 (ROOT/'finish.ass').write_text(ass)
 (ROOT/'finish-B.ass').write_text(ass.replace('FIXED MAIN PLANE','FIXED LOWER PLANE').replace('MOVING UPPER FLAP','ACTIVE UPPER FLAP').replace('MORE DOWNFORCE','LOAD THE TYRES').replace('MORE GRIP','MORE CORNERING GRIP'))
@@ -30,8 +35,8 @@ for name,v in variants.items():
  assert abs(float(probe['format']['duration'])-DURATION)<.025
  subprocess.run(['ffmpeg','-y','-v','error','-i',str(out),'-map','0:a:0','-c','copy',str(ROOT/f'audio-{name}.aac')],check=True)
  audio_hash=hashlib.sha256((ROOT/f'audio-{name}.aac').read_bytes()).hexdigest()
- assert audio_hash==hashlib.sha256(AUDIO.read_bytes()).hexdigest()
+ assert audio_hash==EXPECTED_AUDIO_HASH
  (ROOT/f'probe-{name}.json').write_text(json.dumps(probe,indent=2))
  results.append({'variant':name,'file':out.name,'sha256':hashlib.sha256(out.read_bytes()).hexdigest(),'audio_sha256':audio_hash,'frames':751,'native_source':[1080,1920],'fps':30,'duration':DURATION,'decode':'PASS'})
-(ROOT/'DELIVERY_QA.json').write_text(json.dumps({'render_source_sha':'c3f4569a926d61bb7475b0949ae11b59c3765220','authoritative_manager_sha':'3e44ddf8e4b27341c345a00de7db7ad56533fb71','variants':results},indent=2))
+(ROOT/'DELIVERY_QA.json').write_text(json.dumps({'render_source_sha':'fb3cfbe7a171858ef96a12d9443d5e00412371de','authoritative_manager_sha':'3e44ddf8e4b27341c345a00de7db7ad56533fb71','variants':results},indent=2))
 print(json.dumps(results,indent=2))
