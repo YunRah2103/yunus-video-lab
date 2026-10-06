@@ -38,7 +38,7 @@ env:
 
 jobs:
   benchmark:
-    if: github.event_name == 'push' || inputs.mode == 'benchmark'
+    if: (github.event_name == 'push' && !contains(github.event.head_commit.message, '[skip-benchmark]')) || (github.event_name == 'workflow_dispatch' && inputs.mode == 'benchmark')
     runs-on: ubuntu-latest
     timeout-minutes: 25
     steps:
