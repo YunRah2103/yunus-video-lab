@@ -5,7 +5,12 @@ on:
     branches:
       - sol/yunex-002-active-aero
     paths:
+      - 'yunex/src/video002/Video002Integrated.tsx'
       - '.github/workflows/yunex-002-integrated-smoke.yml'
+
+concurrency:
+  group: yunex-002-integrated-smoke
+  cancel-in-progress: true
 
 jobs:
   smoke:
@@ -47,7 +52,7 @@ jobs:
           assert len(files)==7, files
           for p in files:
               data=p.read_bytes()
-              assert data[:8]==b'\\x89PNG\\r\\n\\x1a\\n', p
+              assert data[:8]==bytes.fromhex('89504e470d0a1a0a'), p
               width,height=struct.unpack('>II',data[16:24])
               assert (width,height)==(1080,1920),(p,width,height)
           PY
