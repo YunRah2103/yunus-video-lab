@@ -258,7 +258,11 @@ jobs:
       - name: Stitch exact native frame coverage
         run: |
           python .native-render-tooling/yunex/src/video002/trackUpgrade/nativeRender/validate_chunks.py chunks > chunk_manifest.json
-          find chunks -maxdepth 1 -name 'chunk-*.mp4' -print | sort | sed "s#^#file '#;s#$#'#" > list.txt
+          python - <<'PY'
+          from pathlib import Path
+          files=sorted(Path('chunks').glob('chunk-*.mp4'))
+          Path('list.txt').write_text(''.join(f"file '{p.resolve().as_posix()}'\\n" for p in files))
+          PY
           test "$(wc -l < list.txt)" -eq 26
           ffmpeg -y -v error -f concat -safe 0 -i list.txt -c copy YUNEX_002_NATIVE_VISUAL_MASTER.mp4
           ffmpeg -v error -xerror -i YUNEX_002_NATIVE_VISUAL_MASTER.mp4 -f null -
