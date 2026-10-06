@@ -1,0 +1,69 @@
+name: YUNEX 002 B camera proof
+
+on:
+  push:
+    branches:
+      - sol/yunex-002-b-camera
+    paths:
+      - 'yunex/src/video002/cameras.ts'
+      - 'yunex/src/video002/driving.ts'
+      - 'yunex/src/video002/b_camera_tests.ts'
+      - 'yunex/src/video002/b_camera_proof.tsx'
+      - 'yunex/src/video002/b_proof_index.tsx'
+      - '.github/workflows/yunex-002-b-camera-proof.yml'
+
+concurrency:
+  group: yunex-002-b-camera-final-proof
+  cancel-in-progress: true
+
+jobs:
+  render-b-camera-proof:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      EXPECTED_EXTERIOR_SHA256: 1c73fcb138c31e2b1d5ed126a2412074bb17f8e960b355436f28139bf518e1eb
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+          cache-dependency-path: yunex/package-lock.json
+      - name: Stage locked Porsche
+        run: |
+          mkdir -p yunex/public yunex/b-camera-proof
+          cp cars/porsche-911-gt3-rs-992/model.glb yunex/public/model.glb
+          printf '%s  %s\n' "$EXPECTED_EXTERIOR_SHA256" cars/porsche-911-gt3-rs-992/model.glb | sha256sum -c -
+      - name: Install Remotion dependencies
+        working-directory: yunex
+        run: npm ci
+      - name: Compile and render native proof
+        working-directory: yunex
+        env:
+          NODE_OPTIONS: --require=./fix-network.cjs
+        run: |
+          npx remotion compositions src/video002/b_proof_index.tsx
+          npx remotion render src/video002/b_proof_index.tsx YUNEX-002-B-CAMERA-PROOF b-camera-proof/YUNEX_002_B_CAMERA_PROOF.mp4 --gl=swangle --concurrency=2 --codec=h264 --crf=18 --timeout=120000
+      - name: Validate proof and extract review frames
+        run: |
+          ffmpeg -v error -i yunex/b-camera-proof/YUNEX_002_B_CAMERA_PROOF.mp4 -f null -
+          ffprobe -v error -count_frames -select_streams v:0 -show_entries stream=width,height,r_frame_rate,codec_name,pix_fmt,nb_read_frames -of json yunex/b-camera-proof/YUNEX_002_B_CAMERA_PROOF.mp4 > yunex/b-camera-proof/ffprobe.json
+          ffmpeg -y -ss 0.08 -i yunex/b-camera-proof/YUNEX_002_B_CAMERA_PROOF.mp4 -frames:v 1 yunex/b-camera-proof/opening.png >/dev/null 2>&1
+          ffmpeg -y -ss 0.34 -i yunex/b-camera-proof/YUNEX_002_B_CAMERA_PROOF.mp4 -frames:v 1 yunex/b-camera-proof/wing_macro.png >/dev/null 2>&1
+          ffmpeg -y -ss 1.38 -i yunex/b-camera-proof/YUNEX_002_B_CAMERA_PROOF.mp4 -frames:v 1 yunex/b-camera-proof/final_hero.png >/dev/null 2>&1
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          s=json.loads(Path('yunex/b-camera-proof/ffprobe.json').read_text())['streams'][0]
+          assert (s['width'],s['height'])==(1080,1920),s
+          assert s['r_frame_rate']=='30/1',s
+          assert int(s['nb_read_frames'])==45,s
+          PY
+          sha256sum yunex/b-camera-proof/YUNEX_002_B_CAMERA_PROOF.mp4 > yunex/b-camera-proof/proof_sha256.txt
+      - name: Upload B proof
+        uses: actions/upload-artifact@v4
+        with:
+          name: yunex-002-b-camera-proof-final
+          path: yunex/b-camera-proof/
+          if-no-files-found: error
+          retention-days: 7
