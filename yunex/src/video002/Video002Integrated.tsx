@@ -79,7 +79,34 @@ const IntegratedThreeScene:React.FC<{timing:Video002SceneProps}>=({timing})=>{
   const wheelBase=useRef<Record<string,number>>({});
 
   const rig=useMemo(()=>model?createActiveAeroRig(model):null,[model]);
-  const pose=useMemo(()=>poseFor(timing.frame,CAMERA_TIMING),[timing.frame]);
+  const pose=useMemo(()=>{
+    const next=poseFor(timing.frame,CAMERA_TIMING);
+    const [rootX,,rootZ]=next.rootPose.position;
+
+    // Manager integration corrections after native portrait-frame review:
+    // keep B's deterministic travel/shot progression, but move three camera stations
+    // to the vegetation-free side of the approved technical track.
+    if(next.shot==='drs-side-track'){
+      next.camera={
+        position:[rootX-8.6,1.72,rootZ+0.18],
+        target:[rootX,0.65,rootZ+0.08],
+        focalLength:28,
+      };
+    }else if(next.shot==='braking-quarter'){
+      next.camera={
+        position:[rootX-5.8,2.18,rootZ-7.2],
+        target:[rootX,0.72,rootZ-0.72],
+        focalLength:31,
+      };
+    }else if(next.shot==='final-hero-pass'){
+      next.camera={
+        position:[rootX-5.6,1.68,rootZ+7.5],
+        target:[rootX,0.58,rootZ+0.55],
+        focalLength:30,
+      };
+    }
+    return next;
+  },[timing.frame]);
   const aeroState=useMemo(()=>aeroStateFor(timing),[
     timing.beat.id,
     timing.transition,
