@@ -2,88 +2,31 @@
   "phase": "Y002-RACETRACK-IDENTITY-02",
   "role": "E — Independent Track / Visual QA",
   "input_sha": "3ee36a708e2a466c0822431af940cf0be47b1c01",
-  "automated_evidence_status": "BLOCKED",
-  "required_native_stills": [
-    {
-      "beat": "hook",
-      "frame": 18,
-      "required_dimensions": [
-        1080,
-        1920
-      ],
-      "found": false
-    },
-    {
-      "beat": "isolate",
-      "frame": 114,
-      "required_dimensions": [
-        1080,
-        1920
-      ],
-      "found": false
-    },
-    {
-      "beat": "high_downforce",
-      "frame": 210,
-      "required_dimensions": [
-        1080,
-        1920
-      ],
-      "found": false
-    },
-    {
-      "beat": "drs",
-      "frame": 336,
-      "required_dimensions": [
-        1080,
-        1920
-      ],
-      "found": false
-    },
-    {
-      "beat": "airbrake",
-      "frame": 456,
-      "required_dimensions": [
-        1080,
-        1920
-      ],
-      "found": false
-    },
-    {
-      "beat": "whole_car",
-      "frame": 600,
-      "required_dimensions": [
-        1080,
-        1920
-      ],
-      "found": false
-    },
-    {
-      "beat": "payoff",
-      "frame": 705,
-      "required_dimensions": [
-        1080,
-        1920
-      ],
-      "found": false
-    }
-  ],
-  "moving_proof": {
-    "required": true,
-    "required_fps": 30,
-    "found": false
+  "github_actions_run_id": 37501731782,
+  "artifact_id": 11430840385,
+  "automated_evidence_status": "PASS",
+  "manual_visual_review_status": "FAIL",
+  "native_stills": {
+    "count": 7,
+    "width": 1080,
+    "height": 1920
   },
-  "evidence_search": [
-    "Pinned source commit 3ee36a708e2a466c0822431af940cf0be47b1c01 contains G static/source proofs only.",
-    "G compare range contains no PNG/MP4 native review evidence.",
-    "No workflow runs/artifacts are attached to the pinned source commit through the available GitHub Actions evidence.",
-    "F branch contains a gated fresh native render workflow but its full job requires E already be pass/complete, so no first-review native bundle exists yet."
-  ],
+  "moving_proof": {
+    "width": 270,
+    "height": 480,
+    "fps": 30,
+    "frames": 18,
+    "duration_seconds": 0.6,
+    "frame_range": "285-302",
+    "label": "reduced-resolution 270x480 true-30fps consecutive DRS transition proof"
+  },
+  "artifact_zip_sha256": "74959f3f1bfd642504ff29ccab97ea08a4ff03ee1b34961151bf659bb38e260d",
   "failures": [
-    "Missing seven required native 1080x1920 beat frames from the exact pinned source SHA.",
-    "Missing required 30 fps moving proof from the exact pinned source SHA.",
-    "Human visual gate cannot inspect track continuity, apron/seam visibility, grass intrusion, Porsche/aero occlusion, or wheel contact without those renders."
+    "Course does not consistently read as asphalt/racetrack without labels.",
+    "Road -> runoff -> barrier visual hierarchy is not readable in most reviewed beats.",
+    "Broad olive driven plane visually merges with backing/terrain.",
+    "Frame 336/moving proof show a conspicuous full-width surface/backing boundary.",
+    "Final payoff does not establish premium racetrack identity."
   ],
-  "blocker_owner": "Manager/F render orchestration: produce a first-review proof bundle from the pinned source before asking E for final visual PASS.",
-  "manual_visual_review_completed": false
+  "manual_visual_review_completed": true
 }
