@@ -43,5 +43,31 @@
     "catch fence stays outside the opening-camera obstruction corridor",
     "quality/seed API preserved",
     "no Porsche, camera, VO, audio, typography, timeline, RoadSurfaces, TrackWorld, vegetation or lighting files changed"
-  ]
+  ],
+  "validation": {
+    "status": "pass",
+    "sampled_step_m": 0.5,
+    "sampled_z_range_m": [
+      -42,
+      38
+    ],
+    "measured_left_runoff_width_m": {
+      "min": 2.15,
+      "max": 2.95
+    },
+    "measured_right_runoff_width_m": {
+      "min": 2.15,
+      "max": 2.4
+    },
+    "measured_runoff_to_barrier_m": {
+      "min": 0.7,
+      "max": 0.7
+    },
+    "measured_barrier_to_landscape_m": {
+      "min": 1.35,
+      "max": 1.35
+    },
+    "boundary_inversions": 0,
+    "tall_fence_overlaps_opening_exclusion": false
+  }
 }
