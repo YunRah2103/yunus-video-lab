@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="1920" viewBox="0 0 1080 1920">
+<rect width="1080" height="1920" fill="#111315"/>
+<text x="70" y="110" fill="#f2f2f2" font-family="Arial, sans-serif" font-size="40" font-weight="700">C PROOF — BEND CONTEXT</text>
+<text x="70" y="158" fill="#aeb5b5" font-family="Arial, sans-serif" font-size="22">Y002-RACETRACK-IDENTITY-02 · Agent C deterministic contract proof</text>
+
+<path d="M370 1670 C365 1270 385 980 510 690 C585 520 650 390 700 260" fill="none" stroke="#373b3d" stroke-width="280" stroke-linecap="round"/>
+<path d="M340 1670 C335 1270 355 980 480 690 C555 520 620 390 670 260" fill="none" stroke="#555953" stroke-width="90" stroke-linecap="round"/>
+<path d="M400 1670 C395 1270 415 980 540 690 C615 520 680 390 730 260" fill="none" stroke="#555953" stroke-width="90" stroke-linecap="round"/>
+<path d="M295 1670 C290 1270 310 980 435 690 C510 520 575 390 625 260" fill="none" stroke="#a8adae" stroke-width="14" stroke-linecap="round"/>
+<path d="M445 1670 C440 1270 460 980 585 690 C660 520 725 390 775 260" fill="none" stroke="#a8adae" stroke-width="14" stroke-linecap="round"/>
+<path d="M265 930 C300 760 360 610 435 480 C500 370 555 300 610 245" fill="none" stroke="#777e7f" stroke-width="8" stroke-dasharray="18 16"/>
+<text x="735" y="1760" fill="#ffffff" font-family="Arial" font-size="26">Both rails follow the course.</text>
+<text x="735" y="1800" fill="#aeb5b5" font-family="Arial" font-size="22">Tall catch fence only on outside bend.</text>
+
+</svg>
