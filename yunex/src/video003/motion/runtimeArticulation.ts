@@ -55,7 +55,6 @@ export const createRuntimeMotionRig = (
     container.getObjectByName(ASSET_ROOT_NAME) ?? container;
   const containerBase = snapshot(container);
 
-  const critical: THREE.Object3D[] = [];
   const missingCriticalNodes: string[] = [];
   const steerNodes = {} as Record<WheelId, THREE.Object3D>;
   const spinNodes = {} as Record<WheelId, THREE.Object3D>;
@@ -74,12 +73,10 @@ export const createRuntimeMotionRig = (
     if (steer) {
       steerNodes[id] = steer;
       steerBase[id] = snapshot(steer);
-      critical.push(steer);
     }
     if (spin) {
       spinNodes[id] = spin;
       spinBase[id] = snapshot(spin);
-      critical.push(spin);
     }
     const caliper = assetRoot.getObjectByName(`Caliper_${id}`);
     if (caliper) {
