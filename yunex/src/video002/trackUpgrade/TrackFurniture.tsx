@@ -211,7 +211,8 @@ const buildFurnitureLayout = (seed: number, quality: TrackFurnitureProps['qualit
     }
   }
 
-  const fenceStart = 6.2 + (random() - 0.5) * 0.3;
+  // Keep tall fencing beyond the opening camera corridor (local z 4.1–10.6).
+  const fenceStart = 11.5 + (random() - 0.5) * 0.3;
   const fenceEnd = 17.1;
   const fenceX = RAIL_X - 0.64;
   const fenceBottom = 0.68;

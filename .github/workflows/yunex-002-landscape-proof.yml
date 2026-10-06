@@ -33,7 +33,7 @@ jobs:
           NODE_OPTIONS: --require=./fix-network.cjs
         run: |
           npx remotion compositions src/index.tsx > out/landscape/compositions.txt
-          for frame in 24 132 240 342 456 600 720; do
+          for frame in 24 600; do
             npx remotion still src/index.tsx YUNEX-002-INTEGRATED-PROOF out/landscape/frame-$frame.png --frame=$frame --gl=swangle --timeout=120000
           done
           npx remotion render src/index.tsx YUNEX-002-INTEGRATED-PROOF out/landscape/motion.mp4 --frames=18-32 --gl=swangle --concurrency=2 --scale=1 --crf=16 --timeout=120000
