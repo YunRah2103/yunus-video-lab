@@ -227,8 +227,11 @@ jobs:
           Path('list.txt').write_text(''.join(f"file '{p.resolve()}'\\n" for p in files))
           PY
           test "$(wc -l < list.txt)" -eq 36
+          echo CHECKPOINT_CONCAT
           ffmpeg -y -v error -f concat -safe 0 -i list.txt -c copy YUNEX_002_NATIVE_VISUAL_MASTER.mp4
+          echo CHECKPOINT_DECODE
           ffmpeg -v error -xerror -i YUNEX_002_NATIVE_VISUAL_MASTER.mp4 -f null -
+          echo CHECKPOINT_FFPROBE
           ffprobe -v error -count_frames -select_streams v:0 \
             -show_entries stream=width,height,r_frame_rate,avg_frame_rate,codec_name,pix_fmt,nb_read_frames \
             -show_entries format=duration \
@@ -302,7 +305,9 @@ jobs:
           sudo apt-get install -y -qq ffmpeg
       - name: Stitch and validate recovered native master
         run: |
-          python yunex/src/video002/trackUpgrade/nativeRender/validate_chunks.py chunks > chunk_manifest.json
+          set -x
+          echo CHECKPOINT_VALIDATE_CHUNKS
+          python yunex/src/video002/trackUpgrade/nativeRender/validate_chunks.py chunks | tee chunk_manifest.json
           python - <<'PY'
           from pathlib import Path
           files=sorted(Path('chunks').glob('chunk-*.mp4'))
@@ -315,8 +320,11 @@ jobs:
             -show_entries stream=width,height,r_frame_rate,avg_frame_rate,codec_name,pix_fmt,nb_read_frames \
             -show_entries format=duration \
             -of json YUNEX_002_NATIVE_VISUAL_MASTER.mp4 > ffprobe.json
-          python yunex/src/video002/trackUpgrade/nativeRender/validate_native.py final-visual ffprobe.json > validation.json
-          python yunex/src/video002/trackUpgrade/nativeRender/validate_delivery_motion.py YUNEX_002_NATIVE_VISUAL_MASTER.mp4 > motion_validation.json
+          cat ffprobe.json
+          echo CHECKPOINT_NATIVE_VALIDATE
+          python yunex/src/video002/trackUpgrade/nativeRender/validate_native.py final-visual ffprobe.json | tee validation.json
+          echo CHECKPOINT_MOTION_VALIDATE
+          python yunex/src/video002/trackUpgrade/nativeRender/validate_delivery_motion.py YUNEX_002_NATIVE_VISUAL_MASTER.mp4 | tee motion_validation.json
           mkdir -p review
           for spec in "18 hook" "114 isolate" "210 high_downforce" "336 drs" "456 airbrake" "600 whole_car" "705 payoff"; do
             set -- $spec
@@ -342,6 +350,7 @@ jobs:
           }
           EOF
       - uses: actions/upload-artifact@v4
+        if: always()
         with:
           name: yunex-002-native-visual-master-h
           path: |
