@@ -7,7 +7,7 @@ Coordination handoff inspected at manager head: 7cff23f91ec3669e9354c18b1fd78790
 
 Pure geometry/state modules were compiled locally with TypeScript 5.8.3 under strict mode:
 
-tsc --noEmit --target ES2020 --module commonjs --strict types.ts math.ts topology.ts referenceFixture.ts
+tsc --noEmit --target ES2020 --module commonjs --strict types.ts math.ts topology.ts referenceFixture.ts motionAdapter.ts
 
 Result: PASS.
 
@@ -30,3 +30,6 @@ Approved manifest front wheel centres are embedded exactly in the reference cont
 The React/Three renderer was not bundled in this isolated chat runtime because repository node_modules are not mounted here, and Agent B is not authorized to change shared package/workflow setup. The implementation only uses dependencies already declared by the Yunex app (React/Three).
 
 Final installed 1080x1920 still and 3–5 s articulation proof remain gated on Manager publishing A's exact motion/upright contract and mounting B into the shared Y003 composition. The fixture proof component is present so Manager can render it without B editing central registration.
+
+
+A current remote head c1418cb65940369265250de6a2901e28b1734d61 was inspected after B's initial implementation. Its MotionState exposes chassis pitch/roll/heave plus FL/FR centreLocal, steerRad and uprightOffsetY. B now includes a structural adapter matching those semantics without importing the unpinned A branch. Final authority still waits on Manager setting motion_contract_sha.
