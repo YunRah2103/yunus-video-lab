@@ -1,0 +1,240 @@
+{
+  "chunks": 38,
+  "coverage": "0-750 inclusive exactly once",
+  "total_frames": 751,
+  "fps": 30,
+  "dimensions": [
+    1080,
+    1920
+  ],
+  "parts": [
+    {
+      "file": "chunk-0000-0019.mp4",
+      "start": 0,
+      "end": 19,
+      "frames": 20
+    },
+    {
+      "file": "chunk-0020-0039.mp4",
+      "start": 20,
+      "end": 39,
+      "frames": 20
+    },
+    {
+      "file": "chunk-0040-0059.mp4",
+      "start": 40,
+      "end": 59,
+      "frames": 20
+    },
+    {
+      "file": "chunk-0060-0079.mp4",
+      "start": 60,
+      "end": 79,
+      "frames": 20
+    },
+    {
+      "file": "chunk-0080-0099.mp4",
+      "start": 80,
+      "end": 99,
+      "frames": 20
+    },
+    {
+      "file": "chunk-0100-0119.mp4",
+      "start": 100,
+      "end": 119,
+      "frames": 20
+    },
+    {
+      "file": "chunk-0120-0139.mp4",
+      "start": 120,
+      "end": 139,
+      "frames": 20
+    },
+    {
+      "file": "chunk-0140-0159.mp4",
+      "start": 140,
+      "end": 159,
+      "frames": 20
+    },
+    {
+      "file": "chunk-0160-0179.mp4",
+      "start": 160,
+      "end": 179,
+      "frames": 20
+    },
+    {
+      "file": "chunk-0180-0199.mp4",
+      "start": 180,
+      "end": 199,
+      "frames": 20
+    },
+    {
+      "file": "chunk-0200-0219.mp4",
+      "start": 200,
+      "end": 219,
+      "frames": 20
+    },
+    {
+      "file": "chunk-0220-0239.mp4",
+      "start": 220,
+      "end": 239,
+      "frames": 20
+    },
+    {
+      "file": "chunk-0240-0259.mp4",
+      "start": 240,
+      "end": 259,
+      "frames": 20
+    },
+    {
+      "file": "chunk-0260-0279.mp4",
+      "start": 260,
+      "end": 279,
+      "frames": 20
+    },
+    {
+      "file": "chunk-0280-0299.mp4",
+      "start": 280,
+      "end": 299,
+      "frames": 20
+    },
+    {
+      "file": "chunk-0300-0319.mp4",
+      "start": 300,
+      "end": 319,
+      "frames": 20
+    },
+    {
+      "file": "chunk-0320-0339.mp4",
+      "start": 320,
+      "end": 339,
+      "frames": 20
+    },
+    {
+      "file": "chunk-0340-0359.mp4",
+      "start": 340,
+      "end": 359,
+      "frames": 20
+    },
+    {
+      "file": "chunk-0360-0379.mp4",
+      "start": 360,
+      "end": 379,
+      "frames": 20
+    },
+    {
+      "file": "chunk-0380-0399.mp4",
+      "start": 380,
+      "end": 399,
+      "frames": 20
+    },
+    {
+      "file": "chunk-0400-0419.mp4",
+      "start": 400,
+      "end": 419,
+      "frames": 20
+    },
+    {
+      "file": "chunk-0420-0439.mp4",
+      "start": 420,
+      "end": 439,
+      "frames": 20
+    },
+    {
+      "file": "chunk-0440-0459.mp4",
+      "start": 440,
+      "end": 459,
+      "frames": 20
+    },
+    {
+      "file": "chunk-0460-0479.mp4",
+      "start": 460,
+      "end": 479,
+      "frames": 20
+    },
+    {
+      "file": "chunk-0480-0499.mp4",
+      "start": 480,
+      "end": 499,
+      "frames": 20
+    },
+    {
+      "file": "chunk-0500-0519.mp4",
+      "start": 500,
+      "end": 519,
+      "frames": 20
+    },
+    {
+      "file": "chunk-0520-0539.mp4",
+      "start": 520,
+      "end": 539,
+      "frames": 20
+    },
+    {
+      "file": "chunk-0540-0559.mp4",
+      "start": 540,
+      "end": 559,
+      "frames": 20
+    },
+    {
+      "file": "chunk-0560-0579.mp4",
+      "start": 560,
+      "end": 579,
+      "frames": 20
+    },
+    {
+      "file": "chunk-0580-0599.mp4",
+      "start": 580,
+      "end": 599,
+      "frames": 20
+    },
+    {
+      "file": "chunk-0600-0619.mp4",
+      "start": 600,
+      "end": 619,
+      "frames": 20
+    },
+    {
+      "file": "chunk-0620-0639.mp4",
+      "start": 620,
+      "end": 639,
+      "frames": 20
+    },
+    {
+      "file": "chunk-0640-0659.mp4",
+      "start": 640,
+      "end": 659,
+      "frames": 20
+    },
+    {
+      "file": "chunk-0660-0679.mp4",
+      "start": 660,
+      "end": 679,
+      "frames": 20
+    },
+    {
+      "file": "chunk-0680-0699.mp4",
+      "start": 680,
+      "end": 699,
+      "frames": 20
+    },
+    {
+      "file": "chunk-0700-0719.mp4",
+      "start": 700,
+      "end": 719,
+      "frames": 20
+    },
+    {
+      "file": "chunk-0720-0739.mp4",
+      "start": 720,
+      "end": 739,
+      "frames": 20
+    },
+    {
+      "file": "chunk-0740-0750.mp4",
+      "start": 740,
+      "end": 750,
+      "frames": 11
+    }
+  ]
+}

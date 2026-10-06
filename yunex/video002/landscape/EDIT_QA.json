@@ -1,0 +1,37 @@
+{
+  "source_sha256": "97a594da72813b30aebee24ac356faf5050c4a3ef27a20cad3a9245f3accb70b",
+  "output_sha256": "599fb5bc11daf868d4d4a133c088f78a8b9945f3a71f27b9246479acb436da30",
+  "source_commit": "606f560b98ba2f600142f4836fb863ab2ff5bbb3",
+  "workflow_run_id": 37468376991,
+  "render": "Fresh native 1080x1920 landscape render, all frames 0-750, followed by established editorial finishing",
+  "audio": "Original approved AAC copied unchanged",
+  "changes": [
+    "Reusable world-space landscape",
+    "Shared detailed leaf-cluster foliage",
+    "Tall fencing clear of opening camera corridor",
+    "Established YUNEX typography and color finish"
+  ],
+  "limitations": [
+    "Approved car, camera, aero and timeline preserved",
+    "Visual review uses chronological decoded frames; no real-time playback or listening available in this environment"
+  ],
+  "dimensions": [
+    1080,
+    1920
+  ],
+  "fps": 30,
+  "frames": 751,
+  "duration_seconds": 25.033333,
+  "bytes": 79394863,
+  "full_decode": "passed",
+  "chunk_coverage": "0-750 inclusive exactly once",
+  "chunk_archives_sha256": "all 38 verified against GitHub artifact digests",
+  "approved_aac_sha256": "53179827c21557acf1ebc0e7eae374736889e43c7615c220dc500cbc24021d2a",
+  "audio_unchanged": true,
+  "visual_review": "50 chronological frames covering the full film at 2 fps, plus native seven-beat and fence-clearance proofs inspected",
+  "assembly": "local concat of same-source GitHub native chunks; approved AAC muxed once",
+  "intermediate_note": "MP4 concat copy has a one-clock-tick duration rounding difference in derived average rate; final editorial encode verified exactly 30/1 with all 751 frames preserved",
+  "car_asset_sha256": "1c73fcb138c31e2b1d5ed126a2412074bb17f8e960b355436f28139bf518e1eb",
+  "reusable_component": "src/video002/trackUpgrade/DistantLandscape.tsx",
+  "status": "frame-reviewed and technically validated; real-time playback/listening unavailable"
+}
