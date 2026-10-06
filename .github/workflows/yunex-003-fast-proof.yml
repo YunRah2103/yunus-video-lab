@@ -1,0 +1,90 @@
+name: YUNEX 003 fast parallel proof gate
+
+permissions:
+  contents: read
+  actions: read
+
+on:
+  push:
+    branches:
+      - sol/y003-suspension-manager
+    paths:
+      - '.github/workflows/yunex-003-fast-proof.yml'
+
+jobs:
+  compile:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: yunex/package-lock.json
+      - run: |
+          mkdir -p yunex/public yunex/out/y003-fast
+          test "$(sha256sum cars/porsche-911-gt3-rs-992/model.glb | awk '{print $1}')" = "1c73fcb138c31e2b1d5ed126a2412074bb17f8e960b355436f28139bf518e1eb"
+          cp cars/porsche-911-gt3-rs-992/model.glb yunex/public/model.glb
+          cd yunex
+          npm ci --no-audit --no-fund
+          NODE_OPTIONS=--require=./fix-network.cjs npx remotion compositions src/index.tsx > out/y003-fast/compositions.txt
+          grep -q YUNEX-003-VISUAL out/y003-fast/compositions.txt
+
+  moving:
+    needs: compile
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: driving-trackside
+            frames: 0-124
+          - name: moving-reveal
+            frames: 190-304
+          - name: installed-airflow
+            frames: 260-409
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: yunex/package-lock.json
+      - run: |
+          mkdir -p yunex/public yunex/out/y003-fast
+          cp cars/porsche-911-gt3-rs-992/model.glb yunex/public/model.glb
+          cd yunex
+          npm ci --no-audit --no-fund
+          NODE_OPTIONS=--require=./fix-network.cjs npx remotion render src/index.tsx YUNEX-003-VISUAL "out/y003-fast/${{ matrix.name }}-REDUCED.mp4" \
+            --frames="${{ matrix.frames }}" --gl=swangle --concurrency=4 --codec=h264 --pixel-format=yuv420p --crf=17 --scale=0.5 --timeout=120000 --muted
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Y003-PROOF-${{ matrix.name }}-${{ github.sha }}
+          path: yunex/out/y003-fast/*.mp4
+          retention-days: 14
+
+  stills:
+    needs: compile
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: yunex/package-lock.json
+      - run: |
+          mkdir -p yunex/public yunex/out/y003-fast/stills
+          cp cars/porsche-911-gt3-rs-992/model.glb yunex/public/model.glb
+          cd yunex
+          npm ci --no-audit --no-fund
+          for frame in 27 144 234 306 492 603 711; do
+            NODE_OPTIONS=--require=./fix-network.cjs npx remotion still src/index.tsx YUNEX-003-VISUAL "out/y003-fast/stills/frame-${frame}.png" --frame="${frame}" --gl=swangle --scale=1 --timeout=120000
+          done
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Y003-PROOF-NATIVE-STILLS-${{ github.sha }}
+          path: yunex/out/y003-fast/stills/
+          retention-days: 14
