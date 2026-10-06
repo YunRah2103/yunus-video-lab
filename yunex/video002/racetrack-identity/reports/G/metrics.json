@@ -1,0 +1,52 @@
+{
+  "phase": "Y002-RACETRACK-IDENTITY-02",
+  "role": "G — Integration",
+  "branch": "sol/y002-track-identity-integration",
+  "pinnedInputs": {
+    "A": "7ecd296b10f6d1d316544f1eb06a84bf5babedf3",
+    "B": "ca42043a6124a98d78f89cfd1964aa9635866b55",
+    "C": "10780592824776357c2e6eb751ec2542e34fecb7",
+    "D": "15dc8ffc33a17520abf82f5042e422311c7488cf",
+    "E": "d395efd3c6c762d3ce943d3a89f273bd851b7e4a",
+    "F": "2496ff0e9d3d55bd7f2e18de95aaaaca9b8814d6"
+  },
+  "specialistSourceBlobParity": {
+    "matched": 14,
+    "total": 14,
+    "status": "pass"
+  },
+  "trackWorld": {
+    "rootPosition": [
+      -1,
+      -0.028,
+      0
+    ],
+    "rootYaw": "Math.PI",
+    "localMounts": [
+      "RoadSurfaces",
+      "Runoff",
+      "Terrain",
+      "TrackFurniture",
+      "TrackVegetation"
+    ],
+    "worldSpace": [
+      "DistantLandscape",
+      "TrackLighting"
+    ],
+    "legacyTechnicalTrackWorld": false,
+    "neutralBackingGround": true
+  },
+  "contractMetrics": {
+    "layoutSamples": 161,
+    "sampleStepMetres": 0.5,
+    "roadWidthMetres": 8.6,
+    "minimumConservativePorscheEdgeClearanceMetres": 3.125,
+    "maximumBendHeadingDegrees": 9.40424235,
+    "straightCorridorCenterDriftMetres": 0,
+    "boundaryInversions": 0
+  },
+  "staticValidation": "pass",
+  "nativeBeautyRender": "not run by G",
+  "finalVisualApproval": "deferred to E",
+  "finalNativeRender": "deferred to F"
+}
