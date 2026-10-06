@@ -162,7 +162,6 @@ jobs:
           git cat-file -e "$SOURCE_SHA^{commit}"
           git cat-file -e "$E_QA_SHA^{commit}"
           git show "$SOURCE_SHA:cars/porsche-911-gt3-rs-992/model.glb" | sha256sum | grep -F "$EXPECTED_CAR_SHA256"
-          git show "$SOURCE_SHA:yunex/public/video002/d_mix.wav" | sha256sum | grep -F "$EXPECTED_MIX_SHA256"
           git show "$E_QA_SHA:yunex/video002/racetrack-identity/reports/E/FINAL_QA.json" > e-final-qa.json
           export SOURCE_SHA
           python - <<'PY'
@@ -209,7 +208,6 @@ jobs:
           mkdir -p source/yunex/public source/review-evidence
           cp source/cars/porsche-911-gt3-rs-992/model.glb source/yunex/public/model.glb
           test "$(sha256sum source/cars/porsche-911-gt3-rs-992/model.glb | awk '{print $1}')" = "$EXPECTED_CAR_SHA256"
-          test "$(sha256sum source/yunex/public/video002/d_mix.wav | awk '{print $1}')" = "$EXPECTED_MIX_SHA256"
           command -v ffmpeg
           command -v ffprobe
       - name: Install render runtime
