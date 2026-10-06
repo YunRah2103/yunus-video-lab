@@ -71,8 +71,8 @@ jobs:
           native stills: 1080x1920
           EOF
           cat > out/y002-c-vegetation/budget.txt <<'EOF'
-          preview: trees=28 shrubs=40 grass=180 draw_calls~=6 transparent=0
-          final: trees=44 shrubs=70 grass=380 draw_calls~=6 transparent=0
+          preview: trees=28 shrubs=40 grass=180 triangles~=25148 draw_calls~=6 transparent=0
+          final: trees=44 shrubs=70 grass=380 triangles~=61148 draw_calls~=6 transparent=0
           contract: deterministic seed/quality layout, protected trackside region, opening camera corridor, camera clearance validation every 5 frames
           EOF
 
