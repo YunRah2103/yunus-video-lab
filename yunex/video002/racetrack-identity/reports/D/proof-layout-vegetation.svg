@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="1920" viewBox="0 0 1080 1920">
+<rect width="1080" height="1920" fill="#111416"/>
+<text x="70" y="80" fill="#f2f3f3" font-family="Arial" font-size="34" font-weight="700">YUNEX 002 — Agent D source QA</text>
+<text x="70" y="122" fill="#aeb8b5" font-family="Arial" font-size="20">Layout-derived vegetation • NOT a native beauty render</text>
+<path d="M420 1750 C420 1300 420 980 430 760 C442 510 470 310 505 170" fill="none" stroke="#e9ecec" stroke-width="70"/>
+<path d="M300 1750 C300 1300 300 980 310 760 C322 510 350 310 385 170" fill="none" stroke="#6d9b72" stroke-width="5"/>
+<path d="M540 1750 C540 1300 540 980 550 760 C562 510 590 310 625 170" fill="none" stroke="#6d9b72" stroke-width="5"/>
+<g fill="#415246" stroke="#90a58c" stroke-width="2">
+<circle cx="245" cy="1600" r="16"/><circle cx="210" cy="1400" r="14"/><circle cx="225" cy="1160" r="18"/>
+<circle cx="675" cy="1540" r="14"/><circle cx="690" cy="1250" r="16"/><circle cx="700" cy="980" r="15"/>
+<circle cx="275" cy="850" r="15"/><circle cx="655" cy="720" r="16"/><circle cx="320" cy="470" r="14"/><circle cx="700" cy="350" r="17"/>
+</g>
+<g fill="#5d694e" opacity=".9">
+<circle cx="285" cy="1500" r="9"/><circle cx="260" cy="1310" r="8"/><circle cx="640" cy="1430" r="9"/><circle cx="670" cy="1110" r="8"/>
+<circle cx="300" cy="740" r="8"/><circle cx="630" cy="620" r="9"/><circle cx="350" cy="370" r="8"/><circle cx="675" cy="260" r="9"/>
+</g>
+<text x="70" y="1850" fill="#aeb8b5" font-family="Arial" font-size="20">White = racing surface • green = landscape exclusion • dots = representative D planting bands</text>
+</svg>
