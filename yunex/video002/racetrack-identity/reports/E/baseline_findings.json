@@ -1,0 +1,49 @@
+{
+  "phase": "Y002-RACETRACK-IDENTITY-02",
+  "role": "E — Independent Track / Visual QA",
+  "baseline_source_sha": "8a02cc405d0f9958301c24cc4ce3add824f28288",
+  "layout_contract_sha": "7ecd296b10f6d1d316544f1eb06a84bf5babedf3",
+  "status": "BASELINE_RECORDED_INTEGRATED_VISUAL_QA_PENDING",
+  "layout_contract_metrics_recomputed": {
+    "road_width_m": 8.6,
+    "sample_count": 161,
+    "minimum_locked_car_edge_clearance_m": 3.125,
+    "max_heading_degrees": 9.4042423703285,
+    "straight_corridor_max_center_error_m": 0.0
+  },
+  "baseline_findings": [
+    {
+      "severity": "HIGH",
+      "frames": "0-750 (systemic geometry; visibility varies by camera)",
+      "file": "yunex/src/video002/trackUpgrade/RoadSurfaces.tsx",
+      "finding": "The baseline authored road is a single rectangular PlaneGeometry(ROAD_WIDTH, ROAD_LENGTH), so it cannot establish a connected bend or circuit direction."
+    },
+    {
+      "severity": "HIGH",
+      "frames": "0-750 (systemic geometry; visibility varies by camera)",
+      "file": "yunex/src/video002/trackUpgrade/TrackFurniture.tsx",
+      "finding": "The baseline guardrail is pinned to one constant local X (RAIL_X=-3.62) instead of deriving from a course-relative barrier line, reinforcing a roadside rather than racetrack read."
+    },
+    {
+      "severity": "MEDIUM",
+      "frames": "0-750; inspect all seven native beats",
+      "file": "yunex/src/video002/trackUpgrade/TrackWorld.tsx",
+      "finding": "TrackWorld intentionally retains the legacy wide TechnicalTrackWorld ground as a lowered backing plane. Final visual QA must confirm no broad apron/backing seam remains visible after racetrack integration."
+    },
+    {
+      "severity": "MEDIUM",
+      "frames": "0-750; especially wide/hero views",
+      "file": "yunex/src/video002/trackUpgrade/DistantLandscape.tsx",
+      "finding": "Baseline landscape uses broad world-space grass planes and generic enclosing belts rather than the new course-relative landscape exclusion contract; integrated QA must confirm greenery reads as infield/outside terrain rather than random roadside scenery."
+    }
+  ],
+  "locked_acceptance_requirements": [
+    "approved Porsche SHA256 remains 1c73fcb138c31e2b1d5ed126a2412074bb17f8e960b355436f28139bf518e1eb",
+    "30 fps / 751 frames / 25.02 s edit chronology remains unchanged",
+    "quality preview/final and deterministic seed interface remains available",
+    "road -> runoff -> barrier -> landscape cross-section remains coherent",
+    "seven native 1080x1920 beat frames and a short moving proof come from one Manager-pinned render_source_sha",
+    "human visual QA confirms track continuity, no seam/grass intrusion, no furniture/foliage occlusion, and convincing wheel contact"
+  ],
+  "final_qa_blocker": "Manager TASKS.json currently has render_source_sha=null. E must not claim final PASS until a pinned integrated source and native proof package exist."
+}
