@@ -1,0 +1,14 @@
+{
+  "phase": "Y002-RACETRACK-IDENTITY-02",
+  "source_sha": "REPLACE_WITH_MANAGER_PINNED_RENDER_SOURCE_SHA",
+  "moving_proof_label": "reduced-resolution continuity proof",
+  "frames": [
+    {"beat": "hook", "frame": 18, "file": "beat-0018-hook.png"},
+    {"beat": "isolate", "frame": 114, "file": "beat-0114-isolate.png"},
+    {"beat": "high_downforce", "frame": 210, "file": "beat-0210-high-downforce.png"},
+    {"beat": "drs", "frame": 336, "file": "beat-0336-drs.png"},
+    {"beat": "airbrake", "frame": 456, "file": "beat-0456-airbrake.png"},
+    {"beat": "whole_car", "frame": 600, "file": "beat-0600-whole-car.png"},
+    {"beat": "payoff", "frame": 705, "file": "beat-0705-payoff.png"}
+  ]
+}
