@@ -18,7 +18,7 @@
         "yunex/video002/racetrack-identity/START_HERE.md",
         "yunex/video002/racetrack-identity/TASKS.json"
       ],
-      "status": "ready",
+      "status": "integration_ready",
       "input_sha": "8a02cc405d0f9958301c24cc4ce3add824f28288",
       "output_sha": null,
       "proofs": []
@@ -55,9 +55,9 @@
         "yunex/src/video002/trackUpgrade/racetrack/Surface.tsx",
         "yunex/src/video002/trackUpgrade/racetrack/Kerbs.tsx"
       ],
-      "status": "ready",
+      "status": "implementation_complete_waiting_integration",
       "input_sha": "7ecd296b10f6d1d316544f1eb06a84bf5babedf3",
-      "output_sha": null,
+      "output_sha": "ca42043a6124a98d78f89cfd1964aa9635866b55",
       "proofs": []
     },
     {
@@ -70,9 +70,9 @@
         "yunex/src/video002/trackUpgrade/racetrack/Runoff.tsx",
         "yunex/src/video002/trackUpgrade/racetrack/Terrain.tsx"
       ],
-      "status": "ready",
+      "status": "implementation_complete_waiting_integration",
       "input_sha": "7ecd296b10f6d1d316544f1eb06a84bf5babedf3",
-      "output_sha": null,
+      "output_sha": "10780592824776357c2e6eb751ec2542e34fecb7",
       "proofs": []
     },
     {
@@ -86,9 +86,9 @@
         "yunex/src/video002/trackUpgrade/TrackVegetation.tsx",
         "yunex/src/video002/trackUpgrade/vegetation/"
       ],
-      "status": "ready",
+      "status": "implementation_complete_waiting_integration",
       "input_sha": "7ecd296b10f6d1d316544f1eb06a84bf5babedf3",
-      "output_sha": null,
+      "output_sha": "15dc8ffc33a17520abf82f5042e422311c7488cf",
       "proofs": []
     },
     {
@@ -100,9 +100,9 @@
         "yunex/src/video002/trackUpgrade/qa/trackIdentity/",
         "yunex/video002/racetrack-identity/reports/E/"
       ],
-      "status": "baseline_preflight_ready",
+      "status": "baseline_complete_waiting_integrated_source",
       "input_sha": null,
-      "output_sha": null,
+      "output_sha": "d395efd3c6c762d3ce943d3a89f273bd851b7e4a",
       "proofs": []
     },
     {
@@ -115,9 +115,9 @@
         "yunex/src/video002/trackUpgrade/nativeRender/trackIdentity/",
         "yunex/video002/racetrack-identity/reports/F/"
       ],
-      "status": "baseline_preflight_ready",
+      "status": "preflight_complete_waiting_render_source",
       "input_sha": null,
-      "output_sha": null,
+      "output_sha": "2496ff0e9d3d55bd7f2e18de95aaaaca9b8814d6",
       "proofs": []
     }
   ]
