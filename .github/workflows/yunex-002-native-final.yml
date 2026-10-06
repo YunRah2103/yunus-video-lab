@@ -224,7 +224,7 @@ jobs:
           python - <<'PY'
           from pathlib import Path
           files=sorted(Path('chunks').glob('chunk-*.mp4'))
-          Path('list.txt').write_text(''.join(f"file '{p.resolve()}'\\n" for p in files))
+          Path('list.txt').write_text(''.join(f"file '{p.resolve()}'\n" for p in files))
           PY
           test "$(wc -l < list.txt)" -eq 36
           echo CHECKPOINT_CONCAT
