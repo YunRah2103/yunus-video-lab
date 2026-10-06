@@ -1,25 +1,23 @@
-# YUNEX 002 — Master dual TikTok finish
+# YUNEX 002 — Completed dual TikTok delivery
 
 Authoritative manager input: 3e44ddf8e4b27341c345a00de7db7ad56533fb71.
-Integrated input: 3ee36a708e2a466c0822431af940cf0be47b1c01.
-Corrected native visual source: c3f4569a926d61bb7475b0949ae11b59c3765220.
-Native run: https://github.com/YunRah2103/yunus-video-lab/actions/runs/37506654258.
-Current status: RENDERING — not final delivery yet.
+Native visual source: fb3cfbe7a171858ef96a12d9443d5e00412371de.
+Successful native run: https://github.com/YunRah2103/yunus-video-lab/actions/runs/37507526198.
+Status: COMPLETE. Both final MP4s exported and fully decoded successfully.
 
-## Correction
-E's genuine visual failure was caused by downward-facing asphalt triangles and side-dependent backfaces in runoff/terrain/kerbs. Orienting triangles upward exposes the authored asphalt. The small surface section now continues out beyond visible cameras into fog rather than ending at a flat horizon. Approved car bytes, aero mechanics, cameras, narration, sound and 751-frame timeline remain unchanged.
+## Track correction
+Corrected downward-facing road triangles and side-dependent runoff, terrain and kerb backfaces. Extended the local course into fog and preserved asphalt world texture scale. Geometry verification passes: 561 samples, 8.6m road width, 3.125m minimum conservative edge clearance, zero straight corridor drift. Approved car, aero mechanics, camera sequence, narrative and audio retained.
 
-Geometry verification passes: 561 layout samples, 8.6m width, 3.125m conservative tyre/body edge clearance, 0 straight-corridor drift; road, both runoff sides, both terrain sides and both kerb tops face upward. Native opening, macro, downforce, side, braking, whole-car and payoff frames reviewed; complete moving delivery still pending.
+## Deliveries
+A: established YUNEX finish.
+B: subtly warmer grade, slightly tighter opening, different end framing and alternate concise technical labels.
+Both: native 1080x1920, 751 frames, exact 30fps, 25.033333s, H264 yuv420p and approved AAC.
+A SHA256: 367e544a4cb214d1f5253eef0f433b106b02de28977ec4eeac9600337c112689.
+B SHA256: 2f5d51b692c5bdd9d69c494d7f18c64079d7ad794addffd0180a582a151621f5.
+Audio SHA256 both: 53179827c21557acf1ebc0e7eae374736889e43c7615c220dc500cbc24021d2a.
 
-## Two finishes
-A: established YUNEX grade, small hero reframing, existing technical cues.
-B: subtly warmer grade, slightly tighter opening/different end framing, alternate concise technical cues. Identical narrative/mechanical timing and approved audio.
-Both must be true native 1080x1920 source, 751 frames at exact 30fps, H264 yuv420p/AAC MP4.
+## Review evidence
+All 38 native chunk ZIP digests and pinned source SHAs verified; contiguous 0–750 frame coverage. Complete export decode passes. Both actual finished exports inspected in chronological half-second frame sequences across full duration, with native key frames and motion proof reviewed separately. No real-time playback/listening capability was available; audio identity and existing -1.1dBFS peak verified instead. Labels remain legible, car remains on asphalt throughout, road continuation and contact corrected. Historical Agent E FAIL applies to earlier source, not this master delivery.
 
 ## Reproduce
-Stage approved model.glb at yunex/public/model.glb. Run native workflow or existing Remotion composition YUNEX-002-INTEGRATED-PROOF at scale1. Assemble all fresh chunks from the pinned visual SHA without gaps. Extract approved AAC from the previous approved master; SHA256 53179827c21557acf1ebc0e7eae374736889e43c7615c220dc500cbc24021d2a. AAC max sample peak -1.1dBFS, mean -15.3dBFS.
-
-Run geometry verification from yunex: node video002/master-dual/validate_geometry.cjs.
-Run export_dual.py with explicit --source native-master.mp4 --audio approved-audio.aac --out DELIVERY_DIR --fonts yunex/public. Use repo font Display.ttf. The script applies established finishing once, exports both variants, decodes both completely and checks exact frame/rate/duration plus byte-identical approved AAC.
-
-Large MP4s stay outside Git. Final DELIVERY_QA.json and final review findings will be committed after render and inspection. Do not treat historical FAIL on the original integration SHA as a PASS on the corrected source; this master review owns fresh evidence.
+Render YUNEX-002-INTEGRATED-PROOF at scale1 from pinned native source, assemble fresh chunks. Run export_dual.py --source native-master.mp4 --audio PREVIOUS_APPROVED_MASTER.mp4 --out DELIVERY_DIR --fonts yunex/public. Use original MP4 as audio input to preserve AAC priming/timing, not ADTS AAC. Scripts and ASS are stored beside this README. Large MP4s stay outside Git.
