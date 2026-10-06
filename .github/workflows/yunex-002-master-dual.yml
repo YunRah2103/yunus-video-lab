@@ -5,7 +5,17 @@ on:
     paths: ['.github/workflows/yunex-002-master-dual.yml']
 permissions:
   contents: read
+  actions: write
 jobs:
+  retire-obsolete-render:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Cancel superseded export-tool run
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          curl -s -o /dev/null -X POST -H "Authorization: Bearer $GH_TOKEN" -H "Accept: application/vnd.github+json" https://api.github.com/repos/YunRah2103/yunus-video-lab/actions/runs/37506654258/cancel
+
   render:
     runs-on: ubuntu-latest
     timeout-minutes: 40
@@ -93,7 +103,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: c3f4569a926d61bb7475b0949ae11b59c3765220
+          ref: ${{ github.sha }}
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
@@ -111,9 +121,10 @@ jobs:
         run: |
           env -u NODE_OPTIONS npm ci --no-audit --no-fund
           npx remotion render src/index.tsx YUNEX-002-INTEGRATED-PROOF out/chunk-${{ matrix.part }}.mp4 --frames=${{ matrix.frames }} --gl=swangle --concurrency=2 --codec=h264 --crf=14 --scale=1 --timeout=120000 --muted
-          printf '%s\n' 'c3f4569a926d61bb7475b0949ae11b59c3765220' > out/source-sha.txt
-          ffprobe -v error -count_frames -show_streams -of json out/chunk-${{ matrix.part }}.mp4 > out/probe-${{ matrix.part }}.json
+          printf '%s\n' '${{ github.sha }}' > out/source-sha.txt
+          node_modules/@remotion/compositor-linux-x64-gnu/ffprobe -v error -count_frames -show_streams -of json out/chunk-${{ matrix.part }}.mp4 > out/probe-${{ matrix.part }}.json
       - uses: actions/upload-artifact@v4
+        if: always()
         with:
           name: y002-master-native-${{ matrix.part }}
           path: |

@@ -40,12 +40,13 @@ const makeRibbonGeometry = (
   const uvs: number[] = [];
   const indices: number[] = [];
   const travelled = cumulativeDistances(samples);
-  const total = Math.max(1e-6, travelled[travelled.length - 1]);
+  // Preserve world-space asphalt grain when the visible course is extended.
+  const textureSpanMetres = 80;
 
   samples.forEach((sample, index) => {
     const [left, right] = pairAt(sample);
     positions.push(left[0], y, left[1], right[0], y, right[1]);
-    const v = travelled[index] / total;
+    const v = travelled[index] / textureSpanMetres;
     uvs.push(0, v, 1, v);
     if (index < samples.length - 1) {
       const i = index * 2;
