@@ -7,33 +7,49 @@ on:
     paths:
       - '.github/workflows/yunex-002-chunked-full-proof.yml'
 
+concurrency:
+  group: yunex-002-render-rescue
+  cancel-in-progress: true
+
 jobs:
   render:
     runs-on: ubuntu-latest
-    timeout-minutes: 25
+    timeout-minutes: 20
     strategy:
       fail-fast: false
-      max-parallel: 9
+      max-parallel: 10
       matrix:
         include:
           - part: a
-            frames: 0-83
+            frames: 0-49
           - part: b
-            frames: 84-167
+            frames: 50-99
           - part: c
-            frames: 168-251
+            frames: 100-149
           - part: d
-            frames: 252-335
+            frames: 150-199
           - part: e
-            frames: 336-419
+            frames: 200-249
           - part: f
-            frames: 420-503
+            frames: 250-299
           - part: g
-            frames: 504-587
+            frames: 300-349
           - part: h
-            frames: 588-671
+            frames: 350-399
           - part: i
-            frames: 672-750
+            frames: 400-449
+          - part: j
+            frames: 450-499
+          - part: k
+            frames: 500-549
+          - part: l
+            frames: 550-599
+          - part: m
+            frames: 600-649
+          - part: n
+            frames: 650-699
+          - part: o
+            frames: 700-750
     env:
       EXPECTED_EXTERIOR_SHA256: 1c73fcb138c31e2b1d5ed126a2412074bb17f8e960b355436f28139bf518e1eb
     steps:
@@ -56,7 +72,7 @@ jobs:
         env:
           NODE_OPTIONS: --require=./fix-network.cjs
         run: |
-          npx remotion render src/index.tsx YUNEX-002-INTEGRATED-PROOF "out/chunks/part-${{ matrix.part }}.mp4" --frames="${{ matrix.frames }}" --gl=swangle --concurrency=2 --codec=h264 --crf=18 --scale=0.5 --timeout=120000
+          npx remotion render src/index.tsx YUNEX-002-INTEGRATED-PROOF "out/chunks/part-${{ matrix.part }}.mp4" --frames="${{ matrix.frames }}" --gl=swangle --concurrency=2 --codec=h264 --crf=18 --scale=0.25 --timeout=120000
           ffmpeg -v error -xerror -i "out/chunks/part-${{ matrix.part }}.mp4" -f null -
       - uses: actions/upload-artifact@v4
         with:
@@ -77,9 +93,10 @@ jobs:
           merge-multiple: true
       - name: Stitch and validate
         run: |
-          printf "file 'part-a.mp4'\nfile 'part-b.mp4'\nfile 'part-c.mp4'\nfile 'part-d.mp4'\nfile 'part-e.mp4'\nfile 'part-f.mp4'\nfile 'part-g.mp4'\nfile 'part-h.mp4'\nfile 'part-i.mp4'\n" > chunks/list.txt
-          ffmpeg -y -v error -f concat -safe 0 -i chunks/list.txt -c copy YUNEX_002_INTEGRATED_PROXY_540x960.mp4\n          ffmpeg -y -v error -i YUNEX_002_INTEGRATED_PROXY_540x960.mp4 -vf scale=1080:1920:flags=lanczos -c:v libx264 -crf 18 -preset medium -pix_fmt yuv420p YUNEX_002_INTEGRATED_PROOF.mp4
-          ffmpeg -v error -xerror -i YUNEX_002_INTEGRATED_PROOF.mp4 -f null -
+          printf "file 'part-a.mp4'\nfile 'part-b.mp4'\nfile 'part-c.mp4'\nfile 'part-d.mp4'\nfile 'part-e.mp4'\nfile 'part-f.mp4'\nfile 'part-g.mp4'\nfile 'part-h.mp4'\nfile 'part-i.mp4'\nfile 'part-j.mp4'\nfile 'part-k.mp4'\nfile 'part-l.mp4'\nfile 'part-m.mp4'\nfile 'part-n.mp4'\nfile 'part-o.mp4'\n" > chunks/list.txt
+          ffmpeg -y -v error -f concat -safe 0 -i chunks/list.txt -c copy YUNEX_002_CONTINUITY_PROXY_270x480.mp4
+          ffmpeg -v error -xerror -i YUNEX_002_CONTINUITY_PROXY_270x480.mp4 -f null -
+          ffmpeg -y -v error -i YUNEX_002_CONTINUITY_PROXY_270x480.mp4 -vf scale=1080:1920:flags=lanczos -c:v libx264 -crf 18 -preset medium -pix_fmt yuv420p YUNEX_002_INTEGRATED_PROOF.mp4
           ffprobe -v error -count_frames -select_streams v:0 -show_entries stream=width,height,r_frame_rate,codec_name,pix_fmt,nb_read_frames -show_entries format=duration -of json YUNEX_002_INTEGRATED_PROOF.mp4 > ffprobe.json
           python - <<'PY'
           import json
@@ -102,6 +119,7 @@ jobs:
           name: yunex-002-integrated-full-proof
           path: |
             YUNEX_002_INTEGRATED_PROOF.mp4
+            YUNEX_002_CONTINUITY_PROXY_270x480.mp4
             ffprobe.json
             proof_sha256.txt
             review/
