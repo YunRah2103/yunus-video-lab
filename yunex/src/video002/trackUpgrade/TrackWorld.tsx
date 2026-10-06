@@ -22,7 +22,7 @@ const IntegratedBackingGround:React.FC=()=>(
     rotation={[-Math.PI/2,0,0]}
     receiveShadow
   >
-    <planeGeometry args={[120,120]}/>
+    <planeGeometry args={[360,360]}/>
     <meshStandardMaterial color="#48563e" roughness={1} metalness={0}/>
   </mesh>
 );
