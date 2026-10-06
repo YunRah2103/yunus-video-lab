@@ -21,12 +21,12 @@ EXPECTED_CAR_SHA="1c73fcb138c31e2b1d5ed126a2412074bb17f8e960b355436f28139bf518e1
 
 test -s "$VISUAL"
 test -s "$SOURCE_VO"
-test -x "$YUNEX/video002/build-d-audio.sh"
+test -f "$YUNEX/video002/build-d-audio.sh"
 test -s "$ROOT/cars/porsche-911-gt3-rs-992/model.glb"
 test "$(sha256sum "$SOURCE_VO" | awk '{print $1}')" = "$EXPECTED_SOURCE_SHA"
 test "$(sha256sum "$ROOT/cars/porsche-911-gt3-rs-992/model.glb" | awk '{print $1}')" = "$EXPECTED_CAR_SHA"
 
-"$YUNEX/video002/build-d-audio.sh" "$SOURCE_VO" "$TMP/audio"
+bash "$YUNEX/video002/build-d-audio.sh" "$SOURCE_VO" "$TMP/audio"
 MIX="$TMP/audio/d_mix.wav"
 test "$(sha256sum "$MIX" | awk '{print $1}')" = "$EXPECTED_MIX_SHA"
 
