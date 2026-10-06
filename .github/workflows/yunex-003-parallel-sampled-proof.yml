@@ -1,0 +1,135 @@
+name: YUNEX 003 parallel sampled proof
+
+permissions:
+  contents: read
+  actions: read
+
+on:
+  push:
+    branches:
+      - sol/y003-suspension-manager
+    paths:
+      - '.github/workflows/yunex-003-parallel-sampled-proof.yml'
+
+jobs:
+  frame:
+    strategy:
+      fail-fast: false
+      max-parallel: 20
+      matrix:
+        include:
+          - {seg: driving, idx: "00", frame: 0}
+          - {seg: driving, idx: "01", frame: 17}
+          - {seg: driving, idx: "02", frame: 34}
+          - {seg: driving, idx: "03", frame: 51}
+          - {seg: driving, idx: "04", frame: 68}
+          - {seg: driving, idx: "05", frame: 85}
+          - {seg: driving, idx: "06", frame: 102}
+          - {seg: driving, idx: "07", frame: 119}
+          - {seg: reveal, idx: "00", frame: 190}
+          - {seg: reveal, idx: "01", frame: 205}
+          - {seg: reveal, idx: "02", frame: 220}
+          - {seg: reveal, idx: "03", frame: 235}
+          - {seg: reveal, idx: "04", frame: 250}
+          - {seg: reveal, idx: "05", frame: 265}
+          - {seg: airflow, idx: "00", frame: 260}
+          - {seg: airflow, idx: "01", frame: 277}
+          - {seg: airflow, idx: "02", frame: 294}
+          - {seg: airflow, idx: "03", frame: 311}
+          - {seg: airflow, idx: "04", frame: 328}
+          - {seg: airflow, idx: "05", frame: 345}
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: 805c74fc2f749ed701c95d1aa5809e60e5a02d76
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: yunex/package-lock.json
+      - name: Stage exact source, proof-only preview presentation
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "805c74fc2f749ed701c95d1aa5809e60e5a02d76"
+          test "$(sha256sum cars/porsche-911-gt3-rs-992/model.glb | awk '{print $1}')" = "1c73fcb138c31e2b1d5ed126a2412074bb17f8e960b355436f28139bf518e1eb"
+          mkdir -p yunex/public yunex/out/y003-parallel
+          cp cars/porsche-911-gt3-rs-992/model.glb yunex/public/model.glb
+          sed -i 's/<TrackWorld quality="final" seed={3003}\/>/<TrackWorld quality="preview" seed={3003}\/>/' yunex/src/video003/Video003.tsx
+          cd yunex
+          npm ci --no-audit --no-fund
+      - name: Render exact source frame
+        working-directory: yunex
+        env:
+          NODE_OPTIONS: --require=./fix-network.cjs
+        run: |
+          set -euo pipefail
+          npx remotion still src/index.tsx YUNEX-003-VISUAL "out/y003-parallel/${{ matrix.seg }}-${{ matrix.idx }}-f${{ matrix.frame }}.png" \
+            --frame="${{ matrix.frame }}" --gl=swangle --scale=0.25 --timeout=180000
+      - uses: actions/upload-artifact@v4
+        with:
+          name: y003-sample-${{ matrix.seg }}-${{ matrix.idx }}
+          path: yunex/out/y003-parallel/*.png
+          retention-days: 14
+
+  assemble:
+    needs: frame
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: y003-sample-*
+          path: frames
+          merge-multiple: true
+      - name: Build labelled sampled/reduced proofs
+        shell: bash
+        run: |
+          set -euo pipefail
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq ffmpeg
+          mkdir -p out
+          python - <<'PY'
+          from pathlib import Path
+          for seg,expected in [('driving',4.0),('reveal',3.0),('airflow',3.0)]:
+              files=sorted(Path('frames').glob(f'{seg}-*.png'))
+              if not files: raise SystemExit(f'no {seg} frames')
+              lines=[]
+              for p in files:
+                  lines += [f"file '{p.resolve()}'", 'duration 0.5']
+              lines += [f"file '{files[-1].resolve()}'"]
+              Path(f'{seg}.txt').write_text('\n'.join(lines)+'\n')
+          PY
+          for seg in driving reveal airflow; do
+            ffmpeg -y -v error -f concat -safe 0 -i "$seg.txt" -vf "fps=30,format=yuv420p" -an -c:v libx264 -preset veryfast -crf 22 -movflags +faststart "out/$seg-SAMPLED-REDUCED.mp4"
+            ffprobe -v error -show_entries format=duration:stream=width,height,r_frame_rate,codec_name -of json "out/$seg-SAMPLED-REDUCED.mp4" > "out/$seg-probe.json"
+          done
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          meta={
+            "source_sha":"805c74fc2f749ed701c95d1aa5809e60e5a02d76",
+            "model_sha256":"1c73fcb138c31e2b1d5ed126a2412074bb17f8e960b355436f28139bf518e1eb",
+            "reduced":True,
+            "labelledReduced":True,
+            "sampled":True,
+            "preview_track_only":True,
+            "sample_hold_sec":0.5,
+            "proofs":{
+              "driving":{"frames":[0,17,34,51,68,85,102,119],"target_duration_sec":4.0},
+              "reveal":{"frames":[190,205,220,235,250,265],"target_duration_sec":3.0},
+              "airflow":{"frames":[260,277,294,311,328,345],"target_duration_sec":3.0}
+            }
+          }
+          Path("out/provenance.json").write_text(json.dumps(meta,indent=2)+"\n")
+          PY
+          ffmpeg -y -v error -framerate 1 -pattern_type glob -i 'frames/driving-*.png' -vf "tile=4x2:padding=4:margin=4" -frames:v 1 out/driving-contact.png
+          ffmpeg -y -v error -framerate 1 -pattern_type glob -i 'frames/reveal-*.png' -vf "tile=3x2:padding=4:margin=4" -frames:v 1 out/reveal-contact.png
+          ffmpeg -y -v error -framerate 1 -pattern_type glob -i 'frames/airflow-*.png' -vf "tile=3x2:padding=4:margin=4" -frames:v 1 out/airflow-contact.png
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Y003-PARALLEL-SAMPLED-PROOFS-${{ github.sha }}
+          path: out/
+          retention-days: 14
+          if-no-files-found: error
