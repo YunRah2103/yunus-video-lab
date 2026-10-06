@@ -37,10 +37,69 @@ const distance3=(a:[number,number,number],b:[number,number,number])=>
   Math.hypot(a[0]-b[0],a[1]-b[1],a[2]-b[2]);
 
 const revealCueProgress=(frame:number)=>{
-  const start=sec(6.35),end=sec(10.15);
+  const start=sec(6.35);
+  const fullyRevealed=sec(7.55);
+  const restoreStart=sec(17.65);
+  const end=sec(18.95);
   if(frame<=start)return 0;
+  if(frame<fullyRevealed){
+    return .5*((frame-start)/Math.max(1,fullyRevealed-start));
+  }
+  if(frame<restoreStart)return .5;
   if(frame>=end)return 1;
-  return (frame-start)/Math.max(1,end-start);
+  return .5+.5*((frame-restoreStart)/Math.max(1,end-restoreStart));
+};
+
+type WheelGhostSide='FL'|'FR';
+type WheelGhostCapture={
+  mesh:THREE.Mesh;
+  side:WheelGhostSide;
+  original:THREE.Material|THREE.Material[];
+  clones:THREE.Material[];
+};
+
+const createFrontWheelGhostController=(root:THREE.Object3D)=>{
+  const captured:WheelGhostCapture[]=[];
+  for(const side of ['FL','FR'] as WheelGhostSide[]){
+    const spin=root.getObjectByName(`Spin_${side}`);
+    if(!spin)throw new Error(`Y003 wheel ghost controller missing Spin_${side}`);
+    spin.traverse((object)=>{
+      const mesh=object as THREE.Mesh;
+      if(!mesh.isMesh)return;
+      const original=mesh.material;
+      const materials=Array.isArray(original)?original:[original];
+      const clones=materials.map((material)=>material.clone());
+      mesh.material=Array.isArray(original)?clones:clones[0];
+      captured.push({mesh,side,original,clones});
+    });
+  }
+  const apply=(amounts:Record<WheelGhostSide,number>)=>{
+    for(const item of captured){
+      const ghost=Math.max(0,Math.min(1,amounts[item.side]));
+      const opacity=1-ghost*.82;
+      for(const material of item.clones){
+        material.transparent=opacity<.999;
+        material.opacity=opacity;
+        material.depthWrite=opacity>.52;
+        material.needsUpdate=true;
+      }
+    }
+  };
+  const dispose=()=>{
+    for(const item of captured){
+      item.mesh.material=item.original;
+      item.clones.forEach((m)=>m.dispose());
+    }
+  };
+  return {apply,dispose};
+};
+
+const wheelGhostAmounts=(shot:string,progress:number):Record<WheelGhostSide,number>=>{
+  if(shot==='front-corner-reveal')return {FL:.72*Math.min(1,progress*2.2),FR:0};
+  if(shot==='link-profile')return {FL:.86,FR:0};
+  if(shot==='wheel-tracking')return {FL:.54,FR:0};
+  if(shot==='mechanical-load')return {FL:0,FR:.80};
+  return {FL:0,FR:0};
 };
 
 const boundsFromLinks=(state:FrontSuspensionState,side:'FL'|'FR')=>{
@@ -104,6 +163,7 @@ const IntegratedThree:React.FC<{frame:number}>=({frame})=>{
   const state=useMemo(()=>frameState(frame),[frame]);
   const rig=useMemo(()=>model?createRuntimeMotionRig(model):null,[model]);
   const reveal=useMemo(()=>model&&rig?createY003ExteriorRevealController(model):null,[model,rig]);
+  const wheelGhost=useMemo(()=>model&&rig?createFrontWheelGhostController(model):null,[model,rig]);
 
   useEffect(()=>{
     let live=true;
@@ -152,23 +212,24 @@ const IntegratedThree:React.FC<{frame:number}>=({frame})=>{
     p.lookAt(...state.camera.target);
     p.updateProjectionMatrix();
 
-    if(!model||!rig||!reveal)return;
+    if(!model||!rig||!reveal||!wheelGhost)return;
     if(rig.audit.missingChassisParts.length){
       throw new Error('Y003 runtime chassis incomplete: '+rig.audit.missingChassisParts.join(', '));
     }
     rig.apply(state.motion);
     reveal.apply(revealCueProgress(frame));
+    wheelGhost.apply(wheelGhostAmounts(state.shot.segment.id,state.shot.progress));
     model.updateMatrixWorld(true);
     advance(frame*(1000/Y003_FPS));
-  },[advance,camera,frame,model,reveal,rig,state]);
+  },[advance,camera,frame,model,reveal,rig,state,wheelGhost]);
 
   useEffect(()=>{
-    if(!model||!rig||!reveal||continued.current)return;
+    if(!model||!rig||!reveal||!wheelGhost||continued.current)return;
     continued.current=true;
     continueRender(handle);
-  },[handle,model,reveal,rig]);
+  },[handle,model,reveal,rig,wheelGhost]);
 
-  useEffect(()=>()=>{reveal?.dispose();rig?.restore();},[reveal,rig]);
+  useEffect(()=>()=>{wheelGhost?.dispose();reveal?.dispose();rig?.restore();},[reveal,rig,wheelGhost]);
 
   const rootPosition=state.motion.root.position;
   const rootRotation=state.motion.root.rotation;
