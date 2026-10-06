@@ -4,7 +4,7 @@ import {useThree} from '@react-three/fiber';
 import {AbsoluteFill, cancelRender, continueRender, delayRender, staticFile} from 'remotion';
 import * as THREE from 'three';
 import {GLTFLoader} from 'three/examples/jsm/loaders/GLTFLoader.js';
-import {TechnicalTrackWorld} from '../TrackPreview';
+import {TrackWorld} from './trackUpgrade/TrackWorld';
 import {AeroFlow} from './AeroFlow';
 import {blendAeroModes, createActiveAeroRig, type AeroStateInput} from './activeAero';
 import {focalLengthToVerticalFov, poseFor} from './cameras';
@@ -72,7 +72,7 @@ const flowOpacityFor=(timing:Video002SceneProps)=>{
 };
 
 const IntegratedThreeScene:React.FC<{timing:Video002SceneProps}>=({timing})=>{
-  const {camera,gl,scene,advance}=useThree();
+  const {camera,gl,advance}=useThree();
   const [model,setModel]=useState<THREE.Group|null>(null);
   const [handle]=useState(()=>delayRender('Loading YUNEX 002 integrated Porsche scene'));
   const ready=useRef(false);
@@ -122,7 +122,7 @@ const IntegratedThreeScene:React.FC<{timing:Video002SceneProps}>=({timing})=>{
         gltf.scene.traverse((object:any)=>{
           if(object.isMesh){
             object.frustumCulled=false;
-            object.castShadow=false;
+            object.castShadow=true;
             object.receiveShadow=false;
           }
         });
@@ -139,11 +139,24 @@ const IntegratedThreeScene:React.FC<{timing:Video002SceneProps}>=({timing})=>{
   },[]);
 
   useLayoutEffect(()=>{
+    const previousShadowEnabled=gl.shadowMap.enabled;
+    const previousShadowType=gl.shadowMap.type;
+    const previousShadowAutoUpdate=gl.shadowMap.autoUpdate;
+    const previousToneMapping=gl.toneMapping;
+    const previousExposure=gl.toneMappingExposure;
+    gl.shadowMap.enabled=true;
+    gl.shadowMap.type=THREE.PCFSoftShadowMap;
+    gl.shadowMap.autoUpdate=true;
     gl.toneMapping=THREE.ACESFilmicToneMapping;
-    gl.toneMappingExposure=1.02;
-    scene.background=new THREE.Color('#aebfc2');
-    return()=>{scene.background=null;};
-  },[gl,scene]);
+    gl.toneMappingExposure=0.94;
+    return()=>{
+      gl.shadowMap.enabled=previousShadowEnabled;
+      gl.shadowMap.type=previousShadowType;
+      gl.shadowMap.autoUpdate=previousShadowAutoUpdate;
+      gl.toneMapping=previousToneMapping;
+      gl.toneMappingExposure=previousExposure;
+    };
+  },[gl]);
 
   useLayoutEffect(()=>{
     const perspective=camera as THREE.PerspectiveCamera;
@@ -193,10 +206,7 @@ const IntegratedThreeScene:React.FC<{timing:Video002SceneProps}>=({timing})=>{
   }:undefined;
 
   return <>
-    <hemisphereLight args={['#e8efec','#30362f',1.48]}/>
-    <directionalLight position={[-4.5,7.5,5.5]} intensity={3.35} color="#ffe8ca"/>
-    <directionalLight position={[5,3,-4]} intensity={0.92} color="#c8d9e8"/>
-    <TechnicalTrackWorld groundY={-0.028}/>
+    <TrackWorld quality="final" seed={2103}/>
     {model&&<primitive object={model}/>}
     {model&&<group position={pose.rootPose.position} rotation={pose.rootPose.rotation}>
       <FrontFlaps state={aeroState} opacity={0.98}/>
@@ -220,6 +230,7 @@ export const Video002IntegratedScene:React.FC<Video002SceneProps>=(timing)=><Abs
     height={H}
     camera={{position:[4.4,1.7,-7.4],fov:42,near:0.05,far:160}}
     gl={{antialias:true,alpha:false,preserveDrawingBuffer:true}}
+    shadows
   >
     <IntegratedThreeScene timing={timing}/>
   </ThreeCanvas>

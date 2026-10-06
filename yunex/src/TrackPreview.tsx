@@ -151,7 +151,9 @@ const Tree:React.FC<{item:ReturnType<typeof makeLayout>['trees'][number];motionL
   </group>;
 };
 
-export function TrackEnvironment({asphalt,grass,mode}:{asphalt:THREE.Texture;grass:THREE.Texture;mode:TrackMode}){
+type LegacyTrackVisibility={legacyKerb?:boolean;legacyRail?:boolean;legacyVegetation?:boolean};
+
+export function TrackEnvironment({asphalt,grass,mode,legacyKerb=true,legacyRail=true,legacyVegetation=true}:{asphalt:THREE.Texture;grass:THREE.Texture;mode:TrackMode}&LegacyTrackVisibility){
   const layout=useMemo(makeLayout,[]);
   const motionLite=mode==='motion'||mode==='film-opening'||mode==='film-final'||mode==='technical';
   const technical=mode==='technical';
@@ -172,24 +174,25 @@ export function TrackEnvironment({asphalt,grass,mode}:{asphalt:THREE.Texture;gra
     <mesh receiveShadow position={[-16,-.03,-1.0]} rotation={[-Math.PI/2,0,0]}>
       <planeGeometry args={[24,technical?520:70]}/><meshStandardMaterial map={grass} color="#59634f" roughness={1}/>
     </mesh>
-    <Kerb/><Rail/>
-    <group>
+    {legacyKerb&&<Kerb/>}{legacyRail&&<Rail/>}
+    {legacyVegetation&&<group>
       {layout.shrubs.map((item,i)=><Shrub key={'s-'+i} item={item} motionLite={motionLite}/>)}
       {layout.trees.map((item,i)=><Tree key={'t-'+i} item={item} motionLite={motionLite}/>)}
-    </group>
+    </group>}
   </>;
 }
 
 // Economical shared world for the orthographic engineering film. It deliberately
 // omits PMREM, fog and shadow maps; the film supplies its own stable lighting and
 // contact stamp while retaining the approved track geometry and textures.
-export const TechnicalTrackWorld:React.FC<{groundY?:number}>=({groundY=-.018})=>{
+export type TechnicalTrackWorldProps={groundY?:number}&LegacyTrackVisibility;
+export const TechnicalTrackWorld:React.FC<TechnicalTrackWorldProps>=({groundY=-.018,legacyKerb=true,legacyRail=true,legacyVegetation=true})=>{
   const asphalt=useMemo(()=>makeNoiseTexture('asphalt'),[]);
   const grass=useMemo(()=>makeNoiseTexture('grass'),[]);
   useMemo(()=>{asphalt.repeat.set(193,233);grass.repeat.set(7,333);},[asphalt,grass]);
   useEffect(()=>()=>{asphalt.dispose();grass.dispose();},[asphalt,grass]);
   return <group position={[-1,groundY,0]} rotation={[0,Math.PI,0]}>
-    <TrackEnvironment asphalt={asphalt} grass={grass} mode="technical"/>
+    <TrackEnvironment asphalt={asphalt} grass={grass} mode="technical" legacyKerb={legacyKerb} legacyRail={legacyRail} legacyVegetation={legacyVegetation}/>
   </group>;
 };
 

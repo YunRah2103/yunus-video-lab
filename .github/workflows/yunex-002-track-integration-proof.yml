@@ -1,0 +1,95 @@
+name: YUNEX 002 G integrated track proof
+
+on:
+  push:
+    branches:
+      - sol/yunex-002-track-integration-final
+    paths:
+      - '.github/workflows/yunex-002-track-integration-proof.yml'
+      - 'yunex/src/TrackPreview.tsx'
+      - 'yunex/src/video002/Video002Integrated.tsx'
+      - 'yunex/src/video002/trackUpgrade/**'
+
+permissions:
+  contents: read
+
+env:
+  EXPECTED_PORSCHE_SHA256: 1c73fcb138c31e2b1d5ed126a2412074bb17f8e960b355436f28139bf518e1eb
+
+jobs:
+  qa-and-proof:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Fetch specialist QA refs
+        run: |
+          git fetch origin \
+            +refs/heads/sol/yunex-002-active-aero:refs/remotes/origin/sol/yunex-002-active-aero \
+            +refs/heads/sol/yunex-002-track-road:refs/remotes/origin/sol/yunex-002-track-road \
+            +refs/heads/sol/yunex-002-track-furniture:refs/remotes/origin/sol/yunex-002-track-furniture \
+            +refs/heads/sol/yunex-002-track-vegetation:refs/remotes/origin/sol/yunex-002-track-vegetation \
+            +refs/heads/sol/yunex-002-track-lighting:refs/remotes/origin/sol/yunex-002-track-lighting
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+          cache-dependency-path: yunex/package-lock.json
+      - name: Stage and verify locked Porsche
+        run: |
+          mkdir -p yunex/public yunex/out/y002-g-integrated
+          cp cars/porsche-911-gt3-rs-992/model.glb yunex/public/model.glb
+          printf '%s  %s\n' "$EXPECTED_PORSCHE_SHA256" cars/porsche-911-gt3-rs-992/model.glb | sha256sum -c -
+      - name: Install runtime
+        working-directory: yunex
+        run: npm ci
+      - name: Run F requested QA with C
+        run: |
+          node yunex/src/video002/trackUpgrade/qa/preflight.cjs --c=sol/yunex-002-track-vegetation | tee yunex/out/y002-g-integrated/f-preflight-specialists.txt
+          node yunex/src/video002/trackUpgrade/qa/preflight.cjs --base="$GITHUB_SHA" --c=sol/yunex-002-track-vegetation --json > yunex/out/y002-g-integrated/f-preflight-integrated.json
+          node yunex/src/video002/trackUpgrade/qa/sightline-audit.cjs > yunex/out/y002-g-integrated/sightline-audit.json
+      - name: Run G integration invariants
+        run: node yunex/src/video002/trackUpgrade/qa/G_INTEGRATION_QA.cjs > yunex/out/y002-g-integrated/g-integration-qa.json
+      - name: Validate Remotion composition
+        working-directory: yunex
+        env:
+          NODE_OPTIONS: --require=./fix-network.cjs
+        run: npx remotion compositions src/index.tsx > out/y002-g-integrated/compositions.txt
+      - name: Render seven native review beats
+        working-directory: yunex
+        env:
+          NODE_OPTIONS: --require=./fix-network.cjs
+        run: |
+          for spec in "24 hook" "132 macro" "240 active-aero" "342 drs" "456 airbrake" "600 airflow" "720 payoff"; do
+            set -- $spec
+            npx remotion still src/index.tsx YUNEX-002-INTEGRATED-PROOF "out/y002-g-integrated/$2-f$1.png" --frame="$1" --gl=swangle
+          done
+      - name: Render native moving proof
+        working-directory: yunex
+        env:
+          NODE_OPTIONS: --require=./fix-network.cjs
+        run: |
+          npx remotion render src/index.tsx YUNEX-002-INTEGRATED-PROOF out/y002-g-integrated/moving-proof-f336-f365.mp4 \
+            --frames=336-365 --gl=swangle --concurrency=2 --codec=h264 --pixel-format=yuv420p --crf=16 --scale=1 --timeout=120000
+      - name: Validate proof media
+        working-directory: yunex
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq ffmpeg
+          ffmpeg -v error -xerror -i out/y002-g-integrated/moving-proof-f336-f365.mp4 -f null -
+          ffprobe -v error -count_frames -select_streams v:0 \
+            -show_entries stream=width,height,r_frame_rate,nb_read_frames \
+            -show_entries format=duration -of json out/y002-g-integrated/moving-proof-f336-f365.mp4 \
+            > out/y002-g-integrated/moving-proof-ffprobe.json
+          test "$(sha256sum public/model.glb | awk '{print $1}')" = "$EXPECTED_PORSCHE_SHA256"
+          sha256sum public/model.glb > out/y002-g-integrated/porsche-sha256.txt
+          sha256sum out/y002-g-integrated/moving-proof-f336-f365.mp4 > out/y002-g-integrated/moving-proof-sha256.txt
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: y002-g-integrated-native-proof
+          path: yunex/out/y002-g-integrated/
+          if-no-files-found: error
+          retention-days: 14
