@@ -1,0 +1,36 @@
+{
+  "phase": "Y003-SUSPENSION-AERO-01",
+  "role": "F",
+  "source": {
+    "name": "openai-fm-cedar-friendly.mp3",
+    "library_id": "libfile_6e284ae6e75c819197dd652690e22ae8",
+    "sha256": "826d7863cd4ec135e0352e9800f47b54239f8ba1d4c0d98ff5909a071905cfbb",
+    "duration_seconds": 23.256,
+    "codec": "mp3",
+    "sample_rate_hz": 24000,
+    "channels": 1
+  },
+  "verified_transcript": "Even the suspension on this Porsche helps make downforce. On the 911 GT3 RS, Porsche shaped the front suspension so air can move more cleanly underneath the car. That means the suspension is doing more than just controlling the wheels. Under braking and cornering, it also helps keep the car stable and controlled. So on a GT3 RS, even the suspension is part of the aero system.",
+  "master_expected_difference": "Recorded final sentence begins 'So on a GT3 RS' rather than 'So on the GT3 RS'. Preserve recording unchanged.",
+  "sentence_cues": [
+    {"id":"s1","start":0.050,"end":3.310,"text":"Even the suspension on this Porsche helps make downforce."},
+    {"id":"s2","start":4.150,"end":10.300,"text":"On the 911 GT3 RS, Porsche shaped the front suspension so air can move more cleanly underneath the car."},
+    {"id":"s3","start":11.020,"end":13.940,"text":"That means the suspension is doing more than just controlling the wheels."},
+    {"id":"s4","start":14.710,"end":18.570,"text":"Under braking and cornering, it also helps keep the car stable and controlled."},
+    {"id":"s5","start":19.320,"end":23.150,"text":"So on a GT3 RS, even the suspension is part of the aero system."}
+  ],
+  "phrase_cues": [
+    {"start":0.050,"end":1.977,"text":"Even the suspension on this Porsche"},
+    {"start":2.195,"end":3.323,"text":"helps make downforce."},
+    {"start":4.153,"end":5.860,"text":"On the 911 GT3 RS,"},
+    {"start":6.229,"end":7.790,"text":"Porsche shaped the front suspension"},
+    {"start":8.086,"end":10.311,"text":"so air can move more cleanly underneath the car."},
+    {"start":11.026,"end":13.940,"text":"That means the suspension is doing more than just controlling the wheels."},
+    {"start":14.717,"end":15.966,"text":"Under braking and cornering,"},
+    {"start":16.319,"end":18.590,"text":"it also helps keep the car stable and controlled."},
+    {"start":19.313,"end":20.556,"text":"So on a GT3 RS,"},
+    {"start":20.913,"end":23.150,"text":"even the suspension is part of the aero system."}
+  ],
+  "recommended_film_duration_seconds": 24.5,
+  "active_exit_seconds": 1.244
+}

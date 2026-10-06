@@ -1,0 +1,9 @@
+{
+  "phase": "Y003-SUSPENSION-AERO-01",
+  "composition": "YUNEX-003-FINAL",
+  "render_source_sha": null,
+  "total_frames": 751,
+  "chunk_size": 20,
+  "milestone_frames": "auto",
+  "status": "WAITING_FOR_MANAGER_RENDER_SOURCE"
+}
