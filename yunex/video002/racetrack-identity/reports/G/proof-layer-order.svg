@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="720" viewBox="0 0 1080 720">
+<rect width="1080" height="720" fill="#111416"/>
+<text x="54" y="72" fill="#f2f3f3" font-family="Arial" font-size="32" font-weight="700">YUNEX 002 — Integrated racetrack hierarchy</text>
+<text x="54" y="108" fill="#aeb8b5" font-family="Arial" font-size="18">Deterministic source-QA proof • not a native beauty render</text>
+<rect x="74" y="500" width="932" height="70" fill="#48563e"/>
+<rect x="244" y="448" width="592" height="54" fill="#5d684d"/>
+<rect x="326" y="414" width="428" height="35" fill="#746f5e"/>
+<rect x="368" y="382" width="344" height="34" fill="#555953"/>
+<rect x="414" y="348" width="252" height="36" fill="#303638"/>
+<rect x="406" y="340" width="8" height="48" fill="#d9d9d2"/>
+<rect x="666" y="340" width="8" height="48" fill="#d9d9d2"/>
+<rect x="355" y="332" width="10" height="128" fill="#a8adae"/>
+<rect x="715" y="332" width="10" height="128" fill="#a8adae"/>
+<circle cx="197" cy="389" r="54" fill="#50604d"/><rect x="190" y="425" width="14" height="83" fill="#625946"/>
+<circle cx="884" cy="398" r="62" fill="#425447"/><rect x="877" y="438" width="14" height="74" fill="#625946"/>
+<text x="454" y="371" fill="#ffffff" font-family="Arial" font-size="17">8.6 m racing surface</text>
+<text x="443" y="409" fill="#d8dedb" font-family="Arial" font-size="15">paved runoff</text>
+<text x="442" y="442" fill="#d8dedb" font-family="Arial" font-size="15">gravel shoulder</text>
+<text x="445" y="486" fill="#d8dedb" font-family="Arial" font-size="15">terrain / exclusion band</text>
+<text x="54" y="635" fill="#c9d2ce" font-family="Arial" font-size="18">Order enforced from A contract: surface → runoff → barrier → landscape. Vegetation stays beyond the landscape exclusion.</text>
+</svg>
