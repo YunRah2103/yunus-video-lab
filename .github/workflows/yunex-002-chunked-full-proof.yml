@@ -13,14 +13,27 @@ jobs:
     timeout-minutes: 25
     strategy:
       fail-fast: false
+      max-parallel: 9
       matrix:
         include:
           - part: a
-            frames: 0-250
+            frames: 0-83
           - part: b
-            frames: 251-500
+            frames: 84-167
           - part: c
-            frames: 501-750
+            frames: 168-251
+          - part: d
+            frames: 252-335
+          - part: e
+            frames: 336-419
+          - part: f
+            frames: 420-503
+          - part: g
+            frames: 504-587
+          - part: h
+            frames: 588-671
+          - part: i
+            frames: 672-750
     env:
       EXPECTED_EXTERIOR_SHA256: 1c73fcb138c31e2b1d5ed126a2412074bb17f8e960b355436f28139bf518e1eb
     steps:
@@ -64,7 +77,7 @@ jobs:
           merge-multiple: true
       - name: Stitch and validate
         run: |
-          printf "file 'part-a.mp4'\nfile 'part-b.mp4'\nfile 'part-c.mp4'\n" > chunks/list.txt
+          printf "file 'part-a.mp4'\nfile 'part-b.mp4'\nfile 'part-c.mp4'\nfile 'part-d.mp4'\nfile 'part-e.mp4'\nfile 'part-f.mp4'\nfile 'part-g.mp4'\nfile 'part-h.mp4'\nfile 'part-i.mp4'\n" > chunks/list.txt
           ffmpeg -y -v error -f concat -safe 0 -i chunks/list.txt -c copy YUNEX_002_INTEGRATED_PROOF.mp4
           ffmpeg -v error -xerror -i YUNEX_002_INTEGRATED_PROOF.mp4 -f null -
           ffprobe -v error -count_frames -select_streams v:0 -show_entries stream=width,height,r_frame_rate,codec_name,pix_fmt,nb_read_frames -show_entries format=duration -of json YUNEX_002_INTEGRATED_PROOF.mp4 > ffprobe.json
