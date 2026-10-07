@@ -1,0 +1,46 @@
+{
+  "phase": "Y003-POLISH-02",
+  "role": "E",
+  "branch": "sol/y003-p02-visual-qa",
+  "status": "BLOCKED_FAIL",
+  "phase_base_sha": "064fc7687ad16e9fc99c32c3c323154b7e4496f1",
+  "reviewed_inputs": {
+    "B": {
+      "branch": "sol/y003-p02-suspension-detail",
+      "sha": "064fc7687ad16e9fc99c32c3c323154b7e4496f1",
+      "compare_to_phase_base": "identical",
+      "ahead_by": 0,
+      "changed_files": 0,
+      "result": "FAIL",
+      "reason": "No suspension-detail production commit or new native proof exists on the remote branch."
+    },
+    "C": {
+      "branch": "sol/y003-p02-track-world",
+      "sha": "064fc7687ad16e9fc99c32c3c323154b7e4496f1",
+      "compare_to_phase_base": "identical",
+      "ahead_by": 0,
+      "changed_files": 0,
+      "result": "FAIL",
+      "reason": "No track-world production commit or new native proof exists on the remote branch."
+    }
+  },
+  "required_milestone_frames": [
+    {"frame": 27, "time_seconds": 0.9, "beat": "hook"},
+    {"frame": 144, "time_seconds": 4.8, "beat": "turn-in"},
+    {"frame": 234, "time_seconds": 7.8, "beat": "front-corner reveal"},
+    {"frame": 306, "time_seconds": 10.2, "beat": "link profile"},
+    {"frame": 492, "time_seconds": 16.4, "beat": "mechanical load"},
+    {"frame": 603, "time_seconds": 20.1, "beat": "whole-car"},
+    {"frame": 711, "time_seconds": 23.7, "beat": "exit"}
+  ],
+  "evidence_gate": {
+    "B_articulation_proof_3_to_5_seconds": "missing",
+    "B_installed_macro_before_after": "missing",
+    "B_isolated_diagnostic_view": "missing",
+    "C_native_requested_beats": "missing",
+    "C_moving_proof_4_to_6_seconds": "missing",
+    "C_coverage_repetition_checks": "missing"
+  },
+  "production_source_modified_by_E": false,
+  "decision": "Do not integrate B or C from these SHAs. Re-run E visual QA only after both production branches advance beyond the phase base and publish their required native moving proof."
+}
