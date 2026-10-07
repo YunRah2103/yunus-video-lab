@@ -51,6 +51,7 @@ export type MotionState = {
   speedMps: number;
   accelerationMps2: number;
   curvaturePerM: number;
+  steeringCurvaturePerM: number;
   lateralAccelerationMps2: number;
   root: {
     position: Vec3;
@@ -175,10 +176,17 @@ const unwrapNear = (reference: number, angle: number) => {
   return result;
 };
 
-export const curvatureAtTrackZ = (z: number) => {
-  const epsilon = 0.08;
-  const z0 = clamp(z - epsilon, TRACK_LAYOUT_CONFIG.sampleMinZ, TRACK_LAYOUT_CONFIG.sampleMaxZ);
-  const z1 = clamp(z + epsilon, TRACK_LAYOUT_CONFIG.sampleMinZ, TRACK_LAYOUT_CONFIG.sampleMaxZ);
+const averageCurvatureAcrossWindow = (z: number, halfWindowM: number) => {
+  const z0 = clamp(
+    z - halfWindowM,
+    TRACK_LAYOUT_CONFIG.sampleMinZ,
+    TRACK_LAYOUT_CONFIG.sampleMaxZ,
+  );
+  const z1 = clamp(
+    z + halfWindowM,
+    TRACK_LAYOUT_CONFIG.sampleMinZ,
+    TRACK_LAYOUT_CONFIG.sampleMaxZ,
+  );
   if (Math.abs(z1 - z0) < 1e-9) return 0;
   const p0 = sampleTrackAtLocalZ(z0).center;
   const p1 = sampleTrackAtLocalZ(z1).center;
@@ -188,6 +196,17 @@ export const curvatureAtTrackZ = (z: number) => {
   const yaw1 = unwrapNear(yaw0, worldYawAtTrackZ(z1));
   return (yaw1 - yaw0) / distance;
 };
+
+export const curvatureAtTrackZ = (z: number) =>
+  averageCurvatureAcrossWindow(z, 0.08);
+
+// Steering should respond to the road over roughly a wheelbase-scale window,
+// not to the C2 discontinuity at the exact endpoints of the authored smoothstep
+// bend. This preserves the route while removing one-frame front-wheel snaps.
+export const STEERING_CURVATURE_HALF_WINDOW_M = 1.5;
+
+export const steeringCurvatureAtTrackZ = (z: number) =>
+  averageCurvatureAcrossWindow(z, STEERING_CURVATURE_HALF_WINDOW_M);
 
 const routeCacheKey = (config: MotionConfig) =>
   [
@@ -408,7 +427,7 @@ export const accelerationAtFrame = (
   ) / dt;
 };
 
-const steeringForCurvature = (
+export const steeringForCurvature = (
   curvature: number,
   config: MotionConfig,
 ): {left: number; right: number} => {
@@ -458,8 +477,9 @@ export const motionStateAt = (
   const speedMps = speedAtFrame(frame, config);
   const accelerationMps2 = accelerationAtFrame(frame, config);
   const curvaturePerM = curvatureAtTrackZ(path.z);
+  const steeringCurvaturePerM = steeringCurvatureAtTrackZ(path.z);
   const lateralAccelerationMps2 = speedMps * speedMps * curvaturePerM;
-  const steer = steeringForCurvature(curvaturePerM, config);
+  const steer = steeringForCurvature(steeringCurvaturePerM, config);
 
   const brakeLoad01 = clamp01(-accelerationMps2 / 4.5);
   const cornerLoadSigned = clamp(lateralAccelerationMps2 / 3.5, -1, 1);
@@ -507,6 +527,7 @@ export const motionStateAt = (
     speedMps,
     accelerationMps2,
     curvaturePerM,
+    steeringCurvaturePerM,
     lateralAccelerationMps2,
     root: {
       position: rootPosition,
