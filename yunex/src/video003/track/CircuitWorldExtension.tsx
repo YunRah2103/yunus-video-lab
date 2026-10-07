@@ -177,7 +177,7 @@ const buildLayout=(quality:'preview'|'final',seed:number)=>{
   const fenceSections=[
     {side:'left' as const,from:-58,to:-43},
     {side:'right' as const,from:68,to:92},
-    {side:'left' as const,from:110,to:132},
+    {side:'left' as const,from:110,to:139},
   ];
   fenceSections.forEach((section)=>
     pushFenceSection(fence,section.side,section.from,section.to,quality==='final'?3.7:5.5)
@@ -325,7 +325,12 @@ const buildLayout=(quality:'preview'|'final',seed:number)=>{
       const treeCount=quality==='final'?3:2;
       for(let i=0;i<treeCount;i++){
         const safeZ=Math.min(139.4,z+(rng()-.5)*1.9+i*.22);
-        const outward=11.5+i*3.8+rng()*2.6;
+        // The portrait exit-chase sightline converges toward the left-side
+        // landscape boundary near the final gantry. Keep that side close enough
+        // to read at frame 711 while remaining beyond the exclusion line.
+        const outward=side==='left'
+          ?1.65+i*1.55+rng()*.75
+          :9.5+i*3.2+rng()*2.2;
         const height=4.1+rng()*2.5+(stationIndex%2)*.35;
         const p=worldPointAt(safeZ,side,'landscape',outward,0);
         trunks.push({
@@ -352,11 +357,20 @@ const buildLayout=(quality:'preview'|'final',seed:number)=>{
   // horizon without creating a wall or interfering with the chase-camera sightline.
   [121,129.5,137.5].forEach((z,index)=>{
     (['left','right'] as const).forEach((side,sideIndex)=>{
-      const p=worldPointAt(z,side,'landscape',30+index*3.8+sideIndex*2.4,.34);
+      const nearExitSightline=side==='left'&&index===2;
+      const p=worldPointAt(
+        z,
+        side,
+        'landscape',
+        nearExitSightline?4.8:30+index*3.8+sideIndex*2.4,
+        .34,
+      );
       ridges.push({
         position:p,
         rotation:[0,rng()*Math.PI,0],
-        scale:[8.5+index*1.6,1.05+index*.16,6.4+sideIndex*1.2],
+        scale:nearExitSightline
+          ?[3.5,1.18,5.4]
+          :[8.5+index*1.6,1.05+index*.16,6.4+sideIndex*1.2],
         color:side==='left'?'#687461':'#616d5c',
       });
     });
