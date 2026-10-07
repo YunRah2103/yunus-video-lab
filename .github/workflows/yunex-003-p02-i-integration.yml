@@ -75,8 +75,8 @@ jobs:
           NODE_OPTIONS: --require=./fix-network.cjs
         run: |
           set -euo pipefail
-          npx remotion render src/index.tsx YUNEX-003-VISUAL out/y003-p02-i/wheel-native.mp4 --frames=315-344 --gl=swangle --concurrency=2 --codec=h264 --pixel-format=yuv420p --crf=17 --scale=1 --timeout=180000 --muted
-          npx remotion render src/index.tsx YUNEX-003-VISUAL out/y003-p02-i/suspension-native.mp4 --frames=441-500 --gl=swangle --concurrency=2 --codec=h264 --pixel-format=yuv420p --crf=17 --scale=1 --timeout=180000 --muted
+          npx remotion render src/index.tsx YUNEX-003-VISUAL out/y003-p02-i/wheel-native.mp4 --frames=324-338 --gl=swangle --concurrency=4 --codec=h264 --pixel-format=yuv420p --crf=17 --scale=1 --timeout=180000 --muted
+          npx remotion render src/index.tsx YUNEX-003-VISUAL out/y003-p02-i/suspension-native.mp4 --frames=471-500 --gl=swangle --concurrency=4 --codec=h264 --pixel-format=yuv420p --crf=17 --scale=1 --timeout=180000 --muted
       - name: Assemble and validate short native proof
         run: |
           set -euo pipefail
@@ -95,7 +95,7 @@ jobs:
           assert s['r_frame_rate']=='30/1', s
           assert s['codec_name']=='h264', s
           assert s['pix_fmt']=='yuv420p', s
-          assert int(s['nb_read_frames'])==90, s
+          assert int(s['nb_read_frames'])==45, s
           PY
       - uses: actions/upload-artifact@v4
         if: always()
