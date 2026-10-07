@@ -1,0 +1,71 @@
+{
+  "phase": "Y003-POLISH-02",
+  "role": "F",
+  "branch": "sol/y003-p02-preflight",
+  "published_base_sha": "064fc7687ad16e9fc99c32c3c323154b7e4496f1",
+  "decision": "FAIL_BLOCKED",
+  "reviewed": {
+    "A": {
+      "branch": "sol/y003-p02-wheel-rig",
+      "sha": "064fc7687ad16e9fc99c32c3c323154b7e4496f1",
+      "compare_to_base": "identical",
+      "changed_files": 0,
+      "result": "BLOCKED"
+    },
+    "B": {
+      "branch": "sol/y003-p02-suspension-detail",
+      "sha": "064fc7687ad16e9fc99c32c3c323154b7e4496f1",
+      "compare_to_base": "identical",
+      "changed_files": 0,
+      "result": "BLOCKED"
+    },
+    "C": {
+      "branch": "sol/y003-p02-track-world",
+      "sha": "064fc7687ad16e9fc99c32c3c323154b7e4496f1",
+      "compare_to_base": "identical",
+      "changed_files": 0,
+      "result": "BLOCKED"
+    },
+    "D": {
+      "branch": "sol/y003-p02-wheel-qa",
+      "sha": "064fc7687ad16e9fc99c32c3c323154b7e4496f1",
+      "compare_to_base": "identical",
+      "changed_files": 0,
+      "result": "NOT_AVAILABLE"
+    },
+    "E": {
+      "branch": "sol/y003-p02-visual-qa",
+      "sha": "b5678073fb61cf2ee4095ca8dbdc3238c5ccb143",
+      "compare_to_base": "ahead_by_2",
+      "result": "BLOCKED_FAIL"
+    }
+  },
+  "baseline_contract_checks": {
+    "motion_state_contract": true,
+    "suspension_adapter_fields": [
+      "centreLocal",
+      "steerRad",
+      "uprightOffsetY"
+    ],
+    "suspension_upright_excludes_rim_spin": true,
+    "track_root_applied_once_contract": true,
+    "y002_track_layout_reused": true
+  },
+  "expected_model_sha256": "1c73fcb138c31e2b1d5ed126a2412074bb17f8e960b355436f28139bf518e1eb",
+  "blockers": [
+    "A/B/C have no implementation delta from the published P02 base.",
+    "D has no independent wheel/driving QA delta.",
+    "E independently reports B/C as baseline-only with required native proofs missing.",
+    "Meaningful combined A+B+C compile/test/performance/determinism validation is impossible until production outputs exist."
+  ],
+  "recommended_integration_order": [
+    "A",
+    "D QA",
+    "B",
+    "E suspension QA",
+    "C",
+    "E track QA",
+    "F rerun",
+    "Manager integration"
+  ]
+}
