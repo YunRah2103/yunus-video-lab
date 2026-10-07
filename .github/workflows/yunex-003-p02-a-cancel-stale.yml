@@ -1,0 +1,25 @@
+name: YUNEX 003 P02 A cancel stale proof
+
+permissions:
+  actions: write
+  contents: read
+
+on:
+  push:
+    branches:
+      - sol/y003-p02-wheel-rig
+    paths:
+      - '.github/workflows/yunex-003-p02-a-cancel-stale.yml'
+
+jobs:
+  cancel:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Cancel stale sequential proof
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          gh api --method POST "repos/$REPO/actions/runs/37599316564/cancel" >/dev/null 2>&1 || true
