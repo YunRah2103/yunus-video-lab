@@ -1,0 +1,497 @@
+name: YUNEX 003 P02 native render and delivery
+
+permissions:
+  contents: read
+  actions: read
+
+on:
+  push:
+    branches:
+      - sol/y003-p02-render
+    paths:
+      - '.github/workflows/yunex-003-p02-render.yml'
+      - 'yunex/video003/render/**'
+      - 'yunex/video003/reports/P02-G/**'
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: 'selftest, benchmark or full'
+        required: true
+        default: selftest
+        type: choice
+        options:
+          - selftest
+          - benchmark
+          - full
+      render_source_sha:
+        description: 'Manager-approved exact 40-character P02 source SHA'
+        required: false
+        default: ''
+        type: string
+      chunk_size:
+        description: 'Native render chunk size'
+        required: true
+        default: '20'
+        type: string
+
+concurrency:
+  group: y003-p02-native-${{ github.ref }}-${{ github.run_id }}
+  cancel-in-progress: false
+
+env:
+  EXPECTED_MODEL_SHA256: 1c73fcb138c31e2b1d5ed126a2412074bb17f8e960b355436f28139bf518e1eb
+  WIDTH: '1080'
+  HEIGHT: '1920'
+  FPS: '30'
+  TOTAL_FRAMES: '735'
+  EXPECTED_DURATION: '24.5'
+
+jobs:
+  config:
+    runs-on: ubuntu-latest
+    outputs:
+      mode: ${{ steps.cfg.outputs.mode }}
+      source_sha: ${{ steps.cfg.outputs.source_sha }}
+      composition: ${{ steps.cfg.outputs.composition }}
+      chunk_size: ${{ steps.cfg.outputs.chunk_size }}
+      milestone_frames: ${{ steps.cfg.outputs.milestone_frames }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          path: pipeline
+      - id: cfg
+        shell: bash
+        env:
+          EVENT: ${{ github.event_name }}
+          COMMIT_MESSAGE: ${{ github.event.head_commit.message }}
+          INPUT_MODE: ${{ inputs.mode }}
+          INPUT_SOURCE: ${{ inputs.render_source_sha }}
+          INPUT_CHUNK: ${{ inputs.chunk_size }}
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json, os, re
+          from pathlib import Path
+
+          request = json.loads(Path("pipeline/yunex/video003/render/request.json").read_text())
+          if request.get("phase") != "Y003-POLISH-02":
+              raise SystemExit("request phase must be Y003-POLISH-02")
+          if request.get("composition") != "YUNEX-003-FINAL":
+              raise SystemExit("request composition must be YUNEX-003-FINAL")
+          if int(request.get("total_frames", 0)) != 735:
+              raise SystemExit("POLISH-02 requires exactly 735 frames")
+
+          event = os.environ["EVENT"]
+          message = os.environ.get("COMMIT_MESSAGE", "")
+          if event == "workflow_dispatch":
+              mode = os.environ.get("INPUT_MODE") or "selftest"
+              source = (os.environ.get("INPUT_SOURCE") or request.get("render_source_sha") or "").strip()
+              chunk = int(os.environ.get("INPUT_CHUNK") or request.get("chunk_size", 20))
+          else:
+              mode = (
+                  "full" if "[p02-native-full]" in message
+                  else "benchmark" if "[p02-native-benchmark]" in message
+                  else "selftest"
+              )
+              source = (request.get("render_source_sha") or "").strip()
+              chunk = int(request.get("chunk_size", 20))
+
+          if chunk < 1:
+              raise SystemExit("chunk_size must be positive")
+          if mode in {"benchmark", "full"} and not re.fullmatch(r"[0-9a-fA-F]{40}", source):
+              raise SystemExit("benchmark/full requires exact 40-character manager render_source_sha")
+
+          milestones = str(request.get("milestone_frames", "")).strip()
+          vals = [int(v) for v in milestones.split(",") if v.strip()]
+          if len(vals) != 7 or len(set(vals)) != 7 or min(vals) < 0 or max(vals) >= 735:
+              raise SystemExit("request must contain seven unique in-range milestone frames")
+
+          out = Path(os.environ["GITHUB_OUTPUT"])
+          with out.open("a") as handle:
+              handle.write(f"mode={mode}\n")
+              handle.write(f"source_sha={source}\n")
+              handle.write("composition=YUNEX-003-FINAL\n")
+              handle.write(f"chunk_size={chunk}\n")
+              handle.write(f"milestone_frames={milestones}\n")
+          PY
+
+  selftest:
+    needs: config
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          path: pipeline
+      - name: Validate POLISH-02 pipeline configuration
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m py_compile pipeline/yunex/video003/render/*.py
+          matrix="$(python pipeline/yunex/video003/render/make_chunk_matrix.py 735 20)"
+          python - "$matrix" <<'PY'
+          import json, sys
+          rows = json.loads(sys.argv[1])["include"]
+          assert len(rows) == 37
+          assert (rows[0]["start"], rows[0]["end"], rows[0]["count"]) == (0, 19, 20)
+          assert (rows[-1]["start"], rows[-1]["end"], rows[-1]["count"]) == (720, 734, 15)
+          assert sum(row["count"] for row in rows) == 735
+          print("735-frame matrix self-test PASS")
+          PY
+          python - <<'PY'
+          import json, re
+          from pathlib import Path
+          r = json.loads(Path("pipeline/yunex/video003/render/request.json").read_text())
+          assert r["phase"] == "Y003-POLISH-02"
+          assert r["composition"] == "YUNEX-003-FINAL"
+          assert r["total_frames"] == 735
+          source = (r.get("render_source_sha") or "").strip()
+          assert not source or re.fullmatch(r"[0-9a-fA-F]{40}", source)
+          assert r["milestone_frames"] == "27,144,234,306,492,603,711"
+          print("request/source gate self-test PASS")
+          PY
+          python pipeline/yunex/video003/render/validate_chunks.py --help >/dev/null
+          python pipeline/yunex/video003/render/validate_export.py --help >/dev/null
+
+  benchmark:
+    needs: [config, selftest]
+    if: needs.config.outputs.mode == 'benchmark'
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          path: pipeline
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.config.outputs.source_sha }}
+          path: source
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: source/yunex/package-lock.json
+      - name: Verify exact source and locked Porsche
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git -C source rev-parse HEAD)" = "${{ needs.config.outputs.source_sha }}"
+          test "$(sha256sum source/cars/porsche-911-gt3-rs-992/model.glb | awk '{print $1}')" = "$EXPECTED_MODEL_SHA256"
+          mkdir -p source/yunex/public source/yunex/out/y003-p02-benchmark
+          cp source/cars/porsche-911-gt3-rs-992/model.glb source/yunex/public/model.glb
+      - name: Install runtime
+        working-directory: source/yunex
+        run: npm ci --no-audit --no-fund
+      - name: Render native 30-frame benchmark
+        working-directory: source/yunex
+        env:
+          NODE_OPTIONS: --require=./fix-network.cjs
+        run: |
+          set -euo pipefail
+          /usr/bin/time -v -o out/y003-p02-benchmark/resource_usage.txt \
+            npx remotion render src/index.tsx "${{ needs.config.outputs.composition }}" \
+            out/y003-p02-benchmark/native-0000-0029.mp4 \
+            --frames=0-29 --gl=swangle --concurrency=2 --codec=h264 \
+            --pixel-format=yuv420p --crf=14 --scale=1 --timeout=120000 --muted
+          printf '%s\n' "${{ needs.config.outputs.source_sha }}" > out/y003-p02-benchmark/source-sha.txt
+          sha256sum out/y003-p02-benchmark/native-0000-0029.mp4 > out/y003-p02-benchmark/output.sha256
+      - name: Decode and probe benchmark
+        shell: bash
+        run: |
+          set -euo pipefail
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq ffmpeg
+          ffmpeg -v error -xerror -i source/yunex/out/y003-p02-benchmark/native-0000-0029.mp4 -f null -
+          ffprobe -v error -count_frames -show_streams -of json \
+            source/yunex/out/y003-p02-benchmark/native-0000-0029.mp4 \
+            > source/yunex/out/y003-p02-benchmark/ffprobe.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: YUNEX-003-P02-BENCHMARK-${{ needs.config.outputs.source_sha }}
+          path: source/yunex/out/y003-p02-benchmark/
+          retention-days: 14
+          if-no-files-found: error
+
+  matrix:
+    needs: [config, selftest]
+    if: needs.config.outputs.mode == 'full'
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.make.outputs.matrix }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          path: pipeline
+      - id: make
+        shell: bash
+        run: |
+          python pipeline/yunex/video003/render/make_chunk_matrix.py \
+            735 "${{ needs.config.outputs.chunk_size }}" --github-output "$GITHUB_OUTPUT"
+
+  render-native-chunks:
+    needs: [config, matrix]
+    if: needs.matrix.result == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      max-parallel: 20
+      matrix: ${{ fromJSON(needs.matrix.outputs.matrix) }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          path: pipeline
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.config.outputs.source_sha }}
+          path: source
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: source/yunex/package-lock.json
+      - name: Verify source and stage locked Porsche
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git -C source rev-parse HEAD)" = "${{ needs.config.outputs.source_sha }}"
+          test "$(sha256sum source/cars/porsche-911-gt3-rs-992/model.glb | awk '{print $1}')" = "$EXPECTED_MODEL_SHA256"
+          mkdir -p source/yunex/public source/yunex/out/y003-p02-chunk
+          cp source/cars/porsche-911-gt3-rs-992/model.glb source/yunex/public/model.glb
+      - name: Install runtime
+        working-directory: source/yunex
+        run: npm ci --no-audit --no-fund
+      - name: Render exact native visual chunk
+        working-directory: source/yunex
+        env:
+          NODE_OPTIONS: --require=./fix-network.cjs
+        shell: bash
+        run: |
+          set -euo pipefail
+          part="${{ matrix.part }}"
+          npx remotion render src/index.tsx "${{ needs.config.outputs.composition }}" \
+            "out/y003-p02-chunk/chunk-$part.mp4" \
+            --frames="${{ matrix.frames }}" --gl=swangle --concurrency=2 --codec=h264 \
+            --pixel-format=yuv420p --crf=14 --scale=1 --timeout=120000 --muted
+          printf '%s\n' "${{ needs.config.outputs.source_sha }}" > "out/y003-p02-chunk/source-sha-$part.txt"
+          printf '{"frames":"%s","part":"%s","source_sha":"%s","composition":"%s","width":1080,"height":1920,"scale":1,"fps":30}\n' \
+            "${{ matrix.frames }}" "$part" "${{ needs.config.outputs.source_sha }}" "${{ needs.config.outputs.composition }}" \
+            > "out/y003-p02-chunk/config-$part.json"
+          sha256sum "out/y003-p02-chunk/chunk-$part.mp4" > "out/y003-p02-chunk/chunk-$part.sha256"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: y003-p02-native-chunk-${{ matrix.part }}
+          path: source/yunex/out/y003-p02-chunk/
+          retention-days: 14
+          if-no-files-found: error
+
+  render-audio:
+    needs: [config, matrix]
+    if: needs.matrix.result == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.config.outputs.source_sha }}
+          path: source
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: source/yunex/package-lock.json
+      - name: Verify source and stage locked Porsche
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git -C source rev-parse HEAD)" = "${{ needs.config.outputs.source_sha }}"
+          test "$(sha256sum source/cars/porsche-911-gt3-rs-992/model.glb | awk '{print $1}')" = "$EXPECTED_MODEL_SHA256"
+          mkdir -p source/yunex/public source/yunex/out/y003-p02-audio
+          cp source/cars/porsche-911-gt3-rs-992/model.glb source/yunex/public/model.glb
+      - name: Install runtime
+        working-directory: source/yunex
+        run: npm ci --no-audit --no-fund
+      - name: Render composition audio once
+        working-directory: source/yunex
+        env:
+          NODE_OPTIONS: --require=./fix-network.cjs
+        shell: bash
+        run: |
+          set -euo pipefail
+          npx remotion render src/index.tsx "${{ needs.config.outputs.composition }}" \
+            out/y003-p02-audio/YUNEX_003_P02_AUDIO.m4a --codec=aac --timeout=120000
+          test -s out/y003-p02-audio/YUNEX_003_P02_AUDIO.m4a
+          printf '%s\n' "${{ needs.config.outputs.source_sha }}" > out/y003-p02-audio/source-sha.txt
+          sha256sum out/y003-p02-audio/YUNEX_003_P02_AUDIO.m4a > out/y003-p02-audio/audio.sha256
+      - uses: actions/upload-artifact@v4
+        with:
+          name: y003-p02-native-audio
+          path: source/yunex/out/y003-p02-audio/
+          retention-days: 14
+          if-no-files-found: error
+
+  assemble-validate:
+    needs: [config, matrix, render-native-chunks, render-audio]
+    if: needs.render-native-chunks.result == 'success' && needs.render-audio.result == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          path: pipeline
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.config.outputs.source_sha }}
+          path: source
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: y003-p02-native-chunk-*
+          path: chunks
+          merge-multiple: true
+      - uses: actions/download-artifact@v4
+        with:
+          name: y003-p02-native-audio
+          path: audio
+      - name: Install FFmpeg
+        shell: bash
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq ffmpeg
+      - name: Validate exact fresh chunks
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git -C source rev-parse HEAD)" = "${{ needs.config.outputs.source_sha }}"
+          test "$(cat audio/source-sha.txt)" = "${{ needs.config.outputs.source_sha }}"
+          python pipeline/yunex/video003/render/validate_chunks.py chunks \
+            --total-frames 735 \
+            --expected-source "${{ needs.config.outputs.source_sha }}" \
+            --allowed-pixel-formats yuv420p,yuvj420p \
+            > chunk-manifest.json
+          python - <<'PY'
+          from pathlib import Path
+          files = sorted(Path("chunks").glob("chunk-*.mp4"))
+          if not files:
+              raise SystemExit("no native chunks")
+          Path("concat.txt").write_text("".join(f"file '{p.resolve()}'\n" for p in files))
+          PY
+      - name: Concatenate and perform one final visual normalization encode
+        shell: bash
+        run: |
+          set -euo pipefail
+          ffmpeg -y -v error -f concat -safe 0 -i concat.txt -c copy YUNEX_003_P02_NATIVE_CONCAT.mp4
+          ffprobe -v error -count_frames -select_streams v:0 \
+            -show_entries stream=codec_name,pix_fmt,width,height,avg_frame_rate,nb_read_frames \
+            -of json YUNEX_003_P02_NATIVE_CONCAT.mp4 > concat-probe.json
+          ffmpeg -y -v error -i YUNEX_003_P02_NATIVE_CONCAT.mp4 -an \
+            -c:v libx264 -preset slow -crf 14 -pix_fmt yuv420p \
+            -color_range tv -colorspace bt709 -color_primaries bt709 -color_trc bt709 \
+            -movflags +faststart YUNEX_003_P02_NATIVE_VISUAL.mp4
+          python pipeline/yunex/video003/render/validate_export.py \
+            YUNEX_003_P02_NATIVE_VISUAL.mp4 --total-frames 735 > visual-validation.json
+      - name: Mux untouched composition audio and validate final delivery
+        shell: bash
+        run: |
+          set -euo pipefail
+          ffmpeg -y -v error \
+            -i YUNEX_003_P02_NATIVE_VISUAL.mp4 \
+            -i audio/YUNEX_003_P02_AUDIO.m4a \
+            -map 0:v:0 -map 1:a:0 -c:v copy -c:a copy -movflags +faststart \
+            YUNEX_003_P02_FINAL.mp4
+          python pipeline/yunex/video003/render/validate_export.py \
+            YUNEX_003_P02_FINAL.mp4 --total-frames 735 --require-audio > final-validation.json
+          ffmpeg -v error -xerror -i YUNEX_003_P02_FINAL.mp4 -f null -
+          sha256sum YUNEX_003_P02_FINAL.mp4 > final.sha256
+          sha256sum source/cars/porsche-911-gt3-rs-992/model.glb > porsche.sha256
+      - name: Extract seven native milestones and contact sheet
+        shell: bash
+        env:
+          RAW: ${{ needs.config.outputs.milestone_frames }}
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import os
+          frames = [int(x) for x in os.environ["RAW"].split(",")]
+          if len(frames) != 7 or len(set(frames)) != 7:
+              raise SystemExit("need seven unique milestones")
+          open("milestones.txt", "w").write("\n".join(map(str, frames)) + "\n")
+          PY
+          mkdir -p review
+          i=1
+          while read -r frame; do
+            ffmpeg -y -v error -i YUNEX_003_P02_FINAL.mp4 \
+              -vf "select=eq(n\,$frame)" -vsync 0 -frames:v 1 \
+              "review/milestone-$(printf '%02d' "$i")-frame-$frame.png"
+            i=$((i+1))
+          done < milestones.txt
+          ffmpeg -y -v error -framerate 1 -pattern_type glob -i 'review/milestone-*.png' \
+            -vf "scale=270:480,tile=4x2:padding=6:margin=6" -frames:v 1 review/contact-sheet.png
+      - name: Write immutable POLISH-02 export manifest
+        shell: bash
+        env:
+          SOURCE: ${{ needs.config.outputs.source_sha }}
+          PIPELINE: ${{ github.sha }}
+          RUN_ID: ${{ github.run_id }}
+        run: |
+          python - <<'PY'
+          import hashlib, json, os
+          from pathlib import Path
+
+          def sha(path):
+              h = hashlib.sha256()
+              with open(path, "rb") as f:
+                  for block in iter(lambda: f.read(1 << 20), b""):
+                      h.update(block)
+              return h.hexdigest()
+
+          chunk_manifest = json.loads(Path("chunk-manifest.json").read_text())
+          manifest = {
+              "phase": "Y003-POLISH-02",
+              "status": "NATIVE_EXPORT_VALIDATED",
+              "render_source_sha": os.environ["SOURCE"],
+              "pipeline_sha": os.environ["PIPELINE"],
+              "workflow_run_id": os.environ["RUN_ID"],
+              "composition": "YUNEX-003-FINAL",
+              "width": 1080,
+              "height": 1920,
+              "scale": 1,
+              "fps": 30,
+              "frames": 735,
+              "duration_seconds": 24.5,
+              "frame_range": "0-734",
+              "video_codec": "h264",
+              "pixel_format": "yuv420p",
+              "audio_codec": "aac",
+              "faststart": True,
+              "normalization_encode": True,
+              "intermediate_pixel_formats": chunk_manifest["observed_pixel_formats"],
+              "porsche_sha256": "1c73fcb138c31e2b1d5ed126a2412074bb17f8e960b355436f28139bf518e1eb",
+              "final_sha256": sha("YUNEX_003_P02_FINAL.mp4"),
+              "audio_sha256": sha("audio/YUNEX_003_P02_AUDIO.m4a"),
+              "milestone_frames": [int(x) for x in Path("milestones.txt").read_text().split()],
+          }
+          Path("export-manifest.json").write_text(json.dumps(manifest, indent=2) + "\n")
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: YUNEX-003-P02-NATIVE-FINAL-${{ needs.config.outputs.source_sha }}
+          path: |
+            YUNEX_003_P02_FINAL.mp4
+            YUNEX_003_P02_NATIVE_VISUAL.mp4
+            chunk-manifest.json
+            concat-probe.json
+            visual-validation.json
+            final-validation.json
+            export-manifest.json
+            final.sha256
+            porsche.sha256
+            milestones.txt
+            review/
+          retention-days: 14
+          if-no-files-found: error
