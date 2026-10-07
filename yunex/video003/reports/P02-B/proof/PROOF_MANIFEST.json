@@ -1,0 +1,44 @@
+{
+  "phase": "Y003-POLISH-02",
+  "role": "B",
+  "status": "NATIVE_PROOF_COMPLETE",
+  "implementation_sha": "d4b81aacfeeedfb2475c4e4cc59ed8a352164f4d",
+  "phase_base_sha": "064fc7687ad16e9fc99c32c3c323154b7e4496f1",
+  "source_render_run_id": 37612331303,
+  "model_sha256": "1c73fcb138c31e2b1d5ed126a2412074bb17f8e960b355436f28139bf518e1eb",
+  "installed_before": {
+    "frame": 234,
+    "width": 1080,
+    "height": 1920,
+    "sha256": "19a67fbaf00d1239bebfe58a26eb38953838a9d6f81b69ae0dccf9ddad0482d2"
+  },
+  "installed_after": {
+    "frame": 234,
+    "width": 1080,
+    "height": 1920,
+    "sha256": "6cc995d63abfbd31cfb18204e817b5945fb707a9a0b9b20be0b2eda66f9227fc"
+  },
+  "mechanical_load_still": {
+    "frame": 492,
+    "width": 1080,
+    "height": 1920,
+    "sha256": "2cb9ecbe6d7432e013e06a60e6fe8537d2199bf86d8e5f9f277fb108a119f844"
+  },
+  "difference_image": {
+    "frame": 234,
+    "sha256": "7984ab48697ceb4f6369dc281684e166b6f30d97349ce16c9d782ebdfeb12945"
+  },
+  "articulation": {
+    "frames": "441-530",
+    "decoded_frames": 90,
+    "fps": 30,
+    "width": 1080,
+    "height": 1920,
+    "codec": "h264",
+    "pixel_format": "yuv420p",
+    "duration_seconds": 3.0,
+    "sha256": "312cb70d7fd4759f61585e09cc4d6398c1ba01d2b1039cceeb0df86ab337b84f"
+  },
+  "decoder_pass": true,
+  "proof_gate": "PASS"
+}
