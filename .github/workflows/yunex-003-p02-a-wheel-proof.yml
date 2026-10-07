@@ -1,0 +1,109 @@
+name: YUNEX 003 P02 Agent A wheel-rig proof
+
+permissions:
+  contents: read
+
+on:
+  push:
+    branches:
+      - sol/y003-p02-wheel-rig
+    paths:
+      - 'yunex/src/video003/motion/**'
+      - '.github/workflows/yunex-003-p02-a-wheel-proof.yml'
+
+concurrency:
+  group: y003-p02-a-wheel-proof-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  proof:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: yunex/package-lock.json
+
+      - name: Verify and stage locked Porsche
+        shell: bash
+        run: |
+          set -euo pipefail
+          EXPECTED="1c73fcb138c31e2b1d5ed126a2412074bb17f8e960b355436f28139bf518e1eb"
+          ACTUAL="$(sha256sum cars/porsche-911-gt3-rs-992/model.glb | awk '{print $1}')"
+          test "$ACTUAL" = "$EXPECTED"
+          mkdir -p yunex/public yunex/out/y003-agent-a-p02
+          cp cars/porsche-911-gt3-rs-992/model.glb yunex/public/model.glb
+          printf '%s  %s\n' "$ACTUAL" "cars/porsche-911-gt3-rs-992/model.glb"             > yunex/out/y003-agent-a-p02/model.sha256
+
+      - name: Install runtime
+        working-directory: yunex
+        run: npm ci --no-audit --no-fund
+
+      - name: Run deterministic wheel-rig QA
+        working-directory: yunex
+        run: |
+          set -euo pipefail
+          npx esbuild src/video003/motion/qa-entry.ts             --bundle --platform=node --format=cjs             --outfile=/tmp/y003-p02-a-qa.cjs
+          node /tmp/y003-p02-a-qa.cjs | tee out/y003-agent-a-p02/qa.json
+
+      - name: Render native P02 moving proofs
+        working-directory: yunex
+        env:
+          NODE_OPTIONS: --require=./fix-network.cjs
+        run: node src/video003/motion/render-proof.cjs
+
+      - name: Validate proof media
+        shell: bash
+        run: |
+          set -euo pipefail
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq ffmpeg
+          OUT="yunex/out/y003-agent-a-p02"
+          : > "$OUT/ffprobe.jsonl"
+          for f in "$OUT"/*.mp4; do
+            ffmpeg -v error -xerror -i "$f" -f null -
+            ffprobe -v error               -show_entries stream=codec_name,width,height,pix_fmt,r_frame_rate,nb_frames:format=duration               -of json "$f" >> "$OUT/ffprobe.jsonl"
+          done
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          out=Path("yunex/out/y003-agent-a-p02")
+          expected={
+            "YUNEX_003_P02_A_NEUTRAL_ROLL.mp4",
+            "YUNEX_003_P02_A_STEERING_LOAD.mp4",
+            "YUNEX_003_P02_A_BEFORE_AFTER.mp4",
+          }
+          files={p.name for p in out.glob("*.mp4")}
+          if files != expected:
+              raise SystemExit(f"proof set mismatch: {files}")
+          for p in out.glob("*.mp4"):
+              import subprocess
+              data=json.loads(subprocess.check_output([
+                  "ffprobe","-v","error","-show_entries",
+                  "stream=codec_name,width,height,pix_fmt,r_frame_rate,nb_frames:format=duration",
+                  "-of","json",str(p)
+              ]))
+              s=data["streams"][0]
+              if s["codec_name"]!="h264" or int(s["width"])!=1080 or int(s["height"])!=1920:
+                  raise SystemExit(f"native geometry/codec mismatch: {p.name}: {s}")
+              if s["r_frame_rate"]!="30/1" or int(s.get("nb_frames") or 0)!=90:
+                  raise SystemExit(f"timing mismatch: {p.name}: {s}")
+              if s.get("pix_fmt")!="yuv420p":
+                  raise SystemExit(f"pixel format mismatch: {p.name}: {s.get('pix_fmt')}")
+          PY
+          (
+            cd "$OUT"
+            sha256sum *.mp4 *.png qa.json render-manifest.json model.sha256               > proofs.sha256
+          )
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: YUNEX-003-P02-A-WHEEL-PROOFS-${{ github.sha }}
+          path: yunex/out/y003-agent-a-p02/
+          retention-days: 14
+          if-no-files-found: error
