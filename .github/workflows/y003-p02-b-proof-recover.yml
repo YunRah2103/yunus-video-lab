@@ -75,7 +75,7 @@ jobs:
             printf "file '%s/%s'\n" "$GITHUB_WORKSPACE" "$f" >> concat.txt
           done
           test "$(wc -l < concat.txt)" -eq 6
-          ffmpeg -y -v error -f concat -safe 0 -i concat.txt -c copy articulation-native-f441-530.mp4
+          ffmpeg -y -v error -f concat -safe 0 -i concat.txt -an -c:v libx264 -preset medium -crf 17 -pix_fmt yuv420p -r 30 -movflags +faststart articulation-native-f441-530.mp4
           ffmpeg -v error -xerror -i articulation-native-f441-530.mp4 -f null -
           ffprobe -v error -count_frames -show_entries stream=codec_name,pix_fmt,width,height,r_frame_rate,nb_read_frames -show_entries format=duration -of json articulation-native-f441-530.mp4 > articulation-probe.json
 
