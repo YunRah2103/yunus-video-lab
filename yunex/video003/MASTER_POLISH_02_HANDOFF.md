@@ -1,3 +1,9 @@
+> **EXECUTION UPDATE — EXPANDED A–H POLISH TEAM**
+>
+> The original three-specialist execution paragraph below is superseded by the current parallel plan in `yunex/video003/polish02/START_HERE.md` and `POLISH_02_TASKS.json`.
+> The creative/technical requirements in this file remain authoritative. Current specialist base: `064fc7687ad16e9fc99c32c3c323154b7e4496f1`.
+> Use only the P02 branches and role files; do not reuse original production A–H handoffs.
+
 # YUNEX 003 — MASTER REVISION: WHEELS / SUSPENSION / TRACK
 Phase: Y003-POLISH-02
 Repository: YunRah2103/yunus-video-lab
