@@ -1,0 +1,85 @@
+name: YUNEX 003 P02-B force video proof
+
+permissions:
+  contents: write
+  actions: read
+
+on:
+  push:
+    branches:
+      - sol/y003-p02-suspension-detail
+    paths:
+      - '.github/workflows/y003-p02-b-proof-video.yml'
+
+env:
+  SOURCE_RUN_ID: '37612331303'
+
+jobs:
+  commit-video:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: sol/y003-p02-suspension-detail
+          fetch-depth: 0
+      - name: Install ffmpeg
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq ffmpeg
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: p02-b-chunk-*
+          path: chunks
+          merge-multiple: true
+          run-id: ${{ env.SOURCE_RUN_ID }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Reassemble exact verified native articulation
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p normalized
+          count=0
+          while IFS= read -r f; do
+            cp "$f" "normalized/chunk-$(printf '%02d' "$count").mp4"
+            count=$((count+1))
+          done < <(find chunks -type f -name 'chunk-*.mp4' | sort)
+          test "$count" -eq 6
+          : > concat.txt
+          for f in normalized/chunk-*.mp4; do
+            printf "file '%s/%s'\n" "$GITHUB_WORKSPACE" "$f" >> concat.txt
+          done
+          dest=yunex/video003/reports/P02-B/proof/articulation-native-f441-530.mp4
+          ffmpeg -y -v error -f concat -safe 0 -i concat.txt -an -c:v libx264 -preset medium -crf 17 -pix_fmt yuv420p -r 30 -movflags +faststart "$dest"
+          ffmpeg -v error -xerror -i "$dest" -f null -
+          ffprobe -v error -count_frames -show_entries stream=codec_name,pix_fmt,width,height,r_frame_rate,nb_read_frames -show_entries format=duration -of json "$dest" > /tmp/probe.json
+          python - <<'PY'
+          import hashlib, json
+          from pathlib import Path
+          video=Path('yunex/video003/reports/P02-B/proof/articulation-native-f441-530.mp4')
+          p=json.loads(Path('/tmp/probe.json').read_text())
+          s=p['streams'][0]
+          assert s['codec_name']=='h264'
+          assert s['pix_fmt']=='yuv420p'
+          assert int(s['width'])==1080 and int(s['height'])==1920
+          assert s['r_frame_rate']=='30/1'
+          assert int(s['nb_read_frames'])==90
+          assert 2.95 <= float(p['format']['duration']) <= 3.05
+          h=hashlib.sha256(video.read_bytes()).hexdigest()
+          manifest_path=Path('yunex/video003/reports/P02-B/proof/PROOF_MANIFEST.json')
+          manifest=json.loads(manifest_path.read_text())
+          manifest['articulation']['sha256']=h
+          manifest_path.write_text(json.dumps(manifest,indent=2)+'\n')
+          sums=Path('yunex/video003/reports/P02-B/proof/SHA256SUMS.txt')
+          lines=[line for line in sums.read_text().splitlines() if 'articulation-native-f441-530.mp4' not in line]
+          lines.append(h+'  articulation-native-f441-530.mp4')
+          sums.write_text('\n'.join(lines)+'\n')
+          print(h)
+          PY
+          git pull --ff-only origin sol/y003-p02-suspension-detail
+          git config user.name "YUNEX Proof Bot"
+          git config user.email "actions@github.com"
+          git add yunex/video003/reports/P02-B/proof/PROOF_MANIFEST.json yunex/video003/reports/P02-B/proof/SHA256SUMS.txt
+          git add -f "$dest"
+          git commit -m "YUNEX 003 P02-B: push native articulation proof"
+          git push origin HEAD:sol/y003-p02-suspension-detail
