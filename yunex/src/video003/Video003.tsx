@@ -236,7 +236,7 @@ const IntegratedThree:React.FC<{frame:number}>=({frame})=>{
   const rootRotation=state.motion.root.rotation;
 
   return <>
-    <TrackWorld quality="final" seed={3003}/>
+    <TrackWorld quality="final" seed={3003} carPose={state.motion.root}/>
     <Y003CircuitWorldExtension quality="final" seed={3003}/>
     {model&&<primitive object={model}/>}
     <group position={rootPosition} rotation={rootRotation}>

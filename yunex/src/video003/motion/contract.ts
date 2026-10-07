@@ -77,6 +77,15 @@ export const SOURCE_WHEEL_CENTRES: Record<WheelId, Vec3> = {
 
 export const FRONT_AXLE_Z =
   (SOURCE_WHEEL_CENTRES.FL[2] + SOURCE_WHEEL_CENTRES.FR[2]) / 2;
+
+// The approved GLB bakes 1° front / 2° rear camber into its vertices.
+// These are rim-plane normals measured from that asset, not new wheel geometry.
+export const SOURCE_WHEEL_SPIN_AXES: Record<WheelId, Vec3> = {
+  FL: [Math.cos(Math.PI/180), Math.sin(Math.PI/180), 0],
+  FR: [Math.cos(Math.PI/180), -Math.sin(Math.PI/180), 0],
+  RL: [Math.cos(2*Math.PI/180), Math.sin(2*Math.PI/180), 0],
+  RR: [Math.cos(2*Math.PI/180), -Math.sin(2*Math.PI/180), 0],
+};
 export const REAR_AXLE_Z =
   (SOURCE_WHEEL_CENTRES.RL[2] + SOURCE_WHEEL_CENTRES.RR[2]) / 2;
 

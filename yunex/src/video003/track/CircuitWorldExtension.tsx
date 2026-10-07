@@ -541,7 +541,7 @@ export const Y003CircuitWorldExtension:React.FC<Y003CircuitWorldExtensionProps>=
     <InstancedLayer geometry={box} material={metal} items={layout.gantryMetal} castShadow/>
     <InstancedLayer geometry={box} material={marker} items={layout.gantryPanels}/>
     <InstancedLayer geometry={box} material={marker} items={layout.gantryAccents}/>
-    <InstancedLayer geometry={trunk} material={foliage} items={layout.trunks} castShadow={quality==='final'}/>
+    <InstancedLayer geometry={trunk} material={groundform} items={layout.trunks} castShadow={quality==='final'}/>
     <InstancedLayer geometry={crown} material={foliage} items={layout.crowns}/>
     <InstancedLayer geometry={shrub} material={foliage} items={layout.shrubs}/>
     <InstancedLayer geometry={ridge} material={groundform} items={layout.ridges}/>

@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import {
   SOURCE_WHEEL_CENTRES,
+  SOURCE_WHEEL_SPIN_AXES,
   motionManifest,
   motionStateAt,
   resolveMotionConfig,
@@ -175,7 +176,7 @@ export const validateRuntimeWheelRigKinematics = (
 
       const worldQuaternion = new THREE.Quaternion();
       spin.getWorldQuaternion(worldQuaternion);
-      const actualAxle = new THREE.Vector3(1, 0, 0)
+      const actualAxle = new THREE.Vector3(...SOURCE_WHEEL_SPIN_AXES[id])
         .applyQuaternion(worldQuaternion)
         .normalize();
 
@@ -187,7 +188,7 @@ export const validateRuntimeWheelRigKinematics = (
             state.wheels[id].steerRad,
           ),
         );
-      const expectedAxle = new THREE.Vector3(1, 0, 0)
+      const expectedAxle = new THREE.Vector3(...SOURCE_WHEEL_SPIN_AXES[id])
         .applyQuaternion(expectedQuaternion)
         .normalize();
       maxAxleAxisErrorRad = Math.max(

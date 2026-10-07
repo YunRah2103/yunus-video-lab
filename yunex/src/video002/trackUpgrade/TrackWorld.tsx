@@ -10,6 +10,7 @@ import {Terrain} from './racetrack/Terrain';
 export type TrackWorldProps={
   quality?:'preview'|'final';
   seed?:number;
+  carPose?:React.ComponentProps<typeof TrackLighting>['carPose'];
 };
 
 export const TRACK_ROOT_POSITION:[number,number,number]=[-1,-0.028,0];
@@ -27,7 +28,7 @@ const IntegratedBackingGround:React.FC=()=>(
   </mesh>
 );
 
-export const TrackWorld:React.FC<TrackWorldProps>=({quality='final',seed=2103})=><>
+export const TrackWorld:React.FC<TrackWorldProps>=({quality='final',seed=2103,carPose})=><>
   <group
     position={TRACK_ROOT_POSITION}
     rotation={TRACK_ROOT_ROTATION}
@@ -48,5 +49,5 @@ export const TrackWorld:React.FC<TrackWorldProps>=({quality='final',seed=2103})=
   </group>
   {/* These components intentionally operate in world space. */}
   <DistantLandscape seed={seed}/>
-  <TrackLighting quality={quality} seed={seed}/>
+  <TrackLighting quality={quality} seed={seed} carPose={carPose}/>
 </>;

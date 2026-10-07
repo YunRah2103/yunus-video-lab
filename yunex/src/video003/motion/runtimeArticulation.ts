@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import type {MotionState, WheelId} from './contract';
+import {SOURCE_WHEEL_SPIN_AXES} from './contract';
 
 const ASSET_ROOT_NAME = 'YUNEX_Porsche_911_GT3_RS_992';
 const CHASSIS_PART_NAMES = [
@@ -175,6 +176,7 @@ export const createRuntimeMotionRig = (
         // hub origin and axle cannot precess as the roll angle wraps.
         steerDeltaQuaternion.setFromAxisAngle(localSteerAxis, wheel.steerRad);
         steer.quaternion.copy(steerBase[id].quaternion).multiply(steerDeltaQuaternion);
+        localSpinAxis.set(...SOURCE_WHEEL_SPIN_AXES[id]);
         spinDeltaQuaternion.setFromAxisAngle(localSpinAxis, wheel.spinRad);
         spin.quaternion.copy(spinBase[id].quaternion).multiply(spinDeltaQuaternion);
       }
