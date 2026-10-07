@@ -2,6 +2,7 @@ import {
   sampleTrackAtLocalZ,
   trackLocalToWorldXZ,
   TRACK_LAYOUT_CONFIG,
+  TRACK_ASPHALT_LOCAL_Y,
 } from '../../video002/trackUpgrade/racetrack/layout';
 
 export type Vec3 = [number, number, number];
@@ -51,6 +52,7 @@ export type MotionState = {
   speedMps: number;
   accelerationMps2: number;
   curvaturePerM: number;
+  steeringCurvaturePerM: number;
   lateralAccelerationMps2: number;
   root: {
     position: Vec3;
@@ -76,6 +78,15 @@ export const SOURCE_WHEEL_CENTRES: Record<WheelId, Vec3> = {
 
 export const FRONT_AXLE_Z =
   (SOURCE_WHEEL_CENTRES.FL[2] + SOURCE_WHEEL_CENTRES.FR[2]) / 2;
+
+// The approved GLB bakes 1° front / 2° rear camber into its vertices.
+// These are rim-plane normals measured from that asset, not new wheel geometry.
+export const SOURCE_WHEEL_SPIN_AXES: Record<WheelId, Vec3> = {
+  FL: [Math.cos(Math.PI/180), Math.sin(Math.PI/180), 0],
+  FR: [Math.cos(Math.PI/180), -Math.sin(Math.PI/180), 0],
+  RL: [Math.cos(2*Math.PI/180), Math.sin(2*Math.PI/180), 0],
+  RR: [Math.cos(2*Math.PI/180), -Math.sin(2*Math.PI/180), 0],
+};
 export const REAR_AXLE_Z =
   (SOURCE_WHEEL_CENTRES.RL[2] + SOURCE_WHEEL_CENTRES.RR[2]) / 2;
 
@@ -175,10 +186,17 @@ const unwrapNear = (reference: number, angle: number) => {
   return result;
 };
 
-export const curvatureAtTrackZ = (z: number) => {
-  const epsilon = 0.08;
-  const z0 = clamp(z - epsilon, TRACK_LAYOUT_CONFIG.sampleMinZ, TRACK_LAYOUT_CONFIG.sampleMaxZ);
-  const z1 = clamp(z + epsilon, TRACK_LAYOUT_CONFIG.sampleMinZ, TRACK_LAYOUT_CONFIG.sampleMaxZ);
+const averageCurvatureAcrossWindow = (z: number, halfWindowM: number) => {
+  const z0 = clamp(
+    z - halfWindowM,
+    TRACK_LAYOUT_CONFIG.sampleMinZ,
+    TRACK_LAYOUT_CONFIG.sampleMaxZ,
+  );
+  const z1 = clamp(
+    z + halfWindowM,
+    TRACK_LAYOUT_CONFIG.sampleMinZ,
+    TRACK_LAYOUT_CONFIG.sampleMaxZ,
+  );
   if (Math.abs(z1 - z0) < 1e-9) return 0;
   const p0 = sampleTrackAtLocalZ(z0).center;
   const p1 = sampleTrackAtLocalZ(z1).center;
@@ -188,6 +206,17 @@ export const curvatureAtTrackZ = (z: number) => {
   const yaw1 = unwrapNear(yaw0, worldYawAtTrackZ(z1));
   return (yaw1 - yaw0) / distance;
 };
+
+export const curvatureAtTrackZ = (z: number) =>
+  averageCurvatureAcrossWindow(z, 0.08);
+
+// Steering should respond to the road over roughly a wheelbase-scale window,
+// not to the C2 discontinuity at the exact endpoints of the authored smoothstep
+// bend. This preserves the route while removing one-frame front-wheel snaps.
+export const STEERING_CURVATURE_HALF_WINDOW_M = 1.5;
+
+export const steeringCurvatureAtTrackZ = (z: number) =>
+  averageCurvatureAcrossWindow(z, STEERING_CURVATURE_HALF_WINDOW_M);
 
 const routeCacheKey = (config: MotionConfig) =>
   [
@@ -408,7 +437,7 @@ export const accelerationAtFrame = (
   ) / dt;
 };
 
-const steeringForCurvature = (
+export const steeringForCurvature = (
   curvature: number,
   config: MotionConfig,
 ): {left: number; right: number} => {
@@ -454,12 +483,13 @@ export const motionStateAt = (
   const distanceM = distanceAtFrame(frame, config);
   const path = entryAtDistance(distanceM, route);
   const yaw = worldYawAtTrackZ(path.z);
-  const rootPosition: Vec3 = [path.worldX, 0, path.worldZ];
+  const rootPosition: Vec3 = [path.worldX, TRACK_LAYOUT_CONFIG.rootPosition[1]+TRACK_ASPHALT_LOCAL_Y, path.worldZ];
   const speedMps = speedAtFrame(frame, config);
   const accelerationMps2 = accelerationAtFrame(frame, config);
   const curvaturePerM = curvatureAtTrackZ(path.z);
+  const steeringCurvaturePerM = steeringCurvatureAtTrackZ(path.z);
   const lateralAccelerationMps2 = speedMps * speedMps * curvaturePerM;
-  const steer = steeringForCurvature(curvaturePerM, config);
+  const steer = steeringForCurvature(steeringCurvaturePerM, config);
 
   const brakeLoad01 = clamp01(-accelerationMps2 / 4.5);
   const cornerLoadSigned = clamp(lateralAccelerationMps2 / 3.5, -1, 1);
@@ -507,6 +537,7 @@ export const motionStateAt = (
     speedMps,
     accelerationMps2,
     curvaturePerM,
+    steeringCurvaturePerM,
     lateralAccelerationMps2,
     root: {
       position: rootPosition,

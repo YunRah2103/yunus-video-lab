@@ -5,6 +5,7 @@ import {AbsoluteFill,Audio,cancelRender,continueRender,delayRender,staticFile,us
 import * as THREE from 'three';
 import {GLTFLoader} from 'three/examples/jsm/loaders/GLTFLoader.js';
 import {TrackWorld} from '../video002/trackUpgrade/TrackWorld';
+import {Y003CircuitWorldExtension} from './track/CircuitWorldExtension';
 import {motionStateAt,createRuntimeMotionRig,type MotionState} from './motion';
 import {FrontSuspension,frontSuspensionStateFromMotion,resolveLinks,type FrontSuspensionState} from './suspension';
 import {SuspensionAirflow,type SuspensionFlowAnchor} from './airflow';
@@ -235,7 +236,8 @@ const IntegratedThree:React.FC<{frame:number}>=({frame})=>{
   const rootRotation=state.motion.root.rotation;
 
   return <>
-    <TrackWorld quality="final" seed={3003}/>
+    <TrackWorld quality="final" seed={3003} carPose={state.motion.root}/>
+    <Y003CircuitWorldExtension quality="final" seed={3003}/>
     {model&&<primitive object={model}/>}
     <group position={rootPosition} rotation={rootRotation}>
       <FrontSuspension

@@ -121,16 +121,39 @@
     "yunex/video003/polish02/POLISH_02_TASKS.json"
   ],
   "integration_order": "A/B/C parallel -> D/E review -> F compatibility -> Manager integration + short native proof -> G final render -> H final QA",
-  "render_source_sha": "0db1a6509c54b6df1df0422152aa90d7c02b5de1",
-  "final_delivery_sha": "cc8a898298fc6c543f5475aac85bafb0cca635f1d1de1f663e97b21453116118",
+  "render_source_sha": "e09f9565d9f5aa70d11375a16b1da6477293e935",
+  "final_delivery_sha": "b2a0b2746927c1d660c3064443a7faa58fb75ff07d4bc67305b7d2e84b59b8d5",
   "final_delivery_sha_algorithm": "SHA256",
-  "final_artifact_id": 11499343998,
-  "final_workflow_run_id": 37659623261,
-  "release_status": "PACKAGING_COMPLETE_REALTIME_QA_PENDING",
+  "final_artifact_id": 11503543207,
+  "final_workflow_run_id": 37667577612,
+  "release_status": "CORRECTED_DELIVERY_COMPLETE_REALTIME_APPROVAL_PENDING",
   "project_complete": false,
   "final_qa": {
     "delivery": "PASS",
-    "frame_sequence": "PASS",
-    "realtime_audiovisual": "PENDING"
-  }
+    "all_735_motion_frames": "PASS",
+    "actual_asset_axle": "PASS",
+    "world_ground_contact": "PASS",
+    "milestone_frames": "PASS",
+    "sampled_timeline": "PASS",
+    "audio_packets": "EXACT_APPROVED_MATCH",
+    "realtime_audiovisual": "NOT_PERFORMED"
+  },
+  "historical_p02_delivery": {
+    "render_source_sha": "0db1a6509c54b6df1df0422152aa90d7c02b5de1",
+    "final_delivery_sha": "cc8a898298fc6c543f5475aac85bafb0cca635f1d1de1f663e97b21453116118",
+    "final_artifact_id": 11499343998,
+    "final_workflow_run_id": 37659623261,
+    "final_qa": {
+      "delivery": "PASS",
+      "frame_sequence": "PASS",
+      "realtime_audiovisual": "PENDING"
+    }
+  },
+  "current_revision": "Y003-POLISH-03",
+  "final_delivery_shas": {
+    "YUNEX_003_P03_TIKTOK_A.mp4": "b2a0b2746927c1d660c3064443a7faa58fb75ff07d4bc67305b7d2e84b59b8d5",
+    "YUNEX_003_P03_TIKTOK_B.mp4": "9ff8fff75cd4c765fee8c6a08adf8b8a6d405623b4672d1131ef55f403e8599d"
+  },
+  "revision_task_complete": true,
+  "current_report": "yunex/video003/reports/P03/FINAL_QA.md"
 }

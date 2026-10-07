@@ -1,4 +1,7 @@
+import * as THREE from 'three';
 import {
+  SOURCE_WHEEL_CENTRES,
+  SOURCE_WHEEL_SPIN_AXES,
   motionManifest,
   motionStateAt,
   resolveMotionConfig,
@@ -7,10 +10,12 @@ import {
   type MotionState,
   type WheelId,
 } from './contract';
+import {createRuntimeMotionRig} from './runtimeArticulation';
 import {
   sampleTrackAtLocalZ,
   worldXZToTrackLocal,
   TRACK_LAYOUT_CONFIG,
+  TRACK_ASPHALT_LOCAL_Y,
 } from '../../video002/trackUpgrade/racetrack/layout';
 
 export type MotionQaResult = {
@@ -26,6 +31,10 @@ export type MotionQaResult = {
     maxAbsSteerDeg: number;
     maxAbsPitchDeg: number;
     maxAbsRollDeg: number;
+    maxSteerStepDeg: number;
+    maxHubCenterErrorM: number;
+    maxAxleAxisErrorDeg: number;
+    maxRepeatTransformError: number;
     minTyreContactClearanceM: number;
     maxTyreContactErrorM: number;
     minRoadEdgeClearanceM: number;
@@ -45,6 +54,7 @@ const finiteState = (state: MotionState) => {
     state.speedMps,
     state.accelerationMps2,
     state.curvaturePerM,
+    state.steeringCurvaturePerM,
     state.lateralAccelerationMps2,
     ...state.root.position,
     ...state.root.rotation,
@@ -77,6 +87,7 @@ const stateFingerprint = (state: MotionState) =>
     v: state.speedMps,
     a: state.accelerationMps2,
     k: state.curvaturePerM,
+    ks: state.steeringCurvaturePerM,
     p: state.root.position,
     r: state.root.rotation,
     c: state.chassis,
@@ -93,6 +104,132 @@ const stateFingerprint = (state: MotionState) =>
     }),
   });
 
+
+export type RuntimeWheelRigQa = {
+  maxHubCenterErrorM: number;
+  maxAxleAxisErrorDeg: number;
+  maxRepeatTransformError: number;
+  checkedFrames: number;
+};
+
+export const validateRuntimeWheelRigKinematics = (
+  input: Partial<MotionConfig> = {},
+): RuntimeWheelRigQa => {
+  const config = resolveMotionConfig(input);
+  const container = new THREE.Group();
+  container.name = 'YUNEX_Porsche_911_GT3_RS_992';
+
+  for (const id of WHEELS) {
+    const steer = new THREE.Group();
+    steer.name = `Steer_${id}`;
+    steer.position.set(...SOURCE_WHEEL_CENTRES[id]);
+    const spin = new THREE.Group();
+    spin.name = `Spin_${id}`;
+    steer.add(spin);
+
+    const caliper = new THREE.Group();
+    caliper.name = `Caliper_${id}`;
+    if (id[0] === 'F') {
+      steer.add(caliper);
+    } else {
+      caliper.position.set(...SOURCE_WHEEL_CENTRES[id]);
+      container.add(caliper);
+    }
+    container.add(steer);
+  }
+
+  const rig = createRuntimeMotionRig(container);
+  const last = config.durationFrames - 1;
+  const probes = [...new Set([
+    0,
+    Math.min(last, 90),
+    Math.min(last, 190),
+    Math.min(last, 207),
+    Math.min(last, 240),
+    Math.min(last, 300),
+    Math.min(last, 331),
+    Math.min(last, 400),
+    last,
+  ])];
+
+  let maxHubCenterErrorM = 0;
+  let maxAxleAxisErrorRad = 0;
+  let maxRepeatTransformError = 0;
+  const firstPass = new Map<number, Record<WheelId, number[]>>();
+
+  const capture = (frame: number) => {
+    const state = motionStateAt(frame, config);
+    rig.apply(state);
+    const snapshot = {} as Record<WheelId, number[]>;
+
+    for (const id of WHEELS) {
+      const spin = container.getObjectByName(`Spin_${id}`);
+      if (!spin) throw new Error(`synthetic wheel rig lost Spin_${id}`);
+
+      const hub = new THREE.Vector3();
+      spin.getWorldPosition(hub);
+      const expectedHub = new THREE.Vector3(...state.wheels[id].centreWorld);
+      expectedHub.y += state.wheels[id].uprightOffsetY;
+      maxHubCenterErrorM = Math.max(
+        maxHubCenterErrorM,
+        hub.distanceTo(expectedHub),
+      );
+
+      const worldQuaternion = new THREE.Quaternion();
+      spin.getWorldQuaternion(worldQuaternion);
+      const actualAxle = new THREE.Vector3(...SOURCE_WHEEL_SPIN_AXES[id])
+        .applyQuaternion(worldQuaternion)
+        .normalize();
+
+      const expectedQuaternion = new THREE.Quaternion()
+        .setFromAxisAngle(new THREE.Vector3(0, 1, 0), state.root.rotation[1])
+        .multiply(
+          new THREE.Quaternion().setFromAxisAngle(
+            new THREE.Vector3(0, 1, 0),
+            state.wheels[id].steerRad,
+          ),
+        );
+      const expectedAxle = new THREE.Vector3(...SOURCE_WHEEL_SPIN_AXES[id])
+        .applyQuaternion(expectedQuaternion)
+        .normalize();
+      maxAxleAxisErrorRad = Math.max(
+        maxAxleAxisErrorRad,
+        actualAxle.angleTo(expectedAxle),
+      );
+
+      snapshot[id] = spin.matrixWorld.elements.slice();
+    }
+
+    return snapshot;
+  };
+
+  for (const frame of probes) {
+    firstPass.set(frame, capture(frame));
+  }
+  for (const frame of [...probes].reverse()) {
+    const next = capture(frame);
+    const first = firstPass.get(frame);
+    if (!first) continue;
+    for (const id of WHEELS) {
+      for (let i = 0; i < first[id].length; i++) {
+        maxRepeatTransformError = Math.max(
+          maxRepeatTransformError,
+          Math.abs(first[id][i] - next[id][i]),
+        );
+      }
+    }
+  }
+
+  rig.restore();
+
+  return {
+    maxHubCenterErrorM,
+    maxAxleAxisErrorDeg: maxAxleAxisErrorRad * 180 / Math.PI,
+    maxRepeatTransformError,
+    checkedFrames: probes.length,
+  };
+};
+
 export const validateMotionContract = (
   input: Partial<MotionConfig> = {},
 ): MotionQaResult => {
@@ -107,6 +244,8 @@ export const validateMotionContract = (
   let maxAbsSteerRad = 0;
   let maxAbsPitchRad = 0;
   let maxAbsRollRad = 0;
+  let maxSteerStepRad = 0;
+  let previousSteer: Partial<Record<WheelId, number>> = {};
   let minTyreContactClearanceM = Infinity;
   let maxTyreContactErrorM = 0;
   let minRoadEdgeClearanceM = Infinity;
@@ -150,8 +289,17 @@ export const validateMotionContract = (
     for (const id of WHEELS) {
       const wheel = state.wheels[id];
       maxAbsSteerRad = Math.max(maxAbsSteerRad, Math.abs(wheel.steerRad));
+      const priorSteer = previousSteer[id];
+      if (priorSteer !== undefined) {
+        maxSteerStepRad = Math.max(
+          maxSteerStepRad,
+          Math.abs(wheel.steerRad - priorSteer),
+        );
+      }
+      previousSteer[id] = wheel.steerRad;
       const contactClearance =
-        wheel.centreLocal[1] + wheel.uprightOffsetY - wheel.tyreRadiusM;
+        wheel.centreWorld[1] + wheel.uprightOffsetY - wheel.tyreRadiusM
+        - (TRACK_LAYOUT_CONFIG.rootPosition[1]+TRACK_ASPHALT_LOCAL_Y);
       minTyreContactClearanceM = Math.min(
         minTyreContactClearanceM,
         contactClearance,
@@ -193,6 +341,29 @@ export const validateMotionContract = (
   if (maxSpinDistanceErrorM > 1e-8) {
     issues.push(
       `wheel spin/distance mismatch exceeded tolerance (${maxSpinDistanceErrorM.toExponential(3)}m)`,
+    );
+  }
+  const maxSteerStepDeg = maxSteerStepRad * 180 / Math.PI;
+  if (maxSteerStepDeg > 0.35) {
+    issues.push(
+      `front steering changes too abruptly between frames (${maxSteerStepDeg.toFixed(3)}deg/frame)`,
+    );
+  }
+
+  const rigMetrics = validateRuntimeWheelRigKinematics(config);
+  if (rigMetrics.maxHubCenterErrorM > 1e-8) {
+    issues.push(
+      `wheel hub origin drift exceeded tolerance (${rigMetrics.maxHubCenterErrorM.toExponential(3)}m)`,
+    );
+  }
+  if (rigMetrics.maxAxleAxisErrorDeg > 1e-6) {
+    issues.push(
+      `wheel axle precession exceeded tolerance (${rigMetrics.maxAxleAxisErrorDeg.toExponential(3)}deg)`,
+    );
+  }
+  if (rigMetrics.maxRepeatTransformError > 1e-10) {
+    issues.push(
+      `runtime wheel transform repeatability exceeded tolerance (${rigMetrics.maxRepeatTransformError.toExponential(3)})`,
     );
   }
 
@@ -238,6 +409,10 @@ export const validateMotionContract = (
       maxAbsSteerDeg: maxAbsSteerRad * 180 / Math.PI,
       maxAbsPitchDeg: maxAbsPitchRad * 180 / Math.PI,
       maxAbsRollDeg: maxAbsRollRad * 180 / Math.PI,
+      maxSteerStepDeg,
+      maxHubCenterErrorM: rigMetrics.maxHubCenterErrorM,
+      maxAxleAxisErrorDeg: rigMetrics.maxAxleAxisErrorDeg,
+      maxRepeatTransformError: rigMetrics.maxRepeatTransformError,
       minTyreContactClearanceM,
       maxTyreContactErrorM,
       minRoadEdgeClearanceM,

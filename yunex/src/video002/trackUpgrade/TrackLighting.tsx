@@ -10,10 +10,10 @@ import {
 } from './lighting/profile';
 import {createContactShadowTexture,createOutdoorSkyTexture} from './lighting/textures';
 
-export type TrackLightingProps={quality:TrackLightingQuality;seed?:number};
+export type TrackLightingProps={quality:TrackLightingQuality;seed?:number;carPose?:{position:[number,number,number];rotation?:[number,number,number]}};
 export {TRACK_LIGHTING_SETUP} from './lighting/profile';
 
-export const TrackLighting:React.FC<TrackLightingProps>=({quality,seed=2103})=>{
+export const TrackLighting:React.FC<TrackLightingProps>=({quality,seed=2103,carPose})=>{
   const frame=useCurrentFrame();
   const {gl,scene}=useThree();
   const keyLight=useRef<THREE.DirectionalLight|null>(null);
@@ -21,7 +21,7 @@ export const TrackLighting:React.FC<TrackLightingProps>=({quality,seed=2103})=>{
   const profile=lightingProfileFor(quality);
   const sky=useMemo(()=>createOutdoorSkyTexture(seed),[seed]);
   const contactTexture=useMemo(()=>createContactShadowTexture(),[]);
-  const pose=rootPoseAt(frame);
+  const pose=carPose??rootPoseAt(frame);
   const [carX,carY,carZ]=pose.position;
 
   useLayoutEffect(()=>{
@@ -107,8 +107,8 @@ export const TrackLighting:React.FC<TrackLightingProps>=({quality,seed=2103})=>{
       color="#cbdbe2"
     />
     <mesh
-      position={[carX,-.036,carZ+.10]}
-      rotation={[-Math.PI/2,0,0]}
+      position={[carX,carPose?carY+.0024:-.036,carZ+.10]}
+      rotation={[-Math.PI/2,0,pose.rotation?.[1]??0]}
       renderOrder={-10}
     >
       <planeGeometry args={[2.15,4.95]}/>

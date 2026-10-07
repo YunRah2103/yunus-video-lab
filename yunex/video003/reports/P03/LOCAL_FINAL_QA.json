@@ -1,0 +1,18 @@
+{
+  "YUNEX_003_P03_TIKTOK_A.mp4": {
+    "sha256": "b2a0b2746927c1d660c3064443a7faa58fb75ff07d4bc67305b7d2e84b59b8d5",
+    "bytes": 124374849,
+    "faststart": true,
+    "audio_elementary_sha256": "2ade0aeeaa9adb9a03c1d62d88efd819b71fc94900acb5ead85a28b0ac1c5e89",
+    "video_elementary_sha256": "26b4f8d3b877be5a2a466dfa2d2e542946a0f3362cd05fb19d49bca5c36e8d8b",
+    "decoder": "PASS"
+  },
+  "YUNEX_003_P03_TIKTOK_B.mp4": {
+    "sha256": "9ff8fff75cd4c765fee8c6a08adf8b8a6d405623b4672d1131ef55f403e8599d",
+    "bytes": 124374905,
+    "faststart": true,
+    "audio_elementary_sha256": "2ade0aeeaa9adb9a03c1d62d88efd819b71fc94900acb5ead85a28b0ac1c5e89",
+    "video_elementary_sha256": "26b4f8d3b877be5a2a466dfa2d2e542946a0f3362cd05fb19d49bca5c36e8d8b",
+    "decoder": "PASS"
+  }
+}

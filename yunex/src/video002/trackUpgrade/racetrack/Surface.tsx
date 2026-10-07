@@ -1,6 +1,6 @@
 import React, {useEffect, useMemo} from 'react';
 import * as THREE from 'three';
-import {TRACK_LAYOUT_CONFIG, TRACK_LAYOUT_SAMPLES} from './layout';
+import {TRACK_LAYOUT_CONFIG, TRACK_LAYOUT_SAMPLES, TRACK_ASPHALT_LOCAL_Y} from './layout';
 import type {TrackLayoutSample, TrackVec2} from './types';
 import {createAsphaltTexture} from '../road/proceduralRoadTexture';
 import type {RoadQuality} from '../road/layout';
@@ -10,7 +10,7 @@ export type SurfaceProps = {
   seed?: number;
 };
 
-const ASPHALT_Y = -0.0104;
+const ASPHALT_Y = TRACK_ASPHALT_LOCAL_Y;
 const PAINT_Y = ASPHALT_Y + 0.0016;
 const WEAR_Y = ASPHALT_Y + 0.0019;
 const EDGE_PAINT_WIDTH = 0.075;
