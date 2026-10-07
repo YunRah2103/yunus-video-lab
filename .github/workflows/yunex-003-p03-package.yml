@@ -64,7 +64,9 @@ jobs:
           for i,line in enumerate(lines):
             if line.startswith('video_size='):
               lines[i]=line.replace('"$VISUAL")"', '"$VISUAL" | cut -d x -f 1,2)"')
-          p.write_text('\n'.join(lines)+'\n')
+          p.write_text(('\n'.join(lines)+'\n').replace('-f null -', '-c:v rawvideo -c:a pcm_s16le -f null -'))
+          q=Path('audio-tools/yunex/video003/render/validate_export.py')
+          q.write_text(q.read_text().replace('"-f", "null", "-"', '"-c:v", "rawvideo", "-c:a", "pcm_s16le", "-f", "null", "-"'))
           PY
           bash audio-tools/yunex/video003/render/mux-approved-audio.sh native-visual.mp4 audio-tools/yunex/video003/render/YUNEX_003_APPROVED_AUDIO.m4a delivery/YUNEX_003_P03_TIKTOK_A.mp4
           ffmpeg -v error -y -i delivery/YUNEX_003_P03_TIKTOK_A.mp4 -map 0 -c copy -metadata title='YUNEX 003 corrected — TikTok B' -movflags +faststart delivery/YUNEX_003_P03_TIKTOK_B.mp4
