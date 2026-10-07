@@ -1,0 +1,178 @@
+name: YUNEX 003 final native rescue
+
+permissions:
+  contents: read
+  actions: read
+
+on:
+  push:
+    branches:
+      - sol/y003-suspension-manager
+    paths:
+      - '.github/workflows/yunex-003-native-rescue.yml'
+
+concurrency:
+  group: y003-native-rescue
+  cancel-in-progress: false
+
+env:
+  RENDER_SOURCE_SHA: 805c74fc2f749ed701c95d1aa5809e60e5a02d76
+  SOURCE_RUN_ID: '37546004860'
+  EXPECTED_MODEL_SHA: 1c73fcb138c31e2b1d5ed126a2412074bb17f8e960b355436f28139bf518e1eb
+
+jobs:
+  assemble:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout exact approved render source
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ env.RENDER_SOURCE_SHA }}
+          path: source
+
+      - name: Download exact successful native chunks
+        uses: actions/download-artifact@v4
+        with:
+          github-token: ${{ github.token }}
+          run-id: ${{ env.SOURCE_RUN_ID }}
+          pattern: y003-native-*
+          path: chunks
+          merge-multiple: true
+
+      - name: Install ffmpeg
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq ffmpeg
+
+      - name: Audit chunk provenance and codec
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(sha256sum source/cars/porsche-911-gt3-rs-992/model.glb | awk '{print $1}')" = "$EXPECTED_MODEL_SHA"
+          python - <<'PY'
+          import json, re, subprocess
+          from pathlib import Path
+
+          root = Path('chunks')
+          chunks = sorted(root.glob('chunk-*.mp4'))
+          if len(chunks) != 37:
+              raise SystemExit(f'expected 37 chunks, got {len(chunks)}')
+
+          expected = []
+          for start in range(0, 735, 20):
+              end = min(734, start + 19)
+              expected.append(f'chunk-{start:04d}-{end:04d}.mp4')
+          actual = [p.name for p in chunks]
+          if actual != expected:
+              raise SystemExit(f'chunk coverage mismatch\nexpected={expected}\nactual={actual}')
+
+          source_files = sorted(root.glob('source-*.txt'))
+          if len(source_files) != 37:
+              raise SystemExit(f'expected 37 source pins, got {len(source_files)}')
+          pins = {p.read_text().strip() for p in source_files}
+          if pins != {'805c74fc2f749ed701c95d1aa5809e60e5a02d76'}:
+              raise SystemExit(f'source pin mismatch: {pins}')
+
+          def probe(path: Path):
+              cmd = [
+                  'ffprobe','-v','error',
+                  '-show_entries','stream=codec_name,pix_fmt,width,height,r_frame_rate,avg_frame_rate,nb_frames',
+                  '-of','json',str(path)
+              ]
+              return json.loads(subprocess.check_output(cmd, text=True))['streams'][0]
+
+          audited = []
+          frame_sum = 0
+          for p in chunks:
+              s = probe(p)
+              if s.get('codec_name') != 'h264':
+                  raise SystemExit(f'{p.name}: codec {s.get("codec_name")}')
+              if (s.get('width'), s.get('height')) != (1080, 1920):
+                  raise SystemExit(f'{p.name}: dimensions {s.get("width")}x{s.get("height")}')
+              if s.get('avg_frame_rate') != '30/1':
+                  raise SystemExit(f'{p.name}: fps {s.get("avg_frame_rate")}')
+              frame_sum += int(s.get('nb_frames') or 0)
+              audited.append({'name': p.name, **s})
+          if frame_sum != 735:
+              raise SystemExit(f'chunk frame sum {frame_sum}, expected 735')
+
+          reps = [chunks[0], root/'chunk-0360-0379.mp4', chunks[-1]]
+          diagnostic = {
+              'case': 'A',
+              'finding': 'individual native chunks are yuvj420p; final normalization encode is required',
+              'source_run_id': 37546004860,
+              'render_source_sha': '805c74fc2f749ed701c95d1aa5809e60e5a02d76',
+              'chunk_count': len(chunks),
+              'total_chunk_frames': frame_sum,
+              'representative_probes': {p.name: probe(p) for p in reps},
+              'all_chunk_pixel_formats': sorted({x.get('pix_fmt') for x in audited}),
+          }
+          Path('chunk-diagnostic.json').write_text(json.dumps(diagnostic, indent=2) + '\n')
+          print(json.dumps(diagnostic, indent=2))
+          PY
+
+      - name: Concatenate exact chunks and normalize delivery pixel format
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          from pathlib import Path
+          files = sorted(Path('chunks').glob('chunk-*.mp4'))
+          Path('concat.txt').write_text(''.join("file '"+str(p.resolve())+"'\n" for p in files))
+          PY
+          ffmpeg -y -v error -f concat -safe 0 -i concat.txt -c copy YUNEX_003_NATIVE_VISUAL_CONCAT.mp4
+          ffprobe -v error -show_entries stream=codec_name,pix_fmt,width,height,r_frame_rate,avg_frame_rate,nb_frames -of json             YUNEX_003_NATIVE_VISUAL_CONCAT.mp4 > concat-probe.json
+          ffmpeg -y -v error -i YUNEX_003_NATIVE_VISUAL_CONCAT.mp4 -an             -c:v libx264 -preset slow -crf 14 -pix_fmt yuv420p             -color_range tv -colorspace bt709 -color_primaries bt709 -color_trc bt709             -movflags +faststart YUNEX_003_NATIVE_VISUAL.mp4
+
+      - name: Validate normalized native visual
+        shell: bash
+        run: |
+          set -euo pipefail
+          python source/yunex/video003/render/validate_export.py             YUNEX_003_NATIVE_VISUAL.mp4 --total-frames 735 > validation.json
+          ffmpeg -v error -xerror -i YUNEX_003_NATIVE_VISUAL.mp4 -f null -
+          ffprobe -v error -count_frames -select_streams v:0             -show_entries stream=codec_name,pix_fmt,width,height,r_frame_rate,avg_frame_rate,nb_read_frames,color_range,color_space,color_primaries,color_transfer             -of json YUNEX_003_NATIVE_VISUAL.mp4 > final-probe.json
+          test "$(ffprobe -v error -count_frames -select_streams v:0 -show_entries stream=nb_read_frames -of default=nw=1:nk=1 YUNEX_003_NATIVE_VISUAL.mp4)" = "735"
+          sha256sum YUNEX_003_NATIVE_VISUAL.mp4 > visual.sha256
+
+      - name: Extract final native milestone review
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p review
+          for frame in 27 144 234 306 492 603 711; do
+            ffmpeg -y -v error -i YUNEX_003_NATIVE_VISUAL.mp4               -vf "select=eq(n\,$frame)" -vsync 0 -frames:v 1 "review/frame-$frame.png"
+          done
+          ffmpeg -y -v error -framerate 1 -pattern_type glob -i 'review/frame-*.png'             -vf "scale=270:480,tile=4x2:padding=6:margin=6" -frames:v 1 review/contact-sheet.png
+          cat > rescue-manifest.json <<EOF
+          {
+            "phase": "Y003-SUSPENSION-AERO-01",
+            "status": "NATIVE_VISUAL_DELIVERY_COMPLETE",
+            "rescue_run_id": ${{ github.run_id }},
+            "source_chunk_run_id": 37546004860,
+            "render_source_sha": "805c74fc2f749ed701c95d1aa5809e60e5a02d76",
+            "frames": 735,
+            "fps": 30,
+            "width": 1080,
+            "height": 1920,
+            "codec": "h264",
+            "pixel_format": "yuv420p",
+            "model_sha256": "$EXPECTED_MODEL_SHA",
+            "milestone_frames": [27,144,234,306,492,603,711]
+          }
+          EOF
+
+      - name: Upload final native visual delivery
+        uses: actions/upload-artifact@v4
+        with:
+          name: YUNEX-003-NATIVE-VISUAL-RESCUE-${{ github.run_id }}
+          path: |
+            YUNEX_003_NATIVE_VISUAL.mp4
+            validation.json
+            final-probe.json
+            concat-probe.json
+            chunk-diagnostic.json
+            visual.sha256
+            rescue-manifest.json
+            review/
+          retention-days: 14
