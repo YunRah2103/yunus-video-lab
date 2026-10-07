@@ -39,10 +39,27 @@ def main() -> int:
     parser.add_argument("--width", type=int, default=1080)
     parser.add_argument("--height", type=int, default=1920)
     parser.add_argument("--fps", type=int, default=30)
+    parser.add_argument(
+        "--allowed-pixel-formats",
+        default="yuv420p,yuvj420p",
+        help=(
+            "Comma-separated intermediate chunk formats. The proven Y003 native "
+            "renderer can emit yuvj420p chunks even when yuv420p is requested; "
+            "the delivery workflow normalizes once after concatenation."
+        ),
+    )
     args = parser.parse_args()
 
     if args.total_frames < 1:
         fail("total_frames must be >= 1")
+    if not re.fullmatch(r"[0-9a-fA-F]{40}", args.expected_source):
+        fail("expected-source must be an exact 40-character commit SHA")
+
+    allowed_pixel_formats = {
+        value.strip() for value in args.allowed_pixel_formats.split(",") if value.strip()
+    }
+    if not allowed_pixel_formats:
+        fail("allowed-pixel-formats must contain at least one format")
 
     files = sorted(args.chunks_dir.glob("chunk-*.mp4"))
     if not files:
@@ -50,6 +67,7 @@ def main() -> int:
 
     ranges = []
     records = []
+    observed_pixel_formats = set()
     for path in files:
         match = CHUNK_RE.match(path.name)
         if not match:
@@ -73,8 +91,13 @@ def main() -> int:
         stream = videos[0]
         if stream.get("codec_name") != "h264":
             fail(f"{path.name}: codec {stream.get('codec_name')} is not h264")
-        if stream.get("pix_fmt") != "yuv420p":
-            fail(f"{path.name}: pix_fmt {stream.get('pix_fmt')} is not yuv420p")
+        pixel_format = stream.get("pix_fmt")
+        if pixel_format not in allowed_pixel_formats:
+            fail(
+                f"{path.name}: pix_fmt {pixel_format} not in "
+                f"{sorted(allowed_pixel_formats)}"
+            )
+        observed_pixel_formats.add(pixel_format)
         if int(stream.get("width", 0)) != args.width or int(stream.get("height", 0)) != args.height:
             fail(f"{path.name}: dimensions are not {args.width}x{args.height}")
         rate = parse_rate(stream.get("avg_frame_rate") or stream.get("r_frame_rate") or "0/1")
@@ -91,6 +114,7 @@ def main() -> int:
             "end": end,
             "frames": actual_count,
             "source_sha": source_sha,
+            "pixel_format": pixel_format,
         })
 
     ranges.sort()
@@ -108,6 +132,9 @@ def main() -> int:
         "total_frames": args.total_frames,
         "frame_range": f"0-{args.total_frames - 1}",
         "chunk_count": len(records),
+        "allowed_pixel_formats": sorted(allowed_pixel_formats),
+        "observed_pixel_formats": sorted(observed_pixel_formats),
+        "requires_delivery_normalization": observed_pixel_formats != {"yuv420p"},
         "chunks": records,
     }
     print(json.dumps(result, indent=2))
