@@ -1,0 +1,68 @@
+{
+  "phase": "Y003-POLISH-02",
+  "render_source_sha": "0db1a6509c54b6df1df0422152aa90d7c02b5de1",
+  "visual_rescue_run_id": 37625560242,
+  "visual_artifact_id": 11483379220,
+  "visual_sha256": "dea2b45456aaeb9d4a4a94c4839a7551dd969dd7c4e0c6c1f40c94e2370f82c6",
+  "approved_audio_sha256": "cd411b0dcc9e733f5b142e59f8340f913816e28bf113a32639c4fd12f7ec04c3",
+  "model_sha256": "1c73fcb138c31e2b1d5ed126a2412074bb17f8e960b355436f28139bf518e1eb",
+  "packaging_run_id": 37659623261,
+  "packaging_commit": "0ede48a4aeefc0a854a07df927bce45a05456a47",
+  "variants": "A/B have identical video and AAC packets; B differs only in title/container metadata. No grading, cropping, visual encoding or 3D rendering.",
+  "spec": {
+    "width": 1080,
+    "height": 1920,
+    "fps": 30,
+    "frames": 735,
+    "duration": 24.5,
+    "video": "H.264 yuv420p",
+    "audio": "AAC 48000 Hz stereo",
+    "faststart": true
+  },
+  "files": {
+    "YUNEX_003_P02_TIKTOK_B.mp4": "cd99beb0d7a004266857d508066050d5824aa0a6c30ad8d92b2d887f4660acd9",
+    "YUNEX_003_P02_TIKTOK_A.mp4": "cc8a898298fc6c543f5475aac85bafb0cca635f1d1de1f663e97b21453116118"
+  },
+  "qa": {
+    "delivery": "PASS",
+    "decoder": "PASS",
+    "seven_milestones": [
+      27,
+      144,
+      234,
+      306,
+      492,
+      603,
+      711
+    ],
+    "frame_sequence_review": "PASS: every fifth frame across full duration; all 36 chunk boundaries reviewed at -1/0/+1.",
+    "realtime_audiovisual_review": "NOT PERFORMED; final creative approval remains pending."
+  },
+  "audio_peak_dbfs": -5.196783,
+  "evidence": {
+    "native/review/milestone-03-frame-234.png": "e920d76387fdd03f18d8804e632651defb84dde36bc36517a6b7f5eb4a2eb514",
+    "native/review/milestone-04-frame-306.png": "720b3e809b7eb3157d2cae9739f5de919fc97240f77e3339f42411ecbe08a62c",
+    "native/review/milestone-05-frame-492.png": "1c6860bfb05aff5744f43a619fe36f579ea7a047845a20773f9b1c499005e776",
+    "native/review/milestone-07-frame-711.png": "64d5e9bf3387cb930bfa3eb8b317e04cfd6d175b13ccec4646d258e99168340e",
+    "native/review/milestone-02-frame-144.png": "492be527de0b17d3a3982f88f445720a578b8bbe42ee80a57c6ddd9e39632c48",
+    "native/review/milestone-06-frame-603.png": "1740b3786c249168104d6e9f1c7b15eb566c6e0edac7f932bd3d0d11d5e3f054",
+    "native/review/milestone-01-frame-27.png": "165cc8016058a9fe703a812488597146f66c879ce66c45c02f58ba7b15af08b7",
+    "qa/sequence-4.jpg": "112943f118c99ad7cd55932685d4fc19f48b48cf7dd6673d65e251bbb3038bf2",
+    "qa/sequence-1.jpg": "9612d710d260182af41c559da0bccadf790a183c6db2b2b5d0b1051906899313",
+    "qa/sequence-2.jpg": "89df3ba694d205e3f91237f826102900f21e08efd4cca46bf9191c21e9a56d9b",
+    "qa/sequence-3.jpg": "286b72cd8defe5250665377ade28908729ea882cf0379c4637db1d8f33baf251",
+    "qa/sequence-0.jpg": "412dddf832460b877c98e97665b43d4a58ecae873bb40f6272200d63700a8d0b",
+    "qa/seams-3.jpg": "58d50fd4baac5d298c64b66e8e65486b7f10ce0a6e72c291ac2935d5e39b9946",
+    "qa/seams-1.jpg": "a46ad63ecf75deee0a4b3e742a0f973a2c8b35f6b2b2e998c6e76698417c9e5b",
+    "qa/seams-2.jpg": "7e74602dd1c3e5504cee61177ef4f30f01960df699fbe0afe6b62de15c85615a",
+    "qa/seams-0.jpg": "0adf2d30de81e6481bcd21b032286d0a2362416b7d42fd9227cd6c16d76eac6c"
+  },
+  "publication": {
+    "A_library_file_id": "libfile_3b57988fdd288191b46e234f50563fca",
+    "B_library_file_id": "libfile_ee528dc1c16881918a03c2297326c44d",
+    "qa_evidence_library_file_id": "libfile_97b8742f1124819193111ad8d616e7a3"
+  },
+  "final_artifact_id": 11499343998,
+  "artifact_zip_sha256": "05d42153b822b1cd00b5abb9ac05813e2f269f8b6c81d2aee4b41f97f9744cd6",
+  "status": "PACKAGING_COMPLETE_REALTIME_QA_PENDING"
+}

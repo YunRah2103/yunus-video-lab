@@ -94,7 +94,7 @@
       "role": "Native render/delivery",
       "handoff": "polish02/G_RENDER_DELIVERY_HANDOFF.md",
       "branch": "sol/y003-p02-render",
-      "status": "released_for_final_render",
+      "status": "delivery_packaged_validated_published",
       "owned": [
         "yunex/video003/render/",
         ".github/workflows/yunex-003-*.yml",
@@ -106,7 +106,7 @@
       "role": "Final independent QA",
       "handoff": "polish02/H_FINAL_QA_HANDOFF.md",
       "branch": "sol/y003-p02-final-qa",
-      "status": "prepare_only_until_final_artifact",
+      "status": "frame_and_delivery_qa_pass_realtime_review_pending",
       "owned": [
         "yunex/video003/qa/polish02/final/",
         "yunex/video003/reports/P02-H/"
@@ -122,5 +122,15 @@
   ],
   "integration_order": "A/B/C parallel -> D/E review -> F compatibility -> Manager integration + short native proof -> G final render -> H final QA",
   "render_source_sha": "0db1a6509c54b6df1df0422152aa90d7c02b5de1",
-  "final_delivery_sha": null
+  "final_delivery_sha": "cc8a898298fc6c543f5475aac85bafb0cca635f1d1de1f663e97b21453116118",
+  "final_delivery_sha_algorithm": "SHA256",
+  "final_artifact_id": 11499343998,
+  "final_workflow_run_id": 37659623261,
+  "release_status": "PACKAGING_COMPLETE_REALTIME_QA_PENDING",
+  "project_complete": false,
+  "final_qa": {
+    "delivery": "PASS",
+    "frame_sequence": "PASS",
+    "realtime_audiovisual": "PENDING"
+  }
 }
