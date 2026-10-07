@@ -1,9 +1,9 @@
 {
   "phase": "Y003-POLISH-02",
   "composition": "YUNEX-003-VISUAL",
-  "render_source_sha": "",
+  "render_source_sha": "0db1a6509c54b6df1df0422152aa90d7c02b5de1",
   "total_frames": 735,
   "chunk_size": 20,
   "milestone_frames": "27,144,234,306,492,603,711",
-  "status": "WAITING_FOR_MANAGER_PIN"
+  "status": "MANAGER_RELEASED_FINAL_SOURCE"
 }
