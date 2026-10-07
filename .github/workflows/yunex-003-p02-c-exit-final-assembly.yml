@@ -21,7 +21,7 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y ffmpeg
 
-      - name: Download fresh final-exit chunks
+      - name: Download fresh exit chunks
         uses: actions/download-artifact@v4
         with:
           pattern: y003-p02-c-exit-chunk-*-a27fbd0d19a1b7d74dc3a7890832906ed182c34e
@@ -31,56 +31,61 @@ jobs:
           run-id: 37615339642
           github-token: ${{ github.token }}
 
-      - name: Assemble and validate final-exit proof
+      - name: Assemble fresh 4 second exit proof
         run: |
-          set -euo pipefail
-
-          test -s chunks/chunk-2.mp4
-          test -s chunks/chunk-3.mp4
-          test "$(ffprobe -v error -select_streams v:0 -count_frames -show_entries stream=nb_read_frames -of csv=p=0 chunks/chunk-2.mp4)" = "30"
-          test "$(ffprobe -v error -select_streams v:0 -count_frames -show_entries stream=nb_read_frames -of csv=p=0 chunks/chunk-3.mp4)" = "30"
+          for index in 0 1 2 3; do
+            test -s "chunks/chunk-${index}.mp4"
+          done
 
           ffmpeg -y \
+            -i chunks/chunk-0.mp4 \
+            -i chunks/chunk-1.mp4 \
             -i chunks/chunk-2.mp4 \
             -i chunks/chunk-3.mp4 \
-            -filter_complex "[0:v:0]setpts=PTS-STARTPTS[v0];[1:v:0]setpts=PTS-STARTPTS[v1];[v0][v1]concat=n=2:v=1:a=0,scale=in_range=full:out_range=tv,format=yuv420p[v]" \
+            -filter_complex "[0:v:0]setpts=PTS-STARTPTS[v0];[1:v:0]setpts=PTS-STARTPTS[v1];[2:v:0]setpts=PTS-STARTPTS[v2];[3:v:0]setpts=PTS-STARTPTS[v3];[v0][v1][v2][v3]concat=n=4:v=1:a=0,scale=in_range=full:out_range=tv,format=yuv420p[v]" \
             -map "[v]" -an -c:v libx264 -preset medium -crf 18 -r 30 -pix_fmt yuv420p -movflags +faststart \
-            exit-frame711-motion-proof-2s.mp4
+            exit-frame711-motion-proof-4s.mp4
 
-          ffmpeg -v error -i exit-frame711-motion-proof-2s.mp4 -f null -
-
-          width="$(ffprobe -v error -select_streams v:0 -show_entries stream=width -of csv=p=0 exit-frame711-motion-proof-2s.mp4)"
-          height="$(ffprobe -v error -select_streams v:0 -show_entries stream=height -of csv=p=0 exit-frame711-motion-proof-2s.mp4)"
-          fps="$(ffprobe -v error -select_streams v:0 -show_entries stream=r_frame_rate -of csv=p=0 exit-frame711-motion-proof-2s.mp4)"
-          frames="$(ffprobe -v error -select_streams v:0 -count_frames -show_entries stream=nb_read_frames -of csv=p=0 exit-frame711-motion-proof-2s.mp4)"
-          pix_fmt="$(ffprobe -v error -select_streams v:0 -show_entries stream=pix_fmt -of csv=p=0 exit-frame711-motion-proof-2s.mp4)"
-          codec="$(ffprobe -v error -select_streams v:0 -show_entries stream=codec_name -of csv=p=0 exit-frame711-motion-proof-2s.mp4)"
-          duration="$(ffprobe -v error -show_entries format=duration -of csv=p=0 exit-frame711-motion-proof-2s.mp4)"
-
-          echo "validated: ${width}x${height} fps=${fps} frames=${frames} pix_fmt=${pix_fmt} codec=${codec} duration=${duration}"
-
-          test "$width" = "270"
-          test "$height" = "480"
-          test "$fps" = "30/1"
-          test "$frames" = "60"
-          case "$pix_fmt" in
-            yuv420p|yuvj420p) ;;
-            *) echo "Unexpected 4:2:0 pixel format: $pix_fmt"; exit 1 ;;
-          esac
-          test "$codec" = "h264"
-          awk -v d="$duration" 'BEGIN { exit !(d >= 1.95 && d <= 2.05) }'
-
+      - name: Validate assembled proof
+        run: |
+          set -u
           ffprobe -v error -select_streams v:0 \
-            -show_entries stream=codec_name,width,height,pix_fmt,r_frame_rate,nb_frames \
+            -count_frames \
+            -show_entries stream=codec_name,width,height,pix_fmt,color_range,r_frame_rate,nb_read_frames \
             -show_entries format=duration,size,format_name \
-            -of json exit-frame711-motion-proof-2s.mp4 > ffprobe.json
-          sha256sum exit-frame711-motion-proof-2s.mp4 > sha256.txt
+            -of json exit-frame711-motion-proof-4s.mp4 > ffprobe.json
+
+          cat ffprobe.json
+
+          python3 - <<'PY'
+          import json
+          with open('ffprobe.json','r',encoding='utf-8') as f:
+              data=json.load(f)
+          stream=data['streams'][0]
+          fmt=data['format']
+          checks={
+              'codec': stream.get('codec_name')=='h264',
+              'width': int(stream.get('width',0))==270,
+              'height': int(stream.get('height',0))==480,
+              'fps': stream.get('r_frame_rate')=='30/1',
+              'frames': int(stream.get('nb_read_frames',0))==120,
+              'pix_fmt': stream.get('pix_fmt') in {'yuv420p','yuvj420p'},
+              'duration': 3.95 <= float(fmt.get('duration',0)) <= 4.05,
+          }
+          print(json.dumps(checks,indent=2))
+          failed=[k for k,v in checks.items() if not v]
+          if failed:
+              raise SystemExit('validation failed: '+', '.join(failed))
+          PY
+
+          ffmpeg -v error -i exit-frame711-motion-proof-4s.mp4 -f null -
+          sha256sum exit-frame711-motion-proof-4s.mp4 > sha256.txt
 
       - uses: actions/upload-artifact@v4
         with:
           name: Y003-P02-C-EXIT-FRAME711-MOTION-VALIDATED-${{ github.sha }}
           path: |
-            exit-frame711-motion-proof-2s.mp4
+            exit-frame711-motion-proof-4s.mp4
             ffprobe.json
             sha256.txt
           retention-days: 14
