@@ -43,7 +43,7 @@ jobs:
           ffmpeg -y \
             -i chunks/chunk-2.mp4 \
             -i chunks/chunk-3.mp4 \
-            -filter_complex "[0:v:0]setpts=PTS-STARTPTS[v0];[1:v:0]setpts=PTS-STARTPTS[v1];[v0][v1]concat=n=2:v=1:a=0[v]" \
+            -filter_complex "[0:v:0]setpts=PTS-STARTPTS[v0];[1:v:0]setpts=PTS-STARTPTS[v1];[v0][v1]concat=n=2:v=1:a=0,scale=in_range=full:out_range=tv,format=yuv420p[v]" \
             -map "[v]" -an -c:v libx264 -preset medium -crf 18 -r 30 -pix_fmt yuv420p -movflags +faststart \
             exit-frame711-motion-proof-2s.mp4
 
