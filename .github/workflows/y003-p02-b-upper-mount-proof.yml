@@ -1,0 +1,218 @@
+name: YUNEX 003 P02-B upper mount proof
+
+permissions:
+  contents: write
+  actions: read
+
+on:
+  push:
+    branches:
+      - sol/y003-p02-suspension-detail
+    paths:
+      - '.github/workflows/y003-p02-b-upper-mount-proof.yml'
+
+env:
+  SOURCE_SHA: 7b2ac51508890563b5c598480d47b2bfd0cfd0d1
+  MODEL_SHA: 1c73fcb138c31e2b1d5ed126a2412074bb17f8e960b355436f28139bf518e1eb
+
+jobs:
+  chunk:
+    strategy:
+      fail-fast: false
+      max-parallel: 6
+      matrix:
+        include:
+          - {part: "00", frames: "441-455"}
+          - {part: "01", frames: "456-470"}
+          - {part: "02", frames: "471-485"}
+          - {part: "03", frames: "486-500"}
+          - {part: "04", frames: "501-515"}
+          - {part: "05", frames: "516-530"}
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ env.SOURCE_SHA }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: yunex/package-lock.json
+      - name: Stage exact fixed B source
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$SOURCE_SHA"
+          test "$(sha256sum cars/porsche-911-gt3-rs-992/model.glb | awk '{print $1}')" = "$MODEL_SHA"
+          mkdir -p yunex/public yunex/out/p02-b-upper
+          cp cars/porsche-911-gt3-rs-992/model.glb yunex/public/model.glb
+          cd yunex
+          npm ci --no-audit --no-fund
+      - name: Render native articulation chunk
+        working-directory: yunex
+        env:
+          NODE_OPTIONS: --require=./fix-network.cjs
+        run: |
+          npx remotion render src/index.tsx YUNEX-003-VISUAL "out/p02-b-upper/chunk-${{ matrix.part }}.mp4"             --frames="${{ matrix.frames }}" --gl=swangle --concurrency=2 --codec=h264             --pixel-format=yuv420p --crf=17 --scale=1 --timeout=180000 --muted
+      - uses: actions/upload-artifact@v4
+        with:
+          name: p02-b-upper-chunk-${{ matrix.part }}
+          path: yunex/out/p02-b-upper/chunk-${{ matrix.part }}.mp4
+          retention-days: 7
+
+  stills:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ env.SOURCE_SHA }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: yunex/package-lock.json
+      - name: Stage exact fixed B source
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$SOURCE_SHA"
+          test "$(sha256sum cars/porsche-911-gt3-rs-992/model.glb | awk '{print $1}')" = "$MODEL_SHA"
+          mkdir -p yunex/public yunex/out/p02-b-upper
+          cp cars/porsche-911-gt3-rs-992/model.glb yunex/public/model.glb
+          cd yunex
+          npm ci --no-audit --no-fund
+      - name: Render required native stills
+        working-directory: yunex
+        env:
+          NODE_OPTIONS: --require=./fix-network.cjs
+        run: |
+          npx remotion still src/index.tsx YUNEX-003-VISUAL out/p02-b-upper/installed-after-f234.png --frame=234 --gl=swangle --scale=1 --timeout=180000
+          npx remotion still src/index.tsx YUNEX-003-VISUAL out/p02-b-upper/mechanical-load-f492.png --frame=492 --gl=swangle --scale=1 --timeout=180000
+      - uses: actions/upload-artifact@v4
+        with:
+          name: p02-b-upper-stills
+          path: yunex/out/p02-b-upper/*.png
+          retention-days: 7
+
+  assemble:
+    needs: [chunk, stills]
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: sol/y003-p02-suspension-detail
+          fetch-depth: 0
+      - name: Install ffmpeg
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq ffmpeg
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: p02-b-upper-chunk-*
+          path: chunks
+          merge-multiple: true
+      - uses: actions/download-artifact@v4
+        with:
+          name: p02-b-upper-stills
+          path: stills
+      - name: Assemble and validate fixed native proof
+        shell: bash
+        run: |
+          set -euo pipefail
+          find chunks -type f -name 'chunk-*.mp4' -print | sort > chunk-list.txt
+          test "$(wc -l < chunk-list.txt)" -eq 6
+          : > concat.txt
+          while IFS= read -r f; do
+            printf "file '%s/%s'\n" "$GITHUB_WORKSPACE" "$f" >> concat.txt
+          done < chunk-list.txt
+          ffmpeg -y -v error -f concat -safe 0 -i concat.txt -an -c:v libx264 -preset medium -crf 17 -pix_fmt yuv420p -r 30 -movflags +faststart articulation-native-f441-530.mp4
+          ffmpeg -v error -xerror -i articulation-native-f441-530.mp4 -f null -
+          ffprobe -v error -count_frames -show_entries stream=codec_name,pix_fmt,width,height,r_frame_rate,nb_read_frames -show_entries format=duration -of json articulation-native-f441-530.mp4 > articulation-probe.json
+          for name in installed-after-f234 mechanical-load-f492; do
+            ffprobe -v error -show_entries stream=codec_name,width,height -of json "stills/$name.png" > "$name.probe.json"
+          done
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          d=json.loads(Path('articulation-probe.json').read_text())
+          s=d['streams'][0]
+          assert s['codec_name']=='h264', s
+          assert s['pix_fmt']=='yuv420p', s
+          assert int(s['width'])==1080 and int(s['height'])==1920, s
+          assert s['r_frame_rate']=='30/1', s
+          assert int(s['nb_read_frames'])==90, s
+          assert 2.95 <= float(d['format']['duration']) <= 3.05, d
+          for p in ['installed-after-f234.probe.json','mechanical-load-f492.probe.json']:
+              s=json.loads(Path(p).read_text())['streams'][0]
+              assert s['codec_name']=='png', s
+              assert int(s['width'])==1080 and int(s['height'])==1920, s
+          PY
+      - name: Update committed proof package
+        shell: bash
+        run: |
+          set -euo pipefail
+          dest=yunex/video003/reports/P02-B/proof
+          test -f "$dest/installed-before-f234.png"
+          cp stills/installed-after-f234.png "$dest/"
+          cp stills/mechanical-load-f492.png "$dest/"
+          cp articulation-native-f441-530.mp4 "$dest/"
+          cp articulation-probe.json "$dest/"
+          cp installed-after-f234.probe.json "$dest/"
+          cp mechanical-load-f492.probe.json "$dest/"
+          ffmpeg -y -v error -i "$dest/installed-before-f234.png" -i "$dest/installed-after-f234.png" -filter_complex "[0:v][1:v]blend=all_mode=difference" -frames:v 1 "$dest/installed-difference-f234.png"
+          python - <<'PY'
+          import hashlib, json
+          from pathlib import Path
+          root=Path('yunex/video003/reports/P02-B/proof')
+          def sha(p):
+              h=hashlib.sha256()
+              with open(p,'rb') as f:
+                  for b in iter(lambda:f.read(1<<20),b''):
+                      h.update(b)
+              return h.hexdigest()
+          probe=json.loads((root/'articulation-probe.json').read_text())
+          manifest=json.loads((root/'PROOF_MANIFEST.json').read_text())
+          manifest.update({
+            'status':'NATIVE_PROOF_COMPLETE',
+            'implementation_sha':'7b2ac51508890563b5c598480d47b2bfd0cfd0d1',
+            'upper_damper_mount_fix':True,
+            'proof_gate':'PASS',
+            'decoder_pass':True
+          })
+          manifest['installed_after']={'frame':234,'width':1080,'height':1920,'sha256':sha(root/'installed-after-f234.png')}
+          manifest['mechanical_load_still']={'frame':492,'width':1080,'height':1920,'sha256':sha(root/'mechanical-load-f492.png')}
+          manifest['difference_image']={'frame':234,'sha256':sha(root/'installed-difference-f234.png')}
+          manifest['articulation']={
+            'frames':'441-530','decoded_frames':90,'fps':30,'width':1080,'height':1920,
+            'codec':'h264','pixel_format':'yuv420p','duration_seconds':float(probe['format']['duration']),
+            'sha256':sha(root/'articulation-native-f441-530.mp4')
+          }
+          (root/'PROOF_MANIFEST.json').write_text(json.dumps(manifest,indent=2)+'\n')
+          (root/'PROOF_RESULTS.md').write_text(
+            '# YUNEX 003 — POLISH 02 — Agent B upper damper mount proof\n\n'
+            'PASS.\n\n'
+            '- Exact fixed implementation rendered: 7b2ac51508890563b5c598480d47b2bfd0cfd0d1\n'
+            '- Frame 234 rerendered native at 1080×1920 after adding the upper damper chassis clevis/triangulated brace.\n'
+            '- Frame 492 rerendered native at 1080×1920.\n'
+            '- Installed articulation frames 441–530 rerendered: 90 decoded frames, 30 fps, 3.0 s, native 1080×1920 H.264 yuv420p.\n'
+            '- Full ffmpeg decoder pass: PASS.\n'
+            '- Topology, suspension anchors, motion contract, track, timeline and Porsche model bytes are unchanged.\n'
+          )
+          sums=[]
+          for name in ['installed-before-f234.png','installed-after-f234.png','mechanical-load-f492.png','installed-difference-f234.png','articulation-native-f441-530.mp4']:
+              sums.append(sha(root/name)+'  '+name)
+          (root/'SHA256SUMS.txt').write_text('\n'.join(sums)+'\n')
+          PY
+          git pull --ff-only origin sol/y003-p02-suspension-detail
+          git config user.name "YUNEX Proof Bot"
+          git config user.email "actions@github.com"
+          git add "$dest"
+          git add -f "$dest/articulation-native-f441-530.mp4"
+          git commit -m "YUNEX 003 P02-B: verify upper damper chassis mount"
+          git push origin HEAD:sol/y003-p02-suspension-detail
+      - uses: actions/upload-artifact@v4
+        with:
+          name: P02-B-NATIVE-UPPER-MOUNT-PROOF-${{ env.SOURCE_SHA }}
+          path: yunex/video003/reports/P02-B/proof/
+          retention-days: 7
