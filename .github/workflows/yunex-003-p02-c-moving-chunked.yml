@@ -1,7 +1,8 @@
-name: YUNEX 003 P02 Agent C chunked moving proof
+name: YUNEX 003 P02 Agent C moving proof assembly recovery
 
 permissions:
   contents: read
+  actions: read
 
 on:
   push:
@@ -11,61 +12,77 @@ on:
       - '.github/workflows/yunex-003-p02-c-moving-chunked.yml'
 
 jobs:
-  chunks:
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - index: 0
-            frames: 570-599
-          - index: 1
-            frames: 600-629
-          - index: 2
-            frames: 630-659
-          - index: 3
-            frames: 660-689
+  stitch-existing-chunks:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: '22'
-          cache: npm
-          cache-dependency-path: yunex/package-lock.json
-      - run: |
-          mkdir -p yunex/public yunex/out/y003-p02-c-chunks
-          test "$(sha256sum cars/porsche-911-gt3-rs-992/model.glb | awk '{print $1}')" = "1c73fcb138c31e2b1d5ed126a2412074bb17f8e960b355436f28139bf518e1eb"
-          cp cars/porsche-911-gt3-rs-992/model.glb yunex/public/model.glb
-      - working-directory: yunex
-        run: npm ci --no-audit --no-fund
-      - working-directory: yunex
+      - name: Install proof assembly tooling
         run: |
-          NODE_OPTIONS=--require=./fix-network.cjs npx remotion render src/index.tsx YUNEX-003-VISUAL "out/y003-p02-c-chunks/chunk-${{ matrix.index }}.mp4"             --frames="${{ matrix.frames }}" --gl=swangle --concurrency=1 --codec=h264 --pixel-format=yuv420p --crf=18 --scale=0.25 --timeout=300000 --muted
-      - uses: actions/upload-artifact@v4
-        with:
-          name: y003-p02-c-chunk-${{ matrix.index }}-${{ github.sha }}
-          path: yunex/out/y003-p02-c-chunks/chunk-${{ matrix.index }}.mp4
-          retention-days: 14
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg
 
-  stitch:
-    needs: chunks
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/download-artifact@v4
+      - name: Download successful chunk artifacts
+        uses: actions/download-artifact@v4
         with:
-          pattern: y003-p02-c-chunk-*-${{ github.sha }}
+          pattern: y003-p02-c-chunk-*-8f9766661482d8e591bd3976a68598873a85906f
           path: chunks
           merge-multiple: true
-      - run: |
-          printf "file '%s'\n" "$PWD/chunks/chunk-0.mp4" "$PWD/chunks/chunk-1.mp4" "$PWD/chunks/chunk-2.mp4" "$PWD/chunks/chunk-3.mp4" > concat.txt
-          ffmpeg -y -f concat -safe 0 -i concat.txt -c copy circuit-parallax-proof-4s-chunked.mp4
-          ffprobe -v error -select_streams v:0             -show_entries stream=width,height,r_frame_rate,nb_frames             -show_entries format=duration             -of json circuit-parallax-proof-4s-chunked.mp4 > ffprobe.json
-          test "$(ffprobe -v error -select_streams v:0 -count_frames -show_entries stream=nb_read_frames -of csv=p=0 circuit-parallax-proof-4s-chunked.mp4)" = "120"
-      - uses: actions/upload-artifact@v4
+          repository: YunRah2103/yunus-video-lab
+          run-id: 37601668282
+          github-token: ${{ github.token }}
+
+      - name: Assemble and validate 4 second moving proof
+        run: |
+          set -euo pipefail
+
+          for index in 0 1 2 3; do
+            test -s "chunks/chunk-${index}.mp4"
+            test "$(ffprobe -v error -select_streams v:0 -count_frames -show_entries stream=nb_read_frames -of csv=p=0 "chunks/chunk-${index}.mp4")" = "30"
+          done
+
+          printf "file '%s'\n" \
+            "$PWD/chunks/chunk-0.mp4" \
+            "$PWD/chunks/chunk-1.mp4" \
+            "$PWD/chunks/chunk-2.mp4" \
+            "$PWD/chunks/chunk-3.mp4" > concat.txt
+
+          ffmpeg -y -f concat -safe 0 -i concat.txt \
+            -map 0:v:0 -an -c:v libx264 -preset medium -crf 18 \
+            -r 30 -pix_fmt yuv420p -movflags +faststart \
+            circuit-parallax-proof-4s-chunked.mp4
+
+          ffmpeg -v error -i circuit-parallax-proof-4s-chunked.mp4 -f null -
+
+          width="$(ffprobe -v error -select_streams v:0 -show_entries stream=width -of csv=p=0 circuit-parallax-proof-4s-chunked.mp4)"
+          height="$(ffprobe -v error -select_streams v:0 -show_entries stream=height -of csv=p=0 circuit-parallax-proof-4s-chunked.mp4)"
+          fps="$(ffprobe -v error -select_streams v:0 -show_entries stream=r_frame_rate -of csv=p=0 circuit-parallax-proof-4s-chunked.mp4)"
+          frames="$(ffprobe -v error -select_streams v:0 -count_frames -show_entries stream=nb_read_frames -of csv=p=0 circuit-parallax-proof-4s-chunked.mp4)"
+          pix_fmt="$(ffprobe -v error -select_streams v:0 -show_entries stream=pix_fmt -of csv=p=0 circuit-parallax-proof-4s-chunked.mp4)"
+          codec="$(ffprobe -v error -select_streams v:0 -show_entries stream=codec_name -of csv=p=0 circuit-parallax-proof-4s-chunked.mp4)"
+          duration="$(ffprobe -v error -show_entries format=duration -of csv=p=0 circuit-parallax-proof-4s-chunked.mp4)"
+
+          test "$width" = "270"
+          test "$height" = "480"
+          test "$fps" = "30/1"
+          test "$frames" = "120"
+          test "$pix_fmt" = "yuv420p"
+          test "$codec" = "h264"
+
+          awk -v d="$duration" 'BEGIN { exit !(d >= 3.99 && d <= 4.01) }'
+
+          ffprobe -v error -select_streams v:0 \
+            -show_entries stream=codec_name,width,height,pix_fmt,r_frame_rate,nb_frames \
+            -show_entries format=duration,size,format_name \
+            -of json circuit-parallax-proof-4s-chunked.mp4 > ffprobe.json
+
+          sha256sum circuit-parallax-proof-4s-chunked.mp4 > sha256.txt
+
+      - name: Upload validated moving proof
+        uses: actions/upload-artifact@v4
         with:
-          name: Y003-P02-C-MOVING-CHUNKED-${{ github.sha }}
+          name: Y003-P02-C-MOVING-VALIDATED-${{ github.sha }}
           path: |
             circuit-parallax-proof-4s-chunked.mp4
             ffprobe.json
+            sha256.txt
           retention-days: 14
