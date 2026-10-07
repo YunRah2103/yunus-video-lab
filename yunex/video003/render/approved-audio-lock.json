@@ -1,0 +1,15 @@
+{
+  "phase": "Y003-POLISH-02",
+  "purpose": "Preserve the already-approved YUNEX 003 narration and mix timing unchanged during the visual-only POLISH-02 pass.",
+  "source_master_library_path": "/Video Projects/YUNEX 003/Manager/YUNEX_003_MASTER_REVIEW.mp4",
+  "source_master_library_id": "libfile_d017354ae8608191ab5b281b19a65db2",
+  "source_narration_library_id": "libfile_6e284ae6e75c819197dd652690e22ae8",
+  "source_narration_sha256": "826d7863cd4ec135e0352e9800f47b54239f8ba1d4c0d98ff5909a071905cfbb",
+  "approved_audio_sha256": "cd411b0dcc9e733f5b142e59f8340f913816e28bf113a32639c4fd12f7ec04c3",
+  "codec": "aac",
+  "sample_rate_hz": 48000,
+  "channels": 2,
+  "duration_seconds": 24.5,
+  "extraction": "ffmpeg -i YUNEX_003_MASTER_REVIEW.mp4 -map 0:a:0 -vn -c:a copy YUNEX_003_APPROVED_AUDIO.m4a",
+  "policy": "Do not regenerate, trim, stretch, normalize or otherwise alter this audio. Copy-mux it onto the validated POLISH-02 native visual."
+}
