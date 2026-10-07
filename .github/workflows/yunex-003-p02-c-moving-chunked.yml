@@ -1,0 +1,71 @@
+name: YUNEX 003 P02 Agent C chunked moving proof
+
+permissions:
+  contents: read
+
+on:
+  push:
+    branches:
+      - sol/y003-p02-track-world
+    paths:
+      - '.github/workflows/yunex-003-p02-c-moving-chunked.yml'
+
+jobs:
+  chunks:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - index: 0
+            frames: 570-599
+          - index: 1
+            frames: 600-629
+          - index: 2
+            frames: 630-659
+          - index: 3
+            frames: 660-689
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: yunex/package-lock.json
+      - run: |
+          mkdir -p yunex/public yunex/out/y003-p02-c-chunks
+          test "$(sha256sum cars/porsche-911-gt3-rs-992/model.glb | awk '{print $1}')" = "1c73fcb138c31e2b1d5ed126a2412074bb17f8e960b355436f28139bf518e1eb"
+          cp cars/porsche-911-gt3-rs-992/model.glb yunex/public/model.glb
+      - working-directory: yunex
+        run: npm ci --no-audit --no-fund
+      - working-directory: yunex
+        run: |
+          NODE_OPTIONS=--require=./fix-network.cjs npx remotion render src/index.tsx YUNEX-003-VISUAL "out/y003-p02-c-chunks/chunk-${{ matrix.index }}.mp4"             --frames="${{ matrix.frames }}" --gl=swangle --concurrency=1 --codec=h264 --pixel-format=yuv420p --crf=18 --scale=0.25 --timeout=300000 --muted
+      - uses: actions/upload-artifact@v4
+        with:
+          name: y003-p02-c-chunk-${{ matrix.index }}-${{ github.sha }}
+          path: yunex/out/y003-p02-c-chunks/chunk-${{ matrix.index }}.mp4
+          retention-days: 14
+
+  stitch:
+    needs: chunks
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: y003-p02-c-chunk-*-${{ github.sha }}
+          path: chunks
+          merge-multiple: true
+      - run: |
+          printf "file '%s'\n" "$PWD/chunks/chunk-0.mp4" "$PWD/chunks/chunk-1.mp4" "$PWD/chunks/chunk-2.mp4" "$PWD/chunks/chunk-3.mp4" > concat.txt
+          ffmpeg -y -f concat -safe 0 -i concat.txt -c copy circuit-parallax-proof-4s-chunked.mp4
+          ffprobe -v error -select_streams v:0             -show_entries stream=width,height,r_frame_rate,nb_frames             -show_entries format=duration             -of json circuit-parallax-proof-4s-chunked.mp4 > ffprobe.json
+          test "$(ffprobe -v error -select_streams v:0 -count_frames -show_entries stream=nb_read_frames -of csv=p=0 circuit-parallax-proof-4s-chunked.mp4)" = "120"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Y003-P02-C-MOVING-CHUNKED-${{ github.sha }}
+          path: |
+            circuit-parallax-proof-4s-chunked.mp4
+            ffprobe.json
+          retention-days: 14
