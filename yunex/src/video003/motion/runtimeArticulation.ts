@@ -31,6 +31,10 @@ const restoreTransform = (object: THREE.Object3D, base: TransformSnapshot) => {
   object.scale.copy(base.scale);
 };
 
+export type RuntimeMotionRigOptions = {
+  rotationComposition?: 'quaternion' | 'legacy-euler';
+};
+
 export type RuntimeMotionRig = {
   apply: (state: MotionState) => void;
   restore: () => void;
@@ -45,12 +49,15 @@ export type RuntimeMotionRig = {
       caliper: string | null;
       caliperFollowsSteer: boolean;
     }>;
+    rotationComposition: 'quaternion' | 'legacy-euler';
   };
 };
 
 export const createRuntimeMotionRig = (
   container: THREE.Object3D,
+  options: RuntimeMotionRigOptions = {},
 ): RuntimeMotionRig => {
+  const rotationComposition = options.rotationComposition ?? 'quaternion';
   const assetRoot =
     container.getObjectByName(ASSET_ROOT_NAME) ?? container;
   const containerBase = snapshot(container);
@@ -115,6 +122,10 @@ export const createRuntimeMotionRig = (
   }
 
   const yawQuaternion = new THREE.Quaternion();
+  const steerDeltaQuaternion = new THREE.Quaternion();
+  const spinDeltaQuaternion = new THREE.Quaternion();
+  const localSteerAxis = new THREE.Vector3(0, 1, 0);
+  const localSpinAxis = new THREE.Vector3(1, 0, 0);
 
   const apply = (state: MotionState) => {
     restoreTransform(container, containerBase);
@@ -151,10 +162,22 @@ export const createRuntimeMotionRig = (
 
       restoreTransform(steer, steerBase[id]);
       steer.position.y += wheel.uprightOffsetY;
-      steer.rotation.y += wheel.steerRad;
 
       restoreTransform(spin, spinBase[id]);
-      spin.rotation.x += wheel.spinRad;
+
+      if (rotationComposition === 'legacy-euler') {
+        // Proof-only baseline path used to show the P02 before/after delta.
+        steer.rotation.y += wheel.steerRad;
+        spin.rotation.x += wheel.spinRad;
+      } else {
+        // Compose authored base transforms with explicit local-axis quaternions.
+        // Spin is applied about the prepared wheel axle after steering, so the
+        // hub origin and axle cannot precess as the roll angle wraps.
+        steerDeltaQuaternion.setFromAxisAngle(localSteerAxis, wheel.steerRad);
+        steer.quaternion.copy(steerBase[id].quaternion).multiply(steerDeltaQuaternion);
+        spinDeltaQuaternion.setFromAxisAngle(localSpinAxis, wheel.spinRad);
+        spin.quaternion.copy(spinBase[id].quaternion).multiply(spinDeltaQuaternion);
+      }
 
       // Front calipers were prepared under Steer_FL/FR and inherit steering/upright
       // motion automatically. Rear calipers remain stationary relative to their
@@ -209,6 +232,7 @@ export const createRuntimeMotionRig = (
       missingChassisParts,
       missingCriticalNodes,
       wheelHierarchy,
+      rotationComposition,
     },
   };
 };
