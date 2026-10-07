@@ -109,6 +109,21 @@ const ProofThree: React.FC<{
     () => (legacy ? legacySteeringState(baseState) : baseState),
     [baseState, legacy],
   );
+  const diagnosticState = useMemo<MotionState>(
+    () => ({
+      ...state,
+      // A wheel-local diagnostic station removes world translation/yaw only
+      // from the proof camera problem. Spin/steer/load remain sampled from the
+      // real production frame, so geometry stability can be judged against a
+      // truly fixed camera and ground reference.
+      root: {
+        ...state.root,
+        position: [0, 0, 0],
+        rotation: [0, 0, 0],
+      },
+    }),
+    [state],
+  );
   const rigOptions = useMemo<RuntimeMotionRigOptions>(
     () => ({
       rotationComposition: legacy ? 'legacy-euler' : 'quaternion',
@@ -130,10 +145,23 @@ const ProofThree: React.FC<{
         gltf.scene.traverse((object: any) => {
           if (object.isMesh) {
             object.frustumCulled = false;
-            object.castShadow = true;
+            object.castShadow = false;
             object.receiveShadow = false;
           }
         });
+
+        // Diagnostic proof only: keep the exact approved wheel + caliper geometry
+        // while hiding unrelated body/interior meshes. This makes native moving
+        // evidence practical without changing production geometry or materials.
+        const assetRoot =
+          gltf.scene.getObjectByName('YUNEX_Porsche_911_GT3_RS_992') ??
+          gltf.scene;
+        for (const child of assetRoot.children) {
+          child.visible =
+            /^Steer_(FL|FR|RL|RR)$/.test(child.name) ||
+            /^Caliper_(RL|RR)$/.test(child.name);
+        }
+
         setModel(gltf.scene);
       },
       undefined,
@@ -171,26 +199,17 @@ const ProofThree: React.FC<{
   useLayoutEffect(() => {
     const perspective = camera as THREE.PerspectiveCamera;
     const wheel = state.wheels[wheelId];
-    const yaw = state.root.rotation[1];
     const sideSign = wheelId[1] === 'L' ? 1 : -1;
-    const wheelTargetLocal: Vec3 = [
+    const cameraTarget: Vec3 = [
       wheel.centreLocal[0],
       wheel.centreLocal[1] + 0.015,
       wheel.centreLocal[2],
     ];
-    const cameraLocal: Vec3 = [
+    const cameraPosition: Vec3 = [
       wheel.centreLocal[0] + sideSign * 3.15,
       wheel.centreLocal[1] + 0.22,
       wheel.centreLocal[2] + 0.08,
     ];
-    const cameraPosition = add3(
-      state.root.position,
-      rotateOffset(cameraLocal, yaw),
-    );
-    const cameraTarget = add3(
-      state.root.position,
-      rotateOffset(wheelTargetLocal, yaw),
-    );
 
     perspective.position.set(...cameraPosition);
     perspective.fov = focalLengthToVerticalFov(54);
@@ -199,9 +218,9 @@ const ProofThree: React.FC<{
     perspective.lookAt(...cameraTarget);
     perspective.updateProjectionMatrix();
 
-    if (rig) rig.apply(state);
+    if (rig) rig.apply(diagnosticState);
     advance(proofFrame * (1000 / Y003_FPS));
-  }, [advance, camera, proofFrame, rig, state, wheelId]);
+  }, [advance, camera, diagnosticState, proofFrame, rig, state, wheelId]);
 
   useEffect(() => {
     if (!model || !rig || ready.current) return;
@@ -211,14 +230,10 @@ const ProofThree: React.FC<{
 
   return (
     <>
-      <ambientLight intensity={0.72} />
-      <directionalLight
-        position={[4, 9, 7]}
-        intensity={2.6}
-        castShadow
-      />
-      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.002, -40]} receiveShadow>
-        <planeGeometry args={[420, 420]} />
+      <ambientLight intensity={1.25} />
+      <directionalLight position={[4, 9, 7]} intensity={2.15} />
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.002, 0]}>
+        <planeGeometry args={[24, 24]} />
         <meshStandardMaterial color="#676b6d" roughness={0.94} metalness={0.02} />
       </mesh>
       {model ? <primitive object={model} /> : null}
@@ -239,8 +254,7 @@ const ProofViewport: React.FC<{
         width={WIDTH}
         height={height}
         camera={{position: [4, 1, 6], fov: 38, near: 0.05, far: 80}}
-        gl={{antialias: true, alpha: false, preserveDrawingBuffer: true}}
-        shadows
+        gl={{antialias: false, alpha: false, preserveDrawingBuffer: true}}
       >
         <ProofThree
           proofFrame={proofFrame}
