@@ -1,0 +1,38 @@
+name: YUNEX 003 P02 Agent C fast moving proof
+
+permissions:
+  contents: read
+
+on:
+  push:
+    branches:
+      - sol/y003-p02-track-world
+    paths:
+      - '.github/workflows/yunex-003-p02-c-moving-fast.yml'
+
+jobs:
+  moving-fast:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: yunex/package-lock.json
+      - run: |
+          mkdir -p yunex/public yunex/out/y003-p02-c-fast
+          test "$(sha256sum cars/porsche-911-gt3-rs-992/model.glb | awk '{print $1}')" = "1c73fcb138c31e2b1d5ed126a2412074bb17f8e960b355436f28139bf518e1eb"
+          cp cars/porsche-911-gt3-rs-992/model.glb yunex/public/model.glb
+      - working-directory: yunex
+        run: npm ci --no-audit --no-fund
+      - working-directory: yunex
+        run: |
+          NODE_OPTIONS=--require=./fix-network.cjs npx remotion render src/index.tsx YUNEX-003-VISUAL out/y003-p02-c-fast/circuit-parallax-proof-4s.mp4             --frames=570-689 --gl=swangle --concurrency=2 --codec=h264 --pixel-format=yuv420p --crf=18 --scale=0.35 --timeout=300000 --muted
+          ffprobe -v error -select_streams v:0             -show_entries stream=width,height,r_frame_rate,nb_frames             -show_entries format=duration             -of json out/y003-p02-c-fast/circuit-parallax-proof-4s.mp4             > out/y003-p02-c-fast/ffprobe.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Y003-P02-C-MOVING-FAST-${{ github.sha }}
+          path: yunex/out/y003-p02-c-fast/
+          retention-days: 14
