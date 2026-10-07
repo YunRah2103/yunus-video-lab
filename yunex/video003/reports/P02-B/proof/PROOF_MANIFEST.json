@@ -2,7 +2,7 @@
   "phase": "Y003-POLISH-02",
   "role": "B",
   "status": "NATIVE_PROOF_COMPLETE",
-  "implementation_sha": "d4b81aacfeeedfb2475c4e4cc59ed8a352164f4d",
+  "implementation_sha": "7b2ac51508890563b5c598480d47b2bfd0cfd0d1",
   "phase_base_sha": "064fc7687ad16e9fc99c32c3c323154b7e4496f1",
   "source_render_run_id": 37612331303,
   "model_sha256": "1c73fcb138c31e2b1d5ed126a2412074bb17f8e960b355436f28139bf518e1eb",
@@ -16,17 +16,17 @@
     "frame": 234,
     "width": 1080,
     "height": 1920,
-    "sha256": "6cc995d63abfbd31cfb18204e817b5945fb707a9a0b9b20be0b2eda66f9227fc"
+    "sha256": "c269a86bc3d98309421eb376f2cad8fb7f1160dd842cc69f8a3100122966cd49"
   },
   "mechanical_load_still": {
     "frame": 492,
     "width": 1080,
     "height": 1920,
-    "sha256": "2cb9ecbe6d7432e013e06a60e6fe8537d2199bf86d8e5f9f277fb108a119f844"
+    "sha256": "2e6452a0a0931f350f933527ea910434e0f52a8e90b77c1b7e87158bef777b98"
   },
   "difference_image": {
     "frame": 234,
-    "sha256": "7984ab48697ceb4f6369dc281684e166b6f30d97349ce16c9d782ebdfeb12945"
+    "sha256": "fc626dd59fc16d20bc213edc69f459f305211be8a78da761bb7bff69b0d50958"
   },
   "articulation": {
     "frames": "441-530",
@@ -37,8 +37,9 @@
     "codec": "h264",
     "pixel_format": "yuv420p",
     "duration_seconds": 3.0,
-    "sha256": "e22b1f63335852f7dbcdc7a043d1b8458171aad03f5d775d0e00f1b673645922"
+    "sha256": "0da84aca3747b11648fa541a72b69fe65bd5b64e1a6e6abf1b68ae85f4147dd5"
   },
   "decoder_pass": true,
-  "proof_gate": "PASS"
+  "proof_gate": "PASS",
+  "upper_damper_mount_fix": true
 }
