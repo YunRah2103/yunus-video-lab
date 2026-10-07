@@ -1,104 +1,39 @@
-# YUNEX 003 — POLISH-02 — Agent G render/delivery report
+# YUNEX 003 POLISH-02 G — Final packaging report
 
-Phase: Y003-POLISH-02  
-Role: G — Native render / delivery  
-Work branch: sol/y003-p02-render  
-Specialist base used only for pre-release benchmark: 064fc7687ad16e9fc99c32c3c323154b7e4496f1
+The earlier preparation/source gate is superseded by validated exact-source visual rescue run 37625560242 / artifact 11483379220.
 
-## Current gate
+# YUNEX 003 POLISH-02 final release QA
+Reviewed directly by the release operator; no new agent or production edits.
 
-PREPARATION COMPLETE. FINAL 735-FRAME RENDER IS CORRECTLY BLOCKED BY THE MANAGER SOURCE GATE.
+## Result
+Delivery-spec and frame-based visual QA: PASS.
+Complete real-time audiovisual/creative approval: PENDING (not performed in this environment). Do not represent this as full H final approval or mark the whole project complete until that gate passes.
 
-At the latest verification, `sol/y003-suspension-manager:yunex/video003/polish02/POLISH_02_TASKS.json` still has:
+## Evidence and scope
+Both actual final MP4s were fully decoded. 735 frames, 1080x1920, 30/1 fps, 24.500 s, H.264 yuv420p, AAC 48000 Hz stereo and moov-before-mdat faststart all pass.
+Seven milestones 27, 144, 234, 306, 492, 603, 711 reviewed; chronological samples every fifth frame across the complete duration and -1/0/+1 around all 36 original 20-frame chunk boundaries reviewed.
+No boundary discontinuity, new exterior/livery change, lost technical reveal or dead static outro found in these samples.
+Front wheel rim stays coherent; rotating spokes change around a stable hub in reviewed sequences. No obvious wobble, clipping or tyre-contact regression observed in samples; this does not substitute for full-rate motion playback.
+Connected spring/damper, links, pivots and chassis attachments remain visible through the transparent reveal. Restrained airflow and explanatory labels remain intact.
+Established circuit vegetation, fencing, barriers, asphalt and gantry persist through driving/reveal/exit. Parallax and pass/exit progression are visible in chronological frames. Existing scenery remains stylized; no environment redesign was introduced.
+Peak decoded audio -5.196783 dBFS, no NaNs/Infs. Approved narration/SFX are preserved packet-for-packet; no new auditory mix evaluation claimed.
 
-- `render_source_sha: null`
-- `final_delivery_sha: null`
-- G status `prepare_only_until_source_pin`
+## Integrity
+Native visual and final A/B video elementary stream SHA256:
+e11d6eca00238756879acc35ff3f96bafec62b14d6fc1d88b19e4ee545e00d08
+Approved source master and final A/B AAC elementary stream SHA256:
+8182da3f2e106540e805501ac6eeff496e149aaf3f2cefd73fab6c41d49c720e
+Locked approved-audio M4A SHA256 remains cd411b0dcc9e733f5b142e59f8340f913816e28bf113a32639c4fd12f7ec04c3.
+FFmpeg 6 extraction produced different container metadata. FFmpeg 7.0.2 copy extraction with the original Lavf61.7.103 encoder-tag atom recovered the exact locked file hash; AAC bytes were untouched. G hash guard was not relaxed.
+Porsche provenance remains model SHA256 1c73fcb138c31e2b1d5ed126a2412074bb17f8e960b355436f28139bf518e1eb from exact source 0db1a6509c54b6df1df0422152aa90d7c02b5de1. Source/model/3D scene were not edited or rerendered.
+A/B are visually and audibly identical; B only adds container title metadata. No crop, grading, visual re-encode, narration change or timing change.
 
-The G handoff explicitly forbids the expensive final render before Manager publishes the exact approved POLISH-02 source SHA after integrated moving-proof review. No final source has been guessed or inferred and no stale pre-polish chunk has been reused.
+Exact delivery hashes, run/artifact identifiers and evidence hashes accompany RELEASE_METADATA.json.
 
-## Implemented
-
-- Added a dedicated `YUNEX 003 P02 native visual` GitHub Actions workflow on `sol/y003-p02-render`.
-- Locked phase, 1080x1920, scale 1, 30 fps, 735 frames / 24.5 s and the Porsche model SHA256.
-- Full/benchmark modes require an exact 40-character source SHA.
-- Default branch state deliberately has a blank source pin so a stale full render cannot be started accidentally.
-- Uses the proven `YUNEX-003-VISUAL` composition for clean-runner native rendering.
-- Generates deterministic 20-frame chunks with exact 0–734 coverage (37 chunks; final chunk 720–734).
-- Checks per-chunk source provenance, frame range, decoded count, dimensions, FPS and H.264 codec.
-- Accepts only `yuv420p` / `yuvj420p` intermediate chunks because the earlier approved native Y003 run proved Chromium can output `yuvj420p`.
-- Concatenates fresh exact-source chunks, then performs one permitted normalization encode to delivery `yuv420p`.
-- Performs a full decoder pass and exact 735-frame validation.
-- Extracts deterministic milestones 27, 144, 234, 306, 492, 603 and 711 plus a contact sheet.
-- Emits source/model/visual SHA provenance in the native visual artifact.
-- Hardened `validate_export.py` so final-audio validation also requires AAC, 48 kHz and stereo.
-- Added `approved-audio-lock.json` and `mux-approved-audio.sh` to preserve the already-approved audio without regeneration or retiming.
-
-## Approved audio lock
-
-The already-approved master in ChatGPT Library was inspected directly:
-
-`/Video Projects/YUNEX 003/Manager/YUNEX_003_MASTER_REVIEW.mp4`  
-Library ID: `libfile_d017354ae8608191ab5b281b19a65db2`
-
-Its audio stream was copy-extracted locally and verified as:
-
-- AAC
-- 48,000 Hz
-- stereo
-- exactly 24.500 s
-- extracted AAC SHA256: `cd411b0dcc9e733f5b142e59f8340f913816e28bf113a32639c4fd12f7ec04c3`
-
-The mux helper refuses any different audio SHA and copy-muxes this locked stream onto the validated revised native visual with `+faststart`. The narration is therefore not trimmed, stretched, regenerated, normalized or remixed.
-
-## Benchmark findings
-
-Initial benchmark run: `37598721617`
-
-- config: PASS
-- selftest: PASS
-- exact source checkout/model hash: PASS
-- benchmark: FAIL for a diagnosed pipeline reason
-- full render jobs: correctly SKIPPED
-
-Failure cause: the initial P02 workflow attempted `YUNEX-003-FINAL` on a clean runner. That composition references `public/y003-narration.mp3` and `public/y003-sfx.wav`, but those binaries are intentionally not committed to the repository. Remotion failed on a 404 for `y003-narration.mp3`.
-
-Fix: the native pipeline now renders `YUNEX-003-VISUAL` exactly as the proven previous Y003 native workflow did, then locks/muxes the approved AAC separately.
-
-Corrected visual-only benchmark run: `37600199512` — PASS  
-Benchmark artifact ID: `11472471693`  
-Artifact: `YUNEX-003-P02-BENCHMARK-064fc7687ad16e9fc99c32c3c323154b7e4496f1`  
-Trigger source: `064fc7687ad16e9fc99c32c3c323154b7e4496f1`  
-Scope: three-frame pre-release smoke only; never treated as the final POLISH-02 source.
-
-Verified in that run:
-- config: PASS
-- render-tooling selftest: PASS
-- exact source checkout: PASS
-- locked Porsche model hash: PASS
-- native `YUNEX-003-VISUAL` render: PASS
-- decoder/probe + exact three decoded benchmark frames: PASS
-- benchmark artifact upload: PASS
-- all expensive full-render jobs: correctly SKIPPED
-
-The source pin was immediately cleared from the branch after triggering.
-
-A separate source-cleared self-test run `37600009621` also completed PASS after the corrected visual/audio-lock architecture was installed.
-
-## Final release procedure
-
-Only after Manager publishes the exact approved `render_source_sha`:
-
-1. Set that exact SHA in `yunex/video003/render/request.json`.
-2. Run `[p02-native-benchmark]` against that same SHA.
-3. If the benchmark passes, run `[p02-native-full]`.
-4. Download `YUNEX-003-P02-NATIVE-VISUAL-<source-sha>`.
-5. Obtain/copy-extract the locked AAC specified by `approved-audio-lock.json`.
-6. Run:
-   `bash yunex/video003/render/mux-approved-audio.sh YUNEX_003_P02_NATIVE_VISUAL.mp4 YUNEX_003_APPROVED_AUDIO.m4a YUNEX_003_P02_FINAL.mp4`
-7. Validate final 735 frames, H.264 yuv420p, AAC 48 kHz stereo, 24.5 s, decoder integrity, model hash, source provenance and milestone frames.
-8. Record final workflow/artifact IDs and SHA256 here for H independent QA.
-
-## Final native result
-
-Not launched because Manager has not released an exact POLISH-02 `render_source_sha`. Launching it now would violate the authoritative dependency gate.
+## Published delivery
+Packaging workflow/run: [37659623261](https://github.com/YunRah2103/yunus-video-lab/actions/runs/37659623261), successful packaging commit `0ede48a4aeefc0a854a07df927bce45a05456a47`.
+Final artifact: `11499343998` — YUNEX-003-P02-FINAL-DUAL-TIKTOK (90-day retention, expires 2027-01-05).
+A SHA256: `cc8a898298fc6c543f5475aac85bafb0cca635f1d1de1f663e97b21453116118`
+B SHA256: `cd99beb0d7a004266857d508066050d5824aa0a6c30ad8d92b2d887f4660acd9`
+ZIP SHA256: `05d42153b822b1cd00b5abb9ac05813e2f269f8b6c81d2aee4b41f97f9744cd6`
+Packaging source is G pipeline commit, distinct from the unchanged integration/render source.
