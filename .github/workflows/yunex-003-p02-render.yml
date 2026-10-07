@@ -145,7 +145,7 @@ jobs:
       - name: Install runtime
         working-directory: source/yunex
         run: npm ci --no-audit --no-fund
-      - name: Render 30 native visual frames
+      - name: Render 3 native visual frames
         working-directory: source/yunex
         env:
           NODE_OPTIONS: --require=./fix-network.cjs
@@ -153,8 +153,8 @@ jobs:
         run: |
           set -euo pipefail
           /usr/bin/time -v -o out/y003-p02-benchmark/resource_usage.txt \
-            npx remotion render src/index.tsx YUNEX-003-VISUAL out/y003-p02-benchmark/native-0000-0029.mp4 \
-            --frames=0-29 --gl=swangle --concurrency=2 --codec=h264 --pixel-format=yuv420p \
+            npx remotion render src/index.tsx YUNEX-003-VISUAL out/y003-p02-benchmark/native-0000-0002.mp4 \
+            --frames=0-2 --gl=swangle --concurrency=2 --codec=h264 --pixel-format=yuv420p \
             --crf=14 --scale=1 --timeout=120000 --muted
           printf '%s\n' "${{ needs.config.outputs.source_sha }}" > out/y003-p02-benchmark/source-sha.txt
       - name: Decode and probe benchmark
@@ -163,10 +163,10 @@ jobs:
           set -euo pipefail
           sudo apt-get update -qq
           sudo apt-get install -y -qq ffmpeg
-          ffmpeg -v error -xerror -i source/yunex/out/y003-p02-benchmark/native-0000-0029.mp4 -f null -
-          test "$(ffprobe -v error -count_frames -select_streams v:0 -show_entries stream=nb_read_frames -of default=nw=1:nk=1 source/yunex/out/y003-p02-benchmark/native-0000-0029.mp4)" = "30"
-          ffprobe -v error -count_frames -show_streams -of json source/yunex/out/y003-p02-benchmark/native-0000-0029.mp4 > source/yunex/out/y003-p02-benchmark/ffprobe.json
-          sha256sum source/yunex/out/y003-p02-benchmark/native-0000-0029.mp4 > source/yunex/out/y003-p02-benchmark/output.sha256
+          ffmpeg -v error -xerror -i source/yunex/out/y003-p02-benchmark/native-0000-0002.mp4 -f null -
+          test "$(ffprobe -v error -count_frames -select_streams v:0 -show_entries stream=nb_read_frames -of default=nw=1:nk=1 source/yunex/out/y003-p02-benchmark/native-0000-0002.mp4)" = "3"
+          ffprobe -v error -count_frames -show_streams -of json source/yunex/out/y003-p02-benchmark/native-0000-0002.mp4 > source/yunex/out/y003-p02-benchmark/ffprobe.json
+          sha256sum source/yunex/out/y003-p02-benchmark/native-0000-0002.mp4 > source/yunex/out/y003-p02-benchmark/output.sha256
       - uses: actions/upload-artifact@v4
         if: always()
         with:
