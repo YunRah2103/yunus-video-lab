@@ -2,70 +2,96 @@
   "phase": "Y003-POLISH-02",
   "role": "F",
   "branch": "sol/y003-p02-preflight",
-  "published_base_sha": "064fc7687ad16e9fc99c32c3c323154b7e4496f1",
-  "decision": "FAIL_BLOCKED",
+  "phase_base_sha": "064fc7687ad16e9fc99c32c3c323154b7e4496f1",
+  "decision": "FAIL_BLOCKED_AS_SUBMITTED",
   "reviewed": {
     "A": {
       "branch": "sol/y003-p02-wheel-rig",
-      "sha": "064fc7687ad16e9fc99c32c3c323154b7e4496f1",
-      "compare_to_base": "identical",
-      "changed_files": 0,
-      "result": "BLOCKED"
+      "sha": "f4622994c497b599217b0d7b6902dcf7345e1f9b",
+      "ancestry": "PASS",
+      "ahead_by": 4,
+      "ownership": "PASS",
+      "code_api": "PASS",
+      "independent_qa": "MISSING_D"
     },
     "B": {
       "branch": "sol/y003-p02-suspension-detail",
-      "sha": "064fc7687ad16e9fc99c32c3c323154b7e4496f1",
-      "compare_to_base": "identical",
-      "changed_files": 0,
-      "result": "BLOCKED"
+      "sha": "d4b81aacfeeedfb2475c4e4cc59ed8a352164f4d",
+      "ancestry": "PASS",
+      "ahead_by": 8,
+      "ownership": "PASS",
+      "code_api_against_A": "PASS",
+      "visual_qa": "E_STALE"
     },
     "C": {
       "branch": "sol/y003-p02-track-world",
-      "sha": "064fc7687ad16e9fc99c32c3c323154b7e4496f1",
-      "compare_to_base": "identical",
-      "changed_files": 0,
-      "result": "BLOCKED"
+      "sha": "50783e0b477c5871cd3a2f2f329522bb8f373ef7",
+      "ancestry": "PASS",
+      "ahead_by": 7,
+      "owned_track_code": "PASS",
+      "ownership": "FAIL",
+      "unauthorized_paths": [
+        "yunex/src/video003/Video003.tsx",
+        ".github/workflows/yunex-003-p02-c-proof.yml"
+      ],
+      "root_transform_contract": "PASS",
+      "compile_coverage": {
+        "run_id": 37598776935,
+        "job_id": 112717985154,
+        "conclusion": "success"
+      },
+      "native_stills": {
+        "frames": [
+          27,
+          144,
+          234,
+          603,
+          711
+        ],
+        "status": "success"
+      },
+      "moving_proof_at_pin": "in_progress"
     },
     "D": {
       "branch": "sol/y003-p02-wheel-qa",
       "sha": "064fc7687ad16e9fc99c32c3c323154b7e4496f1",
-      "compare_to_base": "identical",
-      "changed_files": 0,
-      "result": "NOT_AVAILABLE"
+      "status": "NO_QA_DELTA"
     },
     "E": {
       "branch": "sol/y003-p02-visual-qa",
       "sha": "b5678073fb61cf2ee4095ca8dbdc3238c5ccb143",
-      "compare_to_base": "ahead_by_2",
-      "result": "BLOCKED_FAIL"
+      "status": "STALE",
+      "note": "E reviewed B/C while both were still at phase base."
     }
   },
-  "baseline_contract_checks": {
-    "motion_state_contract": true,
-    "suspension_adapter_fields": [
-      "centreLocal",
-      "steerRad",
-      "uprightOffsetY"
-    ],
-    "suspension_upright_excludes_rim_spin": true,
-    "track_root_applied_once_contract": true,
-    "y002_track_layout_reused": true
+  "compatibility": {
+    "a_b_structural_motion_contract": "PASS",
+    "a_runtime_api_backward_compatible": "PASS",
+    "b_upright_excludes_rim_spin": "PASS",
+    "c_world_space_no_double_root": "PASS",
+    "owned_path_overlap": "NONE",
+    "timeline_unchanged": true,
+    "audio_vo_unchanged": true,
+    "cameras_unchanged": true,
+    "model_bytes_changed": false,
+    "obvious_per_frame_geometry_regression": false,
+    "clean_combined_manager_staging_build": "NOT_RUN_BLOCKED_BY_C_OWNERSHIP"
   },
-  "expected_model_sha256": "1c73fcb138c31e2b1d5ed126a2412074bb17f8e960b355436f28139bf518e1eb",
+  "locked_model_sha256": "1c73fcb138c31e2b1d5ed126a2412074bb17f8e960b355436f28139bf518e1eb",
   "blockers": [
-    "A/B/C have no implementation delta from the published P02 base.",
-    "D has no independent wheel/driving QA delta.",
-    "E independently reports B/C as baseline-only with required native proofs missing.",
-    "Meaningful combined A+B+C compile/test/performance/determinism validation is impossible until production outputs exist."
+    "C modifies Manager-owned yunex/src/video003/Video003.tsx.",
+    "C adds a shared GitHub workflow outside its assigned production/report area.",
+    "D has no independent QA delta for the current A SHA.",
+    "E has not reviewed the current B/C SHAs.",
+    "Combined Manager staging build must be rerun after C's central mount is separated."
   ],
   "recommended_integration_order": [
-    "A",
-    "D QA",
-    "B",
-    "E suspension QA",
-    "C",
-    "E track QA",
-    "F rerun",
-    "Manager integration"
+    "A authorized motion delta",
+    "B authorized suspension delta",
+    "C authorized track delta only",
+    "Manager-owned Video003 mount",
+    "D exact-SHA review",
+    "E exact-SHA review",
+    "F rerun on clean Manager staging"
   ]
 }
