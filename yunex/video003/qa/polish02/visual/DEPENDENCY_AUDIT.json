@@ -1,107 +1,78 @@
 {
   "phase": "Y003-POLISH-02",
   "role": "E",
-  "status": "FAIL",
-  "reviewed_at_branch_heads": {
+  "status": "PASS",
+  "replaces_previous_fail": true,
+  "reviewed_remote_heads": {
     "B_branch": "sol/y003-p02-suspension-detail",
-    "B_branch_head": "a193793217ff40c580933b521d4e20a4f4526a01",
-    "B_rendered_implementation_sha": "d4b81aacfeeedfb2475c4e4cc59ed8a352164f4d",
+    "B_branch_head": "627866a563867a2ae1429a5d0c3d33ccd28f30b3",
+    "B_rendered_implementation_sha": "7b2ac51508890563b5c598480d47b2bfd0cfd0d1",
     "C_branch": "sol/y003-p02-track-world",
-    "C_branch_head": "4e8542eacb34ae5af3447ac0feaa05ab12dd0a3f",
-    "C_native_still_source_sha": "9e4efa91539700578481f4258a7b12d8aa708a72",
-    "C_moving_chunk_source_sha": "8f9766661482d8e591bd3976a68598873a85906f"
+    "C_branch_head": "66194d33fee35050a7a3a60e1760714d96770c4e",
+    "C_production_fix_sha": "5846d69b5880302497d54446078eec8a58f25ef1"
   },
   "B": {
-    "result": "FAIL",
-    "native_stills_artifact_id": 11478144474,
-    "proof_run_id": 37612331303,
-    "articulation_chunk_artifact_ids": [
-      11479675102,
-      11478995155,
-      11479645119,
-      11479675017,
-      11478665608,
-      11479345220
-    ],
-    "articulation_validation": {
-      "width": 1080,
-      "height": 1920,
+    "result": "PASS",
+    "workflow_run_id": 37614974215,
+    "artifact_id": 11480105064,
+    "native_evidence": {
+      "installed_frame_234": "1080x1920 PNG",
+      "mechanical_load_frame_492": "1080x1920 PNG",
+      "articulation_frames": "441-530",
+      "articulation_width": 1080,
+      "articulation_height": 1920,
       "fps": 30,
       "decoded_frames": 90,
-      "duration_seconds": 3,
-      "frames": "441-530"
-    },
-    "passes": [
-      "richer mechanical detail visible",
-      "double-wishbone concept preserved",
-      "link geometry visually stable through load proof",
-      "no obvious tyre/body/link intersection in inspected evidence",
-      "no obvious spinning-caliper defect introduced",
-      "reference-informed accuracy boundary disclosed"
-    ],
-    "blocking_findings": [
-      {
-        "frame": 234,
-        "time_seconds": 7.8,
-        "issue": "Upper spring/damper terminates in a visible joint sphere with no visible chassis clevis/bracket, so it reads as floating."
-      },
-      {
-        "frames": "441-530",
-        "time_seconds": "14.70-17.67",
-        "issue": "Unsupported upper damper termination remains visible through the native mechanical-load articulation proof."
-      }
-    ],
-    "required_fix": "Add a visibly credible upper damper-to-chassis attachment inside the owned suspension module and re-render the same native proof windows.",
-    "proof_metadata_commit": "a193793217ff40c580933b521d4e20a4f4526a01",
-    "proof_metadata_note": "Final B head adds verified proof metadata/stills and recovery workflow only; the rendered suspension implementation remains d4b81aacfeeedfb2475c4e4cc59ed8a352164f4d."
-  },
-  "C": {
-    "result": "FAIL",
-    "native_still_run_id": 37599474162,
-    "native_still_artifact_ids": {
-      "frame_27": 11472029272,
-      "frame_144": 11472183311,
-      "frame_234": 11472620083,
-      "frame_603": 11471798502,
-      "frame_711": 11471464818
-    },
-    "validated_moving_run_id": 37611336398,
-    "validated_moving_artifact_id": 11477632631,
-    "moving_proof_validation": {
-      "width": 270,
-      "height": 480,
-      "fps": 30,
-      "frames": 120,
-      "duration_seconds": 4,
+      "duration_seconds": 3.0,
       "codec": "h264",
       "pixel_format": "yuv420p",
       "decoder_pass": true
     },
-    "coverage_audit": {
-      "ok": true,
-      "identity_station_count": 15,
-      "max_identity_gap_m": 17,
-      "unique_rounded_gap_count": 8
+    "closed_blocker": "Upper spring/damper is now visibly captured by a clevis and triangulated into the chassis-side upper pickup rail at frame 234 and throughout frames 441-530.",
+    "checks": [
+      "double-wishbone topology remains readable",
+      "purposeful mechanical detail remains visible",
+      "links remain visually connected through load",
+      "no floating spring/damper",
+      "no obvious spinning caliper",
+      "no obvious tyre/body/link intersection",
+      "detail remains readable in existing reveal",
+      "reference-informed dimensions remain honestly labelled"
+    ]
+  },
+  "C": {
+    "result": "PASS",
+    "native_frame_711_run_id": 37615339642,
+    "native_frame_711_artifact_id": 11478654029,
+    "moving_proof_run_id": 37617528315,
+    "moving_proof_artifact_id": 11480087886,
+    "native_evidence": {
+      "frame_711": "1080x1920 scale-1 PNG",
+      "moving_frames": "615-734",
+      "moving_width": 270,
+      "moving_height": 480,
+      "fps": 30,
+      "decoded_frames": 120,
+      "duration_seconds": 4.0,
+      "codec": "h264",
+      "pixel_format": "yuv420p",
+      "decoder_pass": true
     },
-    "passes": [
+    "closed_blocker": "Final-exit sparse horizon is replaced by distant treeline and low groundform behind the gantry while the Porsche and road remain unobstructed.",
+    "checks": [
+      "established circuit identity survives through final exit",
+      "intentional vegetation/background depth",
       "believable road-relative parallax",
-      "useful barrier/fence/vegetation depth through middle and whole-car proof",
-      "no obvious furniture collision or Porsche occlusion",
-      "coverage audit passes with varied spacing"
+      "barriers/furniture remain outside driving corridor",
+      "no obvious Porsche or reveal occlusion",
+      "no visually distracting cloned repetition in inspected proof",
+      "no empty-horizon regression"
     ],
-    "blocking_findings": [
-      {
-        "frame": 711,
-        "time_seconds": 23.7,
-        "issue": "Exit falls back to a sparse flat horizon with insufficient vegetation/background depth, causing an empty-horizon regression."
-      }
-    ],
-    "required_fix": "Extend restrained circuit-side depth into the frame-711 exit frustum without changing the locked car path or camera intent.",
-    "scope_warning": "C directly modifies yunex/src/video003/Video003.tsx even though POLISH-02 assigns central composition edits to the Manager."
+    "integration_scope_note": "C branch retains the earlier central Video003.tsx mount change; Manager owns the central composition integration. This is procedural and does not block E visual PASS."
   },
   "overall": {
-    "result": "FAIL",
+    "result": "PASS",
     "production_source_modified_by_E": false,
-    "manager_action": "Do not integrate B or C as visually accepted outputs until the two narrow blockers are fixed and re-proved."
+    "manager_action": "B and C satisfy Agent E visual QA and may proceed to Manager integration, subject to Manager-owned central-file integration discipline."
   }
 }
