@@ -55,6 +55,25 @@ const worldPointAt=(
   return [world[0],ROOT_Y+y,world[1]];
 };
 
+const worldPointBeyondExit=(
+  z:number,
+  lateralFromCenter:number,
+  y:number,
+):[number,number,number]=>{
+  const end=sampleTrackAtLocalZ(TRACK_LAYOUT_CONFIG.sampleMaxZ);
+  const beyond=Math.max(0,z-end.z);
+  const center:[number,number]=[
+    end.center[0]+end.tangent[0]*beyond,
+    end.center[1]+end.tangent[1]*beyond,
+  ];
+  const local:[number,number]=[
+    center[0]+end.leftNormal[0]*lateralFromCenter,
+    center[1]+end.leftNormal[1]*lateralFromCenter,
+  ];
+  const world=trackLocalToWorldXZ(local);
+  return [world[0],ROOT_Y+y,world[1]];
+};
+
 const segmentPose=(
   a:[number,number,number],
   b:[number,number,number],
@@ -374,6 +393,61 @@ const buildLayout=(quality:'preview'|'final',seed:number)=>{
         color:side==='left'?'#687461':'#616d5c',
       });
     });
+  });
+
+  // The portrait exit-chase can see beyond the authored road sample endpoint.
+  // Extrapolate only distant dressing along the final straight tangent; road,
+  // runoff, barriers and vehicle motion remain capped to the authoritative layout.
+  const beyondExitStations=[151,158.5,166.5,175.5];
+  beyondExitStations.forEach((z,stationIndex)=>{
+    ([-1,1] as const).forEach((sideSign,sideIndex)=>{
+      const treeCount=quality==='final'?3:2;
+      for(let i=0;i<treeCount;i++){
+        const lateral=sideSign*(10.8+i*3.1+rng()*2.2);
+        const height=4.8+rng()*2.8+(stationIndex%2)*.45;
+        const p=worldPointBeyondExit(z+(rng()-.5)*2.2,lateral,0);
+        trunks.push({
+          position:[p[0],ROOT_Y+height*.27,p[2]],
+          rotation:[0,rng()*Math.PI,0],
+          scale:[.18+rng()*.07,height*.54,.18+rng()*.07],
+          color:sideIndex===0?'#625b49':'#5a5547',
+        });
+        crowns.push({
+          position:[p[0]+(rng()-.5)*.5,ROOT_Y+height*.72,p[2]+(rng()-.5)*.5],
+          rotation:[0,rng()*Math.PI,0],
+          scale:[1.55+rng()*.85,height*.42,1.45+rng()*.8],
+          color:['#3d5042','#495a47','#536149','#35483d'][(stationIndex+sideIndex+i)%4],
+        });
+      }
+    });
+  });
+
+  [158,171.5].forEach((z,index)=>{
+    ([-1,1] as const).forEach((sideSign,sideIndex)=>{
+      const p=worldPointBeyondExit(z,sideSign*(15.5+index*3+sideIndex*1.7),.28);
+      ridges.push({
+        position:p,
+        rotation:[0,rng()*Math.PI,0],
+        scale:[11.5+index*2.2,1.45+index*.25,8.2+sideIndex*1.4],
+        color:sideSign<0?'#65715f':'#6c7764',
+      });
+    });
+  });
+
+  // One distant timing/service pylon gives the open horizon an unmistakable
+  // circuit cue while remaining >10m lateral from the extrapolated centreline.
+  const exitPylon=worldPointBeyondExit(166,-10.9,3.2);
+  boards.push({
+    position:exitPylon,
+    rotation:[0,Math.PI,0],
+    scale:[1.8,6.4,.9],
+    color:'#343b3d',
+  });
+  boardAccents.push({
+    position:[exitPylon[0],exitPylon[1]+.72,exitPylon[2]-.01],
+    rotation:[0,Math.PI,0],
+    scale:[1.28,.22,.94],
+    color:'#2e8f58',
   });
 
   return {rail,fence,boards,boardAccents,trunks,crowns,shrubs,ridges,gantryMetal,gantryPanels,gantryAccents};
