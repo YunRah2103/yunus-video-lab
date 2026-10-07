@@ -16,6 +16,7 @@ const SPRING_SEAT = '#747d81';
 const BUMP_STOP = '#433b35';
 const UPRIGHT_DARK = '#353b3e';
 const HUB_METAL = '#70787c';
+const CHASSIS_BRACE = '#41484c';
 
 const UNIT_CYLINDER_Y = new THREE.CylinderGeometry(1, 1, 1, 18);
 const UNIT_SPHERE = new THREE.SphereGeometry(1, 18, 12);
@@ -148,6 +149,27 @@ const TeardropLink: React.FC<{link: ResolvedSuspensionLink; opacity: number}> = 
   </group>;
 };
 
+const UpperDamperChassisMount: React.FC<{
+  side: Side;
+  state: FrontSuspensionState;
+  upper: Vec3;
+  lower: Vec3;
+  opacity: number;
+}> = ({side, state, upper, lower, opacity}) => {
+  const sideLinks = resolveLinks(state).filter((link) => link.side === side);
+  const upperFrontInboard = sideLinks.find((link) => link.kind === 'upper-front')?.start;
+  const upperRearInboard = sideLinks.find((link) => link.kind === 'upper-rear')?.start;
+  if (!upperFrontInboard || !upperRearInboard) return null;
+
+  return <group name={'Y003_' + side + '_UpperDamperChassisMount'}>
+    <RodBetween a={upperFrontInboard} b={upperRearInboard} radius={0.022} color={CHASSIS_BRACE} opacity={opacity} metalness={0.70} roughness={0.28}/>
+    <RodBetween a={upper} b={upperFrontInboard} radius={0.024} color={CHASSIS_BRACE} opacity={opacity} metalness={0.68} roughness={0.30}/>
+    <RodBetween a={upper} b={upperRearInboard} radius={0.024} color={CHASSIS_BRACE} opacity={opacity} metalness={0.68} roughness={0.30}/>
+    <ClevisMount a={upper} b={lower} opacity={opacity}/>
+    <JointHousing position={upper} radius={0.034} opacity={opacity}/>
+  </group>;
+};
+
 const SpringSeatRing: React.FC<{x: number; opacity: number}> = ({x, opacity}) => <mesh
   geometry={UNIT_TORUS}
   position={[x, 0, 0]}
@@ -178,7 +200,8 @@ const SpringDamper: React.FC<{side: Side; state: FrontSuspensionState; opacity: 
   const bodyLength = length * 0.43;
   const shaftLength = length * 0.38;
 
-  return <group position={pos} quaternion={q}>
+  return <>
+    <group position={pos} quaternion={q}>
     <mesh
       geometry={UNIT_CYLINDER_Y}
       position={[-length * 0.10, 0, 0]}
@@ -214,7 +237,15 @@ const SpringDamper: React.FC<{side: Side; state: FrontSuspensionState; opacity: 
     </mesh>)}
     <JointHousing position={[-length / 2, 0, 0]} radius={0.028} opacity={opacity}/>
     <JointHousing position={[length / 2, 0, 0]} radius={0.028} opacity={opacity}/>
-  </group>;
+    </group>
+    <UpperDamperChassisMount
+      side={side}
+      state={state}
+      upper={upper}
+      lower={lower}
+      opacity={opacity}
+    />
+  </>;
 };
 
 const HubCarrier: React.FC<{hub: Vec3; opacity: number}> = ({hub, opacity}) => <group position={hub}>
