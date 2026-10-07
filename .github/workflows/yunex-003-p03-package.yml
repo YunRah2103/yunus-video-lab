@@ -74,7 +74,8 @@ jobs:
             python audio-tools/yunex/video003/render/validate_export.py delivery/YUNEX_003_P03_TIKTOK_$v.mp4 --total-frames 735 --require-audio > delivery/$v-validation.json
           done
           for frame in 27 144 234 306 492 603 711; do
-            ffmpeg -v error -y -i delivery/YUNEX_003_P03_TIKTOK_A.mp4 -vf "select=eq(n\,$frame)" -vsync 0 -frames:v 1 delivery/review/frame-$frame.png
+            timestamp=$(python -c "print($frame / 30)")
+            ffmpeg -v error -y -ss "$timestamp" -i delivery/YUNEX_003_P03_TIKTOK_A.mp4 -frames:v 1 delivery/review/frame-$frame.png
           done
           sha256sum delivery/*.mp4 | tee delivery/SHA256SUMS
           cp source/yunex/video003/reports/P03/REVISION.md delivery/
