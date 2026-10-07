@@ -5,5 +5,5 @@
   "total_frames": 735,
   "chunk_size": 20,
   "milestone_frames": "27,144,234,306,492,603,711",
-  "status": "MANAGER_RELEASED_FINAL_SOURCE"
+  "status": "FINAL_NATIVE_RENDER_REQUESTED"
 }
