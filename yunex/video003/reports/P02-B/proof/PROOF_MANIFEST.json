@@ -4,7 +4,7 @@
   "status": "NATIVE_PROOF_COMPLETE",
   "implementation_sha": "7b2ac51508890563b5c598480d47b2bfd0cfd0d1",
   "phase_base_sha": "064fc7687ad16e9fc99c32c3c323154b7e4496f1",
-  "source_render_run_id": 37612331303,
+  "source_render_run_id": 37614974215,
   "model_sha256": "1c73fcb138c31e2b1d5ed126a2412074bb17f8e960b355436f28139bf518e1eb",
   "installed_before": {
     "frame": 234,
@@ -36,10 +36,11 @@
     "height": 1920,
     "codec": "h264",
     "pixel_format": "yuv420p",
-    "duration_seconds": 3.0,
+    "duration_seconds": 3,
     "sha256": "0da84aca3747b11648fa541a72b69fe65bd5b64e1a6e6abf1b68ae85f4147dd5"
   },
   "decoder_pass": true,
   "proof_gate": "PASS",
-  "upper_damper_mount_fix": true
+  "upper_damper_mount_fix": true,
+  "visual_review": "PASS: upper damper eye visibly captured by clevis and triangulated into chassis-side upper pickup rail at frame 234 and across frames 441-530."
 }
