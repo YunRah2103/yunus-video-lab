@@ -65,12 +65,25 @@ Failure cause: the initial P02 workflow attempted `YUNEX-003-FINAL` on a clean r
 
 Fix: the native pipeline now renders `YUNEX-003-VISUAL` exactly as the proven previous Y003 native workflow did, then locks/muxes the approved AAC separately.
 
-Corrected visual-only benchmark run: `37600199512`  
+Corrected visual-only benchmark run: `37600199512` — PASS  
+Benchmark artifact ID: `11472471693`  
+Artifact: `YUNEX-003-P02-BENCHMARK-064fc7687ad16e9fc99c32c3c323154b7e4496f1`  
 Trigger source: `064fc7687ad16e9fc99c32c3c323154b7e4496f1`  
-Scope: pre-release smoke only; never treated as the final POLISH-02 source.  
+Scope: three-frame pre-release smoke only; never treated as the final POLISH-02 source.
+
+Verified in that run:
+- config: PASS
+- render-tooling selftest: PASS
+- exact source checkout: PASS
+- locked Porsche model hash: PASS
+- native `YUNEX-003-VISUAL` render: PASS
+- decoder/probe + exact three decoded benchmark frames: PASS
+- benchmark artifact upload: PASS
+- all expensive full-render jobs: correctly SKIPPED
+
 The source pin was immediately cleared from the branch after triggering.
 
-A separate source-cleared self-test run `37600009621` completed PASS after the corrected visual/audio-lock architecture was installed.
+A separate source-cleared self-test run `37600009621` also completed PASS after the corrected visual/audio-lock architecture was installed.
 
 ## Final release procedure
 
