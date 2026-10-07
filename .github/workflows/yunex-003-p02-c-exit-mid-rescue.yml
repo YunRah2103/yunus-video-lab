@@ -1,0 +1,143 @@
+name: YUNEX 003 P02 Agent C exit proof mid-range rescue
+
+permissions:
+  contents: read
+  actions: read
+
+on:
+  push:
+    branches:
+      - sol/y003-p02-track-world
+    paths:
+      - '.github/workflows/yunex-003-p02-c-exit-mid-rescue.yml'
+
+jobs:
+  mid:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - index: a
+            frames: 645-659
+          - index: b
+            frames: 660-674
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: yunex/package-lock.json
+      - run: |
+          mkdir -p yunex/public yunex/out/y003-p02-c-exit-mid
+          test "$(sha256sum cars/porsche-911-gt3-rs-992/model.glb | awk '{print $1}')" = "1c73fcb138c31e2b1d5ed126a2412074bb17f8e960b355436f28139bf518e1eb"
+          cp cars/porsche-911-gt3-rs-992/model.glb yunex/public/model.glb
+      - working-directory: yunex
+        run: npm ci --no-audit --no-fund
+      - working-directory: yunex
+        run: |
+          NODE_OPTIONS=--require=./fix-network.cjs npx remotion render src/index.tsx YUNEX-003-VISUAL "out/y003-p02-c-exit-mid/mid-${{ matrix.index }}.mp4" \
+            --frames="${{ matrix.frames }}" --gl=swangle --concurrency=1 --codec=h264 --pixel-format=yuv420p --crf=18 --scale=0.25 --timeout=300000 --muted
+      - uses: actions/upload-artifact@v4
+        with:
+          name: y003-p02-c-exit-mid-${{ matrix.index }}-${{ github.sha }}
+          path: yunex/out/y003-p02-c-exit-mid/mid-${{ matrix.index }}.mp4
+          retention-days: 14
+
+  assemble:
+    needs: mid
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Install assembly tooling
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg
+
+      - name: Download source-equivalent chunk 0
+        uses: actions/download-artifact@v4
+        with:
+          pattern: y003-p02-c-exit-chunk-0-5846d69b5880302497d54446078eec8a58f25ef1
+          path: ext0
+          merge-multiple: true
+          repository: YunRah2103/yunus-video-lab
+          run-id: 37615225391
+          github-token: ${{ github.token }}
+
+      - name: Download source-equivalent chunks 2 and 3
+        uses: actions/download-artifact@v4
+        with:
+          pattern: y003-p02-c-exit-chunk-*-a27fbd0d19a1b7d74dc3a7890832906ed182c34e
+          path: ext23
+          merge-multiple: true
+          repository: YunRah2103/yunus-video-lab
+          run-id: 37615339642
+          github-token: ${{ github.token }}
+
+      - name: Download rescued middle segments
+        uses: actions/download-artifact@v4
+        with:
+          pattern: y003-p02-c-exit-mid-*-${{ github.sha }}
+          path: mid
+          merge-multiple: true
+
+      - name: Assemble and validate 4 second exit proof
+        run: |
+          set -euo pipefail
+
+          test -s ext0/chunk-0.mp4
+          test -s ext23/chunk-2.mp4
+          test -s ext23/chunk-3.mp4
+          test -s mid/mid-a.mp4
+          test -s mid/mid-b.mp4
+
+          test "$(ffprobe -v error -select_streams v:0 -count_frames -show_entries stream=nb_read_frames -of csv=p=0 ext0/chunk-0.mp4)" = "30"
+          test "$(ffprobe -v error -select_streams v:0 -count_frames -show_entries stream=nb_read_frames -of csv=p=0 mid/mid-a.mp4)" = "15"
+          test "$(ffprobe -v error -select_streams v:0 -count_frames -show_entries stream=nb_read_frames -of csv=p=0 mid/mid-b.mp4)" = "15"
+          test "$(ffprobe -v error -select_streams v:0 -count_frames -show_entries stream=nb_read_frames -of csv=p=0 ext23/chunk-2.mp4)" = "30"
+          test "$(ffprobe -v error -select_streams v:0 -count_frames -show_entries stream=nb_read_frames -of csv=p=0 ext23/chunk-3.mp4)" = "30"
+
+          ffmpeg -y \
+            -i ext0/chunk-0.mp4 \
+            -i mid/mid-a.mp4 \
+            -i mid/mid-b.mp4 \
+            -i ext23/chunk-2.mp4 \
+            -i ext23/chunk-3.mp4 \
+            -filter_complex "[0:v:0]setpts=PTS-STARTPTS[v0];[1:v:0]setpts=PTS-STARTPTS[v1];[2:v:0]setpts=PTS-STARTPTS[v2];[3:v:0]setpts=PTS-STARTPTS[v3];[4:v:0]setpts=PTS-STARTPTS[v4];[v0][v1][v2][v3][v4]concat=n=5:v=1:a=0[v]" \
+            -map "[v]" -an -c:v libx264 -preset medium -crf 18 -r 30 -pix_fmt yuv420p -movflags +faststart \
+            exit-moving-proof-4s.mp4
+
+          ffmpeg -v error -i exit-moving-proof-4s.mp4 -f null -
+
+          width="$(ffprobe -v error -select_streams v:0 -show_entries stream=width -of csv=p=0 exit-moving-proof-4s.mp4)"
+          height="$(ffprobe -v error -select_streams v:0 -show_entries stream=height -of csv=p=0 exit-moving-proof-4s.mp4)"
+          fps="$(ffprobe -v error -select_streams v:0 -show_entries stream=r_frame_rate -of csv=p=0 exit-moving-proof-4s.mp4)"
+          frames="$(ffprobe -v error -select_streams v:0 -count_frames -show_entries stream=nb_read_frames -of csv=p=0 exit-moving-proof-4s.mp4)"
+          pix_fmt="$(ffprobe -v error -select_streams v:0 -show_entries stream=pix_fmt -of csv=p=0 exit-moving-proof-4s.mp4)"
+          codec="$(ffprobe -v error -select_streams v:0 -show_entries stream=codec_name -of csv=p=0 exit-moving-proof-4s.mp4)"
+          duration="$(ffprobe -v error -show_entries format=duration -of csv=p=0 exit-moving-proof-4s.mp4)"
+
+          test "$width" = "270"
+          test "$height" = "480"
+          test "$fps" = "30/1"
+          test "$frames" = "120"
+          test "$pix_fmt" = "yuv420p"
+          test "$codec" = "h264"
+          awk -v d="$duration" 'BEGIN { exit !(d >= 3.99 && d <= 4.01) }'
+
+          ffprobe -v error -select_streams v:0 \
+            -show_entries stream=codec_name,width,height,pix_fmt,r_frame_rate,nb_frames \
+            -show_entries format=duration,size,format_name \
+            -of json exit-moving-proof-4s.mp4 > ffprobe.json
+          sha256sum exit-moving-proof-4s.mp4 > sha256.txt
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Y003-P02-C-EXIT-MOVING-RESCUED-${{ github.sha }}
+          path: |
+            exit-moving-proof-4s.mp4
+            ffprobe.json
+            sha256.txt
+          retention-days: 14
