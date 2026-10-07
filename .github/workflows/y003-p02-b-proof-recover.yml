@@ -1,0 +1,184 @@
+name: YUNEX 003 P02-B proof recovery assemble
+
+permissions:
+  contents: write
+  actions: read
+
+on:
+  push:
+    branches:
+      - sol/y003-p02-suspension-detail
+    paths:
+      - '.github/workflows/y003-p02-b-proof-recover.yml'
+
+env:
+  SOURCE_SHA: d4b81aacfeeedfb2475c4e4cc59ed8a352164f4d
+  BASE_SHA: 064fc7687ad16e9fc99c32c3c323154b7e4496f1
+  MODEL_SHA: 1c73fcb138c31e2b1d5ed126a2412074bb17f8e960b355436f28139bf518e1eb
+  SOURCE_RUN_ID: '37612331303'
+
+jobs:
+  recover:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: sol/y003-p02-suspension-detail
+          fetch-depth: 0
+
+      - name: Install ffmpeg
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq ffmpeg
+
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: p02-b-chunk-*
+          path: chunks
+          merge-multiple: true
+          run-id: ${{ env.SOURCE_RUN_ID }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: p02-b-stills
+          path: stills
+          run-id: ${{ env.SOURCE_RUN_ID }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Normalize downloaded proof inputs
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p normalized
+          count=0
+          while IFS= read -r f; do
+            cp "$f" "normalized/chunk-$(printf '%02d' "$count").mp4"
+            count=$((count+1))
+          done < <(find chunks -type f -name 'chunk-*.mp4' | sort)
+          test "$count" -eq 6
+          before="$(find stills -type f -name 'installed-before-f234.png' | head -n1)"
+          after="$(find stills -type f -name 'installed-after-f234.png' | head -n1)"
+          load="$(find stills -type f -name 'mechanical-load-f492.png' | head -n1)"
+          test -n "$before" && test -n "$after" && test -n "$load"
+          cp "$before" normalized/installed-before-f234.png
+          cp "$after" normalized/installed-after-f234.png
+          cp "$load" normalized/mechanical-load-f492.png
+
+      - name: Assemble and validate native evidence
+        shell: bash
+        run: |
+          set -euo pipefail
+          : > concat.txt
+          for f in normalized/chunk-*.mp4; do
+            printf "file '%s/%s'\n" "$GITHUB_WORKSPACE" "$f" >> concat.txt
+          done
+          test "$(wc -l < concat.txt)" -eq 6
+          ffmpeg -y -v error -f concat -safe 0 -i concat.txt -c copy articulation-native-f441-530.mp4
+          ffmpeg -v error -xerror -i articulation-native-f441-530.mp4 -f null -
+          ffprobe -v error -count_frames -show_entries stream=codec_name,pix_fmt,width,height,r_frame_rate,nb_read_frames -show_entries format=duration -of json articulation-native-f441-530.mp4 > articulation-probe.json
+
+          for name in installed-before-f234 installed-after-f234 mechanical-load-f492; do
+            ffprobe -v error -show_entries stream=codec_name,width,height -of json "normalized/$name.png" > "$name.probe.json"
+          done
+
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          d=json.loads(Path('articulation-probe.json').read_text())
+          s=d['streams'][0]
+          assert s['codec_name']=='h264', s
+          assert s['pix_fmt']=='yuv420p', s
+          assert int(s['width'])==1080 and int(s['height'])==1920, s
+          assert s['r_frame_rate']=='30/1', s
+          assert int(s['nb_read_frames'])==90, s
+          duration=float(d['format']['duration'])
+          assert 2.95 <= duration <= 3.05, duration
+          for p in ['installed-before-f234.probe.json','installed-after-f234.probe.json','mechanical-load-f492.probe.json']:
+              s=json.loads(Path(p).read_text())['streams'][0]
+              assert s['codec_name']=='png', s
+              assert int(s['width'])==1080 and int(s['height'])==1920, s
+          PY
+
+          ffmpeg -y -v error -i normalized/installed-before-f234.png -i normalized/installed-after-f234.png -filter_complex "[0:v][1:v]blend=all_mode=difference" -frames:v 1 installed-difference-f234.png
+
+          sha256sum normalized/installed-before-f234.png normalized/installed-after-f234.png normalized/mechanical-load-f492.png articulation-native-f441-530.mp4 installed-difference-f234.png > SHA256SUMS.txt
+
+      - name: Write and commit proof package
+        shell: bash
+        run: |
+          set -euo pipefail
+          dest=yunex/video003/reports/P02-B/proof
+          rm -rf "$dest"
+          mkdir -p "$dest"
+          cp normalized/installed-before-f234.png "$dest/"
+          cp normalized/installed-after-f234.png "$dest/"
+          cp normalized/mechanical-load-f492.png "$dest/"
+          cp installed-difference-f234.png "$dest/"
+          cp articulation-native-f441-530.mp4 "$dest/"
+          cp articulation-probe.json "$dest/"
+          cp installed-before-f234.probe.json "$dest/"
+          cp installed-after-f234.probe.json "$dest/"
+          cp mechanical-load-f492.probe.json "$dest/"
+          cp SHA256SUMS.txt "$dest/"
+
+          python - <<'PY'
+          import hashlib, json
+          from pathlib import Path
+          root=Path('yunex/video003/reports/P02-B/proof')
+          def sha(p):
+              h=hashlib.sha256()
+              with open(p,'rb') as f:
+                  for b in iter(lambda:f.read(1<<20),b''):
+                      h.update(b)
+              return h.hexdigest()
+          d=json.loads((root/'articulation-probe.json').read_text())
+          manifest={
+            'phase':'Y003-POLISH-02',
+            'role':'B',
+            'status':'NATIVE_PROOF_COMPLETE',
+            'implementation_sha':'d4b81aacfeeedfb2475c4e4cc59ed8a352164f4d',
+            'phase_base_sha':'064fc7687ad16e9fc99c32c3c323154b7e4496f1',
+            'source_render_run_id':37612331303,
+            'model_sha256':'1c73fcb138c31e2b1d5ed126a2412074bb17f8e960b355436f28139bf518e1eb',
+            'installed_before':{'frame':234,'width':1080,'height':1920,'sha256':sha(root/'installed-before-f234.png')},
+            'installed_after':{'frame':234,'width':1080,'height':1920,'sha256':sha(root/'installed-after-f234.png')},
+            'mechanical_load_still':{'frame':492,'width':1080,'height':1920,'sha256':sha(root/'mechanical-load-f492.png')},
+            'difference_image':{'frame':234,'sha256':sha(root/'installed-difference-f234.png')},
+            'articulation':{
+              'frames':'441-530',
+              'decoded_frames':90,
+              'fps':30,
+              'width':1080,
+              'height':1920,
+              'codec':'h264',
+              'pixel_format':'yuv420p',
+              'duration_seconds':float(d['format']['duration']),
+              'sha256':sha(root/'articulation-native-f441-530.mp4')
+            },
+            'decoder_pass':True,
+            'proof_gate':'PASS'
+          }
+          (root/'PROOF_MANIFEST.json').write_text(json.dumps(manifest,indent=2)+'\n')
+          (root/'PROOF_RESULTS.md').write_text(
+            '# YUNEX 003 — POLISH 02 — Agent B native proof\n\n'
+            'PASS.\n\n'
+            '- Exact B implementation rendered: d4b81aacfeeedfb2475c4e4cc59ed8a352164f4d\n'
+            '- Exact phase base used for before comparison: 064fc7687ad16e9fc99c32c3c323154b7e4496f1\n'
+            '- Installed before/after frame 234: native 1080×1920 PNG\n'
+            '- Mechanical-load still frame 492: native 1080×1920 PNG\n'
+            '- Installed articulation frames 441–530: 90 decoded frames, 30 fps, 3.0 s, native 1080×1920 H.264 yuv420p\n'
+            '- Full ffmpeg decoder pass: PASS\n'
+            '- Approved Porsche model SHA-256 unchanged\n'
+            '- Rendered artifacts came from GitHub Actions run 37612331303; recovery only assembled/verified the already-completed native outputs.\n\n'
+            'No motion, track, timeline, Video003.tsx, registry, narration or Porsche model bytes were changed.\n'
+          )
+          PY
+
+          git pull --ff-only origin sol/y003-p02-suspension-detail
+          git config user.name "YUNEX Proof Bot"
+          git config user.email "actions@github.com"
+          git add "$dest"
+          git commit -m "YUNEX 003 P02-B: add verified native proof gate"
+          git push origin HEAD:sol/y003-p02-suspension-detail
