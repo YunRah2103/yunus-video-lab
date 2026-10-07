@@ -1,0 +1,126 @@
+{
+  "phase": "Y003-POLISH-02",
+  "repository": "YunRah2103/yunus-video-lab",
+  "manager_branch": "sol/y003-suspension-manager",
+  "specialist_base_branch": "sol/y003-p02-base",
+  "specialist_base_sha": "064fc7687ad16e9fc99c32c3c323154b7e4496f1",
+  "execution": "Nine separate user-started chats: Manager + A-H. No nested agents.",
+  "locked": {
+    "frames": 735,
+    "fps": 30,
+    "duration_seconds": 24.5,
+    "width": 1080,
+    "height": 1920,
+    "model_sha256": "1c73fcb138c31e2b1d5ed126a2412074bb17f8e960b355436f28139bf518e1eb",
+    "preserve": [
+      "moving Porsche",
+      "approved white/green car",
+      "supplied VO and timing",
+      "story",
+      "typography",
+      "camera intent",
+      "aero explanation"
+    ]
+  },
+  "tasks": [
+    {
+      "id": "A",
+      "role": "Wheel rig stability",
+      "handoff": "polish02/A_WHEEL_RIG_HANDOFF.md",
+      "branch": "sol/y003-p02-wheel-rig",
+      "status": "ready",
+      "owned": [
+        "yunex/src/video003/motion/",
+        "yunex/video003/reports/P02-A/"
+      ]
+    },
+    {
+      "id": "B",
+      "role": "Suspension mechanical detail",
+      "handoff": "polish02/B_SUSPENSION_DETAIL_HANDOFF.md",
+      "branch": "sol/y003-p02-suspension-detail",
+      "status": "ready",
+      "owned": [
+        "yunex/src/video003/suspension/",
+        "yunex/video003/reports/P02-B/"
+      ]
+    },
+    {
+      "id": "C",
+      "role": "Established circuit world",
+      "handoff": "polish02/C_TRACK_WORLD_HANDOFF.md",
+      "branch": "sol/y003-p02-track-world",
+      "status": "ready",
+      "owned": [
+        "yunex/src/video003/track/",
+        "yunex/video003/reports/P02-C/"
+      ]
+    },
+    {
+      "id": "D",
+      "role": "Wheel/driving QA",
+      "handoff": "polish02/D_WHEEL_DRIVING_QA_HANDOFF.md",
+      "branch": "sol/y003-p02-wheel-qa",
+      "status": "ready",
+      "owned": [
+        "yunex/video003/qa/polish02/wheels/",
+        "yunex/video003/reports/P02-D/"
+      ]
+    },
+    {
+      "id": "E",
+      "role": "Suspension + track visual QA",
+      "handoff": "polish02/E_SUSPENSION_TRACK_QA_HANDOFF.md",
+      "branch": "sol/y003-p02-visual-qa",
+      "status": "ready",
+      "owned": [
+        "yunex/video003/qa/polish02/visual/",
+        "yunex/video003/reports/P02-E/"
+      ]
+    },
+    {
+      "id": "F",
+      "role": "Integration preflight",
+      "handoff": "polish02/F_INTEGRATION_PREFLIGHT_HANDOFF.md",
+      "branch": "sol/y003-p02-preflight",
+      "status": "ready",
+      "owned": [
+        "yunex/video003/qa/polish02/preflight/",
+        "yunex/video003/reports/P02-F/"
+      ]
+    },
+    {
+      "id": "G",
+      "role": "Native render/delivery",
+      "handoff": "polish02/G_RENDER_DELIVERY_HANDOFF.md",
+      "branch": "sol/y003-p02-render",
+      "status": "prepare_only_until_source_pin",
+      "owned": [
+        "yunex/video003/render/",
+        ".github/workflows/yunex-003-*.yml",
+        "yunex/video003/reports/P02-G/"
+      ]
+    },
+    {
+      "id": "H",
+      "role": "Final independent QA",
+      "handoff": "polish02/H_FINAL_QA_HANDOFF.md",
+      "branch": "sol/y003-p02-final-qa",
+      "status": "prepare_only_until_final_artifact",
+      "owned": [
+        "yunex/video003/qa/polish02/final/",
+        "yunex/video003/reports/P02-H/"
+      ]
+    }
+  ],
+  "manager_only": [
+    "yunex/src/video003/Video003.tsx",
+    "yunex/src/video003/timeline.ts",
+    "yunex/src/video003/types.ts",
+    "yunex/src/index.tsx",
+    "yunex/video003/polish02/POLISH_02_TASKS.json"
+  ],
+  "integration_order": "A/B/C parallel -> D/E review -> F compatibility -> Manager integration + short native proof -> G final render -> H final QA",
+  "render_source_sha": null,
+  "final_delivery_sha": null
+}
