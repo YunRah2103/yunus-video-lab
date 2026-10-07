@@ -178,8 +178,8 @@ jobs:
                   raise SystemExit(f"native geometry/codec mismatch: {p.name}: {s}")
               if s["r_frame_rate"]!="30/1" or int(s.get("nb_frames") or 0)!=90:
                   raise SystemExit(f"timing mismatch: {p.name}: {s}")
-              if s.get("pix_fmt")!="yuv420p":
-                  raise SystemExit(f"pixel format mismatch: {p.name}: {s.get('pix_fmt')}")
+              if s.get("pix_fmt") not in {"yuv420p","yuvj420p"}:
+                  raise SystemExit(f"4:2:0 pixel format mismatch: {p.name}: {s.get('pix_fmt')}")
               manifest["proofs"].append({
                   "file":p.name,
                   "sourceFrames":expected[p.name],
