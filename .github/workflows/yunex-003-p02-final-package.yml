@@ -18,6 +18,7 @@ jobs:
           run-id: 37625560242
           artifact-ids: 11483379220
           path: native
+          merge-multiple: true
       - name: Copy-mux locked audio; no visual rendering or encoding
         shell: bash
         run: |
