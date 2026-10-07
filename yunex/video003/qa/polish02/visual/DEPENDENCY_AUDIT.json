@@ -4,7 +4,7 @@
   "status": "FAIL",
   "reviewed_at_branch_heads": {
     "B_branch": "sol/y003-p02-suspension-detail",
-    "B_branch_head": "b60948c5e1e89a83d353e019c6e80430a046e4c2",
+    "B_branch_head": "a193793217ff40c580933b521d4e20a4f4526a01",
     "B_rendered_implementation_sha": "d4b81aacfeeedfb2475c4e4cc59ed8a352164f4d",
     "C_branch": "sol/y003-p02-track-world",
     "C_branch_head": "4e8542eacb34ae5af3447ac0feaa05ab12dd0a3f",
@@ -52,7 +52,7 @@
       }
     ],
     "required_fix": "Add a visibly credible upper damper-to-chassis attachment inside the owned suspension module and re-render the same native proof windows.",
-    "proof_metadata_commit": "b60948c5e1e89a83d353e019c6e80430a046e4c2",
+    "proof_metadata_commit": "a193793217ff40c580933b521d4e20a4f4526a01",
     "proof_metadata_note": "Final B head adds verified proof metadata/stills and recovery workflow only; the rendered suspension implementation remains d4b81aacfeeedfb2475c4e4cc59ed8a352164f4d."
   },
   "C": {
