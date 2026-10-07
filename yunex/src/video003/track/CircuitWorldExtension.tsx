@@ -315,6 +315,53 @@ const buildLayout=(quality:'preview'|'final',seed:number)=>{
     }
   });
 
+  // POLISH-02 exit-only depth: frame 711 looks down the final straight, where the
+  // original sparse stations exposed too much open horizon. Keep this layer well
+  // outside the landscape exclusion so it reads as distant circuit backdrop,
+  // never as foreground clutter or a change to the road/runoff envelope.
+  const exitDepthStations=[118,123.5,128.5,133.5,138.5];
+  exitDepthStations.forEach((z,stationIndex)=>{
+    (['left','right'] as const).forEach((side,sideIndex)=>{
+      const treeCount=quality==='final'?3:2;
+      for(let i=0;i<treeCount;i++){
+        const safeZ=Math.min(139.4,z+(rng()-.5)*1.9+i*.22);
+        const outward=11.5+i*3.8+rng()*2.6;
+        const height=4.1+rng()*2.5+(stationIndex%2)*.35;
+        const p=worldPointAt(safeZ,side,'landscape',outward,0);
+        trunks.push({
+          position:[p[0],ROOT_Y+height*.27,p[2]],
+          rotation:[0,rng()*Math.PI,0],
+          scale:[.17+rng()*.07,height*.54,.17+rng()*.07],
+          color:sideIndex===0?'#625b49':'#5a5547',
+        });
+        crowns.push({
+          position:[
+            p[0]+(rng()-.5)*.38,
+            ROOT_Y+height*.72,
+            p[2]+(rng()-.5)*.38,
+          ],
+          rotation:[0,rng()*Math.PI,0],
+          scale:[1.35+rng()*.75,height*.40,1.28+rng()*.72],
+          color:['#405244','#4a5a47','#546149','#394b40'][(stationIndex+sideIndex+i)%4],
+        });
+      }
+    });
+  });
+
+  // Low, broad groundforms sit farther back than the exit treeline to close the
+  // horizon without creating a wall or interfering with the chase-camera sightline.
+  [121,129.5,137.5].forEach((z,index)=>{
+    (['left','right'] as const).forEach((side,sideIndex)=>{
+      const p=worldPointAt(z,side,'landscape',30+index*3.8+sideIndex*2.4,.34);
+      ridges.push({
+        position:p,
+        rotation:[0,rng()*Math.PI,0],
+        scale:[8.5+index*1.6,1.05+index*.16,6.4+sideIndex*1.2],
+        color:side==='left'?'#687461':'#616d5c',
+      });
+    });
+  });
+
   return {rail,fence,boards,boardAccents,trunks,crowns,shrubs,ridges,gantryMetal,gantryPanels,gantryAccents};
 };
 
