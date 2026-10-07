@@ -1,46 +1,105 @@
 {
   "phase": "Y003-POLISH-02",
   "role": "E",
-  "branch": "sol/y003-p02-visual-qa",
-  "status": "BLOCKED_FAIL",
-  "phase_base_sha": "064fc7687ad16e9fc99c32c3c323154b7e4496f1",
-  "reviewed_inputs": {
-    "B": {
-      "branch": "sol/y003-p02-suspension-detail",
-      "sha": "064fc7687ad16e9fc99c32c3c323154b7e4496f1",
-      "compare_to_phase_base": "identical",
-      "ahead_by": 0,
-      "changed_files": 0,
-      "result": "FAIL",
-      "reason": "No suspension-detail production commit or new native proof exists on the remote branch."
+  "status": "FAIL",
+  "reviewed_at_branch_heads": {
+    "B_branch": "sol/y003-p02-suspension-detail",
+    "B_branch_head": "0a361f288e9181e308fed0186d3897d31379d19a",
+    "B_rendered_implementation_sha": "d4b81aacfeeedfb2475c4e4cc59ed8a352164f4d",
+    "C_branch": "sol/y003-p02-track-world",
+    "C_branch_head": "4e8542eacb34ae5af3447ac0feaa05ab12dd0a3f",
+    "C_native_still_source_sha": "9e4efa91539700578481f4258a7b12d8aa708a72",
+    "C_moving_chunk_source_sha": "8f9766661482d8e591bd3976a68598873a85906f"
+  },
+  "B": {
+    "result": "FAIL",
+    "native_stills_artifact_id": 11478144474,
+    "proof_run_id": 37612331303,
+    "articulation_chunk_artifact_ids": [
+      11479675102,
+      11478995155,
+      11479645119,
+      11479675017,
+      11478665608,
+      11479345220
+    ],
+    "articulation_validation": {
+      "width": 1080,
+      "height": 1920,
+      "fps": 30,
+      "decoded_frames": 90,
+      "duration_seconds": 3.0,
+      "frames": "441-530"
     },
-    "C": {
-      "branch": "sol/y003-p02-track-world",
-      "sha": "064fc7687ad16e9fc99c32c3c323154b7e4496f1",
-      "compare_to_phase_base": "identical",
-      "ahead_by": 0,
-      "changed_files": 0,
-      "result": "FAIL",
-      "reason": "No track-world production commit or new native proof exists on the remote branch."
-    }
+    "passes": [
+      "richer mechanical detail visible",
+      "double-wishbone concept preserved",
+      "link geometry visually stable through load proof",
+      "no obvious tyre/body/link intersection in inspected evidence",
+      "no obvious spinning-caliper defect introduced",
+      "reference-informed accuracy boundary disclosed"
+    ],
+    "blocking_findings": [
+      {
+        "frame": 234,
+        "time_seconds": 7.8,
+        "issue": "Upper spring/damper terminates in a visible joint sphere with no visible chassis clevis/bracket, so it reads as floating."
+      },
+      {
+        "frames": "441-530",
+        "time_seconds": "14.70-17.67",
+        "issue": "Unsupported upper damper termination remains visible through the native mechanical-load articulation proof."
+      }
+    ],
+    "required_fix": "Add a visibly credible upper damper-to-chassis attachment inside the owned suspension module and re-render the same native proof windows."
   },
-  "required_milestone_frames": [
-    {"frame": 27, "time_seconds": 0.9, "beat": "hook"},
-    {"frame": 144, "time_seconds": 4.8, "beat": "turn-in"},
-    {"frame": 234, "time_seconds": 7.8, "beat": "front-corner reveal"},
-    {"frame": 306, "time_seconds": 10.2, "beat": "link profile"},
-    {"frame": 492, "time_seconds": 16.4, "beat": "mechanical load"},
-    {"frame": 603, "time_seconds": 20.1, "beat": "whole-car"},
-    {"frame": 711, "time_seconds": 23.7, "beat": "exit"}
-  ],
-  "evidence_gate": {
-    "B_articulation_proof_3_to_5_seconds": "missing",
-    "B_installed_macro_before_after": "missing",
-    "B_isolated_diagnostic_view": "missing",
-    "C_native_requested_beats": "missing",
-    "C_moving_proof_4_to_6_seconds": "missing",
-    "C_coverage_repetition_checks": "missing"
+  "C": {
+    "result": "FAIL",
+    "native_still_run_id": 37599474162,
+    "native_still_artifact_ids": {
+      "frame_27": 11472029272,
+      "frame_144": 11472183311,
+      "frame_234": 11472620083,
+      "frame_603": 11471798502,
+      "frame_711": 11471464818
+    },
+    "validated_moving_run_id": 37611336398,
+    "validated_moving_artifact_id": 11477632631,
+    "moving_proof_validation": {
+      "width": 270,
+      "height": 480,
+      "fps": 30,
+      "frames": 120,
+      "duration_seconds": 4.0,
+      "codec": "h264",
+      "pixel_format": "yuv420p",
+      "decoder_pass": true
+    },
+    "coverage_audit": {
+      "ok": true,
+      "identity_station_count": 15,
+      "max_identity_gap_m": 17,
+      "unique_rounded_gap_count": 8
+    },
+    "passes": [
+      "believable road-relative parallax",
+      "useful barrier/fence/vegetation depth through middle and whole-car proof",
+      "no obvious furniture collision or Porsche occlusion",
+      "coverage audit passes with varied spacing"
+    ],
+    "blocking_findings": [
+      {
+        "frame": 711,
+        "time_seconds": 23.7,
+        "issue": "Exit falls back to a sparse flat horizon with insufficient vegetation/background depth, causing an empty-horizon regression."
+      }
+    ],
+    "required_fix": "Extend restrained circuit-side depth into the frame-711 exit frustum without changing the locked car path or camera intent.",
+    "scope_warning": "C directly modifies yunex/src/video003/Video003.tsx even though POLISH-02 assigns central composition edits to the Manager."
   },
-  "production_source_modified_by_E": false,
-  "decision": "Do not integrate B or C from these SHAs. Re-run E visual QA only after both production branches advance beyond the phase base and publish their required native moving proof."
+  "overall": {
+    "result": "FAIL",
+    "production_source_modified_by_E": false,
+    "manager_action": "Do not integrate B or C as visually accepted outputs until the two narrow blockers are fixed and re-proved."
+  }
 }
