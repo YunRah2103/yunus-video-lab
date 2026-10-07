@@ -15,7 +15,7 @@
       "id": "MANAGER",
       "handoff": "MANAGER_EXECUTION_HANDOFF.md",
       "branch": "sol/y003-suspension-manager",
-      "status": "master_handoff_ready",
+      "status": "master_review_ready",
       "owned_files": [
         "yunex/video003/START_HERE.md",
         "yunex/video003/TASKS.json",
@@ -123,7 +123,7 @@
       "role": "Native render pipeline and final export",
       "handoff": "G_RENDER_HANDOFF.md",
       "branch": "sol/y003-render",
-      "status": "native_chunks_complete_manager_review_export_validated",
+      "status": "native_delivery_complete",
       "input_sha": "805c74fc2f749ed701c95d1aa5809e60e5a02d76",
       "initial_preparation_sha": "50fd478256bbe12d37410e78678bd7c302d96434",
       "output_sha": "739a214b1d47955cba21a34b29cb67b1911135a3",
@@ -132,14 +132,19 @@
         ".github/workflows/yunex-003-render.yml",
         "yunex/video003/reports/G/"
       ],
-      "proofs": []
+      "proofs": [
+        "corrected native run 37582160590 PASS",
+        "assemble job 112669838502 PASS",
+        "final native visual artifact 11465758048",
+        "rescue confirmation run 37584525565 PASS"
+      ]
     },
     {
       "id": "H",
       "role": "Independent driving, mechanical and visual QA",
       "handoff": "H_QA_HANDOFF.md",
       "branch": "sol/y003-qa",
-      "status": "integrated_proof_pass_master_review_pending",
+      "status": "final_delivery_pass",
       "input_sha": "50fd478256bbe12d37410e78678bd7c302d96434",
       "initial_preparation_sha": "50fd478256bbe12d37410e78678bd7c302d96434",
       "output_sha": "1408f1d1b6a525c182385b8bf302b7fea0ad7cf6",
@@ -151,7 +156,9 @@
       "proofs": [
         "H evidence QA run 37545958293 PASS",
         "sampled proof artifact 11450546449",
-        "native still artifact 11448604207"
+        "native still artifact 11448604207",
+        "final chronological/native delivery review PASS",
+        "corrected native run 37582160590 artifact 11465758048"
       ]
     }
   ],
@@ -168,7 +175,16 @@
     "video_codec": "h264",
     "pixel_format": "yuv420p",
     "audio_codec": "aac",
-    "audio_note": "Agent F preserved 24.5 s preflight/reference mix: supplied narration plus restrained deterministic bed; Master must judge final creative sound balance."
+    "audio_note": "Agent F preserved 24.5 s preflight/reference mix: supplied narration plus restrained deterministic bed; Master must judge final creative sound balance.",
+    "audio_provenance": {
+      "source_name": "openai-fm-cedar-friendly.mp3",
+      "library_id": "libfile_6e284ae6e75c819197dd652690e22ae8",
+      "source_sha256": "826d7863cd4ec135e0352e9800f47b54239f8ba1d4c0d98ff5909a071905cfbb",
+      "source_duration_seconds": 23.256,
+      "recorded_wording": "So on a GT3 RS...",
+      "treatment": "Narration preserved unchanged; no trim, time-stretch or regeneration. Conservative deterministic Agent F automotive bed.",
+      "mix_reference_sha256": "c1d8d22acd3753c6320ab6ad3f3867f456bcae933157181a06b0ae4836755f13"
+    }
   },
   "master_review_manifest": {
     "library_path": "/Video Projects/YUNEX 003/Manager/MASTER_REVIEW_MANIFEST.json",
@@ -177,5 +193,61 @@
   "contact_sheet": {
     "library_path": "/Video Projects/YUNEX 003/Manager/YUNEX_003_MASTER_CONTACT_SHEET.png",
     "library_file_id": "libfile_380cf211cb58819199a917ba715d951f"
+  },
+  "manager_status": "master_review_ready",
+  "final_native_delivery": {
+    "status": "PASS",
+    "authoritative_run_id": 37582160590,
+    "workflow": "YUNEX 003 proof-approved native visual",
+    "workflow_head_sha": "00e456a2367869c1bdedcbe7e691a874adaf9c62",
+    "assemble_job_id": 112669838502,
+    "artifact_id": 11465758048,
+    "artifact_name": "YUNEX-003-NATIVE-VISUAL-805c74fc2f749ed701c95d1aa5809e60e5a02d76",
+    "render_source_sha": "805c74fc2f749ed701c95d1aa5809e60e5a02d76",
+    "source_chunk_failure_run_id": 37546004860,
+    "source_chunk_diagnosis": "CASE_A: representative first/middle/last native chunks are H.264 1080x1920 30 fps yuvj420p; stream-copy concat therefore cannot satisfy yuv420p. A single final normalization encode is required.",
+    "native_visual_sha256": "feb830e8330eb8a0b58360174578fd6287cd5cfeb7824a42361af85355efc8a6",
+    "validation": {
+      "width": 1080,
+      "height": 1920,
+      "fps": 30,
+      "frames": 735,
+      "duration_seconds": 24.5,
+      "video_codec": "h264",
+      "pixel_format": "yuv420p",
+      "color_range": "tv",
+      "full_decoder_pass": "PASS",
+      "exact_frame_count": "PASS"
+    },
+    "milestone_frames": [
+      27,
+      144,
+      234,
+      306,
+      492,
+      603,
+      711
+    ],
+    "contact_sheet": "included in artifact 11465758048 under review/contact-sheet.png",
+    "independent_rescue_confirmation": {
+      "run_id": 37584525565,
+      "workflow": "YUNEX 003 final native rescue",
+      "conclusion": "success",
+      "note": "Non-authoritative confirmation using the exact successful chunks from run 37546004860; no 3D rerender."
+    }
+  },
+  "final_delivery_qa": {
+    "status": "PASS",
+    "reviewer_role": "H-style final delivery QA",
+    "checks": [
+      "735/735 chronological frames decode",
+      "no exact consecutive duplicate frames",
+      "seven native milestone frames visually inspected",
+      "contact sheet and 1 fps chronological progression inspected",
+      "chunk-boundary motion reviewed; no visible concat seam identified",
+      "active opaque-car exit present",
+      "final master contains AAC stereo 48 kHz audio"
+    ],
+    "remaining_gate": "GPT-6 Master creative review"
   }
 }
