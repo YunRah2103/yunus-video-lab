@@ -4,7 +4,7 @@
   "status": "FAIL",
   "reviewed_at_branch_heads": {
     "B_branch": "sol/y003-p02-suspension-detail",
-    "B_branch_head": "0a361f288e9181e308fed0186d3897d31379d19a",
+    "B_branch_head": "b60948c5e1e89a83d353e019c6e80430a046e4c2",
     "B_rendered_implementation_sha": "d4b81aacfeeedfb2475c4e4cc59ed8a352164f4d",
     "C_branch": "sol/y003-p02-track-world",
     "C_branch_head": "4e8542eacb34ae5af3447ac0feaa05ab12dd0a3f",
@@ -28,7 +28,7 @@
       "height": 1920,
       "fps": 30,
       "decoded_frames": 90,
-      "duration_seconds": 3.0,
+      "duration_seconds": 3,
       "frames": "441-530"
     },
     "passes": [
@@ -51,7 +51,9 @@
         "issue": "Unsupported upper damper termination remains visible through the native mechanical-load articulation proof."
       }
     ],
-    "required_fix": "Add a visibly credible upper damper-to-chassis attachment inside the owned suspension module and re-render the same native proof windows."
+    "required_fix": "Add a visibly credible upper damper-to-chassis attachment inside the owned suspension module and re-render the same native proof windows.",
+    "proof_metadata_commit": "b60948c5e1e89a83d353e019c6e80430a046e4c2",
+    "proof_metadata_note": "Final B head adds verified proof metadata/stills and recovery workflow only; the rendered suspension implementation remains d4b81aacfeeedfb2475c4e4cc59ed8a352164f4d."
   },
   "C": {
     "result": "FAIL",
@@ -70,7 +72,7 @@
       "height": 480,
       "fps": 30,
       "frames": 120,
-      "duration_seconds": 4.0,
+      "duration_seconds": 4,
       "codec": "h264",
       "pixel_format": "yuv420p",
       "decoder_pass": true
