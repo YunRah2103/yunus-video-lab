@@ -55,7 +55,7 @@ jobs:
           Path('concat.txt').write_text(''.join("file '"+str(f.resolve())+"'\n" for f in fs))
           PY
           ffmpeg -v error -y -f concat -safe 0 -i concat.txt -c copy native-concat.mp4
-          ffmpeg -v error -y -i native-concat.mp4 -an -c:v libx264 -preset medium -crf 14 -pix_fmt yuv420p -r 30 -movflags +faststart native-visual.mp4
+          ffmpeg -v error -y -i native-concat.mp4 -an -vf 'scale=in_range=full:out_range=limited,format=yuv420p' -c:v libx264 -preset medium -crf 14 -pix_fmt yuv420p -color_range tv -r 30 -movflags +faststart native-visual.mp4
           bash audio-tools/yunex/video003/render/mux-approved-audio.sh native-visual.mp4 audio-tools/yunex/video003/render/YUNEX_003_APPROVED_AUDIO.m4a delivery/YUNEX_003_P03_TIKTOK_A.mp4
           ffmpeg -v error -y -i delivery/YUNEX_003_P03_TIKTOK_A.mp4 -map 0 -c copy -metadata title='YUNEX 003 corrected — TikTok B' -movflags +faststart delivery/YUNEX_003_P03_TIKTOK_B.mp4
           for v in A B; do
