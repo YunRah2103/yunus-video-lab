@@ -25,3 +25,11 @@ Porsche provenance remains model SHA256 1c73fcb138c31e2b1d5ed126a2412074bb17f8e9
 A/B are visually and audibly identical; B only adds container title metadata. No crop, grading, visual re-encode, narration change or timing change.
 
 Exact delivery hashes, run/artifact identifiers and evidence hashes accompany RELEASE_METADATA.json.
+
+## Published delivery
+Packaging workflow/run: [37659623261](https://github.com/YunRah2103/yunus-video-lab/actions/runs/37659623261), successful packaging commit `0ede48a4aeefc0a854a07df927bce45a05456a47`.
+Final artifact: `11499343998` — YUNEX-003-P02-FINAL-DUAL-TIKTOK (90-day retention, expires 2027-01-05).
+A SHA256: `cc8a898298fc6c543f5475aac85bafb0cca635f1d1de1f663e97b21453116118`
+B SHA256: `cd99beb0d7a004266857d508066050d5824aa0a6c30ad8d92b2d887f4660acd9`
+ZIP SHA256: `05d42153b822b1cd00b5abb9ac05813e2f269f8b6c81d2aee4b41f97f9744cd6`
+Packaging source is G pipeline commit, distinct from the unchanged integration/render source.
