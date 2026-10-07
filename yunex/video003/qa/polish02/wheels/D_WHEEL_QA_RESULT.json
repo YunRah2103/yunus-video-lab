@@ -1,0 +1,56 @@
+{
+  "phase": "Y003-POLISH-02",
+  "role": "D",
+  "verdict": "PASS",
+  "reviewed": {
+    "p02_base_sha": "064fc7687ad16e9fc99c32c3c323154b7e4496f1",
+    "baseline_visual_source_sha": "805c74fc2f749ed701c95d1aa5809e60e5a02d76",
+    "baseline_native_artifact_id": 11465758048,
+    "agent_a_output_sha": "b4f6c0e5382683f433b47a0bdd216fea4ff3a5dd",
+    "agent_a_workflow_run_id": 37601280858,
+    "artifacts": {
+      "qa": 11473120934,
+      "neutral": 11473001572,
+      "steering": 11473451183,
+      "comparison": 11473365935,
+      "package": 11472713155
+    }
+  },
+  "numeric_checks": {
+    "checked_frames": 735,
+    "max_steer_step_deg_per_frame": 0.2702327994839774,
+    "max_abs_steer_deg": 3.445122253675084,
+    "max_hub_center_error_m": 3.552713678800501e-15,
+    "max_axle_axis_error_deg": 0,
+    "max_repeat_transform_error": 0,
+    "max_tyre_contact_error_m": 1.0330059474483733e-8,
+    "max_spin_distance_error_m": 2.842170943040401e-14,
+    "min_road_edge_clearance_m": 3.1797872019485682
+  },
+  "independent_image_space_check": {
+    "proof": "YUNEX_003_P02_A_BEFORE_AFTER.mp4",
+    "wheel": "FR",
+    "source_frame_window": [
+      313,
+      335
+    ],
+    "instability_frame": 331,
+    "method": "largest green-rim contour ellipse fit, same-time split-screen proof",
+    "legacy_max_interframe_rim_center_step_px": 4.828478142869297,
+    "stabilized_max_interframe_rim_center_step_px": 1.1098098242724979,
+    "legacy_max_equivalent_diameter_step_px": 0.8715835454226522,
+    "stabilized_max_equivalent_diameter_step_px": 0.2879646149202699
+  },
+  "visual_checks": {
+    "all_four_hubs_concentric": true,
+    "unjustified_wheel_plane_precession_seen": false,
+    "front_steering_preserved": true,
+    "rear_steering_introduced": false,
+    "wheel_spin_preserved": true,
+    "calipers_spin_with_wheels": false,
+    "tyre_road_contact_stable": true,
+    "baseline_bend_exit_wag_reproduced": true,
+    "stabilized_bend_exit_wag_removed": true
+  },
+  "note": "Diagnostic proof media are native 1080x1920 30 fps 90-frame H.264. Independent ffprobe reports full-range yuvj420p; this is not a D proof blocker and is not the final G/H delivery contract."
+}
