@@ -49,13 +49,13 @@ jobs:
       matrix:
         include:
           - index: 0
-            frames: 630-659
+            frames: 615-644
           - index: 1
-            frames: 660-689
+            frames: 645-674
           - index: 2
-            frames: 690-719
+            frames: 675-704
           - index: 3
-            frames: 720-749
+            frames: 705-734
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
