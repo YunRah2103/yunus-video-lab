@@ -17,9 +17,8 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  proof:
+  compile-coverage:
     runs-on: ubuntu-latest
-    timeout-minutes: 45
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -28,7 +27,7 @@ jobs:
           cache: npm
           cache-dependency-path: yunex/package-lock.json
       - run: |
-          mkdir -p yunex/public yunex/out/y003-p02-c/stills
+          mkdir -p yunex/public yunex/out/y003-p02-c
           test "$(sha256sum cars/porsche-911-gt3-rs-992/model.glb | awk '{print $1}')" = "1c73fcb138c31e2b1d5ed126a2412074bb17f8e960b355436f28139bf518e1eb"
           cp cars/porsche-911-gt3-rs-992/model.glb yunex/public/model.glb
       - working-directory: yunex
@@ -39,16 +38,62 @@ jobs:
           node /tmp/y003-p02-c-coverage.cjs | tee out/y003-p02-c/coverage-audit.json
           NODE_OPTIONS=--require=./fix-network.cjs npx remotion compositions src/index.tsx > out/y003-p02-c/compositions.txt
           grep -q YUNEX-003-VISUAL out/y003-p02-c/compositions.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Y003-P02-C-COMPILE-${{ github.sha }}
+          path: yunex/out/y003-p02-c/
+          retention-days: 14
+
+  stills:
+    needs: compile-coverage
+    strategy:
+      fail-fast: false
+      matrix:
+        frame: [27, 144, 234, 603, 711]
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: yunex/package-lock.json
+      - run: |
+          mkdir -p yunex/public yunex/out/y003-p02-c
+          cp cars/porsche-911-gt3-rs-992/model.glb yunex/public/model.glb
+      - working-directory: yunex
+        run: npm ci --no-audit --no-fund
       - working-directory: yunex
         run: |
-          for frame in 27 144 234 603 711; do
-            NODE_OPTIONS=--require=./fix-network.cjs npx remotion still src/index.tsx YUNEX-003-VISUAL "out/y003-p02-c/stills/frame-${frame}.png"               --frame="${frame}" --gl=swangle --scale=1 --timeout=180000
-          done
+          NODE_OPTIONS=--require=./fix-network.cjs npx remotion still src/index.tsx YUNEX-003-VISUAL "out/y003-p02-c/frame-${{ matrix.frame }}.png"             --frame="${{ matrix.frame }}" --gl=swangle --scale=1 --timeout=180000
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Y003-P02-C-STILL-${{ matrix.frame }}-${{ github.sha }}
+          path: yunex/out/y003-p02-c/frame-${{ matrix.frame }}.png
+          retention-days: 14
+
+  moving:
+    needs: compile-coverage
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: yunex/package-lock.json
+      - run: |
+          mkdir -p yunex/public yunex/out/y003-p02-c
+          cp cars/porsche-911-gt3-rs-992/model.glb yunex/public/model.glb
+      - working-directory: yunex
+        run: npm ci --no-audit --no-fund
       - working-directory: yunex
         run: |
           NODE_OPTIONS=--require=./fix-network.cjs npx remotion render src/index.tsx YUNEX-003-VISUAL out/y003-p02-c/circuit-parallax-proof.mp4             --frames=540-689 --gl=swangle --concurrency=1 --codec=h264 --pixel-format=yuv420p --crf=18 --scale=0.5 --timeout=300000 --muted
       - uses: actions/upload-artifact@v4
         with:
-          name: Y003-P02-C-CIRCUIT-PROOF-${{ github.sha }}
-          path: yunex/out/y003-p02-c/
+          name: Y003-P02-C-MOVING-${{ github.sha }}
+          path: yunex/out/y003-p02-c/circuit-parallax-proof.mp4
           retention-days: 14
