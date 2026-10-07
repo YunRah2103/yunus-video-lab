@@ -1,0 +1,17 @@
+{
+  "phase": "Y003-POLISH-03",
+  "status": "RENDERING",
+  "source_branch": "sol/y003-p03-master-fixes",
+  "render_source_sha": "e09f9565d9f5aa70d11375a16b1da6477293e935",
+  "workflow_run_id": 37662728071,
+  "previous_final_artifact_id": 11499343998,
+  "locked_model_sha256": "1c73fcb138c31e2b1d5ed126a2412074bb17f8e960b355436f28139bf518e1eb",
+  "approved_audio_sha256": "cd411b0dcc9e733f5b142e59f8340f913816e28bf113a32639c4fd12f7ec04c3",
+  "fixes": [
+    "Baked source camber axle alignment",
+    "World-space tyre/asphalt contact",
+    "Y003 pose-driven lighting/contact shadow",
+    "Opaque extension trunks and finer foliage clusters"
+  ],
+  "no_agents": true
+}
