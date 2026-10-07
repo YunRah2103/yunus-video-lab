@@ -15,7 +15,7 @@
       "id": "MANAGER",
       "handoff": "MANAGER_EXECUTION_HANDOFF.md",
       "branch": "sol/y003-suspension-manager",
-      "status": "native_rendering",
+      "status": "master_handoff_ready",
       "owned_files": [
         "yunex/video003/START_HERE.md",
         "yunex/video003/TASKS.json",
@@ -123,7 +123,7 @@
       "role": "Native render pipeline and final export",
       "handoff": "G_RENDER_HANDOFF.md",
       "branch": "sol/y003-render",
-      "status": "native_visual_rendering",
+      "status": "native_chunks_complete_manager_review_export_validated",
       "input_sha": "805c74fc2f749ed701c95d1aa5809e60e5a02d76",
       "initial_preparation_sha": "50fd478256bbe12d37410e78678bd7c302d96434",
       "output_sha": "739a214b1d47955cba21a34b29cb67b1911135a3",
@@ -139,7 +139,7 @@
       "role": "Independent driving, mechanical and visual QA",
       "handoff": "H_QA_HANDOFF.md",
       "branch": "sol/y003-qa",
-      "status": "integrated_proof_pass",
+      "status": "integrated_proof_pass_master_review_pending",
       "input_sha": "50fd478256bbe12d37410e78678bd7c302d96434",
       "initial_preparation_sha": "50fd478256bbe12d37410e78678bd7c302d96434",
       "output_sha": "1408f1d1b6a525c182385b8bf302b7fea0ad7cf6",
@@ -154,5 +154,28 @@
         "native still artifact 11448604207"
       ]
     }
-  ]
+  ],
+  "master_review_status": "ready",
+  "master_review_artifact": {
+    "library_path": "/Video Projects/YUNEX 003/Manager/YUNEX_003_MASTER_REVIEW.mp4",
+    "library_file_id": "libfile_d017354ae8608191ab5b281b19a65db2",
+    "sha256": "69ed819e41c9aff6e813bbbec010c227e13e0665f90780ff83a0f99a2e47872e",
+    "frames": 735,
+    "fps": 30,
+    "duration_seconds": 24.5,
+    "width": 1080,
+    "height": 1920,
+    "video_codec": "h264",
+    "pixel_format": "yuv420p",
+    "audio_codec": "aac",
+    "audio_note": "Agent F preserved 24.5 s preflight/reference mix: supplied narration plus restrained deterministic bed; Master must judge final creative sound balance."
+  },
+  "master_review_manifest": {
+    "library_path": "/Video Projects/YUNEX 003/Manager/MASTER_REVIEW_MANIFEST.json",
+    "library_file_id": "libfile_6036ee6899108191a0724a53f30985d3"
+  },
+  "contact_sheet": {
+    "library_path": "/Video Projects/YUNEX 003/Manager/YUNEX_003_MASTER_CONTACT_SHEET.png",
+    "library_file_id": "libfile_380cf211cb58819199a917ba715d951f"
+  }
 }
