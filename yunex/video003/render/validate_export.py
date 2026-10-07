@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Decode/probe validator for the final YUNEX 003 native export."""
+"""Decode/probe validator for YUNEX 003 native visual/final exports."""
 from __future__ import annotations
 
 import argparse
@@ -26,12 +26,13 @@ def main() -> int:
     parser.add_argument("--height", type=int, default=1920)
     parser.add_argument("--fps", type=int, default=30)
     parser.add_argument("--require-audio", action="store_true")
+    parser.add_argument("--audio-rate", type=int, default=48000)
+    parser.add_argument("--audio-channels", type=int, default=2)
     args = parser.parse_args()
 
     if not args.media.is_file() or args.media.stat().st_size == 0:
         fail(f"missing/empty media: {args.media}")
 
-    # Full decoder pass: corrupted timestamps/packets must fail validation.
     subprocess.run(
         ["ffmpeg", "-v", "error", "-xerror", "-i", str(args.media), "-f", "null", "-"],
         check=True,
@@ -61,16 +62,20 @@ def main() -> int:
     decoded = int(video.get("nb_read_frames") or 0)
     if decoded != args.total_frames:
         fail(f"decoded frame count is {decoded}, expected {args.total_frames}")
+
     if args.require_audio:
         if len(audios) != 1:
             fail(f"expected exactly one audio stream, found {len(audios)}")
-        if audios[0].get("codec_name") != "aac":
-            fail(f"audio codec is {audios[0].get('codec_name')}, expected aac")
+        audio = audios[0]
+        if audio.get("codec_name") != "aac":
+            fail(f"audio codec is {audio.get('codec_name')}, expected aac")
+        if int(audio.get("sample_rate") or 0) != args.audio_rate:
+            fail(f"audio sample rate is {audio.get('sample_rate')}, expected {args.audio_rate}")
+        if int(audio.get("channels") or 0) != args.audio_channels:
+            fail(f"audio channels are {audio.get('channels')}, expected {args.audio_channels}")
 
     expected_duration = args.total_frames / args.fps
     format_duration = float(data.get("format", {}).get("duration") or 0.0)
-    # Container/AAC priming can move format duration by a few hundredths; the
-    # authoritative visual duration is decoded frames / exact fps.
     if abs(format_duration - expected_duration) > 0.12:
         fail(f"container duration {format_duration:.6f}s differs from expected {expected_duration:.6f}s")
 
