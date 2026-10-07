@@ -1,0 +1,167 @@
+name: YUNEX 003 P02 exact-source assembly rescue
+
+permissions:
+  contents: read
+  actions: read
+
+on:
+  push:
+    branches:
+      - sol/y003-p02-render
+    paths:
+      - '.github/workflows/yunex-003-p02-assemble-rescue.yml'
+
+concurrency:
+  group: y003-p02-assemble-rescue
+  cancel-in-progress: false
+
+env:
+  RENDER_SOURCE_SHA: 0db1a6509c54b6df1df0422152aa90d7c02b5de1
+  SOURCE_RUN_ID: '37622208670'
+  EXPECTED_MODEL_SHA256: 1c73fcb138c31e2b1d5ed126a2412074bb17f8e960b355436f28139bf518e1eb
+
+jobs:
+  assemble:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - name: Checkout G pipeline
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          path: pipeline
+
+      - name: Checkout exact approved render source
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ env.RENDER_SOURCE_SHA }}
+          path: source
+
+      - name: Download exact fresh P02 chunks
+        uses: actions/download-artifact@v4
+        with:
+          github-token: ${{ github.token }}
+          run-id: ${{ env.SOURCE_RUN_ID }}
+          pattern: y003-p02-native-*
+          path: chunks
+          merge-multiple: true
+
+      - name: Install FFmpeg
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq ffmpeg
+
+      - name: Validate exact source, model, coverage and chunk provenance
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git -C source rev-parse HEAD)" = "$RENDER_SOURCE_SHA"
+          test "$(sha256sum source/cars/porsche-911-gt3-rs-992/model.glb | awk '{print $1}')" = "$EXPECTED_MODEL_SHA256"
+          python pipeline/yunex/video003/render/validate_chunks.py chunks \
+            --total-frames 735 \
+            --expected-source "$RENDER_SOURCE_SHA" \
+            --allowed-pixel-formats yuv420p,yuvj420p \
+            > chunk-manifest.json
+          python - <<'PY'
+          from pathlib import Path
+          files=sorted(Path("chunks").glob("chunk-*.mp4"))
+          expected=[]
+          for start in range(0,735,20):
+              end=min(734,start+19)
+              expected.append(f"chunk-{start:04d}-{end:04d}.mp4")
+          actual=[p.name for p in files]
+          if actual != expected:
+              raise SystemExit(f"chunk set mismatch\nexpected={expected}\nactual={actual}")
+          Path("concat.txt").write_text("".join(f"file '{p.resolve()}'\n" for p in files))
+          PY
+
+      - name: Concatenate exact chunks and normalize once
+        shell: bash
+        run: |
+          set -euo pipefail
+          ffmpeg -y -v error -f concat -safe 0 -i concat.txt -c copy YUNEX_003_P02_NATIVE_CONCAT.mp4
+          ffprobe -v error -count_frames -select_streams v:0 \
+            -show_entries stream=codec_name,pix_fmt,width,height,avg_frame_rate,nb_read_frames \
+            -of json YUNEX_003_P02_NATIVE_CONCAT.mp4 > concat-probe.json
+          ffmpeg -y -v error -i YUNEX_003_P02_NATIVE_CONCAT.mp4 -an \
+            -c:v libx264 -preset slow -crf 14 -pix_fmt yuv420p \
+            -color_range tv -colorspace bt709 -color_primaries bt709 -color_trc bt709 \
+            -movflags +faststart YUNEX_003_P02_NATIVE_VISUAL.mp4
+          python pipeline/yunex/video003/render/validate_export.py \
+            YUNEX_003_P02_NATIVE_VISUAL.mp4 --total-frames 735 > visual-validation.json
+          ffmpeg -v error -xerror -i YUNEX_003_P02_NATIVE_VISUAL.mp4 -f null -
+          sha256sum YUNEX_003_P02_NATIVE_VISUAL.mp4 > visual.sha256
+
+      - name: Extract deterministic seven native milestones
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p review
+          i=1
+          for frame in 27 144 234 306 492 603 711; do
+            ffmpeg -y -v error -i YUNEX_003_P02_NATIVE_VISUAL.mp4 \
+              -vf "select=eq(n\\,$frame)" -vsync 0 -frames:v 1 \
+              "review/milestone-$(printf '%02d' "$i")-frame-$frame.png"
+            i=$((i+1))
+          done
+          printf '%s\n' 27 144 234 306 492 603 711 > milestones.txt
+          test "$(find review -maxdepth 1 -name 'milestone-*.png' | wc -l)" = "7"
+          ffmpeg -y -v error -framerate 1 -pattern_type glob -i 'review/milestone-*.png' \
+            -vf "scale=270:480,tile=4x2:padding=6:margin=6" -frames:v 1 review/contact-sheet.png
+
+      - name: Write immutable exact-source visual manifest
+        shell: bash
+        env:
+          PIPELINE_SHA: ${{ github.sha }}
+          RESCUE_RUN_ID: ${{ github.run_id }}
+        run: |
+          python - <<'PY'
+          import hashlib,json,os
+          from pathlib import Path
+          def sha(path):
+              h=hashlib.sha256()
+              with open(path,"rb") as f:
+                  for b in iter(lambda:f.read(1<<20),b""): h.update(b)
+              return h.hexdigest()
+          cm=json.loads(Path("chunk-manifest.json").read_text())
+          manifest={
+            "phase":"Y003-POLISH-02",
+            "status":"NATIVE_VISUAL_VALIDATED",
+            "render_source_sha":os.environ["RENDER_SOURCE_SHA"],
+            "source_chunk_run_id":int(os.environ["SOURCE_RUN_ID"]),
+            "assembly_run_id":int(os.environ["RESCUE_RUN_ID"]),
+            "pipeline_sha":os.environ["PIPELINE_SHA"],
+            "composition":"YUNEX-003-VISUAL",
+            "width":1080,
+            "height":1920,
+            "scale":1,
+            "fps":30,
+            "frames":735,
+            "duration_seconds":24.5,
+            "video_codec":"h264",
+            "pixel_format":"yuv420p",
+            "normalization_encode":True,
+            "intermediate_pixel_formats":cm["observed_pixel_formats"],
+            "porsche_sha256":"1c73fcb138c31e2b1d5ed126a2412074bb17f8e960b355436f28139bf518e1eb",
+            "visual_sha256":sha("YUNEX_003_P02_NATIVE_VISUAL.mp4"),
+            "approved_audio_sha256":"cd411b0dcc9e733f5b142e59f8340f913816e28bf113a32639c4fd12f7ec04c3",
+            "milestone_frames":[27,144,234,306,492,603,711]
+          }
+          Path("visual-manifest.json").write_text(json.dumps(manifest,indent=2)+"\n")
+          PY
+
+      - name: Upload validated P02 native visual
+        uses: actions/upload-artifact@v4
+        with:
+          name: YUNEX-003-P02-NATIVE-VISUAL-0db1a6509c54b6df1df0422152aa90d7c02b5de1
+          path: |
+            YUNEX_003_P02_NATIVE_VISUAL.mp4
+            chunk-manifest.json
+            concat-probe.json
+            visual-validation.json
+            visual-manifest.json
+            visual.sha256
+            milestones.txt
+            review/
+          retention-days: 14
+          if-no-files-found: error
