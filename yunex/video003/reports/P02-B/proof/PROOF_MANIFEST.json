@@ -37,7 +37,7 @@
     "codec": "h264",
     "pixel_format": "yuv420p",
     "duration_seconds": 3.0,
-    "sha256": "312cb70d7fd4759f61585e09cc4d6398c1ba01d2b1039cceeb0df86ab337b84f"
+    "sha256": "e22b1f63335852f7dbcdc7a043d1b8458171aad03f5d775d0e00f1b673645922"
   },
   "decoder_pass": true,
   "proof_gate": "PASS"
