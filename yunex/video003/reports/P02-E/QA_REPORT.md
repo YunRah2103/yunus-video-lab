@@ -12,7 +12,7 @@ This rerun does not review the old baseline as the target. It reviews the latest
 ### B — suspension detail
 
 Latest remote branch head observed during QA:
-`0a361f288e9181e308fed0186d3897d31379d19a`
+`b60948c5e1e89a83d353e019c6e80430a046e4c2`
 
 Exact suspension implementation rendered by the new proof:
 `d4b81aacfeeedfb2475c4e4cc59ed8a352164f4d`
@@ -52,7 +52,7 @@ Required B fix:
 Add a mechanically credible visible upper damper/chassis attachment in the owned suspension module, keeping the current topology and motion contract unchanged. Re-render frame 234 and the existing load/articulation window after the fix.
 
 Proof-pipeline note:
-B's proof packaging/recovery workflows were still failing independently of the visual defect, but all six native articulation chunk artifacts and the native still artifact were available and sufficient for E to perform the visual review above. The FAIL is therefore **not** merely a missing-proof verdict.
+B subsequently advanced to `b60948c5e1e89a83d353e019c6e80430a046e4c2` with committed verified proof metadata/stills. The change from the previously observed proof-workflow head contains proof/recovery files only and no suspension production change. All six native articulation chunks and native stills were available for E's review. The FAIL is therefore **not** a missing-proof verdict; it is a visual connectivity failure in the rendered implementation.
 
 ## C — established circuit world
 
