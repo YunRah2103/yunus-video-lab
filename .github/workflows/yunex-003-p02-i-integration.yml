@@ -1,0 +1,106 @@
+name: YUNEX 003 P02 Agent I staged integration proof
+
+permissions:
+  contents: read
+
+on:
+  push:
+    branches:
+      - sol/y003-p02-integration
+    paths:
+      - '.github/workflows/yunex-003-p02-i-integration.yml'
+      - 'yunex/src/video003/**'
+      - 'yunex/src/index.tsx'
+
+concurrency:
+  group: y003-p02-i-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: yunex/package-lock.json
+      - name: Stage locked Porsche
+        run: |
+          set -euo pipefail
+          test "$(sha256sum cars/porsche-911-gt3-rs-992/model.glb | awk '{print $1}')" = "1c73fcb138c31e2b1d5ed126a2412074bb17f8e960b355436f28139bf518e1eb"
+          mkdir -p yunex/public yunex/out/y003-p02-i
+          cp cars/porsche-911-gt3-rs-992/model.glb yunex/public/model.glb
+      - name: Install runtime
+        working-directory: yunex
+        run: npm ci --no-audit --no-fund
+      - name: Compile compositions
+        working-directory: yunex
+        env:
+          NODE_OPTIONS: --require=./fix-network.cjs
+        run: |
+          set -euo pipefail
+          npx remotion compositions src/index.tsx | tee out/y003-p02-i/compositions.txt
+          grep -q 'YUNEX-003-VISUAL' out/y003-p02-i/compositions.txt
+          grep -q 'YUNEX-003-FINAL' out/y003-p02-i/compositions.txt
+      - name: Deterministic wheel contract QA
+        working-directory: yunex
+        run: |
+          set -euo pipefail
+          npx esbuild src/video003/motion/qa-entry.ts --bundle --platform=node --format=cjs --outfile=/tmp/y003-p02-i-motion-qa.cjs
+          node /tmp/y003-p02-i-motion-qa.cjs | tee out/y003-p02-i/motion-qa.json
+      - name: Suspension packaging QA
+        working-directory: yunex
+        run: |
+          set -euo pipefail
+          cat > p02-i-suspension-audit.ts <<'TS'
+          import {auditSuspensionDetailState, fixtureStateAtFrame, neutralSuspensionState} from './src/video003/suspension';
+          const samples = [
+            {name: 'neutral', state: neutralSuspensionState()},
+            ...[0, 30, 60, 90, 120, 149].map((frame) => ({name: 'fixture-' + frame, state: fixtureStateAtFrame(frame)})),
+          ];
+          const results = samples.map(({name, state}) => ({name, ...auditSuspensionDetailState(state)}));
+          const failed = results.filter((r) => !r.ok);
+          console.log(JSON.stringify({phase: 'Y003-POLISH-02', role: 'I', results}, null, 2));
+          if (failed.length) process.exit(1);
+          TS
+          npx esbuild p02-i-suspension-audit.ts --bundle --platform=node --format=cjs --outfile=/tmp/y003-p02-i-suspension-audit.cjs
+          node /tmp/y003-p02-i-suspension-audit.cjs | tee out/y003-p02-i/suspension-audit.json
+          rm p02-i-suspension-audit.ts
+      - name: Render native wheel and suspension proof
+        working-directory: yunex
+        env:
+          NODE_OPTIONS: --require=./fix-network.cjs
+        run: |
+          set -euo pipefail
+          npx remotion render src/index.tsx YUNEX-003-VISUAL out/y003-p02-i/wheel-native.mp4 --frames=315-344 --gl=swangle --concurrency=2 --codec=h264 --pixel-format=yuv420p --crf=17 --scale=1 --timeout=180000 --muted
+          npx remotion render src/index.tsx YUNEX-003-VISUAL out/y003-p02-i/suspension-native.mp4 --frames=441-500 --gl=swangle --concurrency=2 --codec=h264 --pixel-format=yuv420p --crf=17 --scale=1 --timeout=180000 --muted
+      - name: Assemble and validate short native proof
+        run: |
+          set -euo pipefail
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq ffmpeg
+          printf "file 'wheel-native.mp4'\nfile 'suspension-native.mp4'\n" > yunex/out/y003-p02-i/concat.txt
+          ffmpeg -y -v error -f concat -safe 0 -i yunex/out/y003-p02-i/concat.txt -c:v libx264 -pix_fmt yuv420p -crf 17 -an yunex/out/y003-p02-i/integrated-ab-native-proof.mp4
+          ffmpeg -v error -xerror -i yunex/out/y003-p02-i/integrated-ab-native-proof.mp4 -f null -
+          ffprobe -v error -count_frames -show_entries stream=width,height,r_frame_rate,codec_name,pix_fmt,nb_read_frames -show_entries format=duration -of json yunex/out/y003-p02-i/integrated-ab-native-proof.mp4 | tee yunex/out/y003-p02-i/ffprobe.json
+          python3 - <<'PY'
+          import json
+          p='yunex/out/y003-p02-i/ffprobe.json'
+          d=json.load(open(p))
+          s=d['streams'][0]
+          assert s['width']==1080 and s['height']==1920, s
+          assert s['r_frame_rate']=='30/1', s
+          assert s['codec_name']=='h264', s
+          assert s['pix_fmt']=='yuv420p', s
+          assert int(s['nb_read_frames'])==90, s
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: Y003-P02-I-STAGED-AB-${{ github.sha }}
+          path: yunex/out/y003-p02-i/
+          retention-days: 14
+          if-no-files-found: error
