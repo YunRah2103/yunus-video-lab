@@ -94,7 +94,7 @@
       "role": "Native render/delivery",
       "handoff": "polish02/G_RENDER_DELIVERY_HANDOFF.md",
       "branch": "sol/y003-p02-render",
-      "status": "prepare_only_until_source_pin",
+      "status": "released_for_final_render",
       "owned": [
         "yunex/video003/render/",
         ".github/workflows/yunex-003-*.yml",
@@ -121,6 +121,6 @@
     "yunex/video003/polish02/POLISH_02_TASKS.json"
   ],
   "integration_order": "A/B/C parallel -> D/E review -> F compatibility -> Manager integration + short native proof -> G final render -> H final QA",
-  "render_source_sha": null,
+  "render_source_sha": "0db1a6509c54b6df1df0422152aa90d7c02b5de1",
   "final_delivery_sha": null
 }
