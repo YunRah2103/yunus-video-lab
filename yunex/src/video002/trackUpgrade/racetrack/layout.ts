@@ -6,6 +6,8 @@ import type {
   TrackVec2,
 } from './types';
 
+export const TRACK_ASPHALT_LOCAL_Y = -0.0104;
+
 export const TRACK_LAYOUT_CONFIG = {
   units: 'metres',
   coordinateSpace: 'YUNEX 002 track-local coordinates before TrackWorld root transform',

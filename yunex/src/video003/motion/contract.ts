@@ -2,6 +2,7 @@ import {
   sampleTrackAtLocalZ,
   trackLocalToWorldXZ,
   TRACK_LAYOUT_CONFIG,
+  TRACK_ASPHALT_LOCAL_Y,
 } from '../../video002/trackUpgrade/racetrack/layout';
 
 export type Vec3 = [number, number, number];
@@ -482,7 +483,7 @@ export const motionStateAt = (
   const distanceM = distanceAtFrame(frame, config);
   const path = entryAtDistance(distanceM, route);
   const yaw = worldYawAtTrackZ(path.z);
-  const rootPosition: Vec3 = [path.worldX, 0, path.worldZ];
+  const rootPosition: Vec3 = [path.worldX, TRACK_LAYOUT_CONFIG.rootPosition[1]+TRACK_ASPHALT_LOCAL_Y, path.worldZ];
   const speedMps = speedAtFrame(frame, config);
   const accelerationMps2 = accelerationAtFrame(frame, config);
   const curvaturePerM = curvatureAtTrackZ(path.z);

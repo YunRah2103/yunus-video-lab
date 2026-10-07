@@ -107,7 +107,7 @@ export const TrackLighting:React.FC<TrackLightingProps>=({quality,seed=2103,carP
       color="#cbdbe2"
     />
     <mesh
-      position={[carX,-.036,carZ+.10]}
+      position={[carX,carPose?carY+.0024:-.036,carZ+.10]}
       rotation={[-Math.PI/2,0,pose.rotation?.[1]??0]}
       renderOrder={-10}
     >

@@ -15,6 +15,7 @@ import {
   sampleTrackAtLocalZ,
   worldXZToTrackLocal,
   TRACK_LAYOUT_CONFIG,
+  TRACK_ASPHALT_LOCAL_Y,
 } from '../../video002/trackUpgrade/racetrack/layout';
 
 export type MotionQaResult = {
@@ -297,7 +298,8 @@ export const validateMotionContract = (
       }
       previousSteer[id] = wheel.steerRad;
       const contactClearance =
-        wheel.centreLocal[1] + wheel.uprightOffsetY - wheel.tyreRadiusM;
+        wheel.centreWorld[1] + wheel.uprightOffsetY - wheel.tyreRadiusM
+        - (TRACK_LAYOUT_CONFIG.rootPosition[1]+TRACK_ASPHALT_LOCAL_Y);
       minTyreContactClearanceM = Math.min(
         minTyreContactClearanceM,
         contactClearance,
