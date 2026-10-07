@@ -85,3 +85,43 @@ Validated recovery run:
 - artifact ZIP digest: `sha256:94568077a184e7130b155994328a0ce2b01c207993464a3a86d20d72e49358ba`
 
 Result: required 4–6 second moving circuit/parallax proof is now assembled and validated successfully.
+
+
+## Final-exit circuit identity blocker — PASS
+
+E's remaining Agent C blocker was the final exit at frame 711, where the portrait chase camera could see beyond the authored road sample endpoint and the horizon regressed to sparse open space.
+
+The fix is limited to `CircuitWorldExtension.tsx`:
+- added restrained far exit treeline and low groundform beyond the authored road endpoint, extrapolated along the final straight tangent;
+- kept all new dressing well outside the extrapolated driving/runoff corridor;
+- added one distant timing/service pylon as a circuit-identity cue;
+- did not modify road geometry, runoff, barriers, car motion, speed, camera definitions, suspension, airflow or reveal behavior.
+
+Production source fix commit:
+- `5846d69b5880302497d54446078eec8a58f25ef1`
+
+Native frame 711 proof:
+- source-equivalent proof commit: `a27fbd0d19a1b7d74dc3a7890832906ed182c34e` (workflow-only change after the production fix)
+- workflow run: `37615339642`
+- artifact ID: `11478654029`
+- artifact: `Y003-P02-C-EXIT-FRAME-711-a27fbd0d19a1b7d74dc3a7890832906ed182c34e`
+- native 1080×1920 scale-1 render: PASS
+- visual review: distant treeline/groundform closes the sparse horizon behind the gantry while the Porsche and road sightline remain unobstructed.
+
+Fresh final-exit moving proof:
+- frames `615–734`, rendered from the same corrected production source
+- assembly workflow run: `37617528315`
+- validated assembly commit: `bec339803783d2807232d8f0ebf20a93bb61cbc6`
+- artifact ID: `11480087886`
+- artifact: `Y003-P02-C-EXIT-FRAME711-MOTION-VALIDATED-bec339803783d2807232d8f0ebf20a93bb61cbc6`
+- output: `exit-frame711-motion-proof-4s.mp4`
+- 270×480 reduced proof
+- H.264
+- yuv420p, TV range
+- 30 fps
+- exactly 120 decoded frames
+- exactly 4.000000 s
+- full decoder pass: PASS
+- artifact ZIP digest: `sha256:a4c357eee5601d4e8cdd741af807bc2c6d3af779d836f2874c7f0328dcbdaba2`
+
+Motion spot-check around frame 711 confirms the added background depth remains distant and non-occluding as the chase shot progresses. The established-circuit identity no longer falls away into an empty horizon at the final exit.
