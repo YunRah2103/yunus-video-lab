@@ -5,6 +5,7 @@ import {
   trackLocalToWorldXZ,
   TRACK_LAYOUT_CONFIG,
 } from '../../video002/trackUpgrade/racetrack/layout';
+import {makeFoliageGeometry,makeFoliageTexture} from '../../video002/trackUpgrade/vegetation/foliageGeometry';
 import {
   auditY003CircuitCoverage,
   Y003_CIRCUIT_EXTENSION_RANGES,
@@ -163,6 +164,9 @@ const buildLayout=(quality:'preview'|'final',seed:number)=>{
   const crowns:Instance[]=[];
   const shrubs:Instance[]=[];
   const ridges:Instance[]=[];
+  const gantryMetal:Instance[]=[];
+  const gantryPanels:Instance[]=[];
+  const gantryAccents:Instance[]=[];
 
   const railStep=quality==='final'?2.45:3.7;
   Y003_CIRCUIT_EXTENSION_RANGES.forEach((range)=>{
@@ -204,6 +208,47 @@ const buildLayout=(quality:'preview'|'final',seed:number)=>{
       rotation:[0,yaw,0],
       scale:[.58,.15,.064],
       color:index%2===0?'#a12b26':'#30383a',
+    });
+  });
+
+  const gantryStations=[52,101,139];
+  gantryStations.forEach((z,index)=>{
+    const left=worldPointAt(z,'left','barrier',.34,0);
+    const right=worldPointAt(z,'right','barrier',.34,0);
+    const beam=segmentPose(left,right,4.18);
+    const tangent=sampleTrackAtLocalZ(z).tangent;
+    const postYaw=Math.atan2(-tangent[0],-tangent[1]);
+    gantryMetal.push(
+      {
+        position:[left[0],ROOT_Y+2.08,left[2]],
+        rotation:[0,postYaw,0],
+        scale:[.14,4.16,.18],
+        color:'#555d5e',
+      },
+      {
+        position:[right[0],ROOT_Y+2.08,right[2]],
+        rotation:[0,postYaw,0],
+        scale:[.14,4.16,.18],
+        color:'#555d5e',
+      },
+      {
+        position:beam.position,
+        rotation:[0,beam.yaw,0],
+        scale:[.15,.18,beam.length+.35],
+        color:'#697173',
+      },
+    );
+    gantryPanels.push({
+      position:[beam.position[0],ROOT_Y+3.72,beam.position[2]],
+      rotation:[0,beam.yaw,0],
+      scale:[.10,.68,3.1],
+      color:'#252b2c',
+    });
+    gantryAccents.push({
+      position:[beam.position[0],ROOT_Y+3.93,beam.position[2]],
+      rotation:[0,beam.yaw,0],
+      scale:[.11,.10,index===2?2.35:1.9],
+      color:'#2e8f58',
     });
   });
 
@@ -270,7 +315,7 @@ const buildLayout=(quality:'preview'|'final',seed:number)=>{
     }
   });
 
-  return {rail,fence,boards,boardAccents,trunks,crowns,shrubs,ridges};
+  return {rail,fence,boards,boardAccents,trunks,crowns,shrubs,ridges,gantryMetal,gantryPanels,gantryAccents};
 };
 
 const InstancedLayer:React.FC<{
@@ -319,9 +364,10 @@ export const Y003CircuitWorldExtension:React.FC<Y003CircuitWorldExtensionProps>=
   const layout=useMemo(()=>buildLayout(quality,seed),[quality,seed]);
   const box=useMemo(()=>new THREE.BoxGeometry(1,1,1),[]);
   const trunk=useMemo(()=>new THREE.CylinderGeometry(1,1.16,1,6,1),[]);
-  const crown=useMemo(()=>new THREE.ConeGeometry(1,1,7,2),[]);
-  const shrub=useMemo(()=>new THREE.SphereGeometry(1,8,5),[]);
+  const crown=useMemo(()=>makeFoliageGeometry(1,seed+19,56),[seed]);
+  const shrub=useMemo(()=>makeFoliageGeometry(.8,seed+73,36),[seed]);
   const ridge=useMemo(()=>new THREE.SphereGeometry(1,12,6),[]);
+  const leafTexture=useMemo(makeFoliageTexture,[]);
 
   const metal=useMemo(()=>new THREE.MeshStandardMaterial({
     color:'#ffffff',roughness:.38,metalness:.78,
@@ -330,14 +376,14 @@ export const Y003CircuitWorldExtension:React.FC<Y003CircuitWorldExtensionProps>=
     color:'#ffffff',roughness:.72,metalness:.02,
   }),[]);
   const foliage=useMemo(()=>new THREE.MeshStandardMaterial({
-    color:'#ffffff',roughness:.98,metalness:0,
-  }),[]);
+    color:'#ffffff',map:leafTexture,alphaTest:.5,side:THREE.DoubleSide,roughness:.96,metalness:0,
+  }),[leafTexture]);
   const groundform=useMemo(()=>new THREE.MeshStandardMaterial({
     color:'#ffffff',roughness:1,metalness:0,
   }),[]);
 
-  useEffect(()=>()=>{box.dispose();trunk.dispose();crown.dispose();shrub.dispose();ridge.dispose();metal.dispose();marker.dispose();foliage.dispose();groundform.dispose();},
-    [box,trunk,crown,shrub,ridge,metal,marker,foliage,groundform]);
+  useEffect(()=>()=>{box.dispose();trunk.dispose();crown.dispose();shrub.dispose();ridge.dispose();leafTexture.dispose();metal.dispose();marker.dispose();foliage.dispose();groundform.dispose();},
+    [box,trunk,crown,shrub,ridge,leafTexture,metal,marker,foliage,groundform]);
 
   return <group
     name="Y003_CIRCUIT_WORLD_EXTENSION"
@@ -357,6 +403,9 @@ export const Y003CircuitWorldExtension:React.FC<Y003CircuitWorldExtensionProps>=
     <InstancedLayer geometry={box} material={metal} items={layout.fence.rails}/>
     <InstancedLayer geometry={box} material={marker} items={layout.boards} castShadow/>
     <InstancedLayer geometry={box} material={marker} items={layout.boardAccents}/>
+    <InstancedLayer geometry={box} material={metal} items={layout.gantryMetal} castShadow/>
+    <InstancedLayer geometry={box} material={marker} items={layout.gantryPanels}/>
+    <InstancedLayer geometry={box} material={marker} items={layout.gantryAccents}/>
     <InstancedLayer geometry={trunk} material={foliage} items={layout.trunks} castShadow={quality==='final'}/>
     <InstancedLayer geometry={crown} material={foliage} items={layout.crowns}/>
     <InstancedLayer geometry={shrub} material={foliage} items={layout.shrubs}/>
