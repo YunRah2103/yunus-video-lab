@@ -1,0 +1,41 @@
+name: YUNEX 003 P02 final packaging
+on:
+  push:
+    branches: [sol/y003-p02-render]
+    paths: [.github/workflows/yunex-003-p02-final-package.yml]
+permissions:
+  contents: read
+  actions: read
+jobs:
+  package:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: sudo apt-get update -qq && sudo apt-get install -y ffmpeg
+      - uses: actions/download-artifact@v4
+        with:
+          github-token: ${{ github.token }}
+          run-id: 37625560242
+          artifact-ids: 11483379220
+          path: native
+      - name: Copy-mux locked audio; no visual rendering or encoding
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p delivery
+          test "$(sha256sum native/YUNEX_003_P02_NATIVE_VISUAL.mp4 | cut -d' ' -f1)" = dea2b45456aaeb9d4a4a94c4839a7551dd969dd7c4e0c6c1f40c94e2370f82c6
+          bash yunex/video003/render/mux-approved-audio.sh native/YUNEX_003_P02_NATIVE_VISUAL.mp4 yunex/video003/render/YUNEX_003_APPROVED_AUDIO.m4a delivery/YUNEX_003_P02_TIKTOK_A.mp4
+          ffmpeg -v error -y -i delivery/YUNEX_003_P02_TIKTOK_A.mp4 -map 0 -c copy -metadata title='YUNEX 003 — TikTok B' -movflags +faststart delivery/YUNEX_003_P02_TIKTOK_B.mp4
+          for v in A B; do
+            python yunex/video003/render/validate_export.py delivery/YUNEX_003_P02_TIKTOK_$v.mp4 --total-frames 735 --require-audio > delivery/$v-validation.json
+          done
+          sha256sum delivery/*.mp4 > delivery/SHA256SUMS
+          cp native/visual-manifest.json delivery/
+          cp yunex/video003/render/approved-audio-lock.json delivery/
+          cp -r native/review delivery/
+          printf '%s\n' "$GITHUB_RUN_ID" > delivery/workflow-run-id.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: YUNEX-003-P02-FINAL-DUAL-TIKTOK
+          path: delivery/
+          retention-days: 90
