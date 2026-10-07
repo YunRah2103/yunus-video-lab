@@ -143,7 +143,8 @@ jobs:
           Path('concat.txt').write_text(''.join("file '"+str(p.resolve())+"'\n" for p in files))
           print('chunks',len(files))
           PY
-          ffmpeg -y -v error -f concat -safe 0 -i concat.txt -c copy -movflags +faststart YUNEX_003_NATIVE_VISUAL.mp4
+          ffmpeg -y -v error -f concat -safe 0 -i concat.txt -c copy YUNEX_003_NATIVE_VISUAL_CONCAT.mp4
+          ffmpeg -y -v error -i YUNEX_003_NATIVE_VISUAL_CONCAT.mp4 -an -c:v libx264 -preset medium -crf 14 -pix_fmt yuv420p -r 30 -movflags +faststart YUNEX_003_NATIVE_VISUAL.mp4
           python source/yunex/video003/render/validate_export.py YUNEX_003_NATIVE_VISUAL.mp4 --total-frames "${{ needs.config.outputs.total }}" > validation.json
           ffmpeg -v error -xerror -i YUNEX_003_NATIVE_VISUAL.mp4 -f null -
           sha256sum YUNEX_003_NATIVE_VISUAL.mp4 > visual.sha256
