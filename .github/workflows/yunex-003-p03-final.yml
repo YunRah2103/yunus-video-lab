@@ -1,0 +1,145 @@
+name: YUNEX 003 P03 corrected wheel and environment final
+on:
+  push:
+    branches: [sol/y003-p03-master-fixes]
+    paths: [.github/workflows/yunex-003-p03-final.yml]
+permissions:
+  contents: read
+  actions: read
+env:
+  SOURCE: e09f9565d9f5aa70d11375a16b1da6477293e935
+  MODEL_SHA: 1c73fcb138c31e2b1d5ed126a2412074bb17f8e960b355436f28139bf518e1eb
+jobs:
+  preflight:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.matrix.outputs.value }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ env.SOURCE }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: yunex/package-lock.json
+      - run: npm ci --no-audit --no-fund
+        working-directory: yunex
+      - name: Actual asset and 735-frame motion QA
+        working-directory: yunex
+        run: |
+          set -euo pipefail
+          mkdir -p out/p03-qa
+          test "$(sha256sum ../cars/porsche-911-gt3-rs-992/model.glb | cut -d' ' -f1)" = "$MODEL_SHA"
+          for pair in 'motion/assetAxle.test:asset-axle' 'motion/groundContact.test:ground-contact' 'motion/qa-entry:motion' 'track/coverage-audit-entry:track' 'edit/contract.test:edit'; do
+            entry=${pair%:*}; name=${pair#*:}
+            npx esbuild src/video003/$entry.ts --bundle --platform=node --format=cjs --outfile=out/p03-qa/$name.cjs
+            node out/p03-qa/$name.cjs > out/p03-qa/$name.json
+          done
+      - id: matrix
+        run: |
+          python - <<'PY'
+          import json,os
+          rows=[{'part':f'{s:04d}-{min(734,s+19):04d}','frames':f'{s}-{min(734,s+19)}'} for s in range(0,735,20)]
+          with open(os.environ['GITHUB_OUTPUT'],'a') as f:f.write('value='+json.dumps({'include':rows})+'\n')
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Y003-P03-SOURCE-QA
+          path: yunex/out/p03-qa/*.json
+  render:
+    needs: preflight
+    strategy:
+      fail-fast: false
+      max-parallel: 20
+      matrix: ${{ fromJSON(needs.preflight.outputs.matrix) }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ env.SOURCE }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: yunex/package-lock.json
+      - run: |
+          test "$(git rev-parse HEAD)" = "$SOURCE"
+          test "$(sha256sum cars/porsche-911-gt3-rs-992/model.glb | cut -d' ' -f1)" = "$MODEL_SHA"
+          mkdir -p yunex/public yunex/out/p03-chunks
+          cp cars/porsche-911-gt3-rs-992/model.glb yunex/public/model.glb
+      - run: npm ci --no-audit --no-fund
+        working-directory: yunex
+      - name: Render corrected native chunk
+        working-directory: yunex
+        env:
+          NODE_OPTIONS: --require=./fix-network.cjs
+        run: |
+          set -euo pipefail
+          npx remotion render src/index.tsx YUNEX-003-VISUAL out/p03-chunks/chunk-${{ matrix.part }}.mp4 --frames=${{ matrix.frames }} --gl=swangle --concurrency=2 --codec=h264 --pixel-format=yuv420p --crf=14 --scale=1 --timeout=180000 --muted
+          printf '%s\n' "$SOURCE" > out/p03-chunks/source-${{ matrix.part }}.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: y003-p03-chunk-${{ matrix.part }}
+          path: yunex/out/p03-chunks/
+          retention-days: 14
+  assemble:
+    needs: render
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ env.SOURCE }}
+          path: source
+      - uses: actions/checkout@v4
+        with:
+          ref: d2eb4f0eae8b12869b6ffed90c71fd96318dfd6e
+          path: audio-tools
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: y003-p03-chunk-*
+          path: chunks
+          merge-multiple: true
+      - run: command -v ffmpeg || sudo apt-get -o Acquire::Retries=1 -o Acquire::http::Timeout=30 install -y ffmpeg
+      - name: Validate exact-source coverage and assemble
+        run: |
+          set -euo pipefail
+          mkdir -p delivery/review
+          python - <<'PY'
+          import json,os,subprocess
+          from pathlib import Path
+          fs=sorted(Path('chunks').glob('chunk-*.mp4'))
+          expected=[f'chunk-{s:04d}-{min(734,s+19):04d}.mp4' for s in range(0,735,20)]
+          assert [f.name for f in fs]==expected
+          for i,f in enumerate(fs):
+            assert (f.parent/f.name.replace('chunk-','source-').replace('.mp4','.txt')).read_text().strip()==os.environ['SOURCE']
+            d=json.loads(subprocess.check_output(['ffprobe','-v','error','-select_streams','v:0','-show_entries','stream=width,height,nb_frames,codec_name,pix_fmt','-of','json',str(f)]))['streams'][0]
+            assert (d['width'],d['height'],int(d['nb_frames']))==(1080,1920,15 if i==36 else 20),d
+            assert d['codec_name']=='h264' and d['pix_fmt'] in ['yuv420p','yuvj420p'],d
+          Path('concat.txt').write_text(''.join("file '"+str(f.resolve())+"'\n" for f in fs))
+          PY
+          ffmpeg -v error -y -f concat -safe 0 -i concat.txt -c copy native-concat.mp4
+          ffmpeg -v error -y -i native-concat.mp4 -an -c:v libx264 -preset medium -crf 14 -pix_fmt yuv420p -r 30 -movflags +faststart native-visual.mp4
+          bash audio-tools/yunex/video003/render/mux-approved-audio.sh native-visual.mp4 audio-tools/yunex/video003/render/YUNEX_003_APPROVED_AUDIO.m4a delivery/YUNEX_003_P03_TIKTOK_A.mp4
+          ffmpeg -v error -y -i delivery/YUNEX_003_P03_TIKTOK_A.mp4 -map 0 -c copy -metadata title='YUNEX 003 corrected — TikTok B' -movflags +faststart delivery/YUNEX_003_P03_TIKTOK_B.mp4
+          for v in A B; do
+            python audio-tools/yunex/video003/render/validate_export.py delivery/YUNEX_003_P03_TIKTOK_$v.mp4 --total-frames 735 --require-audio > delivery/$v-validation.json
+          done
+          for frame in 27 144 234 306 492 603 711; do
+            ffmpeg -v error -y -i delivery/YUNEX_003_P03_TIKTOK_A.mp4 -vf "select=eq(n\,$frame)" -vsync 0 -frames:v 1 delivery/review/frame-$frame.png
+          done
+          sha256sum delivery/*.mp4 | tee delivery/SHA256SUMS
+          cp source/yunex/video003/reports/P03/REVISION.md delivery/
+          python - <<'PY'
+          import json,os,hashlib
+          from pathlib import Path
+          d={'phase':'Y003-POLISH-03','render_source_sha':os.environ['SOURCE'],'workflow_run_id':int(os.environ['GITHUB_RUN_ID']),'model_sha256':os.environ['MODEL_SHA'],'approved_audio_sha256':'cd411b0dcc9e733f5b142e59f8340f913816e28bf113a32639c4fd12f7ec04c3','frames':735,'fps':30,'duration':24.5,'width':1080,'height':1920,'files':{f.name:hashlib.sha256(f.read_bytes()).hexdigest() for f in Path('delivery').glob('*.mp4')}}
+          Path('delivery/RELEASE_METADATA.json').write_text(json.dumps(d,indent=2)+'\n')
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: YUNEX-003-P03-FINAL-DUAL-TIKTOK
+          path: delivery/
+          retention-days: 90
