@@ -58,3 +58,11 @@ All eleven clips were rendered from exactly `1e2ab54e77090ec9c95c119488bc87d7ab7
 3. **Agent G**, not H, may execute the **full 720-frame master render and approved Cedar AAC mux** after clearance.
 
 **Agent H implementation, compilation, 11 native proofs, strict format validation, source provenance and committed evidence inventory: COMPLETE.** No car/model/rig, audio, timeline or final-film render changes made for this delivery.
+
+## Addendum — Agent F review and two final exact-source evidence gaps (8 October 2026)
+
+Agent F's independently published review `yunex/video004/reports/F/H_CORRECTED_37769701749_INDEPENDENT_QA.md` on `sol/y004-f-qa` confirms **visual PASS for all eleven corrected-source MP4s**, particularly the previous opening/roadside framing issues and opposing/aligned steering overlays, while retaining **whole-film PRE-RENDER HOLD** solely pending exact-source native footage for film frames `84–149` and `597–686` (156 unique frames).
+
+Dedicated [H two-job completion workflow 37781451513](https://github.com/YunRah2103/yunus-video-lab/actions/runs/37781451513) started from H workflow commit `6fc0cc329dfb9cebf056f384b5731cf9a9b01756`. Both native jobs are explicitly `actions/checkout` pinned to the immutable film source `1e2ab54e77090ec9c95c119488bc87d7ab7a45ba`, not the H report or workflow commit. Render `rear-wheel-macro-84-149` (66 frames) and `active-exit-597-686` (90 frames) **only**, reusing H's approved Remotion renderer, original Porsche asset checksum and strict FFmpeg full-range-to-limited yuv420p TV normalizer. Every job also runs exact-frame validation, full decoder and frame-hash no-duplicates test.
+
+Prior 11/11 source-locked proof artifacts from run 37769701749 remain unchanged and preserved in `native-proof-inventory.json`. The 13 inclusive proposed frame ranges form a complete nonoverlapping coverage of `0–719` (720 frames) **provided both new clips successfully validate**. The inventory records precise new job IDs `113325287977` and `113325287706` and explicitly marks the new clip evidence PENDING until actual MP4 SHA256 and artifacts exist. **No new Agent F PASS, Manager final render approval or completed 720-frame master is claimed by this addendum.**
