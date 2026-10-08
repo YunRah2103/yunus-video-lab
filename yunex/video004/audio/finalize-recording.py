@@ -12,10 +12,10 @@ import sys
 
 SCRIPT = [
     'The rear wheels on this Porsche steer too.',
-    'At lower speeds, they can turn slightly against the front wheels, helping the GT3 RS change direction more quickly.',
+    'At lower speeds, they turn slightly against the front wheels, helping the GT3 RS rotate into corners more quickly.',
     'But at higher speeds, they turn with the fronts instead.',
-    'That makes the car more stable through fast corners and direction changes.',
-    'So even the rear wheels are helping this Porsche turn.',
+    'That makes the car more stable when changing direction at speed.',
+    'So while you're driving, all four wheels are helping this Porsche turn.',
 ]
 BLOCKED_SOURCE_SHA = '826d7863cd4ec135e0352e9800f47b54239f8ba1d4c0d98ff5909a071905cfbb' # old Y003 Cedar
 
@@ -66,36 +66,17 @@ def finalize(source,approval,out,locked_frames=None):
     if locked_frames is not None and (locked_frames<120 or locked_frames>1800):raise ValueError('Invalid Manager frame count')
     if locked_frames is not None and duration+.15 >= locked_frames/30:
         raise ValueError('Speech would be truncated: Manager must re-lock frames or approve word trim')
-    out.mkdir(parents=True,exist_ok=True)
-    cmd=['bash',str(pathlib.Path(__file__).parent/'prepare-vo-mix.sh'),str(source),str(out)]
-    if locked_frames is not None:cmd.append(str(locked_frames))
-    subprocess.run(cmd,check=True)
-    voice=out/'y004_narration_isolated_48k_stereo.wav'
-    mix=out/'y004_reference_mix_48k_stereo.wav'
-    vprobe,mprobe=ffprobe(voice),ffprobe(mix)
-    # All audio channels must be stereo and sample rate must really be 48 kHz.
-    for p in (vprobe,mprobe):
-        s=p['streams'][0]
-        if int(s['sample_rate'])!=48000 or int(s['channels'])!=2:raise ValueError('Wrong output audio format')
-    # Full decode and actual peak check, not merely an ffmpeg command return status.
-    for f in (voice,mix):subprocess.run(['ffmpeg','-v','error','-xerror','-i',str(f),'-f','null','-'],check=True)
-    peak_log=(out/'mix_peak.txt').read_text()
-    match=re.search(r'max_volume:\s*(-?[\d.]+)\s*dB',peak_log)
-    if not match:raise ValueError('Failed to measure reference mix peak')
-    peak_db=float(match.group(1))
-    if peak_db > -0.5:raise ValueError(f'Clipping/headroom violation: {peak_db} dBFS')
-    result={
-        'status':'SOURCE_VERIFIED_REFERENCE_MIX_COMPLETE_NOT_MANAGER_FINAL_UNTIL_FRAME_LOCK',
-        'voice_speaker':info['speaker'],'voice_source_rights':info['source_rights'],
-        'source_file':source.name,'source_sha256':sha,
-        'source_ffprobe':sprobe,'source_duration_seconds':duration,'sentences':stamps,
-        'human_verified_transcript':True,
-        'locked_frames':locked_frames,'film_duration_seconds':float(mprobe['format']['duration']),
-        'narration_isolated':{'file':voice.name,'sha256':filehash(voice),'ffprobe':vprobe},
-        'audio_mix':{'file':mix.name,'sha256':filehash(mix),'ffprobe':mprobe,'measured_peak_dbfs':peak_db},
-    }
-    (out/'y004-vo-mix-manifest.json').write_text(json.dumps(result,indent=2)+'\n')
-    print(json.dumps(result,indent=2))
+    if locked_frames != 720:
+        raise ValueError('Y004 Manager requires locked 720 frames; do not use a provisional length')
+    bed = out.parent / 'y004-bed-24s-PROVISIONAL.m4a'
+    if not bed.is_file():
+        raise ValueError('Verified Y004 procedural bed is required beside output directory')
+    # New deterministic production path: uses ACTUAL Agent D bed, never creates replacement tones.
+    from importlib.machinery import SourceFileLoader
+    module = SourceFileLoader('y004_mix', str(pathlib.Path(__file__).with_name('complete-approved-voice.py'))).load_module()
+    result = module.process(source, bed, out)
+    if result['source_sha256'] != sha or result['source_duration_seconds'] != duration:
+        raise ValueError('Approved source/actual render manifest mismatch')
     return result
 
 if __name__=='__main__':
