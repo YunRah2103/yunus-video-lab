@@ -12,12 +12,15 @@ import {Yunex002Final,Yunex002IntegratedProof} from './video002/Video002Integrat
 import {VIDEO002_DURATION_FRAMES} from './video002/timeline';
 import {Yunex003Final,Yunex003Visual} from './video003/Video003';
 import {Y003_DURATION_FRAMES} from './video003/timeline';
+import {Yunex004Visual} from './video004/Video004';
+import {Y004_PROVISIONAL_FRAMES} from './video004/timeline';
 const RotationPlate=()=> <CarPlate view="top" width={1080} height={1100} zoom={180} ghost={.78} engine yaw={-useCurrentFrame()/51*.62}/>;
 const WheelMotionProof=()=> <ModelLedVideo frameOffset={396} includeAudio={false}/>;
 const AeroMotionProof=()=> <ModelLedVideo frameOffset={549} includeAudio={false}/>;
 const TrackFilmOpening=()=> <TrackFilmSegment variant="opening"/>;
 const TrackFilmFinal=()=> <TrackFilmSegment variant="final"/>;
 const Root=()=> <>
+ <Composition id="YUNEX-004-VISUAL-PROVISIONAL" component={Yunex004Visual} width={1080} height={1920} fps={30} durationInFrames={Y004_PROVISIONAL_FRAMES}/>
  <Composition id="YUNEX-003-VISUAL" component={Yunex003Visual} width={1080} height={1920} fps={30} durationInFrames={Y003_DURATION_FRAMES}/>
  <Composition id="YUNEX-003-FINAL" component={Yunex003Final} width={1080} height={1920} fps={30} durationInFrames={Y003_DURATION_FRAMES}/>
  <Composition id="YUNEX-002-INTEGRATED-PROOF" component={Yunex002IntegratedProof} width={1080} height={1920} fps={30} durationInFrames={VIDEO002_DURATION_FRAMES}/>

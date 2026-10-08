@@ -1,0 +1,41 @@
+name: YUNEX 004 Manager integration preflight
+on:
+  push:
+    branches:
+      - sol/y004-rear-steering-manager
+    paths:
+      - 'yunex/src/video004/**'
+      - 'yunex/src/index.tsx'
+      - '.github/workflows/yunex-004-integration-preflight.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  compile-and-unit-tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: yunex/package-lock.json
+      - name: Install source dependencies
+        working-directory: yunex
+        run: npm ci --no-audit --no-fund
+      - name: Compile assembled composition and all local episode modules
+        working-directory: yunex
+        run: |
+          npx --yes esbuild src/video004/Video004.tsx --bundle --platform=browser --packages=external --format=esm --jsx=automatic --outfile=/tmp/y004-integrated.js
+          npx --yes esbuild src/index.tsx --bundle --platform=browser --packages=external --format=esm --jsx=automatic --outfile=/tmp/y004-root.js
+      - name: Source model asset lock
+        run: |
+          echo '1c73fcb138c31e2b1d5ed126a2412074bb17f8e960b355436f28139bf518e1eb  cars/porsche-911-gt3-rs-992/model.glb' | sha256sum --check -
+      - name: Motion, editorial, audio, independent QA fixtures
+        working-directory: yunex
+        run: |
+          npx --yes tsx src/video004/motion/motion.test.ts
+          npx --yes tsx src/video004/edit/editorial.test.ts
+          npx --yes tsx src/video004/audio/audio.test.ts
+          node --test src/video004/qa/*.test.mjs
