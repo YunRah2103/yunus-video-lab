@@ -64,7 +64,16 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p report
-          python3 yunex/video004/render/audit_final_proof.py --existing proof-prior --gaps proof-gaps --allow-pending --output report/E_ACTUAL_MP4_AUDIT.json
+          python3 yunex/video004/render/audit_final_proof.py --existing proof-prior --gaps proof-gaps --output report/E_ACTUAL_MP4_AUDIT.json
+          python3 - <<'PY'
+          import json
+          data=json.load(open('report/E_ACTUAL_MP4_AUDIT.json'))
+          assert data['status']=='PASS'
+          assert data['verifiedFrames']==720 and data['pendingFrames']==0
+          assert data['clipsVerified']==data['clipsRequired']==13
+          assert all(c['fullDecoder']=='PASS' and c['pts']=='PASS' and c['temporalMotion']['status']=='PASS' for c in data['clips'])
+          print('FINAL YUNEX 004 EXACT SOURCE FULL 720/720 MOVING PROOF PASS')
+          PY
           sha256sum report/E_ACTUAL_MP4_AUDIT.json > report/SHA256SUMS
       - uses: actions/upload-artifact@v4
         if: always()
