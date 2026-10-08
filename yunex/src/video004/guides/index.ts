@@ -41,9 +41,16 @@ const wheelGuide = (
     ],
     y004RotateLocalVector([side*LATERAL_CLEARANCE_M,0,0],yaw),
   );
-  const neutralEndWorld = plus(anchorWorld, scale(heading(yaw),GUIDE_LENGTH_M));
+  // The wheel axis has no arrowhead: for the tight rear-wheel macro, the
+  // short rearward half-axis is optically identical to the wheel's heading
+  // line and keeps both true-angle rays inside a 9:16 shot. Matched elevated
+  // demos use a 1.2m forward line so BOTH axle references fit the crop.
+  const guideExtent = state.segmentId === 'rear-macro' ? -0.40 :
+    state.segmentId === 'low-explain' || state.segmentId === 'high-explain'
+      ? 1.20 : GUIDE_LENGTH_M;
+  const neutralEndWorld = plus(anchorWorld, scale(heading(yaw),guideExtent));
   const steeredEndWorld = plus(
-    anchorWorld, scale(heading(yaw + state.steerRad[id]),GUIDE_LENGTH_M),
+    anchorWorld, scale(heading(yaw + state.steerRad[id]),guideExtent),
   );
   const relative = diff(camera.position, wheel.centreWorld);
   const lateral = dot2(relative,y004RotateLocalVector([1,0,0],yaw));
