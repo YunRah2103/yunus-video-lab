@@ -1,12 +1,12 @@
 /** DO NOT confuse editorial estimates with sample-measured recorded speech. */
 export const Y004_NARRATION_SCRIPT = [
   'The rear wheels on this Porsche steer too.',
-  'At lower speeds, they can turn slightly against the front wheels, helping the GT3 RS change direction more quickly.',
+  'At lower speeds, they turn slightly against the front wheels, helping the GT3 RS rotate into corners more quickly.',
   'But at higher speeds, they turn with the fronts instead.',
-  'That makes the car more stable through fast corners and direction changes.',
-  'So even the rear wheels are helping this Porsche turn.',
+  'That makes the car more stable when changing direction at speed.',
+  'So while you're driving, all four wheels are helping this Porsche turn.',
 ] as const;
-export const Y004_RECORDING_STATUS = 'REQUIRED_NEW_TAKE_NOT_PROVIDED' as const;
+export const Y004_RECORDING_STATUS = 'NEW_CEDAR_TAKE_SHA_VERIFIED_AUDIO_MIX_COMPLETE' as const;
 export type Y004SentenceCue = Readonly<{
   id: 's1' | 's2' | 's3' | 's4' | 's5';
   text: string;
@@ -21,6 +21,19 @@ export type Y004MeasuredNarration = Readonly<{
   /** Manually reviewed phrase timing from THIS take, not script estimates. */
   sentences: readonly Y004SentenceCue[];
 }>;
+
+/** Real user-approved source, 720-frame Manager lock; windows independently agree with acoustic gaps. */
+export const Y004_MEASURED_NARRATION: Y004MeasuredNarration = {
+  sourceSha256:'db75bbbe6aa468062b300004390f23f254679086e2b69d0de6aa1d553c8d404b',
+  durationSeconds:22.704, sampleRateHz:24000, channels:1,
+  sentences:[
+    {id:'s1',text:Y004_NARRATION_SCRIPT[0],startSeconds:0,endSeconds:2.755},
+    {id:'s2',text:Y004_NARRATION_SCRIPT[1],startSeconds:3.650,endSeconds:10.613},
+    {id:'s3',text:Y004_NARRATION_SCRIPT[2],startSeconds:11.608,endSeconds:14.232},
+    {id:'s4',text:Y004_NARRATION_SCRIPT[3],startSeconds:14.979,endSeconds:17.866},
+    {id:'s5',text:Y004_NARRATION_SCRIPT[4],startSeconds:18.858,endSeconds:22.577},
+  ],
+} as const;
 
 const smooth=(n:number)=>{const t=Math.min(1,Math.max(0,n));return t*t*(3-2*t);};
 export function validateY004Narration(n: Y004MeasuredNarration): void {
