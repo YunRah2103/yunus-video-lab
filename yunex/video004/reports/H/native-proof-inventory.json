@@ -1,165 +1,172 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "project": "YUNEX-004",
   "owner": "Agent H",
-  "status": "NATIVE_EVIDENCE_9_OF_9_PASS_PENDING_INDEPENDENT_F_VISUAL_QA",
-  "exactFilmSourceSha": "f5cbdf2f6c96aa5ac2e5c184a048f49700037f55",
-  "composition": "YUNEX-004",
-  "compositionFrames": 720,
-  "fps": 30,
-  "width": 1080,
-  "height": 1920,
-  "audio": {
-    "source": "Agent D approved Cedar AAC in Library, external mux only",
-    "durationSeconds": 24,
-    "sha256": "a2f5dc284ce923a4d6803b66c2d45a1d3502a2be0024c8e3b1d2658c5bdb1e51"
+  "status": "CORRECTED_SOURCE_TESTS_PASS_NATIVE_PROOFS_RUNNING_F_VISUAL_QA_PENDING",
+  "exactFilmSourceSha": "1e2ab54e77090ec9c95c119488bc87d7ab7a45ba",
+  "sourceIntegration": {
+    "agentCCommit": "8039e03db2d2a774c4a4f3ff9639b8148eb69707",
+    "agentCNumericReport": "f891e3b991c73c4c62305dddcd45cea9eeea5090",
+    "overlayMountedAfterThreeCanvas": true,
+    "duplicate3DExplanationGuidesSuppressed": true,
+    "unchangedMotionRigGLBTiming": true
   },
-  "sourceAudit": {
-    "runId": 37761847924,
-    "artifactId": 11542213067,
-    "status": "AUTOMATED_PASS_VISUAL_NOT_REVIEWED",
+  "composition": {
+    "name": "YUNEX-004",
     "frames": 720,
-    "sourceSha": "f5cbdf2f6c96aa5ac2e5c184a048f49700037f55"
-  },
-  "nativeProofWorkflow": {
-    "runId": 37764504658,
-    "runStatus": "success",
-    "jobCount": 9,
-    "jobPassCount": 9,
-    "helperCommit": "73eff3209959517df569a0a941bbfd74e8f135f0",
-    "workflowCommit": "908a61bd52344f607f7d6a031b7e2b0c9e7e9ab3"
-  },
-  "videoRequirements": {
-    "container": "mp4",
-    "codec": "h264",
-    "pixelFormat": "yuv420p",
-    "colorRange": "tv",
-    "fps": "30/1",
+    "fps": 30,
     "width": 1080,
-    "height": 1920,
-    "fullDecoder": "PASS"
+    "height": 1920
   },
-  "artifacts": [
-    {
-      "label": "opening-0-59",
-      "framesInclusive": "0-59",
-      "frameCount": 60,
-      "artifactId": 11544229629,
-      "artifactName": "Y004-H-BOUNDARY-opening-0-59",
-      "sourceSha": "f5cbdf2f6c96aa5ac2e5c184a048f49700037f55",
-      "mp4Sha256": "705571fffd254f82d65756b9251035223cb48ef93398cc51424e594adcf1a536",
-      "localIndependentArchiveVerification": "PASS",
-      "localIndependentFullDecoder": "PASS",
-      "nativeWorkflowJob": "success",
-      "url": "https://github.com/YunRah2103/yunus-video-lab/actions/runs/37764504658/artifacts/11544229629"
+  "approvedAAC": {
+    "sha256": "a2f5dc284ce923a4d6803b66c2d45a1d3502a2be0024c8e3b1d2658c5bdb1e51",
+    "durationSeconds": 24,
+    "muxBy": "Agent G",
+    "separateFromSilentVisualProofs": true
+  },
+  "sourceTests": {
+    "runId": 37769701749,
+    "artifactId": 11547123669,
+    "pass": true,
+    "agentCCameraAndGuideSamples": 24,
+    "agentFTestsPassed": 45,
+    "frameAuditPassed": 720,
+    "status": "AUTOMATED_PASS_VISUAL_NOT_REVIEWED"
+  },
+  "nativeProofs": {
+    "runId": 37769701749,
+    "expectedJobs": 11,
+    "passesConfirmed": 0,
+    "format": {
+      "codec": "h264",
+      "pixelFormat": "yuv420p",
+      "colorRange": "tv",
+      "width": 1080,
+      "height": 1920,
+      "fps": "30/1",
+      "fullDecoderRequired": true
     },
-    {
-      "label": "hook-macro",
-      "framesInclusive": "60-119",
-      "frameCount": 60,
-      "artifactId": 11543722551,
-      "artifactName": "Y004-H-LIMITED-hook-macro",
-      "sourceSha": "f5cbdf2f6c96aa5ac2e5c184a048f49700037f55",
-      "mp4Sha256": "7628c52e713048672f246ea230ec46fbb01ceea67dac2604701d412dea7e0236",
-      "localIndependentArchiveVerification": "PASS",
-      "localIndependentFullDecoder": "PASS",
-      "nativeWorkflowJob": "success",
-      "url": "https://github.com/YunRah2103/yunus-video-lab/actions/runs/37764504658/artifacts/11543722551"
-    },
-    {
-      "label": "rear-macro",
-      "framesInclusive": "90-149",
-      "frameCount": 60,
-      "artifactId": 11544638033,
-      "artifactName": "Y004-H-LIMITED-rear-macro",
-      "sourceSha": "f5cbdf2f6c96aa5ac2e5c184a048f49700037f55",
-      "mp4Sha256": "a796eeb1631d7efb8f9e3b27d8fbe20adb7cd9d333eee8fb672833840ff36a42",
-      "localIndependentArchiveVerification": "PASS",
-      "localIndependentFullDecoder": "PASS",
-      "nativeWorkflowJob": "success",
-      "url": "https://github.com/YunRah2103/yunus-video-lab/actions/runs/37764504658/artifacts/11544638033"
-    },
-    {
-      "label": "low-steering",
-      "framesInclusive": "247-306",
-      "frameCount": 60,
-      "artifactId": 11544360519,
-      "artifactName": "Y004-H-LIMITED-low-steering",
-      "sourceSha": "f5cbdf2f6c96aa5ac2e5c184a048f49700037f55",
-      "mp4Sha256": "1e1442f6eb8a1076b23d400040d69457879ba2b9cc51ba061a402df4cf9d2832",
-      "localIndependentArchiveVerification": "PASS",
-      "localIndependentFullDecoder": "PASS",
-      "nativeWorkflowJob": "success",
-      "url": "https://github.com/YunRah2103/yunus-video-lab/actions/runs/37764504658/artifacts/11544360519"
-    },
-    {
-      "label": "matched-low-high",
-      "framesInclusive": "312-371",
-      "frameCount": 60,
-      "artifactId": 11543552651,
-      "artifactName": "Y004-H-LIMITED-matched-low-high",
-      "sourceSha": "f5cbdf2f6c96aa5ac2e5c184a048f49700037f55",
-      "mp4Sha256": "d9a57de2ad0bd4ecc801a613259170ca5e5c6fa52a663ae8412e977369f3b82f",
-      "localIndependentArchiveVerification": "PASS",
-      "localIndependentFullDecoder": "PASS",
-      "nativeWorkflowJob": "success",
-      "url": "https://github.com/YunRah2103/yunus-video-lab/actions/runs/37764504658/artifacts/11543552651"
-    },
-    {
-      "label": "high-steering",
-      "framesInclusive": "372-431",
-      "frameCount": 60,
-      "artifactId": 11543587123,
-      "artifactName": "Y004-H-LIMITED-high-steering",
-      "sourceSha": "f5cbdf2f6c96aa5ac2e5c184a048f49700037f55",
-      "mp4Sha256": "f1df803ec9c9659c7ce4f22f8201a078fbb43edd92e0f3a3eacdf66a0e4068e9",
-      "localIndependentArchiveVerification": "PASS",
-      "localIndependentFullDecoder": "PASS",
-      "nativeWorkflowJob": "success",
-      "url": "https://github.com/YunRah2103/yunus-video-lab/actions/runs/37764504658/artifacts/11543587123"
-    },
-    {
-      "label": "roadside-driving",
-      "framesInclusive": "432-551",
-      "frameCount": 120,
-      "artifactId": 11543912279,
-      "artifactName": "Y004-H-LIMITED-roadside-driving",
-      "sourceSha": "f5cbdf2f6c96aa5ac2e5c184a048f49700037f55",
-      "mp4Sha256": "0cb697fcca28c2dae56aa05202a8f4d957e81c247950c8ef5e321dcf082d8a64",
-      "localIndependentArchiveVerification": "PASS",
-      "localIndependentFullDecoder": "PASS",
-      "nativeWorkflowJob": "success",
-      "url": "https://github.com/YunRah2103/yunus-video-lab/actions/runs/37764504658/artifacts/11543912279"
-    },
-    {
-      "label": "active-exit",
-      "framesInclusive": "567-686",
-      "frameCount": 120,
-      "artifactId": 11544021689,
-      "artifactName": "Y004-H-LIMITED-active-exit",
-      "sourceSha": "f5cbdf2f6c96aa5ac2e5c184a048f49700037f55",
-      "mp4Sha256": "d922292e6b7fd3d97b2a2e6dcafb6a2704d6944bcb522aee676fd2c082c550f5",
-      "localIndependentArchiveVerification": "PASS",
-      "localIndependentFullDecoder": "PASS",
-      "nativeWorkflowJob": "success",
-      "url": "https://github.com/YunRah2103/yunus-video-lab/actions/runs/37764504658/artifacts/11544021689"
-    },
-    {
-      "label": "ending-687-719",
-      "framesInclusive": "687-719",
-      "frameCount": 33,
-      "artifactId": 11543723429,
-      "artifactName": "Y004-H-BOUNDARY-ending-687-719",
-      "sourceSha": "f5cbdf2f6c96aa5ac2e5c184a048f49700037f55",
-      "mp4Sha256": "0b356a2d0b069d1a8abcb3cf2c4e2e394826d278a51b1ca4a47c41350fa9d3de",
-      "localIndependentArchiveVerification": "PASS",
-      "localIndependentFullDecoder": "PASS",
-      "nativeWorkflowJob": "success",
-      "url": "https://github.com/YunRah2103/yunus-video-lab/actions/runs/37764504658/artifacts/11543723429"
-    }
-  ],
-  "independentVisualQA": "PENDING_AGENT_F",
-  "managerRenderLock": "PENDING_MANAGER_APPROVAL",
-  "finalRender": "NOT_STARTED_BY_H",
-  "notes": "All nine source-locked native proof clips have strict yuv420p TV limited-range metadata, correct frame counts, matching media SHA256 and independent full MP4 decoder PASS. H visual contact checks are not independent F visual acceptance. Source animation unchanged."
+    "artifacts": [
+      {
+        "name": "opening-0-59",
+        "framesInclusive": "0-59",
+        "expectedFrameCount": 60,
+        "artifactName": "Y004-H-C-NATIVE-opening-0-59",
+        "artifactId": null,
+        "mediaSha256": null,
+        "sourceSha": "1e2ab54e77090ec9c95c119488bc87d7ab7a45ba",
+        "validation": "PENDING_NATIVE_RENDER"
+      },
+      {
+        "name": "opening-tail-60-83",
+        "framesInclusive": "60-83",
+        "expectedFrameCount": 24,
+        "artifactName": "Y004-H-C-NATIVE-opening-tail-60-83",
+        "artifactId": null,
+        "mediaSha256": null,
+        "sourceSha": "1e2ab54e77090ec9c95c119488bc87d7ab7a45ba",
+        "validation": "PENDING_NATIVE_RENDER"
+      },
+      {
+        "name": "low-full-150-246",
+        "framesInclusive": "150-246",
+        "expectedFrameCount": 97,
+        "artifactName": "Y004-H-C-NATIVE-low-full-150-246",
+        "artifactId": null,
+        "mediaSha256": null,
+        "sourceSha": "1e2ab54e77090ec9c95c119488bc87d7ab7a45ba",
+        "validation": "PENDING_NATIVE_RENDER"
+      },
+      {
+        "name": "low-247-306",
+        "framesInclusive": "247-306",
+        "expectedFrameCount": 60,
+        "artifactName": "Y004-H-C-NATIVE-low-247-306",
+        "artifactId": null,
+        "mediaSha256": null,
+        "sourceSha": "1e2ab54e77090ec9c95c119488bc87d7ab7a45ba",
+        "validation": "PENDING_NATIVE_RENDER"
+      },
+      {
+        "name": "low-gap-307-311",
+        "framesInclusive": "307-311",
+        "expectedFrameCount": 5,
+        "artifactName": "Y004-H-C-NATIVE-low-gap-307-311",
+        "artifactId": null,
+        "mediaSha256": null,
+        "sourceSha": "1e2ab54e77090ec9c95c119488bc87d7ab7a45ba",
+        "validation": "PENDING_NATIVE_RENDER"
+      },
+      {
+        "name": "match-312-371",
+        "framesInclusive": "312-371",
+        "expectedFrameCount": 60,
+        "artifactName": "Y004-H-C-NATIVE-match-312-371",
+        "artifactId": null,
+        "mediaSha256": null,
+        "sourceSha": "1e2ab54e77090ec9c95c119488bc87d7ab7a45ba",
+        "validation": "PENDING_NATIVE_RENDER"
+      },
+      {
+        "name": "high-372-431",
+        "framesInclusive": "372-431",
+        "expectedFrameCount": 60,
+        "artifactName": "Y004-H-C-NATIVE-high-372-431",
+        "artifactId": null,
+        "mediaSha256": null,
+        "sourceSha": "1e2ab54e77090ec9c95c119488bc87d7ab7a45ba",
+        "validation": "PENDING_NATIVE_RENDER"
+      },
+      {
+        "name": "roadside-432-551",
+        "framesInclusive": "432-551",
+        "expectedFrameCount": 120,
+        "artifactName": "Y004-H-C-NATIVE-roadside-432-551",
+        "artifactId": null,
+        "mediaSha256": null,
+        "sourceSha": "1e2ab54e77090ec9c95c119488bc87d7ab7a45ba",
+        "validation": "PENDING_NATIVE_RENDER"
+      },
+      {
+        "name": "roadside-gap-552-566",
+        "framesInclusive": "552-566",
+        "expectedFrameCount": 15,
+        "artifactName": "Y004-H-C-NATIVE-roadside-gap-552-566",
+        "artifactId": null,
+        "mediaSha256": null,
+        "sourceSha": "1e2ab54e77090ec9c95c119488bc87d7ab7a45ba",
+        "validation": "PENDING_NATIVE_RENDER"
+      },
+      {
+        "name": "exit-567-596",
+        "framesInclusive": "567-596",
+        "expectedFrameCount": 30,
+        "artifactName": "Y004-H-C-NATIVE-exit-567-596",
+        "artifactId": null,
+        "mediaSha256": null,
+        "sourceSha": "1e2ab54e77090ec9c95c119488bc87d7ab7a45ba",
+        "validation": "PENDING_NATIVE_RENDER"
+      },
+      {
+        "name": "ending-687-719",
+        "framesInclusive": "687-719",
+        "expectedFrameCount": 33,
+        "artifactName": "Y004-H-C-NATIVE-ending-687-719",
+        "artifactId": null,
+        "mediaSha256": null,
+        "sourceSha": "1e2ab54e77090ec9c95c119488bc87d7ab7a45ba",
+        "validation": "PENDING_NATIVE_RENDER"
+      }
+    ]
+  },
+  "oldSourceEvidence": {
+    "sourceSha": "f5cbdf2f6c96aa5ac2e5c184a048f49700037f55",
+    "historicalInventory": "native-proof-inventory-previous-f5cb.json",
+    "acceptedForNewSourceVisualQA": false
+  },
+  "release": {
+    "agentFVisualApproval": false,
+    "managerExactSourceLock": false,
+    "agentGFullRenderStartedByH": false
+  }
 }
