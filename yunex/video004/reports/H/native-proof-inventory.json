@@ -36,7 +36,7 @@
   "nativeProofs": {
     "runId": 37769701749,
     "expectedJobs": 11,
-    "passesConfirmed": 8,
+    "passesConfirmed": 9,
     "format": {
       "codec": "h264",
       "pixelFormat": "yuv420p",
@@ -117,13 +117,14 @@
         "framesInclusive": "312-371",
         "expectedFrameCount": 60,
         "artifactName": "Y004-H-C-NATIVE-match-312-371",
-        "artifactId": null,
-        "mediaSha256": null,
+        "artifactId": 11548552591,
+        "mediaSha256": "588c834db8f098861358eb47c141de443fba7a656350e2d176dcbb999ff12467",
         "sourceSha": "1e2ab54e77090ec9c95c119488bc87d7ab7a45ba",
-        "validation": "PENDING_NATIVE_RENDER",
+        "validation": "STRICT_NATIVE_MP4_AND_LOCAL_DECODER_PASS",
         "jobId": 113286094727,
-        "jobStatus": "in_progress",
-        "jobConclusion": null
+        "jobStatus": "completed",
+        "jobConclusion": "success",
+        "visualChecks": "Exact cut frame333 changes category OPPOSING->ALIGNED; no fake yaw, first high frame true CENTRED"
       },
       {
         "name": "high-372-431",
@@ -194,7 +195,7 @@
     ],
     "jobsQueuedOrRunning": 11,
     "jobIdsAllConfirmed": true,
-    "pendingNative": 3
+    "pendingNative": 2
   },
   "oldSourceEvidence": {
     "sourceSha": "f5cbdf2f6c96aa5ac2e5c184a048f49700037f55",
