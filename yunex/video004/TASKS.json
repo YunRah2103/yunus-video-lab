@@ -1,13 +1,13 @@
 {
   "phase": "Y004-REAR-STEERING-01",
-  "phase_status": "SPECIALIST_SOURCE_STAGED_AND_MANAGER_VISUAL_COMPOSED_QA_PENDING",
+  "phase_status": "MANAGER_ACTUAL_NATIVE_PROOFS_RENDERED_VALIDATION_RETRY_IN_PROGRESS_AUDIO_MISSING",
   "manager_branch": "sol/y004-rear-steering-manager",
   "master_handoff_sha": "2522f1379712f7ccbeca68d350dfa592a1f6ff97",
   "source_base_sha": "451728dcbc8e36cc9f54fb94e00bdefbdf068f51",
   "model_sha256": "1c73fcb138c31e2b1d5ed126a2412074bb17f8e960b355436f28139bf518e1eb",
   "dispatch_sha": "bf2f0996f4176791d5ac78d818090e8b429397ad",
   "dispatch_branch_base_sha": "bf2f0996f4176791d5ac78d818090e8b429397ad",
-  "voiceover_status": "NEW_Y004_VO_NOT_RECORDED_OR_MEASURED",
+  "voiceover_status": "PROCEDURAL_24S_BED_VERIFIED_NEW_CEDAR_TAKE_UNAVAILABLE_SENTENCE_TIMING_UNLOCKED",
   "fps": 30,
   "target_frames_provisional": 720,
   "locked_frames": null,
@@ -73,9 +73,9 @@
         "yunex/video004/reports/D/**",
         "yunex/public/y004-*"
       ],
-      "status": "CODE_PUSHED_NEW_MEASURED_VO_BLOCKED",
+      "status": "PROCEDURAL_AUDIO_BED_COMPLETED_NEW_APPROVED_CEDAR_VO_MISSING",
       "input_sha": "bf2f0996f4176791d5ac78d818090e8b429397ad",
-      "output_sha": "d96b5731a3584d294d54465034c70a3928e7271a",
+      "output_sha": "f46875dc7f6a730257a4b045298f76717a93a090",
       "proof": null,
       "accepted": false
     },
@@ -122,7 +122,7 @@
   ],
   "rule": "Only Manager updates this registry. Branch creation does not mean specialist execution started.",
   "progress_as_of": "2026-10-08",
-  "progress_notes": "52 A-F source/report files copied from exact pushed remote refs to Manager branch, retaining originals. Manager central YUNEX-004-VISUAL-PROVISIONAL registered; 720 frames is NOT locked. Integrated composition code pushed but native frame proof and motion/rig visual QA NOT run or accepted. New Y004 VO missing; E final render strictly blocked.",
+  "progress_notes": "Manager actual Porsche low/high 24-frame clips rendered at source 4749c48f7d350801ccc6462a7530225d6eadfc66 and uploaded as artifacts 11539213814/11539213630, but the jobs failed post-render because ffprobe was missing. Patched workflow on Manager branch to provision ffmpeg/ffprobe; corrected run 37755997906 queued. Need ffprobe, full decode, visual review before accepting. Agent D pushed new effects-only provisional 24s bed but cannot produce Cedar narration without fresh approved source; code SHA f46875dc7f6a730257a4b045298f76717a93a090.",
   "integration": {
     "source_overlay_sha": "6f9297612648ce6f14a0fa8efbfb3532ab041e30",
     "provisional_visual_sha": "ca43545411e651495f70ca92d177786c0e264eec",
@@ -130,7 +130,10 @@
     "test_workflow": "YUNEX 004 Manager integration preflight",
     "test_run_id": 37753848162,
     "preflight_status": "IN_PROGRESS",
-    "visual_moving_proof": "NOT_RUN",
-    "source_accepted": false
+    "visual_moving_proof": "CLIPS_RENDERED_NOT_YET_VALIDATED_OR_REVIEWED",
+    "source_accepted": false,
+    "original_render_run_id": 37753976721,
+    "corrected_native_proof_run_id": 37755997906,
+    "validation_issue": "Original native job produced 24/24 low/high frames but ffprobe binary absent, code corrected"
   }
 }
