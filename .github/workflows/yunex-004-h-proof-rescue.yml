@@ -1,0 +1,132 @@
+name: YUNEX 004 H limited-range native proof rescue
+on:
+  push:
+    branches: [sol/y004-h-integration]
+    paths: [.github/workflows/yunex-004-h-proof-rescue.yml]
+  workflow_dispatch:
+permissions: {contents: read, actions: read}
+env:
+  FILM_SOURCE: f5cbdf2f6c96aa5ac2e5c184a048f49700037f55
+  OLD_RUN: '37761847924'
+jobs:
+  reuse-existing:
+    name: Normalize ${{ matrix.label } ( ${{ matrix.range } )
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - {label: hook-macro, range: '60-119', frames: 60}
+          - {label: rear-macro, range: '90-149', frames: 60}
+          - {label: low-steering, range: '247-306', frames: 60}
+          - {label: matched-low-high, range: '312-371', frames: 60}
+          - {label: high-steering, range: '372-431', frames: 60}
+          - {label: roadside-driving, range: '432-551', frames: 120}
+          - {label: active-exit, range: '567-686', frames: 120}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: f5cbdf2f6c96aa5ac2e5c184a048f49700037f55
+      - uses: actions/checkout@v4
+        with:
+          ref: 73eff3209959517df569a0a941bbfd74e8f135f0
+          path: h-helper
+      - name: Verify original locked source and install FFmpeg
+        env:
+          GH_TOKEN: ${{ github.token }
+          GH_REPO: ${{ github.repository }
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$FILM_SOURCE"
+          test "$(gh api "repos/$GH_REPO/actions/runs/$OLD_RUN" --jq .head_sha)" = "$FILM_SOURCE"
+          sudo apt-get -o Acquire::Retries=2 update -qq
+          sudo apt-get -o Acquire::Retries=2 install -y -qq ffmpeg
+      - name: Retrieve original raw MP4 once published
+        env:
+          GH_TOKEN: ${{ github.token }
+          GH_REPO: ${{ github.repository }
+          LABEL: ${{ matrix.label }
+          RANGE: ${{ matrix.range }
+        run: |
+          set -euo pipefail
+          mkdir -p raw-evidence
+          got=0
+          for attempt in $(seq 1 75); do
+            if gh run download "$OLD_RUN" --repo "$GH_REPO" --name "Y004-H-NATIVE-$LABEL" --dir raw-evidence 2>/tmp/download-error; then got=1; break; fi
+            echo "Awaiting original native $LABEL artifact, attempt $attempt"
+            sleep 50
+          done
+          if [ "$got" -ne 1 ]; then cat /tmp/download-error; exit 1; fi
+          test -s "raw-evidence/$LABEL.mp4"
+          if test -f raw-evidence/source-sha.txt; then test "$(cat raw-evidence/source-sha.txt)" = "$FILM_SOURCE"; fi
+          if test -f raw-evidence/frames-inclusive.txt; then test "$(cat raw-evidence/frames-inclusive.txt)" = "$RANGE"; fi
+      - name: Normalize video and validate strict limited-range H264
+        env:
+          LABEL: ${{ matrix.label }
+          RANGE: ${{ matrix.range }
+          FRAMES: ${{ matrix.frames }
+        run: |
+          bash h-helper/yunex/video004/reports/H/normalize-native-proof.sh "raw-evidence/$LABEL.mp4" "normalized/$LABEL" "$LABEL" "$RANGE" "$FRAMES" "$FILM_SOURCE"
+          echo "Original source run $OLD_RUN, normalized original raw file, not rerendered" >> "normalized/$LABEL/provenance.txt"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: Y004-H-LIMITED-${{ matrix.label }
+          path: normalized/${{ matrix.label }/
+          retention-days: 30
+  cover-boundaries:
+    name: Native missing ${{ matrix.label } ( ${{ matrix.range } )
+    runs-on: ubuntu-latest
+    timeout-minutes: 65
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - {label: opening-0-59, range: '0-59', frames: 60}
+          - {label: ending-687-719, range: '687-719', frames: 33}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: f5cbdf2f6c96aa5ac2e5c184a048f49700037f55
+      - uses: actions/checkout@v4
+        with:
+          ref: 73eff3209959517df569a0a941bbfd74e8f135f0
+          path: h-helper
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: yunex/package-lock.json
+      - name: Immutable source and Porsche assets
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$FILM_SOURCE"
+          echo '1c73fcb138c31e2b1d5ed126a2412074bb17f8e960b355436f28139bf518e1eb  cars/porsche-911-gt3-rs-992/model.glb' | sha256sum --check -
+          cp cars/porsche-911-gt3-rs-992/model.glb yunex/public/model.glb
+          sudo apt-get -o Acquire::Retries=2 update -qq
+          sudo apt-get -o Acquire::Retries=2 install -y -qq ffmpeg
+          cd yunex
+          npm ci --no-audit --no-fund
+          npx remotion browser ensure
+      - name: Native exact-source boundary frames plus normalized strict output
+        working-directory: yunex
+        env:
+          NODE_OPTIONS: --require=./fix-network.cjs
+          LABEL: ${{ matrix.label }
+          RANGE: ${{ matrix.range }
+          FRAMES: ${{ matrix.frames }
+        run: |
+          set -euo pipefail
+          mkdir -p "out/y004-h-boundary/$LABEL"
+          RAW="out/y004-h-boundary/$LABEL-raw.mp4"
+          npx remotion render src/index.tsx YUNEX-004 "$RAW" --frames="$RANGE" --gl=swangle --concurrency=1 --codec=h264 --pixel-format=yuv420p --crf=18 --scale=1 --timeout=180000 --muted
+          bash ../h-helper/yunex/video004/reports/H/normalize-native-proof.sh "$RAW" "out/y004-h-boundary/$LABEL" "$LABEL" "$RANGE" "$FRAMES" "$FILM_SOURCE"
+          rm "$RAW"
+          echo "Exact locked source; only missing boundary frames rendered" >> "out/y004-h-boundary/$LABEL/provenance.txt"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: Y004-H-BOUNDARY-${{ matrix.label }
+          path: yunex/out/y004-h-boundary/${{ matrix.label }/
+          retention-days: 30
