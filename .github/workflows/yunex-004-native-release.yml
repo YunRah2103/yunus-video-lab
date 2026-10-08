@@ -1,0 +1,139 @@
+name: YUNEX 004 native locked release
+on:
+  workflow_dispatch:
+    inputs:
+      source_sha: {description: "Manager-approved immutable render commit", required: true, type: string}
+      frame_count: {description: "Manager-locked frame count", required: true, type: string}
+      composition_id: {description: "Y004 Remotion composition", required: true, type: string, default: "YUNEX-004"}
+      audio_path: {description: "New Y004 audio repo path", required: true, type: string}
+      replay_run_id: {description: "Previous render run for assembly-only rescue", required: false, type: string, default: ""}
+permissions: {contents: read, actions: read}
+jobs:
+  preflight:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.matrix.outputs.matrix }}
+    steps:
+      - uses: actions/checkout@v4
+        with: {ref: sol/y004-rear-steering-manager, path: control}
+      - uses: actions/checkout@v4
+        with: {ref: ${{ inputs.source_sha }}, path: source}
+      - name: Exact source and QA release gate
+        env:
+          SOURCE_SHA: ${{ inputs.source_sha }}
+          FRAME_COUNT: ${{ inputs.frame_count }}
+          AUDIO_PATH: ${{ inputs.audio_path }}
+          COMPOSITION: ${{ inputs.composition_id }}
+        run: |
+          set -euo pipefail
+          test "$(git -C source rev-parse HEAD)" = "$SOURCE_SHA"
+          test "$(sha256sum source/cars/porsche-911-gt3-rs-992/model.glb | cut -d' ' -f1)" = 1c73fcb138c31e2b1d5ed126a2412074bb17f8e960b355436f28139bf518e1eb
+          python3 - <<'PY'
+          import json,os,re,subprocess
+          from pathlib import Path
+          sha=os.environ['SOURCE_SHA']; count=os.environ['FRAME_COUNT']; audio=os.environ['AUDIO_PATH']; comp=os.environ['COMPOSITION']
+          assert re.fullmatch(r'[0-9a-f]{40}',sha)
+          assert re.fullmatch(r'[1-9][0-9]*',count) and int(count)<=1800
+          assert re.fullmatch(r'[A-Za-z0-9_-]+',comp)
+          assert audio.startswith('yunex/video004/audio/') or audio.startswith('yunex/public/y004-')
+          assert '..' not in Path(audio).parts and '\\' not in audio
+          d=json.loads(Path('control/yunex/video004/TASKS.json').read_text())
+          assert d.get('phase')=='Y004-REAR-STEERING-01'
+          assert d.get('render_source_sha')==sha
+          assert d.get('locked_frames')==int(count)
+          assert d.get('pre_render_qa_status')=='PASS' and d.get('pre_render_qa_evidence')
+          path=Path('source')/audio
+          assert path.is_file(), 'new audio missing from immutable source'
+          p=json.loads(subprocess.check_output(['ffprobe','-v','error','-show_entries','format=duration:stream=codec_type','-of','json',str(path)]))
+          assert any(s['codec_type']=='audio' for s in p['streams'])
+          assert 0<float(p['format']['duration'])<=int(count)/30+0.01
+          print('Y004 release gate PASS',sha,count)
+          PY
+          (cd source/yunex/video004/render && python3 -m unittest -v test_pipeline.py)
+      - id: matrix
+        env: {FRAME_COUNT: ${{ inputs.frame_count }}}
+        run: |
+          echo "matrix=$(python3 source/yunex/video004/render/pipeline.py matrix --frames "$FRAME_COUNT" --chunk-size 20)" >> "$GITHUB_OUTPUT"
+  render:
+    if: ${{ inputs.replay_run_id == '' }}
+    needs: preflight
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    strategy:
+      fail-fast: false
+      max-parallel: 12
+      matrix: ${{ fromJSON(needs.preflight.outputs.matrix) }}
+    steps:
+      - uses: actions/checkout@v4
+        with: {ref: ${{ inputs.source_sha }}}
+      - uses: actions/setup-node@v4
+        with: {node-version: "22", cache: npm, cache-dependency-path: yunex/package-lock.json}
+      - name: Validate car source and prepare native renderer
+        env: {SOURCE_SHA: ${{ inputs.source_sha }}}
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$SOURCE_SHA"
+          test "$(sha256sum cars/porsche-911-gt3-rs-992/model.glb | cut -d' ' -f1)" = 1c73fcb138c31e2b1d5ed126a2412074bb17f8e960b355436f28139bf518e1eb
+          cp cars/porsche-911-gt3-rs-992/model.glb yunex/public/model.glb
+      - run: npm ci --no-audit --no-fund
+        working-directory: yunex
+      - name: Render native scene chunk
+        working-directory: yunex
+        env:
+          SOURCE_SHA: ${{ inputs.source_sha }}
+          COMPOSITION: ${{ inputs.composition_id }}
+          RANGE: ${{ matrix.frames }}
+          PART: ${{ matrix.part }}
+          NODE_OPTIONS: --require=./fix-network.cjs
+        run: |
+          set -euo pipefail
+          mkdir -p out/y004-chunks
+          npx remotion render src/index.tsx "$COMPOSITION" "out/y004-chunks/chunk-$PART.mp4" --frames="$RANGE" --gl=swangle --concurrency=2 --codec=h264 --pixel-format=yuv420p --crf=14 --scale=1 --timeout=180000 --muted
+          echo "$SOURCE_SHA" > "out/y004-chunks/source-sha-$PART.txt"
+          sha256sum "out/y004-chunks/chunk-$PART.mp4" > "out/y004-chunks/chunk-$PART.sha256"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: y004-native-chunk-${{ matrix.part }}
+          path: yunex/out/y004-chunks/
+          retention-days: 21
+  package:
+    if: ${{ always() && needs.preflight.result == 'success' && (needs.render.result == 'success' || (inputs.replay_run_id != '' && needs.render.result == 'skipped')) }}
+    needs: [preflight, render]
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+        with: {ref: ${{ inputs.source_sha }}, path: source}
+      - uses: actions/download-artifact@v4
+        with:
+          run-id: ${{ inputs.replay_run_id || github.run_id }}
+          github-token: ${{ github.token }}
+          pattern: y004-native-chunk-*
+          path: chunks
+          merge-multiple: true
+      - name: Validate all native chunks and export exactly one master
+        env:
+          SOURCE_SHA: ${{ inputs.source_sha }}
+          FRAME_COUNT: ${{ inputs.frame_count }}
+          AUDIO_PATH: ${{ inputs.audio_path }}
+          COMPOSITION: ${{ inputs.composition_id }}
+          REPLAY_RUN: ${{ inputs.replay_run_id }}
+        run: |
+          set -euo pipefail
+          python3 source/yunex/video004/render/pipeline.py assemble chunks delivery/YUNEX-004-FINAL.mp4 --frames "$FRAME_COUNT" --chunk-size 20 --source "$SOURCE_SHA" --audio "source/$AUDIO_PATH" --evidence delivery/evidence
+          python3 - <<'PY'
+          import json,os
+          from pathlib import Path
+          d=json.loads(Path('delivery/evidence/RELEASE_VALIDATION.json').read_text())
+          d.update({'phase':'Y004-REAR-STEERING-01','workflow_run_id':os.environ['GITHUB_RUN_ID'],
+                    'workflow_attempt':os.environ['GITHUB_RUN_ATTEMPT'],
+                    'render_chunks_from_run':os.environ['REPLAY_RUN'] or os.environ['GITHUB_RUN_ID'],
+                    'composition_id':os.environ['COMPOSITION'],
+                    'model_sha256':'1c73fcb138c31e2b1d5ed126a2412074bb17f8e960b355436f28139bf518e1eb'})
+          Path('delivery/RELEASE_METADATA.json').write_text(json.dumps(d,indent=2)+'\n')
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: YUNEX-004-FINAL-SINGLE-MASTER
+          path: delivery/
+          retention-days: 90
