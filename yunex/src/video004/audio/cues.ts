@@ -4,7 +4,7 @@ export const Y004_NARRATION_SCRIPT = [
   'At lower speeds, they turn slightly against the front wheels, helping the GT3 RS rotate into corners more quickly.',
   'But at higher speeds, they turn with the fronts instead.',
   'That makes the car more stable when changing direction at speed.',
-  'So while you're driving, all four wheels are helping this Porsche turn.',
+  "So while you're driving, all four wheels are helping this Porsche turn.",
 ] as const;
 export const Y004_RECORDING_STATUS = 'NEW_CEDAR_TAKE_SHA_VERIFIED_AUDIO_MIX_COMPLETE' as const;
 export type Y004SentenceCue = Readonly<{
