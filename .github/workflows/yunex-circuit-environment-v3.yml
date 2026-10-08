@@ -1,4 +1,4 @@
-name: YUNEX reusable circuit environment V3 natural foliage and finish
+name: YUNEX Circuit V3 refined forest and architectural finish
 on:
   push:
     branches: [sol/yunex-circuit-environment-v3]

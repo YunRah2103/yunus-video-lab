@@ -38,7 +38,7 @@ const buildForest=(g:THREE.Group,seed:number,foliage:THREE.Texture)=>{
  const r=rngFor(seed+1),trunks:Item[]=[],branches:Item[]=[],leaves:Item[]=[],shadowLeaves:Item[]=[];
  for(const t of forestLayout(seed)){
   const th=t.height*.50;trunks.push({p:[t.x,t.y+th/2,t.z],s:[.18,th,.18],c:'#57483a'});
-  for(const side of [-1,1])branches.push({p:[t.x+side*.45,t.y+th*.78,t.z],s:[.08,t.width*.5,.08],r:[.1,t.phase,side*.8],c:'#504331'});
+  for(const side of [-1,1])branches.push({p:[t.x+side*.38,t.y+th*.92,t.z],s:[.07,t.width*.28,.07],r:[.1,t.phase,side*.6],c:'#504331'});
   // 9 crossed leaf clusters per tree; variation in silhouette, height and autumn tint.
   for(let k=0;k<9;k++){
    const a=k*2.4+t.phase,rad=k<7?t.width*.23:0,py=t.y+t.height*(.54+(k%3)*.15);
@@ -114,7 +114,8 @@ const buildCharacter=(g:THREE.Group,seed:number)=>{
  const r=rngFor(seed+84),stone=mat('#afa894'),steel=mat('#334c40',.62,.25),rubber=mat('#28302a',.97),white=mat('#e2ddca');
  // Garage side glazing, vertical timber ribs and roof seams remove blank walls.
  for(let z=-17.5;z< -2;z+=1.4){box(g,[40.55,2.1,z],[.08,3.6,.045],mat('#938e77'));}
- for(let x=27;x<40;x+=2.1){box(g,[x,2.55,-18.57],[1.5,1.1,.06],mat('#4f7778',.26,.18));box(g,[x,2.55,-18.62],[.06,1.18,.08],steel);}
+ for(const z of [-18.57,-1.43])for(let x=27;x<40;x+=2.1){box(g,[x,2.55,z],[1.5,1.1,.06],mat('#4f7778',.26,.18));box(g,[x,2.55,z],[.06,1.18,.08],steel);}
+ for(const z of [-18.58,-1.42]){box(g,[33,.48,z],[15,.42,.045],mat('#6e7c66'));box(g,[33,3.72,z],[15,.16,.06],steel);for(let x=26;x<40;x+=.6)box(g,[x,1.15,z],[.025,.88,.025],mat('#a3a18b'));}
  for(let z=-18;z<=-2;z+=1.1)box(g,[33,4.26,z],[15.4,.035,.045],steel);
  // Pit apron markings, a sheltered terrace and furniture outside the catch fence.
  for(const z of [-16,-10,-4]){box(g,[20,.259,z],[5,.006,.09],white);box(g,[17.5,.259,z],[.09,.006,3.5],white);}
