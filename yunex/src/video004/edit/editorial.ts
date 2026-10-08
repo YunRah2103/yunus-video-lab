@@ -46,8 +46,8 @@ const COPY: Record<Y004SegmentId, Omit<Y004TextCue, 'segmentId' | 'startFrame' |
 
 /** Reject noncontiguous, stale, truncated or overlapping Manager timeline inputs. */
 export function validateY004Windows(windows: readonly Y004EditWindow[], durationFrames: number): void {
-  if (!Number.isSafeInteger(durationFrames) || durationFrames < 150) {
-    throw new Error('Y004 edit duration must be an integer frame count >= 150');
+  if (!Number.isSafeInteger(durationFrames) || durationFrames < 120) {
+    throw new Error('Y004 edit duration must be an integer frame count >= 120');
   }
   if (windows.length !== Y004_REQUIRED_SEGMENTS.length) throw new Error('Y004 edit requires six ordered segments');
   let expectedStart = 0;
