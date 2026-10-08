@@ -26,16 +26,16 @@ const leafTexture=(seed:number)=>canvasTexture(256,256,c=>{
  }
 });
 const groundTexture=(seed:number)=>canvasTexture(512,512,c=>{
- const r=rngFor(seed);c.fillStyle='#626441';c.fillRect(0,0,512,512);
- for(let i=0;i<28000;i++){const x=r()*512,y=r()*512;c.fillStyle=['#77734c','#3b502d','#747b43','#85905c','#655b3c'][i%5];c.globalAlpha=.18+r()*.45;c.fillRect(x,y,1+r()*4,1+r()*7);}c.globalAlpha=1;
+ const r=rngFor(seed);c.fillStyle='#899557';c.fillRect(0,0,512,512);
+ for(let i=0;i<28000;i++){const x=r()*512,y=r()*512;c.fillStyle=['#b7b286','#708645','#93a45b','#aab275','#a09565'][i%5];c.globalAlpha=.18+r()*.45;c.fillRect(x,y,1+r()*4,1+r()*7);}c.globalAlpha=1;
 });
 const wireTexture=()=>canvasTexture(128,128,c=>{c.clearRect(0,0,128,128);c.strokeStyle='rgba(130,142,145,.75)';c.lineWidth=1.3;for(let i=-128;i<256;i+=16){c.beginPath();c.moveTo(i,0);c.lineTo(i+128,128);c.moveTo(i,0);c.lineTo(i-128,128);c.stroke();}});
 const signTexture=(label:string,small:string)=>canvasTexture(1024,256,c=>{c.fillStyle='#182925';c.fillRect(0,0,1024,256);c.fillStyle='#b9d975';c.fillRect(0,225,1024,8);c.font='bold 110px Arial';c.textAlign='center';c.fillStyle='#f2f0e9';c.fillText(label,512,136);c.font='29px Arial';c.fillStyle='#b9d975';c.fillText(small,512,195);});
 const board=(g:THREE.Group,p:V,size:V,label:string,small:string,yaw=0)=>{const t=signTexture(label,small);const m=new THREE.MeshStandardMaterial({map:t,roughness:.6});const o=new THREE.Mesh(new THREE.BoxGeometry(...size),[mat('#1c2826'),mat('#1c2826'),mat('#1c2826'),mat('#1c2826'),m,m]);o.position.set(...p);o.rotation.y=yaw;o.castShadow=true;g.add(o);};
 const buildTerrain=(g:THREE.Group,seed:number)=>{
  const geo=new THREE.PlaneGeometry(430,430,96,96);geo.rotateX(-Math.PI/2);const a=geo.attributes.position,colors:number[]=[];const color=new THREE.Color();
- for(let i=0;i<a.count;i++){const x=a.getX(i),z=a.getZ(i);a.setY(i,terrainY(x,z));const n=.5+.23*Math.sin(x*.039+z*.026)+.12*Math.sin(z*.13-x*.16);color.set('#73794c').lerp(new THREE.Color('#324a2c'),n);colors.push(color.r,color.g,color.b);}
- geo.setAttribute('color',new THREE.Float32BufferAttribute(colors,3));geo.computeVertexNormals();const t=groundTexture(seed);t.wrapS=t.wrapT=THREE.RepeatWrapping;t.repeat.set(52,52);const m=new THREE.MeshStandardMaterial({map:t,vertexColors:true,color:'#e1dfcd',roughness:1});const o=new THREE.Mesh(geo,m);o.receiveShadow=true;g.add(o);
+ for(let i=0;i<a.count;i++){const x=a.getX(i),z=a.getZ(i);a.setY(i,terrainY(x,z));const n=.5+.23*Math.sin(x*.039+z*.026)+.12*Math.sin(z*.13-x*.16);color.set('#b5ba88').lerp(new THREE.Color('#75885b'),n);colors.push(color.r,color.g,color.b);}
+ geo.setAttribute('color',new THREE.Float32BufferAttribute(colors,3));geo.computeVertexNormals();const t=groundTexture(seed);t.wrapS=t.wrapT=THREE.RepeatWrapping;t.repeat.set(52,52);const m=new THREE.MeshStandardMaterial({map:t,vertexColors:true,color:'#ffffff',roughness:1});const o=new THREE.Mesh(geo,m);o.receiveShadow=true;g.add(o);
 };
 const buildForest=(g:THREE.Group,seed:number)=>{
  const r=rngFor(seed+1),trunks:Item[]=[],branches:Item[]=[],leaves:Item[]=[];
@@ -46,7 +46,7 @@ const buildForest=(g:THREE.Group,seed:number)=>{
   for(let k=0;k<9;k++){
    const a=k*2.4+t.phase,rad=k<7?t.width*.23:0,py=t.y+t.height*(.54+(k%3)*.15);
    const p:V=[t.x+Math.cos(a)*rad,py,t.z+Math.sin(a)*rad];const width=t.width*(.55+r()*.28),height=t.height*(.27+r()*.09);
-   for(let axis=0;axis<3;axis++)leaves.push({p,s:[width,height,1],r:axis===2?[Math.PI/2,0,a]:[0,a+axis*Math.PI/2,0],c:t.warm?'#b0a568':['#b1bd83','#8faaa1','#9bb77d'][k%3]});
+   for(let axis=0;axis<3;axis++)leaves.push({p,s:[width,height,1],r:axis===2?[Math.PI/2,0,a]:[0,a+axis*Math.PI/2,0],c:t.warm?'#ded9b8':['#e8ebca','#c3d7c4','#d8eac0'][k%3]});
   }
  }
  instances(g,new THREE.CylinderGeometry(.8,1,1,6),mat('#ffffff'),trunks,true);
@@ -54,7 +54,7 @@ const buildForest=(g:THREE.Group,seed:number)=>{
  const t=leafTexture(seed),m=new THREE.MeshStandardMaterial({map:t,alphaTest:.42,side:THREE.DoubleSide,roughness:1,color:'#ffffff'});
  instances(g,new THREE.PlaneGeometry(1,1),m,leaves,false);
  // Near verges get bushes and grass rather than only regularly spaced trunks.
- const shrubs:Item[]=[];for(let i=0;i<180;i++){const z=-132+r()*264,side=i%2?-1:1,x=sampleTrackAtLocalZ(z).center[0]+side*(9+r()*3);if(x< -9&&z>9&&z<28)continue;for(let k=0;k<2;k++)shrubs.push({p:[x,terrainY(x,z)+.38,z],s:[.8+r()*1.3,.7+r()*.65,1],r:[0,k*Math.PI/2+r(),0],c:'#9baf75'});}
+ const shrubs:Item[]=[];for(let i=0;i<300;i++){const z=-132+r()*264,side=i%2?-1:1,x=sampleTrackAtLocalZ(z).center[0]+side*(9+r()*3);if(x< -9&&z>9&&z<28)continue;for(let k=0;k<2;k++)shrubs.push({p:[x,terrainY(x,z)+.38,z],s:[.8+r()*1.3,.7+r()*.65,1],r:[0,k*Math.PI/2+r(),0],c:'#d4e3aa'});}
  instances(g,new THREE.PlaneGeometry(1,1),m,shrubs);
 };
 const buildFurniture=(g:THREE.Group)=>{
@@ -91,7 +91,11 @@ const buildFurniture=(g:THREE.Group)=>{
  for(let i=0;i<10;i++)box(g,[-10.8,.32,24+i*.6],[.7,.64,.56],mat(i%2?'#434e42':'#a4bb70'));
  for(const z of [-34,-18]){box(g,[17,.4,z],[1.4,.8,.8],mat('#40544a'));box(g,[17,.84,z],[1.5,.1,.95],roof);}
 };
-const buildWorld=(seed:number)=>{const g=new THREE.Group();g.name='YUNEX_CIRCUIT_ENVIRONMENT_V2';buildTerrain(g,seed);buildForest(g,seed);buildFurniture(g);return g;};
+const buildSkyDome=(g:THREE.Group)=>{
+ const material=new THREE.ShaderMaterial({side:THREE.BackSide,depthWrite:false,uniforms:{},vertexShader:`varying vec3 vDir;void main(){vDir=(modelMatrix*vec4(position,0.0)).xyz;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.0);}`,fragmentShader:`varying vec3 vDir;void main(){vec3 d=normalize(vDir);float h=pow(max(d.y,0.0),0.45);vec3 col=mix(vec3(0.82,0.85,0.81),vec3(0.31,0.56,0.77),h);float cloud=max(0.0,sin(d.x*29.0+d.z*14.0)+sin(d.z*46.0-d.x*21.0)-0.9)*smoothstep(0.06,0.4,d.y)*(1.0-smoothstep(0.55,0.9,d.y));col=mix(col,vec3(0.9,0.9,0.85),cloud*0.16);gl_FragColor=vec4(col,1.0);}`});
+ material.toneMapped=false;const dome=new THREE.Mesh(new THREE.SphereGeometry(350,32,16),material);dome.renderOrder=-100;g.add(dome);
+};
+const buildWorld=(seed:number)=>{const g=new THREE.Group();g.name='YUNEX_CIRCUIT_ENVIRONMENT_V2';buildSkyDome(g);buildTerrain(g,seed);buildForest(g,seed);buildFurniture(g);return g;};
 const skyTexture=()=>{
  const w=512,h=256,data=new Uint8Array(w*h*4);
  for(let y=0;y<h;y++)for(let x=0;x<w;x++){

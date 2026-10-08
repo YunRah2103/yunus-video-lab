@@ -20,7 +20,7 @@ const Scene:React.FC<{frame:number}>=({frame})=>{
  useEffect(()=>{let live=true;new GLTFLoader().load(staticFile('model.glb'),g=>{if(!live)return;g.scene.traverse(o=>{const m=o as THREE.Mesh;if(m.isMesh){m.castShadow=true;m.frustumCulled=false;}});setModel(g.scene);},undefined,cancelRender);return()=>{live=false;};},[]);
  useLayoutEffect(()=>{
   const {shot,progress:p,sample}=state;const pos=sample.motion.root.position,yaw=sample.motion.root.rotation[1];
-  const specs=[{offset:[5.4-p*.25,1.75,-9.8] as [number,number,number],look:[0,.62,0],lens:27},{offset:[6.5,5.6,9.5] as [number,number,number],look:[0,.6,0],lens:29},{offset:[10.5,1.5,3.8-p*.5] as [number,number,number],look:[0,.6,.15],lens:27},{offset:[4.7,1.5,-10.1-p*.6] as [number,number,number],look:[0,.64,.2],lens:28}];
+  const specs=[{offset:[5.4-p*.25,1.75,-9.8] as [number,number,number],look:[0,.62,0],lens:27},{offset:[-6.5,5.6,9.5] as [number,number,number],look:[0,.6,0],lens:26},{offset:[-6.0,1.75,7.0-p*.5] as [number,number,number],look:[0,.6,.15],lens:24},{offset:[4.7,1.5,-10.1-p*.6] as [number,number,number],look:[0,.64,.2],lens:28}];
   const spec=specs[shot],off=y004RotateLocalVector(spec.offset,yaw),aim=y004RotateLocalVector(spec.look as [number,number,number],yaw);const c=camera as THREE.PerspectiveCamera;
   c.position.set(pos[0]+off[0],pos[1]+off[1],pos[2]+off[2]);c.lookAt(pos[0]+aim[0],pos[1]+aim[1],pos[2]+aim[2]);c.fov=y004VerticalFovDegrees(spec.lens);c.near=.06;c.far=460;c.updateProjectionMatrix();
   if(rig&&model){rig.apply(sample);model.updateMatrixWorld(true);advance(frame*1000/30);}
