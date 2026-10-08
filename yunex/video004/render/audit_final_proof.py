@@ -85,6 +85,25 @@ def frames_pts(path: Path, count: int) -> None:
                f"{path}: missing/repeated/timing-displaced PTS at clip frame {i}: {p}")
 
 
+def verify_temporal_motion(path: Path, count: int) -> dict:
+    """Independent decoded-frame comparison at 96x54 grey. Exact adjacent repeats fail."""
+    cmd = ["ffmpeg", "-hide_banner", "-nostdin", "-v", "error", "-xerror",
+           "-i", str(path), "-an", "-vf",
+           "scale=96:54:flags=fast_bilinear,format=gray", "-f", "framemd5", "-"]
+    result = subprocess.check_output(cmd, text=True)
+    rows = [row.split(",") for row in result.splitlines() if row.strip() and not row.startswith("#")]
+    digests = [row[-1].strip() for row in rows]
+    demand(len(digests) == count, f"{path.name}: framemd5 count {len(digests)} != {count}")
+    repeats = [i for i in range(1, len(digests)) if digests[i] == digests[i - 1]]
+    demand(not repeats, f"{path.name}: frozen/repeated adjacent frame indices {repeats}")
+    demand(len(set(digests)) >= min(count, 2),
+           f"{path.name}: entire native clip visually frozen")
+    return {"decodedFrameHashes": len(digests),
+            "adjacentRepeatedFramePairs": 0,
+            "motionHashMethod": "full-decode-grey-96x54-framemd5",
+            "status": "PASS"}
+
+
 def validate_one(label: str, first: int, last: int, run: int, folder: Path) -> dict:
     sources = list(folder.rglob("source-sha.txt"))
     demand(len(sources) == 1, f"{label}: expected exactly one source-sha.txt, got {len(sources)}")
@@ -123,13 +142,14 @@ def validate_one(label: str, first: int, last: int, run: int, folder: Path) -> d
     subprocess.run(["ffmpeg","-hide_banner","-nostdin","-v","error","-xerror",
                     "-i",str(media),"-an","-f","null","-"],check=True)
     frames_pts(media, count)
+    motion = verify_temporal_motion(media, count)
     return {
         "label":label,"framesInclusive":f"{first}-{last}","decodedFrames":count,
         "first":first,"last":last,"sourceSha":source,"provenanceRun":run,
         "mediaSha256":digest,"bytes":media.stat().st_size,"fps":"30/1",
         "resolution":"1080x1920","codec":"h264","pix_fmt":"yuv420p",
         "color_range":"tv","fullDecoder":"PASS","pts":"PASS",
-        "file":str(media)
+        "file":str(media), "temporalMotion":motion
     }
 
 
