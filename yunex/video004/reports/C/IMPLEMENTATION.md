@@ -36,3 +36,6 @@ The exported `camera/contractChecks.ts` and `camera/testEntry.ts` implement dete
 An isolated JS-equivalent geometry smoke pass on the current authored camera/guides source caught and fixed two unsafe guide crops. The full repository esbuild/TypeScript test command and required native Remotion proof remain **unexecuted** in this chat; they are NOT claimed PASS. The starter environment cannot clone the remote repo or install its packages. Manager must run the above gate on an integrated full checkout.
 
 Latest inspected independent dependencies (not yet Manager-accepted at inspection): A `8ba8678a9a98d5abd5b1b61bd800c5e90b95dc83`; B `0c6398a497bd034ca12baa39d519e5a92b504a26`.
+
+## Prepared native runner (requires Manager integration)
+Agent C additionally supplies `camera/NativeProof.tsx` and `camera/proofEntry.tsx`: a real 330-frame Remotion ThreeCanvas using the approved Porsche GLB, P03 track environment, A frame sampler and B steering rig plus C projection/alignment. This is **prepared code**, not a completed render. Launch and validation instructions: `reports/C/NATIVE_PROOF_RUNBOOK.md`. Until a source-pinned decoded native clip exists, C's required moving-proof status remains BLOCKED.
