@@ -17,7 +17,11 @@ jobs:
       - uses: actions/checkout@v4
         with: {ref: sol/y004-rear-steering-manager, path: control}
       - uses: actions/checkout@v4
-        with: {ref: ${{ inputs.source_sha }}, path: source}
+        with: {ref: '${{ inputs.source_sha }}', path: source}
+      - name: Install system FFmpeg tools
+        run: |
+          sudo apt-get -o Acquire::Retries=2 update -qq
+          sudo apt-get -o Acquire::Retries=2 install -y -qq ffmpeg
       - name: Exact source and QA release gate
         env:
           SOURCE_SHA: ${{ inputs.source_sha }}
@@ -51,7 +55,7 @@ jobs:
           PY
           (cd source/yunex/video004/render && python3 -m unittest -v test_pipeline.py)
       - id: matrix
-        env: {FRAME_COUNT: ${{ inputs.frame_count }}}
+        env: {FRAME_COUNT: '${{ inputs.frame_count }}'}
         run: |
           echo "matrix=$(python3 source/yunex/video004/render/pipeline.py matrix --frames "$FRAME_COUNT" --chunk-size 20)" >> "$GITHUB_OUTPUT"
   render:
@@ -65,11 +69,11 @@ jobs:
       matrix: ${{ fromJSON(needs.preflight.outputs.matrix) }}
     steps:
       - uses: actions/checkout@v4
-        with: {ref: ${{ inputs.source_sha }}}
+        with: {ref: '${{ inputs.source_sha }}'}
       - uses: actions/setup-node@v4
         with: {node-version: "22", cache: npm, cache-dependency-path: yunex/package-lock.json}
       - name: Validate car source and prepare native renderer
-        env: {SOURCE_SHA: ${{ inputs.source_sha }}}
+        env: {SOURCE_SHA: '${{ inputs.source_sha }}'}
         run: |
           set -euo pipefail
           test "$(git rev-parse HEAD)" = "$SOURCE_SHA"
@@ -103,7 +107,7 @@ jobs:
     timeout-minutes: 40
     steps:
       - uses: actions/checkout@v4
-        with: {ref: ${{ inputs.source_sha }}, path: source}
+        with: {ref: '${{ inputs.source_sha }}', path: source}
       - uses: actions/download-artifact@v4
         with:
           run-id: ${{ inputs.replay_run_id || github.run_id }}
@@ -111,6 +115,10 @@ jobs:
           pattern: y004-native-chunk-*
           path: chunks
           merge-multiple: true
+      - name: Install system FFmpeg tools
+        run: |
+          sudo apt-get -o Acquire::Retries=2 update -qq
+          sudo apt-get -o Acquire::Retries=2 install -y -qq ffmpeg
       - name: Validate all native chunks and export exactly one master
         env:
           SOURCE_SHA: ${{ inputs.source_sha }}
