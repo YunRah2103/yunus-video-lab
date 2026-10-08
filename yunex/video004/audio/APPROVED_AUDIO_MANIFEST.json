@@ -1,0 +1,169 @@
+{
+  "episode": "YUNEX-004",
+  "status": "APPROVED_RECORDING_SHA_VERIFIED_24S_ISOLATED_AND_REFERENCE_MIX_COMPLETE",
+  "source_name": "YUNEX_004_Cedar_source.mp3",
+  "source_sha256": "db75bbbe6aa468062b300004390f23f254679086e2b69d0de6aa1d553c8d404b",
+  "source_bytes": 363264,
+  "source_audio": {
+    "programs": [],
+    "stream_groups": [],
+    "streams": [
+      {
+        "codec_name": "mp3",
+        "sample_rate": "24000",
+        "channels": 1
+      }
+    ],
+    "format": {
+      "duration": "22.704000",
+      "size": "363264"
+    }
+  },
+  "voice": "Cedar",
+  "source_rights": "user-provided OpenAI FM Cedar generated narration, user approved for Y004",
+  "transcript_verification": "exact NEW user-provided spoken transcript from Manager source lock; NOT independently ASR-transcribed or human-listened in Agent D session",
+  "sentence_boundary_method": "independent FFmpeg silencedetect -34dB duration 0.12 s; 4 long gaps, onset/end tolerance 0.006 s; last end 22.576583 from source waveform",
+  "five_sentences": [
+    {
+      "id": "s1",
+      "text": "The rear wheels on this Porsche steer too.",
+      "startSeconds": 0,
+      "endSeconds": 2.755,
+      "acousticStartSeconds": 0,
+      "acousticEndSeconds": 2.754792
+    },
+    {
+      "id": "s2",
+      "text": "At lower speeds, they turn slightly against the front wheels, helping the GT3 RS rotate into corners more quickly.",
+      "startSeconds": 3.65,
+      "endSeconds": 10.613,
+      "acousticStartSeconds": 3.650458,
+      "acousticEndSeconds": 10.612875
+    },
+    {
+      "id": "s3",
+      "text": "But at higher speeds, they turn with the fronts instead.",
+      "startSeconds": 11.608,
+      "endSeconds": 14.232,
+      "acousticStartSeconds": 11.607583,
+      "acousticEndSeconds": 14.231542
+    },
+    {
+      "id": "s4",
+      "text": "That makes the car more stable when changing direction at speed.",
+      "startSeconds": 14.979,
+      "endSeconds": 17.866,
+      "acousticStartSeconds": 14.978625,
+      "acousticEndSeconds": 17.866
+    },
+    {
+      "id": "s5",
+      "text": "So while you're driving, all four wheels are helping this Porsche turn.",
+      "startSeconds": 18.858,
+      "endSeconds": 22.577,
+      "acousticStartSeconds": 18.857958,
+      "acousticEndSeconds": 22.576583
+    }
+  ],
+  "silence_gaps": [
+    [
+      2.754792,
+      3.650458
+    ],
+    [
+      10.612875,
+      11.607583
+    ],
+    [
+      14.231542,
+      14.978625
+    ],
+    [
+      17.866,
+      18.857958
+    ]
+  ],
+  "source_duration_seconds": 22.704,
+  "locked_fps": 30,
+  "locked_frames": 720,
+  "locked_duration_seconds": 24,
+  "unused_tail_seconds": 1.2959999999999994,
+  "procedural_bed_name": "y004-bed-24s-PROVISIONAL.m4a",
+  "procedural_bed_sha256": "960b4dddecd55051a1df66e0c4e6ffde94feda6f8190cff786160b4281f36ee6",
+  "mix_design": "voice 0.96x + existing Y004 procedural bed at 2.0x gain, ducked 63% via smooth acoustic sentence windows; no stretch, no speech cuts; 48k stereo",
+  "source_to_stem_max_error": 1.1897627041901337e-7,
+  "artifacts": {
+    "YUNEX_004_Cedar_isolated_24s_48k_stereo.wav": {
+      "sha256": "07ec8e2d14d28e585668b3084c48657329ba4f1e8b9e52c838c46613c0f3334e",
+      "bytes": 6912044,
+      "ffprobe": {
+        "programs": [],
+        "stream_groups": [],
+        "streams": [
+          {
+            "codec_name": "pcm_s24le",
+            "sample_rate": "48000",
+            "channels": 2
+          }
+        ],
+        "format": {
+          "duration": "24.000000",
+          "size": "6912044"
+        }
+      },
+      "full_decode": "PASS",
+      "decoded_peak_dbfs": -7.864
+    },
+    "YUNEX_004_Cedar_final_mix_24s_48k_stereo.wav": {
+      "sha256": "526e558cdeaf7dbf5bf01dddf68b374ad06b88d19c7122828e426d7e6494621e",
+      "bytes": 6912044,
+      "ffprobe": {
+        "programs": [],
+        "stream_groups": [],
+        "streams": [
+          {
+            "codec_name": "pcm_s24le",
+            "sample_rate": "48000",
+            "channels": 2
+          }
+        ],
+        "format": {
+          "duration": "24.000000",
+          "size": "6912044"
+        }
+      },
+      "full_decode": "PASS",
+      "decoded_peak_dbfs": -8.029
+    },
+    "YUNEX_004_Cedar_final_mix_24s_48k_stereo.m4a": {
+      "sha256": "a2f5dc284ce923a4d6803b66c2d45a1d3502a2be0024c8e3b1d2658c5bdb1e51",
+      "bytes": 753974,
+      "ffprobe": {
+        "programs": [],
+        "stream_groups": [],
+        "streams": [
+          {
+            "codec_name": "aac",
+            "sample_rate": "48000",
+            "channels": 2
+          }
+        ],
+        "format": {
+          "duration": "24.000000",
+          "size": "753974"
+        }
+      },
+      "full_decode": "PASS",
+      "decoded_peak_dbfs": -8.035
+    }
+  },
+  "checks": "SOURCE_SHA PASS; BED_SHA PASS; NEW SCRIPT USER-APPROVED; ACOUSTIC CUES PASS; VOICE UNMODIFIED PASS; 720f/24s PASS; 48K STEREO PASS; FULL DECODERS PASS; NO CLIPPING PASS",
+  "library_artifacts": {
+    "original_mp3": "/YUNEX_004_Cedar_source.mp3",
+    "isolated_wav": "/Video Projects/YUNEX 004/Agent D/YUNEX_004_Cedar_isolated_24s_48k_stereo.wav",
+    "final_mix_wav": "/Video Projects/YUNEX 004/Agent D/YUNEX_004_Cedar_final_mix_24s_48k_stereo.wav",
+    "final_mix_aac": "/Video Projects/YUNEX 004/Agent D/YUNEX_004_Cedar_final_mix_24s_48k_stereo.m4a",
+    "manifest": "/Video Projects/YUNEX 004/Agent D/YUNEX_004_Cedar_AUDIO_MANIFEST.json"
+  },
+  "render_script": "yunex/video004/audio/complete-approved-voice.py"
+}

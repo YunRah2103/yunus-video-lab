@@ -1,7 +1,6 @@
 /**
- * YUNEX 004 — manager central integration, VISUAL-ONLY PROVISIONAL.
- * NOT a release composition. Actual topic-specific VO, frame lock, native
- * proofs and independent F review are required before final release.
+ * YUNEX 004 — Agent H locked 720-frame visual-only integration.
+ * Agent G muxes approved Cedar AAC externally. Independent F visual QA required.
  */
 import React,{useEffect,useLayoutEffect,useMemo,useRef,useState} from 'react';
 import {ThreeCanvas} from '@remotion/three';

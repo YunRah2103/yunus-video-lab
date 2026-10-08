@@ -1,6 +1,6 @@
 import type {Y004SegmentId} from '../contracts';
 
-/** This is a provisional shot-local editorial plan, NOT an audio transcription. */
+/** This is Agent D's speech-aligned 720-frame editorial default. Manager owns integrated shot timing. */
 export type Y004EditWindow = Readonly<{
   segmentId: Y004SegmentId;
   startFrame: number;
@@ -25,14 +25,14 @@ export const Y004_EDIT_PALETTE = {
 } as const;
 export const Y004_SAFE_MARGIN_PX = {x: 72, top: 144, bottom: 158} as const;
 
-/** Only an editable PRE-VO guide; the Manager sets final bounds after measuring narration. */
+/** Updated against the real Cedar source at 22.704s; Manager must copy accepted windows into its own integrated motion timeline. */
 export const Y004_PROVISIONAL_EDIT_WINDOWS: readonly Y004EditWindow[] = [
   {segmentId: 'low-hook', startFrame: 0, endFrame: 84},
   {segmentId: 'rear-macro', startFrame: 84, endFrame: 150},
-  {segmentId: 'low-explain', startFrame: 150, endFrame: 285},
-  {segmentId: 'high-explain', startFrame: 285, endFrame: 405},
-  {segmentId: 'high-drive', startFrame: 405, endFrame: 555},
-  {segmentId: 'trackside-exit', startFrame: 555, endFrame: 720},
+  {segmentId: 'low-explain', startFrame: 150, endFrame: 333},
+  {segmentId: 'high-explain', startFrame: 333, endFrame: 432},
+  {segmentId: 'high-drive', startFrame: 432, endFrame: 552},
+  {segmentId: 'trackside-exit', startFrame: 552, endFrame: 720},
 ] as const;
 
 const COPY: Record<Y004SegmentId, Omit<Y004TextCue, 'segmentId' | 'startFrame' | 'endFrame'> | null> = {

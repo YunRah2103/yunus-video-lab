@@ -60,9 +60,9 @@ const STAGING: ReadonlyArray<Readonly<{
 }>> = [
   {id: 'low-hook',       regime: 'low',  staging: 'low',  cutoff01: 84 / 720,  trackStartZ: 12,  trackEndZ: 26},
   {id: 'rear-macro',     regime: 'low',  staging: 'low',  cutoff01: 150 / 720, trackStartZ: 17,  trackEndZ: 29},
-  {id: 'low-explain',    regime: 'low',  staging: 'low',  cutoff01: 285 / 720, trackStartZ: 8,   trackEndZ: 32},
-  {id: 'high-explain',   regime: 'high', staging: 'high', cutoff01: 405 / 720, trackStartZ: 8,   trackEndZ: 56},
-  {id: 'high-drive',     regime: 'high', staging: 'high', cutoff01: 555 / 720, trackStartZ: -18, trackEndZ: 62},
+  {id: 'low-explain',    regime: 'low',  staging: 'low',  cutoff01: 333 / 720, trackStartZ: 8,   trackEndZ: 32},
+  {id: 'high-explain',   regime: 'high', staging: 'high', cutoff01: 432 / 720, trackStartZ: 8,   trackEndZ: 56},
+  {id: 'high-drive',     regime: 'high', staging: 'high', cutoff01: 567 / 720, trackStartZ: -18, trackEndZ: 62},
   {id: 'trackside-exit', regime: 'hero', staging: 'high', cutoff01: 1,         trackStartZ: -48, trackEndZ: 38},
 ];
 export const buildY004SegmentPlan = (

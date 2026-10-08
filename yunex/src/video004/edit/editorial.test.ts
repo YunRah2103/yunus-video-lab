@@ -8,9 +8,9 @@ ok(cues[0].line1==='THE REAR WHEELS'&&cues[0].line2==='TURN TOO.','hook exact te
 ok(cues[2].line1==='LOWER SPEED'&&cues[2].line2==='AGILITY','low text');
 ok(cues[3].line1==='HIGHER SPEED'&&cues[3].line2==='STABILITY','high text');
 ok(cues[4].treatment==='signature'&&cues[4].startFrame>600,'exit signature after drive-off begins');
-ok(y004ActiveTextCue(415,cues)===undefined,'no oversized title over high driving');
-ok(y004ActiveTextCue(285,cues)?.segmentId==='high-explain','high cut boundary');
-ok(y004ActiveTextCue(284,cues)?.segmentId==='low-explain','low side of match cut');
+ok(y004ActiveTextCue(450,cues)===undefined,'no oversized title over high driving');
+ok(y004ActiveTextCue(333,cues)?.segmentId==='high-explain','high cut boundary');
+ok(y004ActiveTextCue(332,cues)?.segmentId==='low-explain','low side of match cut');
 ok(y004CueOpacity(0,cues[0])===0 && y004CueOpacity(10,cues[0])>0,'smooth opening');
 ok(y004CueOpacity(720,cues[4])===0 && y004CueOpacity(800,cues[0])===0,'out-of-range invisible');
 ok(Y004_SAFE_MARGIN_PX.x>=72&&Y004_SAFE_MARGIN_PX.top>=132,'mobile safe area');
@@ -22,6 +22,6 @@ fails(()=>validateY004Windows(Y004_PROVISIONAL_EDIT_WINDOWS.slice().reverse(),72
 fails(()=>validateY004Windows(Y004_PROVISIONAL_EDIT_WINDOWS,719.5),'reject fractional frame count');
 const retimed:Y004EditWindow[]=Y004_PROVISIONAL_EDIT_WINDOWS.map((w,i)=>({segmentId:w.segmentId,startFrame:i===0?0:w.startFrame+((i>=3)?6:0),endFrame:w.endFrame+((i>=2)?6:0)}));
 validateY004Windows(retimed,726);
-ok(buildY004EditCues(retimed,726)[3].startFrame===291,'accept retimed film after manager locks it');
+ok(buildY004EditCues(retimed,726)[3].startFrame===339,'accept retimed film after manager locks it');
 for(const frame of [420,0,285,4,715,88,150,420])ok(JSON.stringify(buildY004EditCues(retimed,726))===JSON.stringify(buildY004EditCues(retimed,726)),'deterministic out-of-order');
 console.log('YUNEX 004 D editorial tests: PASS (20 assertions including timeline guardrails)');

@@ -1,4 +1,4 @@
-import {Y004_NARRATION_SCRIPT,validateY004Narration,y004NarrationActivity01,type Y004MeasuredNarration} from './cues';
+import {Y004_NARRATION_SCRIPT,Y004_MEASURED_NARRATION,validateY004Narration,y004NarrationActivity01,type Y004MeasuredNarration} from './cues';
 import {y004AudioEnvelope} from './envelopes';
 const ok=(v:boolean,message:string)=>{if(!v)throw new Error(message);};
 const fails=(fn:()=>unknown,label:string)=>{let threw=false;try{fn();}catch{threw=true;}ok(threw,label);};
@@ -8,6 +8,14 @@ const measured:Y004MeasuredNarration={
 };
 // The synthetic metadata above is a unit-test fixture, not a recording or timing publication.
 validateY004Narration(measured);
+validateY004Narration(Y004_MEASURED_NARRATION);
+ok(Y004_MEASURED_NARRATION.durationSeconds===22.704,'actual source duration');
+ok(Y004_MEASURED_NARRATION.sourceSha256==='db75bbbe6aa468062b300004390f23f254679086e2b69d0de6aa1d553c8d404b','approved hash');
+ok(Y004_MEASURED_NARRATION.sentences[2].startSeconds===11.608,'higher-speed narration onset');
+ok(Y004_MEASURED_NARRATION.sentences[4].endSeconds===22.577,'last speech safely ends before 24s');
+ok(Y004_NARRATION_SCRIPT[1].includes('rotate into corners'),'corrected sentence two');
+ok(Y004_NARRATION_SCRIPT[4].includes('all four wheels'),'corrected sentence five');
+
 ok(y004NarrationActivity01(1,measured)>.99,'activity in speech');
 ok(y004NarrationActivity01(0,measured)===0,'silence before first word');
 ok(y004NarrationActivity01(4.35,measured)===0,'silence between sentences');

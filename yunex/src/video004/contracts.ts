@@ -2,9 +2,9 @@
 import type {MotionState, WheelId, Vec3} from '../video003/motion/contract';
 
 export const Y004_FPS = 30 as const;
-export const Y004_PROVISIONAL_DURATION_FRAMES = 720 as const;
-/** Must stay provisional until newly recorded narration is timed. */
-export const Y004_TIMING_STATUS = 'PROVISIONAL_UNMEASURED_VO' as const;
+export const Y004_DURATION_FRAMES = 720 as const;
+export const Y004_PROVISIONAL_DURATION_FRAMES = Y004_DURATION_FRAMES; // backward-compatible A-F API
+export const Y004_TIMING_STATUS = 'APPROVED_CEDAR_720F_30FPS' as const;
 export type Y004Regime = 'low'|'high'|'hero';
 export type Y004SegmentId = 'low-hook'|'rear-macro'|'low-explain'|'high-explain'|'high-drive'|'trackside-exit';
 
