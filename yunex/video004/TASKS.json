@@ -1,6 +1,6 @@
 {
   "phase": "Y004-REAR-STEERING-01",
-  "phase_status": "SIX_SPECIALIST_BRANCHES_CODE_PUSHED_MANAGER_INTEGRATION_PENDING",
+  "phase_status": "SPECIALIST_SOURCE_STAGED_AND_MANAGER_VISUAL_COMPOSED_QA_PENDING",
   "manager_branch": "sol/y004-rear-steering-manager",
   "master_handoff_sha": "2522f1379712f7ccbeca68d350dfa592a1f6ff97",
   "source_base_sha": "451728dcbc8e36cc9f54fb94e00bdefbdf068f51",
@@ -13,7 +13,7 @@
   "locked_frames": null,
   "render_source_sha": null,
   "render_final_artifact_id": null,
-  "manager_integration_sha": null,
+  "manager_integration_sha": "ca43545411e651495f70ca92d177786c0e264eec",
   "specialists": [
     {
       "id": "A",
@@ -122,5 +122,15 @@
   ],
   "rule": "Only Manager updates this registry. Branch creation does not mean specialist execution started.",
   "progress_as_of": "2026-10-08",
-  "progress_notes": "A/B/C native moving Porsche footage not executed or not accepted; D new VO unavailable; E synthetic 4-frame native CI smoke successful run 37750922383 artifact 11538520721; F harness 45 tests fixture pass and pre-render QA blocked. No Y004 playable film."
+  "progress_notes": "52 A-F source/report files copied from exact pushed remote refs to Manager branch, retaining originals. Manager central YUNEX-004-VISUAL-PROVISIONAL registered; 720 frames is NOT locked. Integrated composition code pushed but native frame proof and motion/rig visual QA NOT run or accepted. New Y004 VO missing; E final render strictly blocked.",
+  "integration": {
+    "source_overlay_sha": "6f9297612648ce6f14a0fa8efbfb3532ab041e30",
+    "provisional_visual_sha": "ca43545411e651495f70ca92d177786c0e264eec",
+    "registered_composition": "YUNEX-004-VISUAL-PROVISIONAL",
+    "test_workflow": "YUNEX 004 Manager integration preflight",
+    "test_run_id": 37753848162,
+    "preflight_status": "IN_PROGRESS",
+    "visual_moving_proof": "NOT_RUN",
+    "source_accepted": false
+  }
 }
