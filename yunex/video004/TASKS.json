@@ -1,12 +1,12 @@
 {
   "phase": "Y004-REAR-STEERING-01",
-  "phase_status": "DISPATCH_READY_IMPLEMENTATION_NOT_STARTED",
+  "phase_status": "SIX_REMOTE_BRANCHES_CREATED_NOT_STARTED",
   "manager_branch": "sol/y004-rear-steering-manager",
   "master_handoff_sha": "2522f1379712f7ccbeca68d350dfa592a1f6ff97",
   "source_base_sha": "451728dcbc8e36cc9f54fb94e00bdefbdf068f51",
   "model_sha256": "1c73fcb138c31e2b1d5ed126a2412074bb17f8e960b355436f28139bf518e1eb",
-  "dispatch_sha": null,
-  "dispatch_branch_base_sha": null,
+  "dispatch_sha": "bf2f0996f4176791d5ac78d818090e8b429397ad",
+  "dispatch_branch_base_sha": "bf2f0996f4176791d5ac78d818090e8b429397ad",
   "voiceover_status": "SCRIPT_ONLY_NO_MEASURED_RECORDING",
   "fps": 30,
   "target_frames_provisional": 720,
@@ -24,8 +24,8 @@
         "yunex/src/video004/motion/**",
         "yunex/video004/reports/A/**"
       ],
-      "status": "NOT_STARTED",
-      "input_sha": null,
+      "status": "DISPATCHED_AWAIT_USER_CHAT_START",
+      "input_sha": "bf2f0996f4176791d5ac78d818090e8b429397ad",
       "output_sha": null,
       "proof": null,
       "accepted": false
@@ -39,8 +39,8 @@
         "yunex/src/video004/rig/**",
         "yunex/video004/reports/B/**"
       ],
-      "status": "NOT_STARTED",
-      "input_sha": null,
+      "status": "DISPATCHED_AWAIT_USER_CHAT_START",
+      "input_sha": "bf2f0996f4176791d5ac78d818090e8b429397ad",
       "output_sha": null,
       "proof": null,
       "accepted": false
@@ -55,8 +55,8 @@
         "yunex/src/video004/guides/**",
         "yunex/video004/reports/C/**"
       ],
-      "status": "NOT_STARTED",
-      "input_sha": null,
+      "status": "DISPATCHED_AWAIT_USER_CHAT_START",
+      "input_sha": "bf2f0996f4176791d5ac78d818090e8b429397ad",
       "output_sha": null,
       "proof": null,
       "accepted": false
@@ -73,8 +73,8 @@
         "yunex/video004/reports/D/**",
         "yunex/public/y004-*"
       ],
-      "status": "NOT_STARTED",
-      "input_sha": null,
+      "status": "DISPATCHED_AWAIT_USER_CHAT_START",
+      "input_sha": "bf2f0996f4176791d5ac78d818090e8b429397ad",
       "output_sha": null,
       "proof": null,
       "accepted": false
@@ -89,8 +89,8 @@
         ".github/workflows/yunex-004-*.yml",
         "yunex/video004/reports/E/**"
       ],
-      "status": "NOT_STARTED",
-      "input_sha": null,
+      "status": "DISPATCHED_AWAIT_USER_CHAT_START",
+      "input_sha": "bf2f0996f4176791d5ac78d818090e8b429397ad",
       "output_sha": null,
       "proof": null,
       "accepted": false
@@ -104,8 +104,8 @@
         "yunex/src/video004/qa/**",
         "yunex/video004/reports/F/**"
       ],
-      "status": "NOT_STARTED",
-      "input_sha": null,
+      "status": "DISPATCHED_AWAIT_USER_CHAT_START",
+      "input_sha": "bf2f0996f4176791d5ac78d818090e8b429397ad",
       "output_sha": null,
       "proof": null,
       "accepted": false
