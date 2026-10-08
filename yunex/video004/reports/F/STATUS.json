@@ -63,42 +63,115 @@
     "yunex/video004/reports/F/STATUS.json"
   ],
   "requiresIndependentReReviewAfterProofs": true,
-  "decision": "BLOCKED_EXACT_H_NATIVE_MOVING_EVIDENCE",
+  "decision": "FAIL_REAL_NATIVE_VISUAL_AND_COVERAGE_REMEDIATION_REQUIRED",
   "latestAssessment": {
-    "target": "H integrated native moving visual QA",
+    "phase": "Y004-REAR-STEERING-01",
+    "assessment": "H_RESCUE_INDEPENDENT_NATIVE_VISUAL",
     "date": "2026-10-08",
-    "integratedSourceSha": "f5cbdf2f6c96aa5ac2e5c184a048f49700037f55",
-    "HBranch": "sol/y004-h-integration",
-    "workflowRunId": 37761847924,
-    "sourceTestsJobId": 113259913020,
-    "exactSourceAuditArtifactId": 11542213067,
-    "actualIntegratedSourceAutomatedAudit": {
-      "pass": true,
-      "framesReviewed": 720,
-      "lowActive": 328,
-      "highActive": 101,
-      "maxRearSteerDeg": 1,
-      "maxTyreGroundErrorM": 1.033005948836152e-8,
-      "deterministic": true,
-      "regressionTestsPassed": 45,
-      "regressionTestsFailed": 0
-    },
-    "nativeProofRunStatusAtAssessment": "IN_PROGRESS",
-    "nativeClipArtifactIdsAtAssessment": [],
-    "expectedClips": [
-      "hook-macro",
-      "rear-macro",
-      "low-steering",
-      "matched-low-high",
-      "high-steering",
-      "roadside-driving",
-      "active-exit"
+    "sourceSha": "f5cbdf2f6c96aa5ac2e5c184a048f49700037f55",
+    "rescueWorkflowRunId": 37764504658,
+    "rescueWorkflowHead": "908a61bd52344f607f7d6a031b7e2b0c9e7e9ab3",
+    "rescueWorkflowConclusion": "success",
+    "nativeMp4CountReviewed": 9,
+    "nativeMp4Artifacts": [
+      {
+        "id": 11544229629,
+        "clip": "opening",
+        "framesInclusive": [
+          0,
+          59
+        ],
+        "sha256": "705571fffd254f82d65756b9251035223cb48ef93398cc51424e594adcf1a536"
+      },
+      {
+        "id": 11543722551,
+        "clip": "hook-macro",
+        "framesInclusive": [
+          60,
+          119
+        ],
+        "sha256": "7628c52e713048672f246ea230ec46fbb01ceea67dac2604701d412dea7e0236"
+      },
+      {
+        "id": 11544638033,
+        "clip": "rear-macro",
+        "framesInclusive": [
+          90,
+          149
+        ],
+        "sha256": "a796eeb1631d7efb8f9e3b27d8fbe20adb7cd9d333eee8fb672833840ff36a42"
+      },
+      {
+        "id": 11544360519,
+        "clip": "low-steering",
+        "framesInclusive": [
+          247,
+          306
+        ],
+        "sha256": "1e1442f6eb8a1076b23d400040d69457879ba2b9cc51ba061a402df4cf9d2832"
+      },
+      {
+        "id": 11543552651,
+        "clip": "matched-low-high",
+        "framesInclusive": [
+          312,
+          371
+        ],
+        "sha256": "d9a57de2ad0bd4ecc801a613259170ca5e5c6fa52a663ae8412e977369f3b82f"
+      },
+      {
+        "id": 11543587123,
+        "clip": "high-steering",
+        "framesInclusive": [
+          372,
+          431
+        ],
+        "sha256": "f1df803ec9c9659c7ce4f22f8201a078fbb43edd92e0f3a3eacdf66a0e4068e9"
+      },
+      {
+        "id": 11543912279,
+        "clip": "roadside-driving",
+        "framesInclusive": [
+          432,
+          551
+        ],
+        "sha256": "0cb697fcca28c2dae56aa05202a8f4d957e81c247950c8ef5e321dcf082d8a64"
+      },
+      {
+        "id": 11544021689,
+        "clip": "active-exit",
+        "framesInclusive": [
+          567,
+          686
+        ],
+        "sha256": "d922292e6b7fd3d97b2a2e6dcafb6a2704d6944bcb522aee676fd2c082c550f5"
+      },
+      {
+        "id": 11543723429,
+        "clip": "ending",
+        "framesInclusive": [
+          687,
+          719
+        ],
+        "sha256": "0b356a2d0b069d1a8abcb3cf2c4e2e394826d278a51b1ca4a47c41350fa9d3de"
+      }
     ],
-    "plannedUncoveredRangesInclusive": [
-      [
-        0,
-        59
-      ],
+    "technicalProof": {
+      "passed": true,
+      "decodedAll": true,
+      "verifiedFullHashes": true,
+      "sourceShaLock": true,
+      "codec": "h264",
+      "pixFmt": "yuv420p",
+      "colorRange": "tv",
+      "width": 1080,
+      "height": 1920,
+      "fps": 30,
+      "allFramesMoving": true
+    },
+    "visualInspection": "ACTUAL_DECODED_MOVING_FRAME_SEQUENCES_AND_ZOOMED_SAMPLES;_NOT_UNINTERRUPTED_REAL_TIME_PLAYBACK",
+    "uniqueSourceFramesVisuallySampleable": 603,
+    "uncoveredSourceFrameRangesInclusive": [
       [
         150,
         246
@@ -110,25 +183,51 @@
       [
         552,
         566
-      ],
-      [
-        687,
-        719
       ]
     ],
-    "plannedUniqueCoveredFrames": 510,
-    "sourceOnlyPass": true,
-    "actualNativeMovingClipsViewed": 0,
-    "opticalCaliperGroundingSteeringQA": "NOT_REVIEWED",
-    "realTimeNarrationSync": "NOT_REVIEWED",
-    "nativeVisualReleaseGate": "FAIL_EVIDENCE_INSUFFICIENT",
-    "finalRenderApproval": false,
-    "report": "yunex/video004/reports/F/H_INTEGRATED_NATIVE_VISUAL_QA.md",
-    "blockers": [
-      "Missing exact-H-source native moving proof artifacts",
-      "No independently viewed muted low/high moving video",
-      "Current seven proof ranges omit opening 0-59 and final 687-719",
-      "No narration-synced complete video playback"
-    ]
+    "uncoveredSourceFrameCount": 117,
+    "findings": [
+      {
+        "code": "F-004-01",
+        "severity": "blocker",
+        "owner": "H/C",
+        "reason": "Heading guides extremely faint/unreadable; opposite/same rear steer not independently distinguishable visually",
+        "frames": [
+          272,
+          336,
+          397
+        ]
+      },
+      {
+        "code": "F-004-02",
+        "severity": "high_visual_polish",
+        "owner": "H",
+        "reason": "Prolonged car silhouette clipping in opening and 4-second roadside shot",
+        "frames": [
+          0,
+          36,
+          59,
+          497
+        ]
+      },
+      {
+        "code": "F-004-03",
+        "severity": "blocker",
+        "owner": "H",
+        "reason": "117 source frames omitted from native proof coverage, including long low-speed explanatory stretch"
+      },
+      {
+        "code": "F-004-04",
+        "severity": "evidence_gap",
+        "owner": "H/Manager/B",
+        "reason": "Caliper non-spin not unequivocally distinguishable in viewed macro; narration unreviewed because proof clips muted"
+      }
+    ],
+    "sourceGeometryAudit": "PASS_H_37761847924",
+    "visualReleaseGate": "FAIL",
+    "renderAuthorized": false,
+    "fullAVPlaybackPerformed": false,
+    "qaReport": "yunex/video004/reports/F/H_RESCUE_37764504658_INDEPENDENT_QA.md",
+    "creativeApproval": false
   }
 }
