@@ -1,6 +1,6 @@
 {
   "phase": "Y004-REAR-STEERING-01",
-  "phase_status": "H_SOURCE_QA_PASS_H_NATIVE_PIXEL_FORMAT_FAILURE_AND_PROOF_COVERAGE_PENDING_I_WORKFLOW_PASS_AAC_BINARY_NOT_GIT_F_NATIVE_QA_FAIL_G_BLOCKED",
+  "phase_status": "H_NATIVE_RESCUE_7_OF_9_PROOFS_PASS_TWO_RUNNING_F_REVIEW_PENDING_I_AUDIO_BINARY_NOT_REMOTE_G_BLOCKED",
   "manager_branch": "sol/y004-rear-steering-manager",
   "master_handoff_sha": "2522f1379712f7ccbeca68d350dfa592a1f6ff97",
   "source_base_sha": "451728dcbc8e36cc9f54fb94e00bdefbdf068f51",
@@ -125,10 +125,10 @@
         ".github/workflows/yunex-004-h-*.yml",
         "yunex/public/y004-final-mix.m4a (exact Agent D approved file)"
       ],
-      "status": "INTEGRATION_CODE_AND_720F_SOURCE_TEST_PASS_NATIVE_PROOFS_IN_PROGRESS_ONE_JOB_FAILED_YUVJ420P",
+      "status": "SEVEN_OF_NINE_LIMITED_RANGE_NATIVE_PROOFS_PASS_OPENING_AND_REAR_MACRO_IN_PROGRESS",
       "input_sha": "5914ddcabaeec4b14ff5e3ca6bcbaf4e6e71a1bb",
-      "output_sha": "dc61fa75382e2a0e8d2d9d8bfebd0a363ea3988d",
-      "proof": "Exact integrated render source f5cbdf2f6c96aa5ac2e5c184a048f49700037f55. CI run 37761847924 source-test PASS job 113259913020; 720-frame audit artifact 11542213067. high-steering 60f MP4 emitted artifact 11543208304 but validation FAILED due pix_fmt yuvj420p.",
+      "output_sha": "51687d439a894c12ccc9b07a182a0d5104f9f07c",
+      "proof": "Immutable Y004 animation source f5cbdf2f6c96aa5ac2e5c184a048f49700037f55. 720-frame source audit PASS artifact 11542213067. Rescue run 37764504658 limited-range 7/9 strict MP4 passes, two still in progress; H branch latest report SHA 51687d439a894c12ccc9b07a182a0d5104f9f07c.",
       "accepted": false
     },
     {
@@ -176,7 +176,7 @@
   ],
   "rule": "Only Manager updates this registry. Branch creation does not mean specialist execution started.",
   "progress_as_of": "2026-10-08",
-  "progress_notes": "Manager actual Porsche low/high 24-frame clips rendered at source 4749c48f7d350801ccc6462a7530225d6eadfc66 and uploaded as artifacts 11539213814/11539213630, but the jobs failed post-render because ffprobe was missing. Patched workflow on Manager branch to provision ffmpeg/ffprobe; corrected run 37755997906 queued. Need ffprobe, full decode, visual review before accepting. Agent D pushed new effects-only provisional 24s bed but cannot produce Cedar narration without fresh approved source; code SHA f46875dc7f6a730257a4b045298f76717a93a090.\n2026-10-08 new user-supplied Cedar take duration 22.704 s SHA db75bbbe6aa468062b300004390f23f254679086e2b69d0de6aa1d553c8d404b; 720f duration locked. Agent D still needs raw file access and transcript/cue validation. Existing A segment boundary 285f (9.5s) misaligned to spoken HIGH at 11.608s; target high cut about 333f (11.1s) requires native reproof.\n2026-10-08 follow-up: corrected native Porsche smoke run 37755997906 completed SUCCESS (3/3 low/high/macro jobs, artifacts 11541125305 / 11540133822 / 11540927524). D audio actual Cedar verified and 24s final AAC SHA a2f5dc284ce923a4d6803b66c2d45a1d3502a2be0024c8e3b1d2658c5bdb1e51 on Agent D full remote SHA 9567f6b2efa901d3667d084eedbbca9c98943c36. Film remains blocked by 9.5s->11.1s retime, native visual human QA and F acceptance, render source not pinned.\n2026-10-08 11:30 UK check: H branch dc61fa75382e2a0e8d2d9d8bfebd0a363ea3988d, tested H source f5cbdf2f6c96aa5ac2e5c184a048f49700037f55, native workflow 37761847924 in_progress. High-steering job 113260048019 rendered all 60 frames but failed strict pixel format check: yuvj420p; artifact 11543208304 not accepted. F 44b8d3913375bf75c33294752d448b103889596a explicitly FAIL/BLOCKED on native visual evidence, reports missing opening 0–59 and final 687–719. Agent I 213f2bb06d4720c3ee9a363110158b36b64cfaf1 completed gated workflow CI run 37763821232 SUCCESS (branch-trigger test), actual approved 24s AAC still not in Git repo. Do not release G.",
+  "progress_notes": "Manager actual Porsche low/high 24-frame clips rendered at source 4749c48f7d350801ccc6462a7530225d6eadfc66 and uploaded as artifacts 11539213814/11539213630, but the jobs failed post-render because ffprobe was missing. Patched workflow on Manager branch to provision ffmpeg/ffprobe; corrected run 37755997906 queued. Need ffprobe, full decode, visual review before accepting. Agent D pushed new effects-only provisional 24s bed but cannot produce Cedar narration without fresh approved source; code SHA f46875dc7f6a730257a4b045298f76717a93a090.\n2026-10-08 new user-supplied Cedar take duration 22.704 s SHA db75bbbe6aa468062b300004390f23f254679086e2b69d0de6aa1d553c8d404b; 720f duration locked. Agent D still needs raw file access and transcript/cue validation. Existing A segment boundary 285f (9.5s) misaligned to spoken HIGH at 11.608s; target high cut about 333f (11.1s) requires native reproof.\n2026-10-08 follow-up: corrected native Porsche smoke run 37755997906 completed SUCCESS (3/3 low/high/macro jobs, artifacts 11541125305 / 11540133822 / 11540927524). D audio actual Cedar verified and 24s final AAC SHA a2f5dc284ce923a4d6803b66c2d45a1d3502a2be0024c8e3b1d2658c5bdb1e51 on Agent D full remote SHA 9567f6b2efa901d3667d084eedbbca9c98943c36. Film remains blocked by 9.5s->11.1s retime, native visual human QA and F acceptance, render source not pinned.\n2026-10-08 11:30 UK check: H branch dc61fa75382e2a0e8d2d9d8bfebd0a363ea3988d, tested H source f5cbdf2f6c96aa5ac2e5c184a048f49700037f55, native workflow 37761847924 in_progress. High-steering job 113260048019 rendered all 60 frames but failed strict pixel format check: yuvj420p; artifact 11543208304 not accepted. F 44b8d3913375bf75c33294752d448b103889596a explicitly FAIL/BLOCKED on native visual evidence, reports missing opening 0–59 and final 687–719. Agent I 213f2bb06d4720c3ee9a363110158b36b64cfaf1 completed gated workflow CI run 37763821232 SUCCESS (branch-trigger test), actual approved 24s AAC still not in Git repo. Do not release G.\n2026-10-08 later check: H rescue run 37764504658 has 7/9 strict limited-range Porsche moving native proof jobs PASS (hook, low, matched, high, roadside, active exit, final 687–719). Opening frames 0–59 and rear-macro 90–149 remain in_progress. Do not release G; F independent human moving QA still pending; approved AAC audio not remotely committed.",
   "integration": {
     "source_overlay_sha": "6f9297612648ce6f14a0fa8efbfb3532ab041e30",
     "provisional_visual_sha": "ca43545411e651495f70ca92d177786c0e264eec",
@@ -208,8 +208,57 @@
     ],
     "H_exact_720f_source_sha": "f5cbdf2f6c96aa5ac2e5c184a048f49700037f55",
     "H_native_proof_run_id": 37761847924,
-    "native_pixel_format_failure": "high-steering job 113260048019: rendered 60/60 frames and uploaded artifact 11543208304 but ffprobe pix_fmt=yuvj420p, validator correctly rejected (expected true TV-range yuv420p). Correct workflow via explicit normalization/limited-range encode; do not weaken validator.",
-    "H_native_coverage_gap": "F audit: missing native moving proofs for opening frames 0–59 and ending frames 687–719, plus other skipped transitions; no independent visual QA pass."
+    "native_pixel_format_failure": "RESOLVED FOR SEVEN PROOFS: correctly transcoded yuvj420p full-range to limited-range yuv420p and strict checks PASS, no weaker validator. Await opening/rear-macro jobs.",
+    "H_native_coverage_gap": "F audit: missing native moving proofs for opening frames 0–59 and ending frames 687–719, plus other skipped transitions; no independent visual QA pass.",
+    "H_native_proof_rescue_run_id": 37764504658,
+    "H_recovered_limited_range_proofs": [
+      {
+        "shot": "hook-macro",
+        "frames": "60-119",
+        "artifact_id": 11543722551,
+        "status": "PASS"
+      },
+      {
+        "shot": "low-steering",
+        "frames": "247-306",
+        "artifact_id": 11544360519,
+        "status": "PASS"
+      },
+      {
+        "shot": "matched-low-high",
+        "frames": "312-371",
+        "artifact_id": 11543552651,
+        "status": "PASS"
+      },
+      {
+        "shot": "high-steering",
+        "frames": "372-431",
+        "artifact_id": 11543587123,
+        "status": "PASS"
+      },
+      {
+        "shot": "roadside-driving",
+        "frames": "432-551",
+        "artifact_id": 11543912279,
+        "status": "PASS"
+      },
+      {
+        "shot": "active-exit",
+        "frames": "567-686",
+        "artifact_id": 11544021689,
+        "status": "PASS"
+      },
+      {
+        "shot": "ending",
+        "frames": "687-719",
+        "artifact_id": 11543723429,
+        "status": "PASS"
+      }
+    ],
+    "H_pending_native_proofs": [
+      "opening 0-59",
+      "rear-macro 90-149"
+    ]
   },
   "voiceover": {
     "source_sha256": "db75bbbe6aa468062b300004390f23f254679086e2b69d0de6aa1d553c8d404b",
