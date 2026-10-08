@@ -1,0 +1,123 @@
+import React,{useEffect,useLayoutEffect,useMemo,useRef} from 'react';
+import {useThree} from '@react-three/fiber';
+import * as THREE from 'three';
+import {Surface} from '../video002/trackUpgrade/racetrack/Surface';
+import {Kerbs} from '../video002/trackUpgrade/racetrack/Kerbs';
+import {Runoff} from '../video002/trackUpgrade/racetrack/Runoff';
+import {TRACK_LAYOUT_CONFIG,sampleTrackAtLocalZ} from '../video002/trackUpgrade/racetrack/layout';
+import {createContactShadowTexture} from '../video002/trackUpgrade/lighting/textures';
+import {CIRCUIT_SEED,forestLayout,rngFor,terrainY} from './layout';
+
+type V=[number,number,number];
+type Item={p:V;s:V;r?:V;c?:string};
+const mat=(color:string,roughness=.85,metalness=0)=>new THREE.MeshStandardMaterial({color,roughness,metalness});
+const box=(g:THREE.Group,p:V,s:V,m:THREE.Material,r:V=[0,0,0])=>{const o=new THREE.Mesh(new THREE.BoxGeometry(...s),m);o.position.set(...p);o.rotation.set(...r);o.castShadow=true;o.receiveShadow=true;g.add(o);return o;};
+const instances=(g:THREE.Group,geo:THREE.BufferGeometry,m:THREE.Material,items:Item[],shadow=false)=>{
+ const o=new THREE.InstancedMesh(geo,m,items.length),dummy=new THREE.Object3D(),c=new THREE.Color();
+ items.forEach((t,i)=>{dummy.position.set(...t.p);dummy.rotation.set(...(t.r??[0,0,0]));dummy.scale.set(...t.s);dummy.updateMatrix();o.setMatrixAt(i,dummy.matrix);if(t.c)o.setColorAt(i,c.set(t.c));});o.instanceMatrix.needsUpdate=true;if(o.instanceColor)o.instanceColor.needsUpdate=true;o.castShadow=shadow;o.receiveShadow=true;o.computeBoundingSphere();g.add(o);return o;
+};
+const canvasTexture=(width:number,height:number,draw:(c:CanvasRenderingContext2D)=>void)=>{const canvas=document.createElement('canvas');canvas.width=width;canvas.height=height;draw(canvas.getContext('2d')!);const t=new THREE.CanvasTexture(canvas);t.colorSpace=THREE.SRGBColorSpace;t.anisotropy=4;return t;};
+const leafTexture=(seed:number)=>canvasTexture(256,256,c=>{
+ const r=rngFor(seed);c.clearRect(0,0,256,256);
+ // Irregular individual leaf silhouettes, open holes, shaded branch interiors.
+ for(let i=0;i<420;i++){
+  const a=r()*Math.PI*2,rad=Math.sqrt(r()),x=128+Math.cos(a)*rad*113,y=128+Math.sin(a)*rad*108;
+  const size=3+r()*9;c.save();c.translate(x,y);c.rotate(r()*6.28);c.fillStyle=['#607d3f','#36542b','#7c914d','#496e32','#9b9e60'][i%5];c.beginPath();c.ellipse(0,0,size,size*.46,0,0,Math.PI*2);c.fill();c.restore();
+ }
+});
+const groundTexture=(seed:number)=>canvasTexture(512,512,c=>{
+ const r=rngFor(seed);c.fillStyle='#626441';c.fillRect(0,0,512,512);
+ for(let i=0;i<28000;i++){const x=r()*512,y=r()*512;c.fillStyle=['#77734c','#3b502d','#747b43','#85905c','#655b3c'][i%5];c.globalAlpha=.18+r()*.45;c.fillRect(x,y,1+r()*4,1+r()*7);}c.globalAlpha=1;
+});
+const wireTexture=()=>canvasTexture(128,128,c=>{c.clearRect(0,0,128,128);c.strokeStyle='rgba(130,142,145,.75)';c.lineWidth=1.3;for(let i=-128;i<256;i+=16){c.beginPath();c.moveTo(i,0);c.lineTo(i+128,128);c.moveTo(i,0);c.lineTo(i-128,128);c.stroke();}});
+const signTexture=(label:string,small:string)=>canvasTexture(1024,256,c=>{c.fillStyle='#182925';c.fillRect(0,0,1024,256);c.fillStyle='#b9d975';c.fillRect(0,225,1024,8);c.font='bold 110px Arial';c.textAlign='center';c.fillStyle='#f2f0e9';c.fillText(label,512,136);c.font='29px Arial';c.fillStyle='#b9d975';c.fillText(small,512,195);});
+const board=(g:THREE.Group,p:V,size:V,label:string,small:string,yaw=0)=>{const t=signTexture(label,small);const m=new THREE.MeshStandardMaterial({map:t,roughness:.6});const o=new THREE.Mesh(new THREE.BoxGeometry(...size),[mat('#1c2826'),mat('#1c2826'),mat('#1c2826'),mat('#1c2826'),m,m]);o.position.set(...p);o.rotation.y=yaw;o.castShadow=true;g.add(o);};
+const buildTerrain=(g:THREE.Group,seed:number)=>{
+ const geo=new THREE.PlaneGeometry(430,430,96,96);geo.rotateX(-Math.PI/2);const a=geo.attributes.position,colors:number[]=[];const color=new THREE.Color();
+ for(let i=0;i<a.count;i++){const x=a.getX(i),z=a.getZ(i);a.setY(i,terrainY(x,z));const n=.5+.23*Math.sin(x*.039+z*.026)+.12*Math.sin(z*.13-x*.16);color.set('#73794c').lerp(new THREE.Color('#324a2c'),n);colors.push(color.r,color.g,color.b);}
+ geo.setAttribute('color',new THREE.Float32BufferAttribute(colors,3));geo.computeVertexNormals();const t=groundTexture(seed);t.wrapS=t.wrapT=THREE.RepeatWrapping;t.repeat.set(52,52);const m=new THREE.MeshStandardMaterial({map:t,vertexColors:true,color:'#e1dfcd',roughness:1});const o=new THREE.Mesh(geo,m);o.receiveShadow=true;g.add(o);
+};
+const buildForest=(g:THREE.Group,seed:number)=>{
+ const r=rngFor(seed+1),trunks:Item[]=[],branches:Item[]=[],leaves:Item[]=[];
+ for(const t of forestLayout(seed)){
+  const th=t.height*.66;trunks.push({p:[t.x,t.y+th/2,t.z],s:[.18,th,.18],c:'#57483a'});
+  for(const side of [-1,1])branches.push({p:[t.x+side*.45,t.y+th*.78,t.z],s:[.08,t.width*.5,.08],r:[.1,t.phase,side*.8],c:'#504331'});
+  // 9 crossed leaf clusters per tree; variation in silhouette, height and autumn tint.
+  for(let k=0;k<9;k++){
+   const a=k*2.4+t.phase,rad=k<7?t.width*.23:0,py=t.y+t.height*(.54+(k%3)*.15);
+   const p:V=[t.x+Math.cos(a)*rad,py,t.z+Math.sin(a)*rad];const width=t.width*(.55+r()*.28),height=t.height*(.27+r()*.09);
+   for(let axis=0;axis<3;axis++)leaves.push({p,s:[width,height,1],r:axis===2?[Math.PI/2,0,a]:[0,a+axis*Math.PI/2,0],c:t.warm?'#b0a568':['#b1bd83','#8faaa1','#9bb77d'][k%3]});
+  }
+ }
+ instances(g,new THREE.CylinderGeometry(.8,1,1,6),mat('#ffffff'),trunks,true);
+ instances(g,new THREE.CylinderGeometry(.5,.8,1,5),mat('#ffffff'),branches);
+ const t=leafTexture(seed),m=new THREE.MeshStandardMaterial({map:t,alphaTest:.42,side:THREE.DoubleSide,roughness:1,color:'#ffffff'});
+ instances(g,new THREE.PlaneGeometry(1,1),m,leaves,false);
+ // Near verges get bushes and grass rather than only regularly spaced trunks.
+ const shrubs:Item[]=[];for(let i=0;i<180;i++){const z=-132+r()*264,side=i%2?-1:1,x=sampleTrackAtLocalZ(z).center[0]+side*(9+r()*3);if(x< -9&&z>9&&z<28)continue;for(let k=0;k<2;k++)shrubs.push({p:[x,terrainY(x,z)+.38,z],s:[.8+r()*1.3,.7+r()*.65,1],r:[0,k*Math.PI/2+r(),0],c:'#9baf75'});}
+ instances(g,new THREE.PlaneGeometry(1,1),m,shrubs);
+};
+const buildFurniture=(g:THREE.Group)=>{
+ const rails:Item[]=[],posts:Item[]=[],fences:Item[]=[];const wire=wireTexture();wire.wrapS=wire.wrapT=THREE.RepeatWrapping;wire.repeat.set(9,7);
+ for(const side of [-1,1])for(let z=-139;z<139;z+=3){
+  const a=sampleTrackAtLocalZ(z),b=sampleTrackAtLocalZ(z+3);const q=side<0?a.barrierLeft:a.barrierRight;const w=side<0?b.barrierLeft:b.barrierRight;const yaw=Math.atan2(w[0]-q[0],w[1]-q[1]),len=Math.hypot(w[0]-q[0],w[1]-q[1]);
+  posts.push({p:[q[0]+side*.12,.36,q[1]],s:[.1,.9,.12]});
+  for(const y of [.39,.65])rails.push({p:[(q[0]+w[0])/2,y,(q[1]+w[1])/2],s:[.09,.22,len],r:[0,yaw,0]});
+  // Catch fencing outside guardrail; no unsafe objects encroach on the racing surface.
+  if(z<65&&z>-72){posts.push({p:[q[0]+side*.5,1.4,q[1]],s:[.065,2.8,.065]});fences.push({p:[(q[0]+w[0])/2+side*.5,1.72,(q[1]+w[1])/2],s:[len,1.7,1],r:[0,yaw+Math.PI/2,0]});}
+ }
+ instances(g,new THREE.BoxGeometry(1,1,1),mat('#939d9c',.52,.55),rails,true);
+ instances(g,new THREE.BoxGeometry(1,1,1),mat('#596b66',.7,.25),posts,true);
+ instances(g,new THREE.PlaneGeometry(1,1),new THREE.MeshStandardMaterial({map:wire,alphaTest:.3,side:THREE.DoubleSide,roughness:.7,color:'#b5bcb7'}),fences);
+ const stone=mat('#c0bcb0'),steel=mat('#293c36',.5,.4),roof=mat('#314942',.66,.25),glass=mat('#6e9296',.25,.25);
+ // Low marshal station on the approach to the bend.
+ box(g,[-13,.22,20],[5,.45,5],stone);box(g,[-13,1.45,20],[3.8,2.1,3.2],mat('#cec7ad'));
+ box(g,[-13,2.72,20],[4.6,.18,4],roof);box(g,[-10.99,1.75,20],[.04,.8,2.3],glass);box(g,[-13,1.75,18.36],[2.7,.8,.04],glass);
+ board(g,[-13,2.2,18.3],[2.5,.43,.05],'02','MARSHAL POST');
+ // Small paddock garage, glazed race-control tower and roofed grandstand.
+ box(g,[30,.12,-10],[28,.25,23],mat('#5b6260'));
+ box(g,[33,2.0,-10],[15,4,17],mat('#b9b6a5'));box(g,[33,4.12,-10],[16,.24,18],roof);
+ for(let z=-16;z<=-4;z+=6){box(g,[25.45,1.55,z],[.09,2.8,4.4],mat('#3f534c'));box(g,[25.38,2.3,z],[.08,.9,3.5],glass);}
+ board(g,[25.35,3.6,-10],[.12,.75,13],'YUNEX','PADDOCK / EAST LOOP',Math.PI/2);
+ box(g,[26,3.0,25],[5,6,5],stone);box(g,[26,6.4,25],[6,1.9,6],glass);box(g,[26,7.5,25],[6.8,.22,6.8],roof);
+ for(let k=0;k<5;k++){box(g,[27+k*.8,.5+k*.45,-42],[1.1,.45,18],mat(k%2?'#64766b':'#889480'));for(let j=0;j<9;j++)box(g,[27+k*.8,.84+k*.45,-49+j*1.7],[.4,.1,.55],mat(j%3?'#a4c565':'#d9ddd0'));}
+ box(g,[29,4.5,-42],[8,.18,21],roof);for(const z of [-51,-33])for(const x of [25,33])box(g,[x,2.3,z],[.15,4.6,.15],steel);
+ // Track bridge creates a recognisable landmark and foreground parallax.
+ const z=-27,center=sampleTrackAtLocalZ(z).center[0];
+ for(const x of [center-8.6,center+8.6]){box(g,[x,2.7,z],[.4,5.4,.5],steel);box(g,[x,.2,z],[1,.4,1],stone);}
+ box(g,[center,5.5,z],[17.6,.45,.45],steel);board(g,[center,5.04,z],[15.5,.9,.18],'YUNEX','CIRCUIT / WOODLAND SECTOR');
+ for(const z of [-62,-46,42,65]){const x=sampleTrackAtLocalZ(z).barrierLeft[0]-.7;box(g,[x,.65,z],[.16,1.3,.2],steel);board(g,[x,.9,z],[.09,1,1.7],String(z===42?50:z===65?100:z===-46?150:200),'BRAKING',Math.PI/2);}
+ // Lived-in safety equipment and spectator-area objects.
+ for(let i=0;i<10;i++)box(g,[-10.8,.32,24+i*.6],[.7,.64,.56],mat(i%2?'#434e42':'#a4bb70'));
+ for(const z of [-34,-18]){box(g,[17,.4,z],[1.4,.8,.8],mat('#40544a'));box(g,[17,.84,z],[1.5,.1,.95],roof);}
+};
+const buildWorld=(seed:number)=>{const g=new THREE.Group();g.name='YUNEX_CIRCUIT_ENVIRONMENT_V2';buildTerrain(g,seed);buildForest(g,seed);buildFurniture(g);return g;};
+const skyTexture=()=>{
+ const w=512,h=256,data=new Uint8Array(w*h*4);
+ for(let y=0;y<h;y++)for(let x=0;x<w;x++){
+  const v=y/(h-1),u=x/w,up=Math.max(0,(v-.48)/.52),haze=Math.exp(-Math.pow((v-.5)/.13,2));
+  const cloud=Math.max(0,Math.sin(u*24+v*13)+Math.sin(u*51-v*7)-.8)*Math.exp(-Math.pow((v-.72)/.17,2))*.23;
+  const sun=Math.exp(-Math.pow((u-.18)/.035,2)-Math.pow((v-.6)/.035,2));
+  const rgb=[184-91*up+45*haze+70*sun,202-43*up+28*haze+42*sun,208+7*up+9*haze+12*sun];
+  const i=(y*w+x)*4;for(let k=0;k<3;k++)data[i+k]=Math.min(255,rgb[k]+cloud*75);data[i+3]=255;
+ }
+ const t=new THREE.DataTexture(data,w,h);t.colorSpace=THREE.SRGBColorSpace;t.mapping=THREE.EquirectangularReflectionMapping;t.needsUpdate=true;return t;
+};
+export const CircuitWorldV2:React.FC<{carPose:{position:V;rotation?:V};seed?:number}>=({carPose,seed=CIRCUIT_SEED})=>{
+ const {gl,scene}=useThree(),world=useMemo(()=>buildWorld(seed),[seed]),sky=useMemo(skyTexture,[]),contact=useMemo(createContactShadowTexture,[]);const key=useRef<THREE.DirectionalLight>(null),target=useRef<THREE.Object3D>(null);
+ useLayoutEffect(()=>{
+  const bg=scene.background,env=scene.environment,fog=scene.fog,exposure=gl.toneMappingExposure,tone=gl.toneMapping;const p=new THREE.PMREMGenerator(gl),e=p.fromEquirectangular(sky);
+  scene.background=sky;scene.environment=e.texture;scene.environmentIntensity=.58;scene.fog=new THREE.Fog('#c7d2c6',110,380);gl.toneMapping=THREE.ACESFilmicToneMapping;gl.toneMappingExposure=.92;gl.shadowMap.enabled=true;gl.shadowMap.type=THREE.PCFSoftShadowMap;
+  return()=>{scene.background=bg;scene.environment=env;scene.fog=fog;gl.toneMappingExposure=exposure;gl.toneMapping=tone;e.dispose();p.dispose();};
+ },[gl,scene,sky]);
+ useLayoutEffect(()=>{if(key.current&&target.current){const [x,y,z]=carPose.position;target.current.position.set(x,y+.2,z);key.current.position.set(x-22,y+32,z-14);key.current.target=target.current;target.current.updateMatrixWorld();key.current.updateMatrixWorld();}},[carPose]);
+ useEffect(()=>()=>{const geometries=new Set<THREE.BufferGeometry>(),materials=new Set<THREE.Material>(),textures=new Set<THREE.Texture>();world.traverse(o=>{const m=o as THREE.Mesh;if(m.isMesh){geometries.add(m.geometry);for(const a of Array.isArray(m.material)?m.material:[m.material]){materials.add(a);const b=a as THREE.MeshStandardMaterial;if(b.map)textures.add(b.map);}}});for(const t of textures)t.dispose();for(const m of materials)m.dispose();for(const g of geometries)g.dispose();sky.dispose();contact.dispose();},[world,sky,contact]);
+ return <>
+  <group position={TRACK_LAYOUT_CONFIG.rootPosition} rotation={[0,Math.PI,0]}>
+   <Surface quality="final" seed={seed}/><Kerbs quality="final" seed={seed}/><Runoff quality="final" seed={seed}/><primitive object={world}/>
+  </group>
+  <hemisphereLight args={['#b5d2e1','#3a4428',.78]}/><object3D ref={target}/>
+  <directionalLight ref={key} color="#fff0cb" intensity={3.1} castShadow shadow-mapSize-width={2048} shadow-mapSize-height={2048} shadow-camera-left={-24} shadow-camera-right={24} shadow-camera-top={24} shadow-camera-bottom={-24} shadow-camera-near={.2} shadow-camera-far={95} shadow-bias={-.00012} shadow-normalBias={.018}/>
+  <mesh position={[carPose.position[0],carPose.position[1]+.0024,carPose.position[2]]} rotation={[-Math.PI/2,0,carPose.rotation?.[1]??0]}><planeGeometry args={[2.2,4.9]}/><meshBasicMaterial map={contact} transparent opacity={.25} depthWrite={false} toneMapped={false}/></mesh>
+ </>;
+};

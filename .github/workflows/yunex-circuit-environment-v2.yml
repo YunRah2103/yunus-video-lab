@@ -1,0 +1,96 @@
+name: YUNEX reusable circuit environment V2
+on:
+  push:
+    branches: [sol/yunex-circuit-environment-v2]
+    paths: [.github/workflows/yunex-circuit-environment-v2.yml]
+  workflow_dispatch:
+permissions: {contents: read, actions: read}
+jobs:
+  proof:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: {node-version: '22', cache: npm, cache-dependency-path: yunex/package-lock.json}
+      - name: Verify original Porsche and setup
+        run: |
+          echo '1c73fcb138c31e2b1d5ed126a2412074bb17f8e960b355436f28139bf518e1eb  cars/porsche-911-gt3-rs-992/model.glb' | sha256sum --check -
+          cp cars/porsche-911-gt3-rs-992/model.glb yunex/public/model.glb
+          python3 yunex/environment-v2/make_sound.py yunex/public/circuit-v2-sound.wav
+          cd yunex
+          npm ci --no-audit --no-fund
+          npx remotion browser ensure
+      - name: Audit layout, containment and wheel travel
+        working-directory: yunex
+        run: |
+          mkdir -p out/circuit-proof
+          npx esbuild src/environment/audit.ts --bundle --platform=node --format=cjs --outfile=/tmp/env-audit.cjs
+          node /tmp/env-audit.cjs | tee out/circuit-proof/layout-audit.json
+          npx esbuild src/environment/CircuitShowcase.tsx --bundle --platform=browser --packages=external --outfile=/tmp/env-compile.js
+      - name: Render four native shot proofs
+        working-directory: yunex
+        env: {NODE_OPTIONS: '--require=./fix-network.cjs'}
+        run: |
+          for frame in 30 130 220 320; do
+            npx remotion still src/index.tsx YUNEX-CIRCUIT-V2 "out/circuit-proof/frame-$frame.png" --frame=$frame --gl=swangle --scale=0.5 --timeout=180000
+          done
+          echo "$GITHUB_SHA" > out/circuit-proof/source-sha.txt
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with: {name: YUNEX-CIRCUIT-V2-NATIVE-PROOF, path: yunex/out/circuit-proof/, retention-days: 30}
+  native:
+    needs: proof
+    runs-on: ubuntu-latest
+    timeout-minutes: 110
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - {id: 0, range: '0-59'}
+          - {id: 1, range: '60-119'}
+          - {id: 2, range: '120-179'}
+          - {id: 3, range: '180-239'}
+          - {id: 4, range: '240-299'}
+          - {id: 5, range: '300-359'}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: {node-version: '22', cache: npm, cache-dependency-path: yunex/package-lock.json}
+      - name: Setup verified assets and native renderer
+        run: |
+          echo '1c73fcb138c31e2b1d5ed126a2412074bb17f8e960b355436f28139bf518e1eb  cars/porsche-911-gt3-rs-992/model.glb' | sha256sum --check -
+          cp cars/porsche-911-gt3-rs-992/model.glb yunex/public/model.glb
+          python3 yunex/environment-v2/make_sound.py yunex/public/circuit-v2-sound.wav
+          sudo apt-get -qq update && sudo apt-get -qq install -y ffmpeg
+          cd yunex
+          npm ci --no-audit --no-fund
+          npx remotion browser ensure
+      - name: Render native 1080x1920 moving frames
+        working-directory: yunex
+        env: {NODE_OPTIONS: '--require=./fix-network.cjs'}
+        run: |
+          mkdir -p out/circuit/chunk-${{ matrix.id }}
+          npx remotion render src/index.tsx YUNEX-CIRCUIT-V2 out/raw.mp4 --frames=${{ matrix.range }} --gl=swangle --concurrency=1 --codec=h264 --pixel-format=yuv420p --crf=16 --scale=1 --timeout=180000 --muted
+          ffmpeg -y -v error -i out/raw.mp4 -vf 'scale=in_range=auto:out_range=tv,format=yuv420p' -c:v libx264 -crf 16 -preset medium -color_range tv -r 30 -fps_mode cfr -an out/circuit/chunk-${{ matrix.id }}/chunk-${{ matrix.id }}.mp4
+          ffmpeg -v error -xerror -i out/circuit/chunk-${{ matrix.id }}/chunk-${{ matrix.id }}.mp4 -f null -
+          echo "$GITHUB_SHA" > out/circuit/chunk-${{ matrix.id }}/source-sha.txt
+          echo '${{ matrix.range }}' > out/circuit/chunk-${{ matrix.id }}/frames-inclusive.txt
+          sha256sum out/circuit/chunk-${{ matrix.id }}/*.mp4 > out/circuit/chunk-${{ matrix.id }}/SHA256SUMS
+      - uses: actions/upload-artifact@v4
+        with: {name: 'YUNEX-CIRCUIT-V2-CHUNK-${{ matrix.id }}', path: 'yunex/out/circuit/chunk-${{ matrix.id }}/', retention-days: 30}
+  deliver:
+    needs: native
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with: {pattern: YUNEX-CIRCUIT-V2-CHUNK-*, path: clips}
+      - name: Assemble and validate real final MP4
+        run: |
+          sudo apt-get -qq update && sudo apt-get -qq install -y ffmpeg
+          python3 yunex/environment-v2/make_sound.py sound.wav
+          python3 yunex/environment-v2/finish.py clips sound.wav delivery "$GITHUB_SHA"
+      - uses: actions/upload-artifact@v4
+        with: {name: YUNEX-CIRCUIT-ENVIRONMENT-V2-FINAL, path: delivery/, retention-days: 30}
