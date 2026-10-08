@@ -1,13 +1,5 @@
 name: YUNEX 004 H native moving integration proof
 on:
-  push:
-    branches: [sol/y004-h-integration]
-    paths:
-      - 'yunex/src/video004/**'
-      - 'yunex/src/index.tsx'
-      - 'yunex/video004/reports/H/**'
-      - 'yunex/video004/audio/**'
-      - '.github/workflows/yunex-004-h-native-proof.yml'
   workflow_dispatch:
 permissions:
   contents: read

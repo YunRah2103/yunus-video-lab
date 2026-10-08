@@ -1,0 +1,117 @@
+name: YUNEX 004 H corrected camera guides exact-source native QA
+on:
+  push:
+    branches: [sol/y004-h-integration]
+    paths:
+      - '.github/workflows/yunex-004-h-c-revision.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  source-tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: yunex/package-lock.json
+      - name: Exact Porsche bytes
+        run: echo '1c73fcb138c31e2b1d5ed126a2412074bb17f8e960b355436f28139bf518e1eb  cars/porsche-911-gt3-rs-992/model.glb' | sha256sum --check -
+      - run: npm ci --no-audit --no-fund
+        working-directory: yunex
+      - name: Compile C overlay, integrated film, register 720f composition and run C, H, D, F tests
+        working-directory: yunex
+        run: |
+          set -euo pipefail
+          echo "EXACT REVISED FILM SOURCE SHA $GITHUB_SHA"
+          npx esbuild src/video004/Video004.tsx --bundle --platform=browser --packages=external --format=esm --jsx=automatic --outfile=/tmp/y004-h-c-visual.js
+          npx esbuild src/index.tsx --bundle --platform=browser --packages=external --format=esm --jsx=automatic --outfile=/tmp/y004-h-c-root.js
+          npx esbuild src/video004/camera/testEntry.ts --bundle --platform=node --format=cjs --outfile=/tmp/y004-h-c-tests.cjs
+          node /tmp/y004-h-c-tests.cjs | tee /tmp/y004-h-c-camera-guides-tests.json
+          npx tsx src/video004/motion/motion.test.ts
+          npx tsx src/video004/edit/editorial.test.ts
+          npx tsx src/video004/audio/audio.test.ts
+          npx tsx video004/reports/H/integration.test.ts
+          node --test src/video004/qa/*.test.mjs
+          npx esbuild src/video004/qa/auditLive.ts --bundle --platform=node --format=esm --outfile=/tmp/y004-h-c-live-audit.mjs
+          node /tmp/y004-h-c-live-audit.mjs --source "$GITHUB_SHA" --frames 720 --out /tmp/y004-h-c-audit-720.json
+          python3 - "$GITHUB_SHA" <<'PY'
+          import json,sys
+          c=json.load(open('/tmp/y004-h-c-camera-guides-tests.json'))
+          assert c['baseline']['ok'] and c['FVisualCorrections']['ok'],c
+          assert c['FVisualCorrections']['silhouetteProxySamples']==14,c
+          assert c['FVisualCorrections']['guideCategorySamples']==10,c
+          a=json.load(open('/tmp/y004-h-c-audit-720.json'))
+          assert a['sourceSha']==sys.argv[1] and a['automatedPass'] and a['frameCount']==720,a
+          print('C CAMERA/GUIDES AND REVISED EXACT SOURCE 720 FRAME AUDIT PASS')
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: Y004-H-C-SOURCE-AUDIT
+          path: |
+            /tmp/y004-h-c-camera-guides-tests.json
+            /tmp/y004-h-c-audit-720.json
+          retention-days: 30
+  native:
+    needs: source-tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 110
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - {label: opening-0-59, range: '0-59', expected: 60}
+          - {label: opening-tail-60-83, range: '60-83', expected: 24}
+          - {label: low-full-150-246, range: '150-246', expected: 97}
+          - {label: low-247-306, range: '247-306', expected: 60}
+          - {label: low-gap-307-311, range: '307-311', expected: 5}
+          - {label: match-312-371, range: '312-371', expected: 60}
+          - {label: high-372-431, range: '372-431', expected: 60}
+          - {label: roadside-432-551, range: '432-551', expected: 120}
+          - {label: roadside-gap-552-566, range: '552-566', expected: 15}
+          - {label: exit-567-596, range: '567-596', expected: 30}
+          - {label: ending-687-719, range: '687-719', expected: 33}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: yunex/package-lock.json
+      - name: FFmpeg, original Porsche geometry and Remotion runtime
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+          sudo apt-get -o Acquire::Retries=2 update -qq
+          sudo apt-get -o Acquire::Retries=2 install -y -qq ffmpeg
+          echo '1c73fcb138c31e2b1d5ed126a2412074bb17f8e960b355436f28139bf518e1eb  cars/porsche-911-gt3-rs-992/model.glb' | sha256sum --check -
+          cp cars/porsche-911-gt3-rs-992/model.glb yunex/public/model.glb
+          cd yunex
+          npm ci --no-audit --no-fund
+          npx remotion browser ensure
+      - name: Render corrected exact-source Porsche moving frames, normalize and independently validate
+        working-directory: yunex
+        env:
+          NODE_OPTIONS: --require=./fix-network.cjs
+          LABEL: @${{ matrix.label }}
+          RANGE: @${{ matrix.range }}
+          EXPECTED: @${{ matrix.expected }}
+        run: |
+          set -euo pipefail
+          mkdir -p "out/y004-h-c/$LABEL"
+          RAW="out/y004-h-c/$LABEL-original.mp4"
+          npx remotion render src/index.tsx YUNEX-004 "$RAW" --frames="$RANGE" --gl=swangle --concurrency=1 --codec=h264 --pixel-format=yuv420p --crf=18 --scale=1 --timeout=180000 --muted
+          bash video004/reports/H/normalize-native-proof.sh "$RAW" "out/y004-h-c/$LABEL" "$LABEL" "$RANGE" "$EXPECTED" "$GITHUB_SHA"
+          echo "Original corrected film source: $GITHUB_SHA" >> "out/y004-h-c/$LABEL/provenance.txt"
+          echo "Agent C camera/overlay integrated; standalone proof, NOT a 720-frame final render" >> "out/y004-h-c/$LABEL/provenance.txt"
+          rm "$RAW"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: Y004-H-C-NATIVE-@${{ matrix.label }}
+          path: yunex/out/y004-h-c/@${{ matrix.label }}/
+          retention-days: 30
