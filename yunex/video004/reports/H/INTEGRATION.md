@@ -1,6 +1,6 @@
 # YUNEX 004 — Agent H final integration and evidence
 
-**Status:** SOURCE AND 720-FRAME LIVE AUDIT PASS; NATIVE VIDEO PROOF RENDERING; INDEPENDENT F VISUAL PASS PENDING. Do not release Agent G yet.
+**Status:** SOURCE/720-FRAME AUDIT PASS; STRICT LIMITED-RANGE RECOVERY IN PROGRESS; THREE RECOVERED NATIVE PROOFS PASSED; INDEPENDENT F VISUAL PASS PENDING. Do not release Agent G yet.
 
 ## Immutable film source
 - Tested source commit: `f5cbdf2f6c96aa5ac2e5c184a048f49700037f55`.
@@ -39,3 +39,30 @@ This is the same tested source `f5cbdf2f6c96aa5ac2e5c184a048f49700037f55`; each 
 
 ## Release gate (do not bypass)
 Agent F independently downloads, views and frame-references native proof MP4s, validates wheel articulation, restrained guides, low/high semantic sign, tyres grounded on track, wheel-spin/caliper nonprecession, roadside parallax, frame pacing and moving exit, then records its own PASS or issue report. Manager must review F verdict and pin immutable integrated SHA in its own `TASKS.json`. Only then Agent G may execute full 720-frame render/mux. H does not write Manager registry, F report, car GLB, Agent E/G renderer or a final film.
+
+## 2026-10-08: actual root-cause repair and missing-frame proof
+
+Run [37761847924](https://github.com/YunRah2103/yunus-video-lab/actions/runs/37761847924) encoded all 60/60 high-steering frames, but FFprobe truthfully reported `yuvj420p` (full-range) rather than release-contract `yuv420p` (TV limited-range); low-steering and matched transition had the same failure. Old original RAW MP4s remain preserved as run artifacts, not falsely approved.
+
+A dedicated **video export** correction is pushed:
+- Limited-range FFmpeg normalizer `yunex/video004/reports/H/normalize-native-proof.sh`, helper commit `73eff3209959517df569a0a941bbfd74e8f135f0`. Convert full-range to limited-range via `scale=in_range=pc:out_range=tv,format=yuv420p`, H.264 libx264, `-pix_fmt yuv420p -color_range tv`, and correct bt709 VUI.
+- The verifier remains strict; it checks exactly H.264, **`pix_fmt=yuv420p`, `color_range=tv`**, 1080×1920, 30/1, exact inclusive frame counts and matched runtime. FFmpeg `-xerror` full-decode and SHA256 also required. Before correction, decoder could work but pixel-format release gate correctly failed.
+- New 9-job [recovery run 37764504658](https://github.com/YunRah2103/yunus-video-lab/actions/runs/37764504658), workflow commit `908a61bd52344f607f7d6a031b7e2b0c9e7e9ab3`. Seven existing RAW clips are retrieved from the immutable run above and **transcoded only; not rerendered**. Two new source-pinned native jobs render **opening 0–59** (60 frames) and **ending 687–719** (33 frames) and normalize/validate those clips.
+- Every proof checks out the *same* approved film-source SHA `f5cbdf2f6c96aa5ac2e5c184a048f49700037f55`. Source animation/car/track/editorial unchanged; H's new commits are solely independent proof infrastructure and documentation.
+- The three successful native recovered MP4s were also downloaded locally, inspected as actual videos or contact sheets, and independent FFprobe/full decoder checks passed (no inference from source-only audit).
+
+| Shot | Inclusive frames | Original raw proof artifact (run 37761847924) | Final limited-range evidence (run 37764504658) | State |
+|---|---|---|---|---|
+| Hook macro | 60–119 | Waiting | PENDING | Original native job still rendering |
+| Rear macro | 90–149 | Waiting | PENDING | Original native job still rendering |
+| Low-speed opposite direction | 247–306 | 11543358681 | **11544360519** | Strict MP4/decoder PASS |
+| Matched opposing-to-aligned | 312–371 | 11543447999 | **11543552651** | Strict MP4/decoder PASS |
+| High-speed same direction | 372–431 | 11543208304 | **11543587123** | Strict MP4/decoder PASS |
+| Roadside drive | 432–551 | Waiting | PENDING | Original native job still rendering |
+| Active drive ending | 567–686 | Waiting | PENDING | Original native job still rendering |
+| **Opening coverage** | **0–59** | New exact-source native rendering | PENDING | 60-frame range rendering |
+| **Final-frame coverage** | **687–719** | New exact-source native rendering | PENDING | 33-frame range rendering |
+
+Full source audit retained: **11542213067**, 720/720 automated PASS (not equivalent to native moving visual approval).
+
+**Do not mark H final evidence complete until all nine limited-range artifact IDs exist and have passing native media validators. Do not permit Agent G full render until independent Agent F moving-footage QA PASS and Manager source gate.**
