@@ -1,3 +1,4 @@
+import {Yunex004Release} from './video004/ReleaseEdits';
 import React from 'react';
 import {registerRoot,Still,Composition,useCurrentFrame} from 'remotion';
 import {YunexVideo} from './Video';
@@ -20,6 +21,8 @@ const AeroMotionProof=()=> <ModelLedVideo frameOffset={549} includeAudio={false}
 const TrackFilmOpening=()=> <TrackFilmSegment variant="opening"/>;
 const TrackFilmFinal=()=> <TrackFilmSegment variant="final"/>;
 const Root=()=> <>
+ <Composition id="YUNEX-004-CINEMATIC" component={Yunex004Release} defaultProps={{variant:"cinematic",cached:true}} width={1080} height={1920} fps={30} durationInFrames={720}/>
+ <Composition id="YUNEX-004-DYNAMIC" component={Yunex004Release} defaultProps={{variant:"dynamic",cached:true}} width={1080} height={1920} fps={30} durationInFrames={720}/>
  <Composition id="YUNEX-004" component={Yunex004Visual} width={1080} height={1920} fps={30} durationInFrames={Y004_FINAL_FRAMES}/>
  <Composition id="YUNEX-004-VISUAL-PROVISIONAL" component={Yunex004Visual} width={1080} height={1920} fps={30} durationInFrames={Y004_FINAL_FRAMES}/>
  <Composition id="YUNEX-003-VISUAL" component={Yunex003Visual} width={1080} height={1920} fps={30} durationInFrames={Y003_DURATION_FRAMES}/>

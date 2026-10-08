@@ -1,0 +1,54 @@
+name: YUNEX 004 Master approved-plate dual release
+on:
+  push:
+    branches: [sol/y004-master-dual-release]
+    paths: ['.github/workflows/yunex-004-master-dual-release.yml']
+permissions:
+  contents: read
+  actions: read
+jobs:
+  finish:
+    if: contains(github.event.head_commit.message, '[Y004-DUAL-RELEASE]')
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Verify source equivalence, exact model and approved audio
+        run: |
+          set -euo pipefail
+          git diff --exit-code 1e2ab54e77090ec9c95c119488bc87d7ab7a45ba HEAD -- yunex/src/video004/Video004.tsx yunex/src/video004/motion yunex/src/video004/rig yunex/src/video004/camera yunex/src/video004/guides yunex/src/video004/timeline.ts yunex/src/video004/edit yunex/src/video003 yunex/src/video002/trackUpgrade
+          echo '1c73fcb138c31e2b1d5ed126a2412074bb17f8e960b355436f28139bf518e1eb  cars/porsche-911-gt3-rs-992/model.glb' | sha256sum --check -
+          echo 'a2f5dc284ce923a4d6803b66c2d45a1d3502a2be0024c8e3b1d2658c5bdb1e51  yunex/video004/audio/y004-approved-cedar-24s.m4a' | sha256sum --check -
+      - name: Install media tools
+        run: sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg
+      - name: Reuse all 13 exact approved H artifacts
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          mkdir -p release-clips
+          for id in 11547392900 11548180309 11556411461 11549115114 11548522472 11546544603 11548552591 11548576922 11548780809 11548412328 11547945616 11555685474 11547991357; do
+            mkdir -p "release-clips/$id"
+            gh api "repos/$GITHUB_REPOSITORY/actions/artifacts/$id/zip" > "/tmp/$id.zip"
+            unzip -q "/tmp/$id.zip" -d "release-clips/$id"
+          done
+      - name: Existing E pipeline regressions
+        run: python3 -m unittest discover -s yunex/video004/render -p test_pipeline.py -v
+      - name: Finish and strictly validate both masters
+        run: |
+          python3 yunex/video004/release/finish_dual.py --clips release-clips --audio yunex/video004/audio/y004-approved-cedar-24s.m4a --out release-final
+          git rev-parse HEAD > release-final/release-source-sha.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: YUNEX-004-CINEMATIC-DYNAMIC-FINAL
+          path: |
+            release-final/YUNEX_004_CINEMATIC.mp4
+            release-final/YUNEX_004_DYNAMIC.mp4
+            release-final/FINAL_QA.json
+            release-final/SHA256SUMS
+            release-final/release-source-sha.txt
+            release-final/*-review.jpg
+          retention-days: 30
