@@ -1,0 +1,76 @@
+name: YUNEX 004 E independent proof artifact audit
+on:
+  push:
+    branches: [sol/y004-e-render]
+    paths:
+      - yunex/video004/render/audit_final_proof.py
+      - yunex/video004/render/test_audit_final_proof.py
+      - .github/workflows/yunex-004-e-proof-audit.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+jobs:
+  audit-native-evidence:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: sol/y004-e-render
+      - name: Install FFmpeg and ffprobe for full native playback/decode validation
+        run: |
+          set -euo pipefail
+          sudo apt-get -o Acquire::Retries=2 update -qq
+          sudo apt-get -o Acquire::Retries=2 install -y -qq ffmpeg
+          ffmpeg -version | head -n 1
+      - name: Prove contiguous exact 720-frame source coverage and negative tests
+        working-directory: yunex/video004/render
+        run: python3 -m unittest -v test_audit_final_proof.py
+      - uses: actions/download-artifact@v4
+        with:
+          run-id: 37769701749
+          github-token: ${{ github.token }}
+          pattern: Y004-H-C-NATIVE-*
+          path: proof-prior
+          merge-multiple: false
+      - name: Query existing H gap jobs without starting new renders
+        id: inventory
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          gh api repos/${{ github.repository }}/actions/runs/37781451513/artifacts --paginate > gap-artifacts.json
+          python3 - <<'PY'
+          import json,os
+          obj=json.load(open('gap-artifacts.json'))
+          names={x['name'] for x in obj['artifacts'] if not x.get('expired')}
+          wanted={'Y004-H-FINAL-GAP-rear-wheel-macro-84-149','Y004-H-FINAL-GAP-active-exit-597-686'}
+          present=sorted(wanted&names)
+          print('Existing gap artifacts:',present)
+          with open(os.environ['GITHUB_OUTPUT'],'a') as f:
+              f.write('any='+('true' if present else 'false')+'\n')
+              f.write('complete='+('true' if wanted<=names else 'false')+'\n')
+          PY
+      - uses: actions/download-artifact@v4
+        if: ${{ steps.inventory.outputs.any == 'true' }}
+        with:
+          run-id: 37781451513
+          github-token: ${{ github.token }}
+          pattern: Y004-H-FINAL-GAP-*
+          path: proof-gaps
+          merge-multiple: false
+      - name: Independently validate each actual MP4 in exact chronological 0-719 order
+        run: |
+          set -euo pipefail
+          mkdir -p report
+          python3 yunex/video004/render/audit_final_proof.py --existing proof-prior --gaps proof-gaps --allow-pending --output report/E_ACTUAL_MP4_AUDIT.json
+          sha256sum report/E_ACTUAL_MP4_AUDIT.json > report/SHA256SUMS
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: Y004-E-EXACT-SOURCE-13-INTERVAL-NATIVE-AUDIT
+          path: |
+            report/
+            gap-artifacts.json
+          retention-days: 30
