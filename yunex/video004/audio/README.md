@@ -1,50 +1,41 @@
-# YUNEX 004 — Agent D audio production
+# YUNEX 004 — AGENT D AUDIO DELIVERY (APPROVED CEDAR TAKE)
 
-**Gate: SFX BED COMPLETE; NEW APPROVED CEDAR NARRATION NOT AVAILABLE.** Do not mistake the asset below for narration or a final master mix. Y004's 720 frames/24 seconds remain provisional until a real recorded take has been measured.
+**STATUS: PASS — D audio files and hashes published, pending Manager video integration.**
 
-## Published and verified effect
-- Deterministic bed generator: `python yunex/video004/audio/build-bed.py --output /mnt/data/y004-bed-24s-PROVISIONAL.m4a --frames 720`
-- Runtime dependencies: Python 3, NumPy, SciPy, FFmpeg/ffprobe.
-- The output `y004-bed-24s-PROVISIONAL.m4a` was actually built twice from code; both binary SHA256 values match: `960b4dddecd55051a1df66e0c4e6ffde94feda6f8190cff786160b4281f36ee6`.
-- 24.000 seconds, AAC 48 kHz stereo, 582089 bytes, FFmpeg full decoder PASS, peak -34.4 dBFS. User-accessible chat artifact: `sandbox:/mnt/data/y004-bed-24s-PROVISIONAL.m4a`.
-- Entirely procedural engine/road/wind/roadside pass effect with restrained levels; no real Porsche performance or speed specification and no third-party recordings. For Manager integrated release replace provisional shaping with per-frame `y004AudioEnvelope` driven by the accepted A motion and C camera.
+Locked YUNEX 004 source: `YUNEX_004_Cedar_source.mp3`, actual SHA256 `db75bbbe6aa468062b300004390f23f254679086e2b69d0de6aa1d553c8d404b`, 22.704s, MP3 24k mono, 363264 bytes. The original MP3 is in user's Library at `/YUNEX_004_Cedar_source.mp3` (not GitHub). **This is a new Y004 Cedar recording, not Y003 audio.**
 
-## Strict finalization of *new* recorded Y004 voice
-The real approved new Cedar take (or user-approved equivalent) must be externally supplied as an audio file. The older Y003 Cedar source with SHA256 `826d7863cd4ec135e0352e9800f47b54239f8ba1d4c0d98ff5909a071905cfbb` is explicitly rejected and has different narration.
+The **user-approved *new* spoken transcript** is in `yunex/src/video004/audio/cues.ts` and `APPROVED_AUDIO_MANIFEST.json` — not the older Master provisional script. Five phrase boundaries were *independently* confirmed acoustically with FFmpeg `silencedetect=noise=-34dB:d=0.12` to within 0.006s of the Manager's proposed windows. User/Manager authenticated the *words*; no ASR or independent human audition has been performed by this Agent D session. This is disclosed rather than claiming semantic listening.
 
-Before final processing, listen to new take, measure five actual sentence starts/ends, hash the source, document name/rights, and create `new-recording-approval.json` with fields:
+## Finished deliverables (persisted in user's Library)
+All files in `/Video Projects/YUNEX 004/Agent D/`:
 
-```json
-{
-  "speaker": "Cedar",
-  "source_rights": "user-generated OpenAI FM source, explicitly approved for Y004",
-  "source_sha256": "ACTUAL_64_CHARACTER_SHA256",
-  "human_verified_transcript": true,
-  "sentences": [
-    {"id":"s1","text":"The rear wheels on this Porsche steer too.","startSeconds":0,"endSeconds":0}
-  ]
-}
-```
-The example illustrates the schema **only**: replace all five rows with the exact authoritative sentence strings in `src/video004/audio/cues.ts` and actual sample-measured timestamps. It is NOT an approved cue sheet.
+| File | SHA256 | Duration | Peak |
+| --- | --- | --- | --- |
+| `YUNEX_004_Cedar_isolated_24s_48k_stereo.wav` | `07ec8e2d14d28e585668b3084c48657329ba4f1e8b9e52c838c46613c0f3334e` | 24.000s | -7.864 dBFS |
+| `YUNEX_004_Cedar_final_mix_24s_48k_stereo.wav` | `526e558cdeaf7dbf5bf01dddf68b374ad06b88d19c7122828e426d7e6494621e` | 24.000s | -8.029 dBFS |
+| **`YUNEX_004_Cedar_final_mix_24s_48k_stereo.m4a`** | **`a2f5dc284ce923a4d6803b66c2d45a1d3502a2be0024c8e3b1d2658c5bdb1e51`** | **24.000s** | **-8.035 dBFS** |
 
-Run after actual recording is available:
+The M4A is 48k stereo AAC 256 kb/s and is the Manager/E mux-ready audio file. Isolated source preserved intact at native tempo and padded to frame 720; no pitch/stretch, speech replacement or clipping. Stem/source decoded maximum difference < 4e-7. Final mix uses *existing verified* Y004 bed SHA256 `960b4dddecd55051a1df66e0c4e6ffde94feda6f8190cff786160b4281f36ee6`; smooth signal-driven ducking under the five genuine sentence intervals.
+
+## Recorded sentence boundaries (independent acoustic check)
+- S1 `0.000–2.755`
+- S2 `3.650–10.613`
+- S3 `11.608–14.232`
+- S4 `14.979–17.866`
+- S5 `18.858–22.577`
+
+**Critical Manager note:** The high-speed visuals must NOT start at stale `285f/9.5s`, while narrator is still explaining lower speeds. Agent D editorial windows now propose high-start at `333f/11.1s`, and the Manager must update its owned central motion shot plan and revalidate native visuals.
+
+## Reproduce and verify
+Runtime Python 3 + numpy + scipy + soundfile + ffmpeg/ffprobe. Original source and Y004 bed must exist locally.
 
 ```bash
-python yunex/video004/audio/finalize-recording.py \
-  --source /path/to/y004-new-cedar.mp3 \
-  --approval-json /path/to/new-recording-approval.json \
-  --out /path/to/y004-audio-out
+python yunex/video004/audio/complete-approved-voice.py \
+  --source /path/to/YUNEX_004_Cedar_source.mp3 \
+  --bed /path/to/y004-bed-24s-PROVISIONAL.m4a \
+  --out /path/to/rendered-audio
 ```
 
-Use `--manager-locked-frames N` only after Manager sets the final timeline; the finalizer refuses to truncate speech. Output includes the isolated 48 kHz stereo voice WAV, reference voice/SFX mix WAV, actual ffprobe metadata and SHA256 manifests, decoder passes and measured peak validation. Do not pass its reference mix as the final production master before Manager approval.
+This script hard-rejects wrong source/bed SHA, wrong durations/channels and acoustically incorrect phrase boundaries; asserts true 720f*30fps 24s outputs, full decoder, output hashes and PCM preserved speech and peak safety. A detailed native evidence manifest is in `APPROVED_AUDIO_MANIFEST.json`.
 
-## Tests
-```bash
-TS_NODE_COMPILER_OPTIONS='{"module":"CommonJS"}' ts-node --transpile-only yunex/src/video004/audio/audio.test.ts
-python yunex/video004/audio/test-audio-gates.py
-bash -n yunex/video004/audio/prepare-vo-mix.sh
-```
-Unit tests use synthetic cue objects only to assert that the gate rejects bad source/timestamps. The tests do NOT create, authorize or measure a real narration take.
-
-## Exact remaining user action
-Export **one new recording speaking the five Y004 rear-axle-steering sentences** using the established OpenAI FM Cedar voice, then attach the MP3 here or save it in a Library location accessible to Agent D. No text-to-speech service connected to this session can generate the approved Cedar take automatically. Once the source exists, source verification, time measurement, actual mix and persistent publication become possible.
+**Release distinction:** Audio mixing D PASS; Y004 *video* release remains blocked until Manager owns integrated shot alignment, F independent QA passes and E actually muxes a validated native video. No claim of finished MP4.
