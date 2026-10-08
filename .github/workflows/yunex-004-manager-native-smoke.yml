@@ -1,0 +1,61 @@
+name: YUNEX 004 Manager native Porsche integration smoke
+on:
+  push:
+    branches:
+      - sol/y004-rear-steering-manager
+    paths:
+      - '.github/workflows/yunex-004-manager-native-smoke.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  actual-porsche-shots:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - label: rear-macro
+            range: 108-131
+          - label: low-mode
+            range: 200-223
+          - label: high-mode
+            range: 327-350
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: yunex/package-lock.json
+      - name: Validate original car and prepare preview asset
+        run: |
+          set -euo pipefail
+          echo '1c73fcb138c31e2b1d5ed126a2412074bb17f8e960b355436f28139bf518e1eb  cars/porsche-911-gt3-rs-992/model.glb' | sha256sum --check -
+          cp cars/porsche-911-gt3-rs-992/model.glb yunex/public/model.glb
+      - name: Install native browser and Remotion dependencies
+        working-directory: yunex
+        run: |
+          npm ci --no-audit --no-fund
+          npx remotion browser ensure
+      - name: Native actual Porsche 24-frame moving smoke
+        working-directory: yunex
+        env:
+          NODE_OPTIONS: --require=./fix-network.cjs
+          RANGE: ${{ matrix.range }}
+          LABEL: ${{ matrix.label }}
+        run: |
+          set -euo pipefail
+          mkdir -p out/y004-manager-smoke
+          npx remotion render src/index.tsx YUNEX-004-VISUAL-PROVISIONAL "out/y004-manager-smoke/${LABEL}.mp4" --frames="${RANGE}" --gl=swangle --concurrency=1 --codec=h264 --pixel-format=yuv420p --crf=18 --scale=1 --timeout=180000 --muted
+          ffprobe -v error -show_entries stream=codec_name,width,height,r_frame_rate,nb_frames -of json "out/y004-manager-smoke/${LABEL}.mp4" | tee "out/y004-manager-smoke/${LABEL}.json"
+          ffmpeg -v error -xerror -i "out/y004-manager-smoke/${LABEL}.mp4" -f null -
+          echo "${GITHUB_SHA}" > "out/y004-manager-smoke/${LABEL}.source-sha"
+          sha256sum "out/y004-manager-smoke/${LABEL}.mp4" > "out/y004-manager-smoke/${LABEL}.sha256"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: Y004-MANAGER-NATIVE-${{ matrix.label }}
+          path: yunex/out/y004-manager-smoke/
+          retention-days: 21
