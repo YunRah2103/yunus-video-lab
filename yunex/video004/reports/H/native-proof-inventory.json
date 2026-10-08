@@ -36,7 +36,7 @@
   "nativeProofs": {
     "runId": 37769701749,
     "expectedJobs": 11,
-    "passesConfirmed": 0,
+    "passesConfirmed": 1,
     "format": {
       "codec": "h264",
       "pixelFormat": "yuv420p",
@@ -104,13 +104,13 @@
         "framesInclusive": "307-311",
         "expectedFrameCount": 5,
         "artifactName": "Y004-H-C-NATIVE-low-gap-307-311",
-        "artifactId": null,
-        "mediaSha256": null,
+        "artifactId": 11546544603,
+        "mediaSha256": "442de4943a49d76dd5f22771cdba61dd5b93e6de8ce19a85e563783187dcb9fc",
         "sourceSha": "1e2ab54e77090ec9c95c119488bc87d7ab7a45ba",
-        "validation": "PENDING_NATIVE_RENDER",
+        "validation": "STRICT_NATIVE_MP4_AND_LOCAL_DECODER_PASS",
         "jobId": 113286094638,
-        "jobStatus": "in_progress",
-        "jobConclusion": null
+        "jobStatus": "completed",
+        "jobConclusion": "success"
       },
       {
         "name": "match-312-371",
@@ -192,7 +192,8 @@
       }
     ],
     "jobsQueuedOrRunning": 11,
-    "jobIdsAllConfirmed": true
+    "jobIdsAllConfirmed": true,
+    "pendingNative": 10
   },
   "oldSourceEvidence": {
     "sourceSha": "f5cbdf2f6c96aa5ac2e5c184a048f49700037f55",
