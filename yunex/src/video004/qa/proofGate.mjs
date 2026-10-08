@@ -15,11 +15,13 @@ export function auditPreRenderProofs(proofs, accepted) {
   const p=xs[0],role=ROLES[kind];
   if(p.role!==role)fail('PROOF_OWNER',kind+': wrong owner.');
   if(!sha(p.sourceSha))fail('PROOF_SOURCE',kind+': source SHA missing or malformed.');
-  if(accepted?.[role] && p.sourceSha!==accepted[role])fail('PROOF_STALE',kind+': not accepted current '+role+' remote SHA.');
+  if(!sha(accepted?.[role]))fail('PROOF_ACCEPTED_PIN_MISSING',kind+': Manager acceptance pin for '+role+' unavailable.');
+  else if(p.sourceSha!==accepted[role])fail('PROOF_STALE',kind+': not accepted current '+role+' remote SHA.');
   if(p.mediaType!=='native-moving-mp4')fail('PROOF_NOT_NATIVE',kind+': still/contact sheet/text cannot substitute moving proof.');
   if(!p.artifactId&&!p.persistedPath&&!p.workflowRunId)fail('PROOF_UNPERSISTED',kind+': no accessible persisted clip or artifact.');
-  if(p.fps!==30||!Number.isInteger(p.width)||!Number.isInteger(p.height)||p.width<=0||p.height<=0)fail('PROOF_VIDEO_METADATA',kind+': invalid dimensions or frame rate.');
-  if(!Number.isInteger(p.firstFrame)||!Number.isInteger(p.lastFrameExclusive)||p.lastFrameExclusive<=p.firstFrame+1)fail('PROOF_FRAME_RANGE',kind+': source frame range invalid/not moving.');
+  if(p.fps!==30||p.width!==1080||p.height!==1920)fail('PROOF_VIDEO_METADATA',kind+': require native 1080x1920 at 30fps.');
+  const minFrames=(kind==='low-driving'||kind==='high-driving')?120:kind==='rear-macro'?45:90;
+  if(!Number.isInteger(p.firstFrame)||!Number.isInteger(p.lastFrameExclusive)||p.lastFrameExclusive-p.firstFrame<minFrames)fail('PROOF_FRAME_RANGE',kind+': clip shorter than required native moving proof '+minFrames+' frames.');
   if(!p.sha256||!/^[a-f0-9]{64}$/i.test(p.sha256))fail('PROOF_HASH',kind+': MP4 SHA256 missing.');
  }
  return {pass:failures.length===0,failures,observations:{manifestCount:proofs.length,requiredKinds:KINDS}};
