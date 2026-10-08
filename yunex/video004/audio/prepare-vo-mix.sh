@@ -7,6 +7,13 @@ if [[ $# -lt 2 || $# -gt 3 ]]; then
 fi
 SOURCE="$1"; OUT="$2"; LOCKED_FRAMES="${3:-}"
 [[ -s "$SOURCE" ]] || { echo 'BLOCKED: new Y004 narration source missing' >&2; exit 3; }
+SOURCE_SHA="$(sha256sum "$SOURCE" | awk '{print $1}')"
+if [[ "$SOURCE_SHA" == "826d7863cd4ec135e0352e9800f47b54239f8ba1d4c0d98ff5909a071905cfbb" ]]; then
+  echo 'BLOCKED: old Y003 Cedar voice recording is forbidden for Y004' >&2
+  exit 3
+fi
+# For release use finalize-recording.py with an explicit approved-source SHA and real cue timestamps.
+
 command -v ffmpeg >/dev/null; command -v ffprobe >/dev/null
 mkdir -p "$OUT"
 DURATION="$(ffprobe -v error -select_streams a:0 -show_entries format=duration -of default=nw=1:nk=1 "$SOURCE")"
