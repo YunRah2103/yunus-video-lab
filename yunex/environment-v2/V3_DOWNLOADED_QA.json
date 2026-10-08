@@ -1,0 +1,23 @@
+{
+  "source_sha": "82fc641dc97fb6ce62b787223be1cca0ff3c5ea2",
+  "sha256": "b0f6a58b0d3b9964765865c75591a623bfc348cd6f89333f5268058f7bee61a4",
+  "frames": 360,
+  "duration": 12,
+  "width": 1080,
+  "height": 1920,
+  "fps": 30,
+  "video": "H264 yuv420p TV",
+  "audio": "AAC 48k stereo",
+  "decode": "PASS",
+  "adjacent_duplicate_frames": 0,
+  "environment": "Reusable CircuitWorldV2; approved physical road, original Porsche and rear-steer rig retained",
+  "audio_note": "Synthetic demonstration driving bed, no narration, not real Porsche recording",
+  "downloaded_bytes": 64522834,
+  "independent_full_decode": "PASS",
+  "timestamps": "360 CFR timestamps verified",
+  "faststart": true,
+  "decoded_frames_different_from_v2": 360,
+  "adjacent_duplicate_frames_independent": 0,
+  "optical_review": "PASS: all 360 sequential frame thumbnails, phone-size keyframes, four native shot proofs and wheel crops inspected. Review was frame-based; continuous normal-speed sound-on/muted playback was unavailable.",
+  "visual_findings": "Planted Porsche, coherent parallax, stable apparent wheel rotation, complete car framing, readable typography and active final shot. No blocking visual defect found."
+}
