@@ -63,171 +63,124 @@
     "yunex/video004/reports/F/STATUS.json"
   ],
   "requiresIndependentReReviewAfterProofs": true,
-  "decision": "FAIL_REAL_NATIVE_VISUAL_AND_COVERAGE_REMEDIATION_REQUIRED",
+  "decision": "CORRECTED_11_NATIVE_VISUAL_PASS_RELEASE_HOLD_156_FRAMES_NOT_EVIDENCED",
   "latestAssessment": {
     "phase": "Y004-REAR-STEERING-01",
-    "assessment": "H_RESCUE_INDEPENDENT_NATIVE_VISUAL",
-    "date": "2026-10-08",
-    "sourceSha": "f5cbdf2f6c96aa5ac2e5c184a048f49700037f55",
-    "rescueWorkflowRunId": 37764504658,
-    "rescueWorkflowHead": "908a61bd52344f607f7d6a031b7e2b0c9e7e9ab3",
-    "rescueWorkflowConclusion": "success",
-    "nativeMp4CountReviewed": 9,
-    "nativeMp4Artifacts": [
-      {
-        "id": 11544229629,
-        "clip": "opening",
-        "framesInclusive": [
-          0,
-          59
-        ],
-        "sha256": "705571fffd254f82d65756b9251035223cb48ef93398cc51424e594adcf1a536"
-      },
-      {
-        "id": 11543722551,
-        "clip": "hook-macro",
-        "framesInclusive": [
-          60,
-          119
-        ],
-        "sha256": "7628c52e713048672f246ea230ec46fbb01ceea67dac2604701d412dea7e0236"
-      },
-      {
-        "id": 11544638033,
-        "clip": "rear-macro",
-        "framesInclusive": [
-          90,
-          149
-        ],
-        "sha256": "a796eeb1631d7efb8f9e3b27d8fbe20adb7cd9d333eee8fb672833840ff36a42"
-      },
-      {
-        "id": 11544360519,
-        "clip": "low-steering",
-        "framesInclusive": [
-          247,
-          306
-        ],
-        "sha256": "1e1442f6eb8a1076b23d400040d69457879ba2b9cc51ba061a402df4cf9d2832"
-      },
-      {
-        "id": 11543552651,
-        "clip": "matched-low-high",
-        "framesInclusive": [
-          312,
-          371
-        ],
-        "sha256": "d9a57de2ad0bd4ecc801a613259170ca5e5c6fa52a663ae8412e977369f3b82f"
-      },
-      {
-        "id": 11543587123,
-        "clip": "high-steering",
-        "framesInclusive": [
-          372,
-          431
-        ],
-        "sha256": "f1df803ec9c9659c7ce4f22f8201a078fbb43edd92e0f3a3eacdf66a0e4068e9"
-      },
-      {
-        "id": 11543912279,
-        "clip": "roadside-driving",
-        "framesInclusive": [
-          432,
-          551
-        ],
-        "sha256": "0cb697fcca28c2dae56aa05202a8f4d957e81c247950c8ef5e321dcf082d8a64"
-      },
-      {
-        "id": 11544021689,
-        "clip": "active-exit",
-        "framesInclusive": [
-          567,
-          686
-        ],
-        "sha256": "d922292e6b7fd3d97b2a2e6dcafb6a2704d6944bcb522aee676fd2c082c550f5"
-      },
-      {
-        "id": 11543723429,
-        "clip": "ending",
-        "framesInclusive": [
-          687,
-          719
-        ],
-        "sha256": "0b356a2d0b069d1a8abcb3cf2c4e2e394826d278a51b1ca4a47c41350fa9d3de"
-      }
-    ],
-    "technicalProof": {
-      "passed": true,
-      "decodedAll": true,
-      "verifiedFullHashes": true,
-      "sourceShaLock": true,
-      "codec": "h264",
-      "pixFmt": "yuv420p",
+    "assessment": "H_CORRECTED_SOURCE_11_ACTUAL_NATIVE_MP4_INDEPENDENT_REVIEW",
+    "reviewedAt": "2026-10-08",
+    "exactCorrectedSourceSha": "1e2ab54e77090ec9c95c119488bc87d7ab7a45ba",
+    "runId": 37769701749,
+    "sourceAuditArtifactId": 11547123669,
+    "actualNativeMovingClipsIndependentlyReviewed": 11,
+    "independentMediaValidation": {
+      "pass": true,
+      "shaSourceChecks": 11,
+      "sha256Checks": 11,
+      "fullDecoderChecks": 11,
+      "correctFrameCounts": 11,
+      "frameRates": "30/1",
+      "dimensions": "1080x1920",
+      "codec": "H.264",
+      "pixelFormat": "yuv420p",
       "colorRange": "tv",
-      "width": 1080,
-      "height": 1920,
-      "fps": 30,
-      "allFramesMoving": true
+      "allMovingWithZeroIdenticalAdjacentFrames": true
     },
-    "visualInspection": "ACTUAL_DECODED_MOVING_FRAME_SEQUENCES_AND_ZOOMED_SAMPLES;_NOT_UNINTERRUPTED_REAL_TIME_PLAYBACK",
-    "uniqueSourceFramesVisuallySampleable": 603,
-    "uncoveredSourceFrameRangesInclusive": [
+    "exactSourceArtifactIds": [
+      11547392900,
+      11548180309,
+      11549115114,
+      11548522472,
+      11546544603,
+      11548552591,
+      11548576922,
+      11548780809,
+      11548412328,
+      11547945616,
+      11547991357
+    ],
+    "exactSourceFramesCovered": 564,
+    "filmFrames": 720,
+    "exactSourceUncoveredRangesInclusive": [
       [
-        150,
-        246
+        84,
+        149
       ],
       [
-        307,
-        311
-      ],
-      [
-        552,
-        566
+        597,
+        686
       ]
     ],
-    "uncoveredSourceFrameCount": 117,
-    "findings": [
+    "visualCorrectionReview": "PASS",
+    "correctionDetails": [
       {
-        "code": "F-004-01",
-        "severity": "blocker",
-        "owner": "H/C",
-        "reason": "Heading guides extremely faint/unreadable; opposite/same rear steer not independently distinguishable visually",
         "frames": [
           272,
           336,
           397
-        ]
+        ],
+        "result": "PASS",
+        "description": "Visible truthful front/rear steering labels with correctly opposing vs aligned vs centred responses"
       },
       {
-        "code": "F-004-02",
-        "severity": "high_visual_polish",
-        "owner": "H",
-        "reason": "Prolonged car silhouette clipping in opening and 4-second roadside shot",
         "frames": [
           0,
-          36,
+          35,
           59,
-          497
-        ]
+          432,
+          497,
+          551
+        ],
+        "result": "PASS",
+        "description": "Full Porsche and wing visible during sustained opening and roadside driving; no old crop"
       },
       {
-        "code": "F-004-03",
-        "severity": "blocker",
-        "owner": "H",
-        "reason": "117 source frames omitted from native proof coverage, including long low-speed explanatory stretch"
+        "frames": [
+          150,
+          200,
+          246,
+          307,
+          311,
+          552,
+          560,
+          566
+        ],
+        "result": "PASS",
+        "description": "Previously unreviewed low-speed teaching and transition bridge footage checked"
       },
       {
-        "code": "F-004-04",
-        "severity": "evidence_gap",
-        "owner": "H/Manager/B",
-        "reason": "Caliper non-spin not unequivocally distinguishable in viewed macro; narration unreviewed because proof clips muted"
+        "frames": [
+          567,
+          578,
+          596,
+          687,
+          719
+        ],
+        "result": "PASS",
+        "description": "Approaching trackside Porsche and final active moving payoff checked"
       }
     ],
-    "sourceGeometryAudit": "PASS_H_37761847924",
-    "visualReleaseGate": "FAIL",
-    "renderAuthorized": false,
-    "fullAVPlaybackPerformed": false,
-    "qaReport": "yunex/video004/reports/F/H_RESCUE_37764504658_INDEPENDENT_QA.md",
-    "creativeApproval": false
+    "confirmedNewBlockingVisualDefects": [],
+    "unresolvedRequiredEvidence": [
+      {
+        "framesInclusive": [
+          84,
+          149
+        ],
+        "reason": "No corrected-source rear macro MP4, caliper nonspin/stability cannot be independently reconfirmed visually at exact SHA"
+      },
+      {
+        "framesInclusive": [
+          597,
+          686
+        ],
+        "reason": "No corrected-source middle-exit MP4, 90-frame pass/chase handover not independently rechecked"
+      }
+    ],
+    "completeAudioFilmAuditioned": false,
+    "exactSourceReviewStatus": "CORRECTED_PROOF_VISUAL_PASS_FULL_SOURCE_EVIDENCE_HOLD",
+    "overallPreRenderReleaseGate": "FAIL_EVIDENCE_HOLD",
+    "approvedFullRender": false,
+    "reportPath": "yunex/video004/reports/F/H_CORRECTED_37769701749_INDEPENDENT_QA.md",
+    "productionFilesChanged": false
   }
 }
