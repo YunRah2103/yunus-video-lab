@@ -1,6 +1,6 @@
 {
   "phase": "Y004-REAR-STEERING-01",
-  "phase_status": "H_COMPLETE_9_OF_9_EXACT_SOURCE_NATIVE_PROOF_PASS_WAIT_F_VISUAL_REVIEW_I_AUDIO_BINARY_REMOTE_PUBLISH_G_LOCKED",
+  "phase_status": "F_VISUAL_QA_FAIL_C_GUIDES_AND_CAMERA_CORRECTIONS_H_REPROOF_I_APPROVED_AAC_PUBLISH_G_RELEASE_BLOCKED",
   "manager_branch": "sol/y004-rear-steering-manager",
   "master_handoff_sha": "2522f1379712f7ccbeca68d350dfa592a1f6ff97",
   "source_base_sha": "451728dcbc8e36cc9f54fb94e00bdefbdf068f51",
@@ -55,7 +55,7 @@
         "yunex/src/video004/guides/**",
         "yunex/video004/reports/C/**"
       ],
-      "status": "CODE_PUSHED_INTEGRATED_NATIVE_PROOF_PENDING",
+      "status": "VISUAL_QA_CORRECTIONS_REQUESTED_GUIDES_LEGIBILITY_AND_CAMERA_CROP",
       "input_sha": "bf2f0996f4176791d5ac78d818090e8b429397ad",
       "output_sha": "affe2eedc93836a110b407606f9b87294275df9e",
       "proof": null,
@@ -104,10 +104,10 @@
         "yunex/src/video004/qa/**",
         "yunex/video004/reports/F/**"
       ],
-      "status": "INDEPENDENT_720F_AUTOMATED_SOURCE_QA_PASS_NATIVE_VISUAL_RELEASE_FAIL_INSUFFICIENT_EVIDENCE",
+      "status": "NINE_NATIVE_MEDIA_TECHNICAL_PASS_VISUAL_RELEASE_FAIL_SUBSTANTIVE_GUIDES_CROP_AND_MISSING_COVERAGE",
       "input_sha": "bf2f0996f4176791d5ac78d818090e8b429397ad",
-      "output_sha": "44b8d3913375bf75c33294752d448b103889596a",
-      "proof": "Native visual QA FAIL evidence insufficiency, not observed defect. Same H source f5cbdf2f6c96aa5ac2e5c184a048f49700037f55; report reports/F/H_INTEGRATED_NATIVE_VISUAL_QA.md. Exact-source 0-59 and 687-719 proof missing.",
+      "output_sha": "d7896e5eeef802587b95e61784558b30a794af4a",
+      "proof": "Independent 9 MP4 review at yunex/video004/reports/F/H_RESCUE_37764504658_INDEPENDENT_QA.md; source f5cbdf2f6c96aa5ac2e5c184a048f49700037f55. Central guides visually unreadable at frame 272/336/397; cropped hero opening 0-59 and roadside 432-551; 150-246 & 307-311 & 552-566 unproven. Verdict FAIL; not merely missing artifacts.",
       "accepted": false
     },
     {
@@ -125,7 +125,7 @@
         ".github/workflows/yunex-004-h-*.yml",
         "yunex/public/y004-final-mix.m4a (exact Agent D approved file)"
       ],
-      "status": "COMPLETE_ALL_NINE_NATIVE_PROOFS_AND_SOURCE_AUDIT_PASS_F_QA_PENDING",
+      "status": "INITIAL_INTEGRATION_AND_9_TECHNICAL_PROOFS_PASS_BUT_REVISIONS_REQUIRED_BY_F",
       "input_sha": "5914ddcabaeec4b14ff5e3ca6bcbaf4e6e71a1bb",
       "output_sha": "943475571faa53217397404bb9e750359d66cfcd",
       "proof": "Run 37764504658 SUCCESS all 9 source-locked MP4 proof jobs, artifact inventory yunex/video004/reports/H/native-proof-inventory.json on H branch; immutable film SHA f5cbdf2f6c96aa5ac2e5c184a048f49700037f55; Manager release not authorized until F real visual QA and audio.",
@@ -176,7 +176,7 @@
   ],
   "rule": "Only Manager updates this registry. Branch creation does not mean specialist execution started.",
   "progress_as_of": "2026-10-08",
-  "progress_notes": "Manager actual Porsche low/high 24-frame clips rendered at source 4749c48f7d350801ccc6462a7530225d6eadfc66 and uploaded as artifacts 11539213814/11539213630, but the jobs failed post-render because ffprobe was missing. Patched workflow on Manager branch to provision ffmpeg/ffprobe; corrected run 37755997906 queued. Need ffprobe, full decode, visual review before accepting. Agent D pushed new effects-only provisional 24s bed but cannot produce Cedar narration without fresh approved source; code SHA f46875dc7f6a730257a4b045298f76717a93a090.\n2026-10-08 new user-supplied Cedar take duration 22.704 s SHA db75bbbe6aa468062b300004390f23f254679086e2b69d0de6aa1d553c8d404b; 720f duration locked. Agent D still needs raw file access and transcript/cue validation. Existing A segment boundary 285f (9.5s) misaligned to spoken HIGH at 11.608s; target high cut about 333f (11.1s) requires native reproof.\n2026-10-08 follow-up: corrected native Porsche smoke run 37755997906 completed SUCCESS (3/3 low/high/macro jobs, artifacts 11541125305 / 11540133822 / 11540927524). D audio actual Cedar verified and 24s final AAC SHA a2f5dc284ce923a4d6803b66c2d45a1d3502a2be0024c8e3b1d2658c5bdb1e51 on Agent D full remote SHA 9567f6b2efa901d3667d084eedbbca9c98943c36. Film remains blocked by 9.5s->11.1s retime, native visual human QA and F acceptance, render source not pinned.\n2026-10-08 11:30 UK check: H branch dc61fa75382e2a0e8d2d9d8bfebd0a363ea3988d, tested H source f5cbdf2f6c96aa5ac2e5c184a048f49700037f55, native workflow 37761847924 in_progress. High-steering job 113260048019 rendered all 60 frames but failed strict pixel format check: yuvj420p; artifact 11543208304 not accepted. F 44b8d3913375bf75c33294752d448b103889596a explicitly FAIL/BLOCKED on native visual evidence, reports missing opening 0–59 and final 687–719. Agent I 213f2bb06d4720c3ee9a363110158b36b64cfaf1 completed gated workflow CI run 37763821232 SUCCESS (branch-trigger test), actual approved 24s AAC still not in Git repo. Do not release G.\n2026-10-08 later check: H rescue run 37764504658 has 7/9 strict limited-range Porsche moving native proof jobs PASS (hook, low, matched, high, roadside, active exit, final 687–719). Opening frames 0–59 and rear-macro 90–149 remain in_progress. Do not release G; F independent human moving QA still pending; approved AAC audio not remotely committed.\n2026-10-08 subsequent Manager check: H rescue run 37764504658 has all NINE jobs individually SUCCESS, including opening artifact 11544229629 and rear macro artifact 11544638033, source pinned f5cbdf2f6c96aa5ac2e5c184a048f49700037f55. Nine artifacts now indexed in registry. F independent visual approval still missing; Agent I branch 0de0c29522d994a2deb911c2f9f742e63fe98bfa confirmed binary audio NOT remote and requires authorized local Git push. No full G render.\n2026-10-08 Manager: H finished final integrated native evidence, run 37764504658 complete/SUCCESS, all 9 jobs passed, all 9 art IDs + MP4 digests in native-proof-inventory.json on H at report-only SHA 943475571faa53217397404bb9e750359d66cfcd; strict proof run source f5cbdf2f6c96aa5ac2e5c184a048f49700037f55. F's latest remote branch report still rejects old evidence, requires re-review of current 9 completed real MP4s. I audio not yet published into remote repo. No G full render permitted.",
+  "progress_notes": "Manager actual Porsche low/high 24-frame clips rendered at source 4749c48f7d350801ccc6462a7530225d6eadfc66 and uploaded as artifacts 11539213814/11539213630, but the jobs failed post-render because ffprobe was missing. Patched workflow on Manager branch to provision ffmpeg/ffprobe; corrected run 37755997906 queued. Need ffprobe, full decode, visual review before accepting. Agent D pushed new effects-only provisional 24s bed but cannot produce Cedar narration without fresh approved source; code SHA f46875dc7f6a730257a4b045298f76717a93a090.\n2026-10-08 new user-supplied Cedar take duration 22.704 s SHA db75bbbe6aa468062b300004390f23f254679086e2b69d0de6aa1d553c8d404b; 720f duration locked. Agent D still needs raw file access and transcript/cue validation. Existing A segment boundary 285f (9.5s) misaligned to spoken HIGH at 11.608s; target high cut about 333f (11.1s) requires native reproof.\n2026-10-08 follow-up: corrected native Porsche smoke run 37755997906 completed SUCCESS (3/3 low/high/macro jobs, artifacts 11541125305 / 11540133822 / 11540927524). D audio actual Cedar verified and 24s final AAC SHA a2f5dc284ce923a4d6803b66c2d45a1d3502a2be0024c8e3b1d2658c5bdb1e51 on Agent D full remote SHA 9567f6b2efa901d3667d084eedbbca9c98943c36. Film remains blocked by 9.5s->11.1s retime, native visual human QA and F acceptance, render source not pinned.\n2026-10-08 11:30 UK check: H branch dc61fa75382e2a0e8d2d9d8bfebd0a363ea3988d, tested H source f5cbdf2f6c96aa5ac2e5c184a048f49700037f55, native workflow 37761847924 in_progress. High-steering job 113260048019 rendered all 60 frames but failed strict pixel format check: yuvj420p; artifact 11543208304 not accepted. F 44b8d3913375bf75c33294752d448b103889596a explicitly FAIL/BLOCKED on native visual evidence, reports missing opening 0–59 and final 687–719. Agent I 213f2bb06d4720c3ee9a363110158b36b64cfaf1 completed gated workflow CI run 37763821232 SUCCESS (branch-trigger test), actual approved 24s AAC still not in Git repo. Do not release G.\n2026-10-08 later check: H rescue run 37764504658 has 7/9 strict limited-range Porsche moving native proof jobs PASS (hook, low, matched, high, roadside, active exit, final 687–719). Opening frames 0–59 and rear-macro 90–149 remain in_progress. Do not release G; F independent human moving QA still pending; approved AAC audio not remotely committed.\n2026-10-08 subsequent Manager check: H rescue run 37764504658 has all NINE jobs individually SUCCESS, including opening artifact 11544229629 and rear macro artifact 11544638033, source pinned f5cbdf2f6c96aa5ac2e5c184a048f49700037f55. Nine artifacts now indexed in registry. F independent visual approval still missing; Agent I branch 0de0c29522d994a2deb911c2f9f742e63fe98bfa confirmed binary audio NOT remote and requires authorized local Git push. No full G render.\n2026-10-08 Manager: H finished final integrated native evidence, run 37764504658 complete/SUCCESS, all 9 jobs passed, all 9 art IDs + MP4 digests in native-proof-inventory.json on H at report-only SHA 943475571faa53217397404bb9e750359d66cfcd; strict proof run source f5cbdf2f6c96aa5ac2e5c184a048f49700037f55. F's latest remote branch report still rejects old evidence, requires re-review of current 9 completed real MP4s. I audio not yet published into remote repo. No G full render permitted.\n2026-10-08 F independent 9 playable MP4 QA report at F SHA d7896e5eeef802587b95e61784558b30a794af4a: technical media 9/9 PASS, VISUAL RELEASE FAIL: guides too faint (272,336,397), prolonged hero crop (0-59,432-551), proof missing 150-246+small cut spans (117f), AV playback pending. C to fix owned camera/guides, H integrates and re-proofs changed exact source, F re-reviews; no G render authorization.",
   "integration": {
     "source_overlay_sha": "6f9297612648ce6f14a0fa8efbfb3532ab041e30",
     "provisional_visual_sha": "ca43545411e651495f70ca92d177786c0e264eec",
@@ -301,7 +301,51 @@
     "qa_rule": "Manager combine accepted H+I outputs into one immutable source then F verifies EXACT merged SHA"
   },
   "i_dispatch_sha": "1b4b85e00df75b4508625ff17363547641e62018",
-  "pre_render_qa_status": "BLOCKED",
-  "pre_render_qa_evidence": null,
-  "i_release_launch_authorized": false
+  "pre_render_qa_status": "FAIL",
+  "pre_render_qa_evidence": {
+    "agent": "F",
+    "verdict": "FAIL",
+    "source_sha": "f5cbdf2f6c96aa5ac2e5c184a048f49700037f55",
+    "report": "yunex/video004/reports/F/H_RESCUE_37764504658_INDEPENDENT_QA.md",
+    "full_report_commit": "d7896e5eeef802587b95e61784558b30a794af4a",
+    "proof_run_id": 37764504658
+  },
+  "i_release_launch_authorized": false,
+  "qa_correction_wave": {
+    "priority": "BLOCKING",
+    "film_source_prior": "f5cbdf2f6c96aa5ac2e5c184a048f49700037f55",
+    "F_report_sha": "d7896e5eeef802587b95e61784558b30a794af4a",
+    "C_ownership": "yunex/src/video004/camera/** and guides/**",
+    "H_ownership": "central integration and new native exact-source moving proof",
+    "issues": [
+      {
+        "code": "F-004-01",
+        "severity": "BLOCKING",
+        "owner": "C",
+        "frames": "247–306,312–371,372–431; esp. 272,336,397",
+        "issue": "white/green actual-vs-neutral steering guides too faint, visually near-coincident at 9:16; show true steering principle without falsifying physical yaw >1°"
+      },
+      {
+        "code": "F-004-02",
+        "severity": "HIGH",
+        "owner": "C",
+        "frames": "0–59 and 432–551; esp. 0,36,59,497",
+        "issue": "sustained whole-car silhouette and wing clipping; preserve dramatic short macro and exit"
+      },
+      {
+        "code": "F-004-03",
+        "severity": "BLOCKING",
+        "owner": "H",
+        "frames": "150–246,307–311,552–566",
+        "issue": "117 frame gaps not covered by accessible native moving proof"
+      },
+      {
+        "code": "F-004-04",
+        "severity": "FOLLOWUP",
+        "owner": "H/F/Manager",
+        "frames": "rear macro, full final audio",
+        "issue": "caliper details partially occluded; human real-time AV sync awaits source-matched preview"
+      }
+    ]
+  }
 }
