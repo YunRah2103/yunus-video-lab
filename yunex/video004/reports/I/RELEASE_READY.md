@@ -1,5 +1,19 @@
 # YUNEX 004 — Agent I Release Readiness
 
+## Latest binary publication check — 8 October 2026, 15:54 BST
+
+**State: ORIGINAL APPROVED AAC VALIDATED; REMOTE AUDIO STILL ABSENT (HTTP 404).** Rechecked `sol/y004-i-release-prep` at starting SHA `0de0c29522d994a2deb911c2f9f742e63fe98bfa`. GitHub could not return `yunex/video004/audio/y004-approved-cedar-24s.m4a`; therefore **no remote audio SHA256 exists to attest**. No binary upload is claimed.
+
+- Reused the exact approved Library source already materialized in the working container; measured **753,974 bytes**, SHA256 `a2f5dc284ce923a4d6803b66c2d45a1d3502a2be0024c8e3b1d2658c5bdb1e51`.
+- Reused the existing portable patch; SHA256 `4b7cc0b0b4fc3bd51c775a45b1ff7163c39fc6f26ddf8a5ae06773c40aff42c3` (**939,440 bytes**).
+- Fresh verification on a clean Git repository: `git apply --check` **PASS**; patch applied **PASS**; recovered bytes match the original by `cmp` **PASS**; SHA256 matches approved original **PASS**; `ffprobe` AAC / 48 kHz / stereo / 24.000000 s **PASS**; full `ffmpeg -xerror -err_detect explode` decode **PASS**.
+- GitHub binary transport remains unavailable here: the container has Git but **no GitHub credentials/token**; non-mutating HTTPS `git ls-remote` fails with `Could not resolve host: github.com`. GitHub connector has no way to read the local byte file as the `create_blob` argument, so do **not** claim publication through that path. Stop unsupported retries.
+- Previously validated workflow `.github/workflows/yunex-004-i-gated-release.yml` was **not edited or dispatched**. All Manager/F pre-render gates remain intact; no native full render was run.
+- **Only remaining Agent I action**: authorized local Windows Git checkout applies the already-tested patch and pushes the single approved M4A to `sol/y004-i-release-prep`. The existing tested PowerShell instructions below remain authoritative; verify the remote SHA and presence afterwards. Do **not** push on `main` or authorize a Manager release.
+
+**Manager note:** Agent E's 13 native proof clips and any pending F visual approval are separate from this audio-transfer blocker. The Manager must still merge/choose exactly one approved audio path, pin final source, and obtain F PASS on that exact source before release.
+
+
 **Status: PARTIAL / BLOCKED ON REPOSITORY-LOCAL AUDIO BINARY AND MANAGER + F FINAL GATES.**  
 **Branch:** `sol/y004-i-release-prep`  
 **Scope:** release preparation only. **No 720-frame render attempted.** No modification of H's integration, G/E renderer, F QA, Manager TASKS, or Porsche GLB.
