@@ -1,13 +1,13 @@
 {
   "phase": "Y004-REAR-STEERING-01",
-  "phase_status": "SIX_REMOTE_BRANCHES_CREATED_NOT_STARTED",
+  "phase_status": "SIX_SPECIALIST_BRANCHES_CODE_PUSHED_MANAGER_INTEGRATION_PENDING",
   "manager_branch": "sol/y004-rear-steering-manager",
   "master_handoff_sha": "2522f1379712f7ccbeca68d350dfa592a1f6ff97",
   "source_base_sha": "451728dcbc8e36cc9f54fb94e00bdefbdf068f51",
   "model_sha256": "1c73fcb138c31e2b1d5ed126a2412074bb17f8e960b355436f28139bf518e1eb",
   "dispatch_sha": "bf2f0996f4176791d5ac78d818090e8b429397ad",
   "dispatch_branch_base_sha": "bf2f0996f4176791d5ac78d818090e8b429397ad",
-  "voiceover_status": "SCRIPT_ONLY_NO_MEASURED_RECORDING",
+  "voiceover_status": "NEW_Y004_VO_NOT_RECORDED_OR_MEASURED",
   "fps": 30,
   "target_frames_provisional": 720,
   "locked_frames": null,
@@ -24,9 +24,9 @@
         "yunex/src/video004/motion/**",
         "yunex/video004/reports/A/**"
       ],
-      "status": "DISPATCHED_AWAIT_USER_CHAT_START",
+      "status": "CODE_PUSHED_NATIVE_PROOF_PENDING",
       "input_sha": "bf2f0996f4176791d5ac78d818090e8b429397ad",
-      "output_sha": null,
+      "output_sha": "8ba8678a9a98d5abd5b1b61bd800c5e90b95dc83",
       "proof": null,
       "accepted": false
     },
@@ -39,9 +39,9 @@
         "yunex/src/video004/rig/**",
         "yunex/video004/reports/B/**"
       ],
-      "status": "DISPATCHED_AWAIT_USER_CHAT_START",
+      "status": "CODE_PUSHED_ACTUAL_GLB_TEST_AND_NATIVE_PROOF_PENDING",
       "input_sha": "bf2f0996f4176791d5ac78d818090e8b429397ad",
-      "output_sha": null,
+      "output_sha": "0c6398a497bd034ca12baa39d519e5a92b504a26",
       "proof": null,
       "accepted": false
     },
@@ -55,9 +55,9 @@
         "yunex/src/video004/guides/**",
         "yunex/video004/reports/C/**"
       ],
-      "status": "DISPATCHED_AWAIT_USER_CHAT_START",
+      "status": "CODE_PUSHED_INTEGRATED_NATIVE_PROOF_PENDING",
       "input_sha": "bf2f0996f4176791d5ac78d818090e8b429397ad",
-      "output_sha": null,
+      "output_sha": "affe2eedc93836a110b407606f9b87294275df9e",
       "proof": null,
       "accepted": false
     },
@@ -73,9 +73,9 @@
         "yunex/video004/reports/D/**",
         "yunex/public/y004-*"
       ],
-      "status": "DISPATCHED_AWAIT_USER_CHAT_START",
+      "status": "CODE_PUSHED_NEW_MEASURED_VO_BLOCKED",
       "input_sha": "bf2f0996f4176791d5ac78d818090e8b429397ad",
-      "output_sha": null,
+      "output_sha": "d96b5731a3584d294d54465034c70a3928e7271a",
       "proof": null,
       "accepted": false
     },
@@ -89,10 +89,10 @@
         ".github/workflows/yunex-004-*.yml",
         "yunex/video004/reports/E/**"
       ],
-      "status": "DISPATCHED_AWAIT_USER_CHAT_START",
+      "status": "TOOLING_SMOKE_PASS_FULL_RENDER_BLOCKED",
       "input_sha": "bf2f0996f4176791d5ac78d818090e8b429397ad",
-      "output_sha": null,
-      "proof": null,
+      "output_sha": "9d4593308cf660d7824fb5ba013a59c15878e204",
+      "proof": "Synthetic CI smoke SUCCESS run 37750922383 artifact 11538520721; NOT Porsche native film",
       "accepted": false
     },
     {
@@ -104,9 +104,9 @@
         "yunex/src/video004/qa/**",
         "yunex/video004/reports/F/**"
       ],
-      "status": "DISPATCHED_AWAIT_USER_CHAT_START",
+      "status": "HARNESS_45_PASS_NATIVE_QA_BLOCKED",
       "input_sha": "bf2f0996f4176791d5ac78d818090e8b429397ad",
-      "output_sha": null,
+      "output_sha": "650cd0bdabaa127103ab214a1c44eb1c86ebb0aa",
       "proof": null,
       "accepted": false
     }
@@ -120,5 +120,7 @@
     "immutable render source SHA and E full native delivery",
     "F final QA; Manager delivery to Master"
   ],
-  "rule": "Only Manager updates this registry. Branch creation does not mean specialist execution started."
+  "rule": "Only Manager updates this registry. Branch creation does not mean specialist execution started.",
+  "progress_as_of": "2026-10-08",
+  "progress_notes": "A/B/C native moving Porsche footage not executed or not accepted; D new VO unavailable; E synthetic 4-frame native CI smoke successful run 37750922383 artifact 11538520721; F harness 45 tests fixture pass and pre-render QA blocked. No Y004 playable film."
 }
