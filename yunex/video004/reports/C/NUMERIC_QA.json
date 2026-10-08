@@ -1,0 +1,32 @@
+{
+  "phase": "Y004-REAR-STEERING-01",
+  "agent": "C",
+  "branch": "sol/y004-c-camera-guides",
+  "validation": "ISOLATED_JS_EQUIVALENT_GEOMETRY_SMOKE",
+  "status": "PASS_NUMERIC_ONLY_NATIVE_BLOCKED",
+  "cameraModule": "yunex/src/video004/camera/index.ts",
+  "guideModule": "yunex/src/video004/guides/index.ts",
+  "actualSourceBasis": "Source fetched from C branch; type annotations removed solely for isolated V8 numeric execution",
+  "stagingFixture": "A branch 8ba8678a9a98d5abd5b1b61bd800c5e90b95dc83 track-local Z ranges modelled with approved P03 curve, NOT live Agent A sampler",
+  "poseSampleCount": 30,
+  "poseGeometryPasses": 30,
+  "lowHookVisible": 5,
+  "rearMacroVisible": 5,
+  "matchedLowExplainBothAxlesVisible": 5,
+  "matchedHighExplainBothAxlesVisible": 5,
+  "highDriveGraphicFree": 5,
+  "tracksideExitGraphicFree": 5,
+  "fixedWorldExitDeltaMetres": 0,
+  "angleAuditsPassed": 30,
+  "testedAxes": "P03 world yaw convention and wheel-local wheel contact/steer signed yaw",
+  "notTested": [
+    "Full repository npm/esbuild TypeScript compile",
+    "actual A/B rig moving scene",
+    "Remotion-native GLB proof",
+    "full audiovisual film",
+    "real A/B source acceptance"
+  ],
+  "nativeProofArtifactId": null,
+  "nativeProofRunId": null,
+  "nextGate": "Manager accepts and integrates A/B/C, then runs C standalone native proofEntry; records source SHA/MP4/decoder/normal-speed muted QA"
+}
