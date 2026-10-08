@@ -44,9 +44,9 @@ const SPECS: Record<Exclude<Y004SegmentId, 'trackside-exit'>, CameraSpec> = {
   },
 };
 export const Y004_EXIT_EDITORIAL_CUT_PROGRESS = 0.54 as const;
-/** Manager should stage the first half of exit close to this track Z. Not a
+/** A's provisional exit is staged from -48m to +38m local Z. Place the fixed-world pass at -24m; Manager must revalidate after accepting A. Not a
  * camera-local/car-relative position. Validate the actual A shot-local run. */
-export const Y004_FIXED_EXIT_TRACK_Z = 85 as const;
+export const Y004_FIXED_EXIT_TRACK_Z = -24 as const;
 const EXIT_CHASE: CameraSpec = {
   from: [4.90, 1.73, -7.70], to: [4.58, 1.78, -9.05],
   lookFrom: [0, 0.63, 0.16], lookTo: [0, 0.68, 0.65],
