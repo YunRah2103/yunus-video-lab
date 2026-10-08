@@ -84,6 +84,15 @@ export const createY004RearSteerRig=(model:THREE.Object3D):Y004RearSteerRig=>{
   }
   return {id,node,parent:node.parent,steer,spin,base:snapshot(node)};
  });
+ // Snapshot mesh material REFERENCES; B must not edit the accepted GLB look.
+ const materialSnapshots:Array<{mesh:THREE.Mesh;material:THREE.Material|THREE.Material[]}>= [];
+ for(const caliper of calipers){
+  caliper.node.traverse(object=>{
+   if(object instanceof THREE.Mesh){
+    materialSnapshots.push({mesh:object,material:object.material});
+   }
+  });
+ }
  let runtime:RuntimeMotionRig|null=null;
  let disposed=false,maxWorldMatrixDeltaOnAttach=0,measuredWorldPoseDeltaM=0;
 
@@ -92,6 +101,7 @@ export const createY004RearSteerRig=(model:THREE.Object3D):Y004RearSteerRig=>{
    if(c.node.parent!==c.parent)c.parent.add(c.node);
    restorePose(c.node,c.base);
   }
+  for(const saved of materialSnapshots)saved.mesh.material=saved.material;
   model.updateMatrixWorld(true);
  };
  const deactivate=()=>{
