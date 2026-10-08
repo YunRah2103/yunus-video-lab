@@ -1,0 +1,21 @@
+{
+  "episode": "YUNEX-004",
+  "status": "BLOCKED_NO_NEW_RECORDING",
+  "script_authority": "yunex/src/video004/audio/cues.ts",
+  "voice": {
+    "speaker": "Cedar or user-approved equivalent; not selected",
+    "source_file": null,
+    "sha256": null,
+    "rights": null,
+    "measured_duration_seconds": null,
+    "measured_sentence_timestamps": null,
+    "sample_rate_hz": null,
+    "channels": null
+  },
+  "fx": {
+    "source": "FFmpeg procedural two sine harmonics plus seeded, filtered pink/white noise",
+    "rights": "locally synthesized; no third-party field recording",
+    "status": "REPRODUCIBLE_REFERENCE_ONLY"
+  },
+  "warning": "No Y003 audio, no test fixture and no tone are an approved Y004 narration. Final narration, timing, isolated WAV and voice-reference mix cannot pass until actual recording is supplied."
+}
