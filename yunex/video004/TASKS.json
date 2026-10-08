@@ -125,8 +125,8 @@
         ".github/workflows/yunex-004-h-*.yml",
         "yunex/public/y004-final-mix.m4a (exact Agent D approved file)"
       ],
-      "status": "NOT_STARTED_WAITING_USER_CHAT",
-      "input_sha": null,
+      "status": "DISPATCHED_READY_FOR_INTEGRATION",
+      "input_sha": "5914ddcabaeec4b14ff5e3ca6bcbaf4e6e71a1bb",
       "output_sha": null,
       "proof": null,
       "accepted": false
@@ -141,8 +141,8 @@
         "yunex/video004/delivery/** (text reports and metadata only)",
         ".github/workflows/yunex-004-g-*.yml (only if needed; no workflow duplication)"
       ],
-      "status": "NOT_STARTED_BLOCKED_UNTIL_H_INTEGRATION_AND_F_PREFLIGHT",
-      "input_sha": null,
+      "status": "DISPATCHED_PREP_ONLY_BLOCKED_UNTIL_H_F_MANAGER_RELEASE",
+      "input_sha": "5914ddcabaeec4b14ff5e3ca6bcbaf4e6e71a1bb",
       "output_sha": null,
       "proof": null,
       "accepted": false
@@ -203,5 +203,6 @@
     "motion_edit_state": "CURRENT_HIGH_SHOT_STARTS_AT_9_5S_BUT_NEW_HIGH_SPEECH_STARTS_AT_11_608S; RETIME_BEFORE_FULL_RENDER",
     "film_end_seconds": 24
   },
-  "ownership_exception": "Manager explicitly delegates central Y004 visual integration files to H exclusively, excluding TASKS.json, which Manager still owns. G owns final render dispatch/delivery, reusing E tooling; no broad source edits."
+  "ownership_exception": "Manager explicitly delegates central Y004 visual integration files to H exclusively, excluding TASKS.json, which Manager still owns. G owns final render dispatch/delivery, reusing E tooling; no broad source edits.",
+  "gh_dispatch_sha": "5914ddcabaeec4b14ff5e3ca6bcbaf4e6e71a1bb"
 }
