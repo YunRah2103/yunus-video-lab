@@ -97,9 +97,9 @@ jobs:
         working-directory: yunex
         env:
           NODE_OPTIONS: --require=./fix-network.cjs
-          LABEL: @${{ matrix.label }}
-          RANGE: @${{ matrix.range }}
-          EXPECTED: @${{ matrix.expected }}
+          LABEL: ${{ matrix.label }}
+          RANGE: ${{ matrix.range }}
+          EXPECTED: ${{ matrix.expected }}
         run: |
           set -euo pipefail
           mkdir -p "out/y004-h-c/$LABEL"
@@ -112,6 +112,6 @@ jobs:
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: Y004-H-C-NATIVE-@${{ matrix.label }}
-          path: yunex/out/y004-h-c/@${{ matrix.label }}/
+          name: Y004-H-C-NATIVE-${{ matrix.label }}
+          path: yunex/out/y004-h-c/${{ matrix.label }}/
           retention-days: 30
