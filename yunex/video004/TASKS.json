@@ -1,0 +1,124 @@
+{
+  "phase": "Y004-REAR-STEERING-01",
+  "phase_status": "DISPATCH_READY_IMPLEMENTATION_NOT_STARTED",
+  "manager_branch": "sol/y004-rear-steering-manager",
+  "master_handoff_sha": "2522f1379712f7ccbeca68d350dfa592a1f6ff97",
+  "source_base_sha": "451728dcbc8e36cc9f54fb94e00bdefbdf068f51",
+  "model_sha256": "1c73fcb138c31e2b1d5ed126a2412074bb17f8e960b355436f28139bf518e1eb",
+  "dispatch_sha": null,
+  "dispatch_branch_base_sha": null,
+  "voiceover_status": "SCRIPT_ONLY_NO_MEASURED_RECORDING",
+  "fps": 30,
+  "target_frames_provisional": 720,
+  "locked_frames": null,
+  "render_source_sha": null,
+  "render_final_artifact_id": null,
+  "manager_integration_sha": null,
+  "specialists": [
+    {
+      "id": "A",
+      "role": "Steering/motion",
+      "branch": "sol/y004-a-motion",
+      "handoff": "yunex/video004/A_MOTION_HANDOFF.md",
+      "owns": [
+        "yunex/src/video004/motion/**",
+        "yunex/video004/reports/A/**"
+      ],
+      "status": "NOT_STARTED",
+      "input_sha": null,
+      "output_sha": null,
+      "proof": null,
+      "accepted": false
+    },
+    {
+      "id": "B",
+      "role": "Mechanical rear rig/caliper",
+      "branch": "sol/y004-b-rig",
+      "handoff": "yunex/video004/B_RIG_HANDOFF.md",
+      "owns": [
+        "yunex/src/video004/rig/**",
+        "yunex/video004/reports/B/**"
+      ],
+      "status": "NOT_STARTED",
+      "input_sha": null,
+      "output_sha": null,
+      "proof": null,
+      "accepted": false
+    },
+    {
+      "id": "C",
+      "role": "Cameras and guides",
+      "branch": "sol/y004-c-camera-guides",
+      "handoff": "yunex/video004/C_CAMERA_GUIDES_HANDOFF.md",
+      "owns": [
+        "yunex/src/video004/camera/**",
+        "yunex/src/video004/guides/**",
+        "yunex/video004/reports/C/**"
+      ],
+      "status": "NOT_STARTED",
+      "input_sha": null,
+      "output_sha": null,
+      "proof": null,
+      "accepted": false
+    },
+    {
+      "id": "D",
+      "role": "Editorial, VO and sound",
+      "branch": "sol/y004-d-edit-audio",
+      "handoff": "yunex/video004/D_EDIT_AUDIO_HANDOFF.md",
+      "owns": [
+        "yunex/src/video004/edit/**",
+        "yunex/src/video004/audio/**",
+        "yunex/video004/audio/**",
+        "yunex/video004/reports/D/**",
+        "yunex/public/y004-*"
+      ],
+      "status": "NOT_STARTED",
+      "input_sha": null,
+      "output_sha": null,
+      "proof": null,
+      "accepted": false
+    },
+    {
+      "id": "E",
+      "role": "Native render tooling",
+      "branch": "sol/y004-e-render",
+      "handoff": "yunex/video004/E_RENDER_HANDOFF.md",
+      "owns": [
+        "yunex/video004/render/**",
+        ".github/workflows/yunex-004-*.yml",
+        "yunex/video004/reports/E/**"
+      ],
+      "status": "NOT_STARTED",
+      "input_sha": null,
+      "output_sha": null,
+      "proof": null,
+      "accepted": false
+    },
+    {
+      "id": "F",
+      "role": "Independent QA",
+      "branch": "sol/y004-f-qa",
+      "handoff": "yunex/video004/F_QA_HANDOFF.md",
+      "owns": [
+        "yunex/src/video004/qa/**",
+        "yunex/video004/reports/F/**"
+      ],
+      "status": "NOT_STARTED",
+      "input_sha": null,
+      "output_sha": null,
+      "proof": null,
+      "accepted": false
+    }
+  ],
+  "required_gates": [
+    "A/B actual driving/rig native moving proof",
+    "C muted matched camera/cues evidence",
+    "D measured new Y004 VO, timing and mix",
+    "Manager integrated native short proof",
+    "F pre-render moving visual PASS",
+    "immutable render source SHA and E full native delivery",
+    "F final QA; Manager delivery to Master"
+  ],
+  "rule": "Only Manager updates this registry. Branch creation does not mean specialist execution started."
+}
