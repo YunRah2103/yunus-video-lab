@@ -1,6 +1,6 @@
 {
   "phase": "Y004-REAR-STEERING-01",
-  "phase_status": "G_H_ROLES_DISPATCH_IN_PROGRESS_H_TO_INTEGRATE_THEN_F_PROOF_PASS_THEN_G_FINAL_RENDER",
+  "phase_status": "I_RELEASE_PREP_IN_PARALLEL_H_FINAL_INTEGRATION_F_VISUAL_QA_G_RENDER_RELEASE_PENDING",
   "manager_branch": "sol/y004-rear-steering-manager",
   "master_handoff_sha": "2522f1379712f7ccbeca68d350dfa592a1f6ff97",
   "source_base_sha": "451728dcbc8e36cc9f54fb94e00bdefbdf068f51",
@@ -146,15 +146,33 @@
       "output_sha": null,
       "proof": null,
       "accepted": false
+    },
+    {
+      "id": "I",
+      "role": "Independent release prep: byte-verified Cedar asset + compliant workflow launch route",
+      "branch": "sol/y004-i-release-prep",
+      "handoff": "yunex/video004/I_RELEASE_PREP_HANDOFF.md",
+      "owns": [
+        "yunex/video004/release-prep/**",
+        "yunex/video004/reports/I/**",
+        "yunex/video004/audio/y004-approved-cedar-24s.m4a (single exact SHA exception, not existing D files)",
+        ".github/workflows/yunex-004-i-*.yml (strict namespacing)"
+      ],
+      "status": "NOT_STARTED_AWAIT_USER_CHAT",
+      "input_sha": null,
+      "output_sha": null,
+      "proof": null,
+      "accepted": false
     }
   ],
   "required_gates": [
-    "H retimes actual video to approved 22.704s Cedar, integrates D and registers YUNEX-004 @720f",
-    "H native moving hook, low/high matched sequence, rear macro, driving and active exit proofs from same source",
-    "F independent real native pre-render QA PASS at H exact SHA",
-    "Manager reviews H+F, pins immutable H source in TASKS.json and publishes QA evidence",
-    "G reuses E native pipeline on pinned H SHA, muxes exact D AAC and publishes one finished 720f master",
-    "F independent final MP4 technical/audio QA, then Master creative review"
+    "H actual narration-synced Y004 composition and fresh moving proofs",
+    "I exact byte-verified D final AAC asset and tested supported renderer launch path (no full render)",
+    "Manager merges H visual + I release assets into single candidate SHA",
+    "F independent pre-render moving QA PASS matching exact Manager candidate SHA",
+    "Manager publishes immutable final render_source_sha and F evidence in TASKS.json",
+    "G runs existing E pipeline using source-locked 36x20-frame chunks and approved D AAC",
+    "F independent final MP4 QA, then Manager returns playable MP4 for Master creative review"
   ],
   "rule": "Only Manager updates this registry. Branch creation does not mean specialist execution started.",
   "progress_as_of": "2026-10-08",
@@ -204,5 +222,17 @@
     "film_end_seconds": 24
   },
   "ownership_exception": "Manager explicitly delegates central Y004 visual integration files to H exclusively, excluding TASKS.json, which Manager still owns. G owns final render dispatch/delivery, reusing E tooling; no broad source edits.",
-  "gh_dispatch_sha": "5914ddcabaeec4b14ff5e3ca6bcbaf4e6e71a1bb"
+  "gh_dispatch_sha": "5914ddcabaeec4b14ff5e3ca6bcbaf4e6e71a1bb",
+  "parallel_release_preparation": {
+    "status": "DISPATCH_TO_I_INDEPENDENT_OF_H",
+    "audio_source_branch": "sol/y004-d-edit-audio",
+    "audio_expected_sha256": "a2f5dc284ce923a4d6803b66c2d45a1d3502a2be0024c8e3b1d2658c5bdb1e51",
+    "audio_repository_destination": "yunex/video004/audio/y004-approved-cedar-24s.m4a",
+    "user_library_source": "/Video Projects/YUNEX 004/Agent D/YUNEX_004_Cedar_final_mix_24s_48k_stereo.m4a",
+    "workflow_status": "CURRENT_E_WORKFLOW_NOT_REGISTERED_ON_DEFAULT_BRANCH; I MUST TEST SUPPORTED RELEASE TRIGGER ROUTE WITHOUT BYPASSING MANAGER F APPROVAL",
+    "i_cannot_authorize_render": true,
+    "i_cannot_modify_y004_timeline": true,
+    "i_cannot_edit_e_renderer": true,
+    "qa_rule": "Manager combine accepted H+I outputs into one immutable source then F verifies EXACT merged SHA"
+  }
 }

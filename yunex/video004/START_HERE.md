@@ -36,3 +36,6 @@ No external numerical threshold/steering-angle claim, no larger-than-1° illustr
 - H — integrate and retime: `H_INTEGRATION_HANDOFF.md`, branch `sol/y004-h-integration`.
 - G — locked native render and delivery: `G_RENDER_HANDOFF.md`, branch `sol/y004-g-render`.
 - Existing F stays independent proof/final QA; Agent E's rendering tooling stays reusable, no role replacement or duplicated renderer.
+
+## Parallel release helper
+Agent I is a release-only specialist on `sol/y004-i-release-prep`; read `I_RELEASE_PREP_HANDOFF.md`. I sources the exact D-approved AAC file and investigates a safe render-workflow launch route in parallel with H. I must not edit H integration or G renderer. Manager merges H+I, F approves the exact combined source, G does the full render.
