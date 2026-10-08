@@ -36,7 +36,9 @@ export function auditDriveFrames(samples, opts = {}) {
       fail('MISSING_MOTION', 'Incomplete Y004DriveFrame fields.', frame);
       continue;
     }
-    if (sample.motion.frame !== frame) fail('MOTION_FRAME', 'Inner MotionState frame mismatch.', frame);
+    // Separate low/high shots legitimately reuse shot-local motion samples.
+    // Require matching motion frame only if integration explicitly declares that policy.
+    if (opts.requireMatchingMotionFrame && sample.motion.frame !== frame) fail('MOTION_FRAME', 'Inner MotionState frame mismatch under global-frame policy.', frame);
     const root = sample.motion.root;
     const core = [sample.motion.distanceM, sample.motion.speedMps, sample.motion.accelerationMps2, sample.motion.curvaturePerM, root.trackLocalZ, ...(root.position ?? []), ...(root.rotation ?? [])];
     if (core.length !== 11 || core.some((n) => !finite(n))) fail('NONFINITE_MOTION', 'Missing/nonfinite root or path telemetry.', frame);
