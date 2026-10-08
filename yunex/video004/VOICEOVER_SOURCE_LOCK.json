@@ -1,0 +1,93 @@
+{
+  "phase": "Y004-REAR-STEERING-01",
+  "status": "MANAGER_RECEIVED_AND_HASHED_AUDIO_AUDIO_NOT_ON_GITHUB_AGENT_D_NEEDS_ORIGINAL_SOURCE",
+  "source_name": "YUNEX_004_Cedar_source.mp3",
+  "sha256": "db75bbbe6aa468062b300004390f23f254679086e2b69d0de6aa1d553c8d404b",
+  "bytes": 363264,
+  "codec": "MP3",
+  "sample_rate_hz": 24000,
+  "channels": 1,
+  "duration_seconds": 22.704,
+  "source_provenance": "User uploaded current YUNEX 004 Cedar narration in a separate Manager conversation. Original MP3 attached there; file bytes are NOT pushed to this GitHub repository.",
+  "supplied_transcript_status": "USER_TRANSCRIPT_PROVIDED_HUMAN_LISTENING_VERIFICATION_PENDING",
+  "actual_transcript": [
+    "The rear wheels on this Porsche steer too.",
+    "At lower speeds, they turn slightly against the front wheels, helping the GT3 RS rotate into corners more quickly.",
+    "But at higher speeds, they turn with the fronts instead.",
+    "That makes the car more stable when changing direction at speed.",
+    "So while you're driving, all four wheels are helping this Porsche turn."
+  ],
+  "cues": [
+    {
+      "id": "s1",
+      "start_seconds": 0,
+      "end_seconds": 2.755
+    },
+    {
+      "id": "s2",
+      "start_seconds": 3.65,
+      "end_seconds": 10.613
+    },
+    {
+      "id": "s3",
+      "start_seconds": 11.608,
+      "end_seconds": 14.232
+    },
+    {
+      "id": "s4",
+      "start_seconds": 14.979,
+      "end_seconds": 17.866
+    },
+    {
+      "id": "s5",
+      "start_seconds": 18.858,
+      "end_seconds": 22.577
+    }
+  ],
+  "cue_status": "APPROXIMATE SILENCE BOUNDARIES from FFmpeg silencedetect noise=-34dB duration=0.12, human verification required. Not forced alignment.",
+  "duration_lock": {
+    "frames": 720,
+    "fps": 30,
+    "seconds": 24,
+    "headroom_after_decoded_mp3_seconds": 1.296
+  },
+  "proposed_shots": [
+    {
+      "id": "low-hook",
+      "start_frame": 0,
+      "end_exclusive": 84
+    },
+    {
+      "id": "rear-macro",
+      "start_frame": 84,
+      "end_exclusive": 150
+    },
+    {
+      "id": "low-explain",
+      "start_frame": 150,
+      "end_exclusive": 333
+    },
+    {
+      "id": "high-explain",
+      "start_frame": 333,
+      "end_exclusive": 432
+    },
+    {
+      "id": "high-drive",
+      "start_frame": 432,
+      "end_exclusive": 552
+    },
+    {
+      "id": "trackside-exit",
+      "start_frame": 552,
+      "end_exclusive": 720
+    }
+  ],
+  "source_to_agent_d": "User must attach the original MP3 to Agent D's separate ChatGPT conversation or place it in an accessible file source. It cannot be recovered from these GitHub docs alone.",
+  "required_actions": [
+    "Agent D obtains exact MP3 and confirms SHA256, verifies transcript by listening, checks sentence boundaries and updates owned audio/cues.ts, runs new source finalization and publishes mixed audio assets.",
+    "Manager/A realign 9.5s high-regime cut with speech onset at 11.608s, preserve scene continuity and re-render affected native proofs.",
+    "Do not release full native render until actual audio + aligned visual native proof + F QA PASS.",
+    "Do not claim that uploaded source or isolated stem is already available to other separate chats."
+  ]
+}

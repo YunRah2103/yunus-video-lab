@@ -7,10 +7,10 @@
   "model_sha256": "1c73fcb138c31e2b1d5ed126a2412074bb17f8e960b355436f28139bf518e1eb",
   "dispatch_sha": "bf2f0996f4176791d5ac78d818090e8b429397ad",
   "dispatch_branch_base_sha": "bf2f0996f4176791d5ac78d818090e8b429397ad",
-  "voiceover_status": "PROCEDURAL_24S_BED_VERIFIED_NEW_CEDAR_TAKE_UNAVAILABLE_SENTENCE_TIMING_UNLOCKED",
+  "voiceover_status": "USER_CEDAR_MP3_SHA_AND_22_704S_VERIFIED_MANAGER_TIMING_LOCK_720_FRAMES_AGENT_D_ASSET_TRANSFER_AND_FINAL_MIX_PENDING",
   "fps": 30,
   "target_frames_provisional": 720,
-  "locked_frames": null,
+  "locked_frames": 720,
   "render_source_sha": null,
   "render_final_artifact_id": null,
   "manager_integration_sha": "ca43545411e651495f70ca92d177786c0e264eec",
@@ -122,7 +122,7 @@
   ],
   "rule": "Only Manager updates this registry. Branch creation does not mean specialist execution started.",
   "progress_as_of": "2026-10-08",
-  "progress_notes": "Manager actual Porsche low/high 24-frame clips rendered at source 4749c48f7d350801ccc6462a7530225d6eadfc66 and uploaded as artifacts 11539213814/11539213630, but the jobs failed post-render because ffprobe was missing. Patched workflow on Manager branch to provision ffmpeg/ffprobe; corrected run 37755997906 queued. Need ffprobe, full decode, visual review before accepting. Agent D pushed new effects-only provisional 24s bed but cannot produce Cedar narration without fresh approved source; code SHA f46875dc7f6a730257a4b045298f76717a93a090.",
+  "progress_notes": "Manager actual Porsche low/high 24-frame clips rendered at source 4749c48f7d350801ccc6462a7530225d6eadfc66 and uploaded as artifacts 11539213814/11539213630, but the jobs failed post-render because ffprobe was missing. Patched workflow on Manager branch to provision ffmpeg/ffprobe; corrected run 37755997906 queued. Need ffprobe, full decode, visual review before accepting. Agent D pushed new effects-only provisional 24s bed but cannot produce Cedar narration without fresh approved source; code SHA f46875dc7f6a730257a4b045298f76717a93a090.\n2026-10-08 new user-supplied Cedar take duration 22.704 s SHA db75bbbe6aa468062b300004390f23f254679086e2b69d0de6aa1d553c8d404b; 720f duration locked. Agent D still needs raw file access and transcript/cue validation. Existing A segment boundary 285f (9.5s) misaligned to spoken HIGH at 11.608s; target high cut about 333f (11.1s) requires native reproof.",
   "integration": {
     "source_overlay_sha": "6f9297612648ce6f14a0fa8efbfb3532ab041e30",
     "provisional_visual_sha": "ca43545411e651495f70ca92d177786c0e264eec",
@@ -135,5 +135,19 @@
     "original_render_run_id": 37753976721,
     "corrected_native_proof_run_id": 37755997906,
     "validation_issue": "Original native job produced 24/24 low/high frames but ffprobe binary absent, code corrected"
+  },
+  "voiceover": {
+    "source_sha256": "db75bbbe6aa468062b300004390f23f254679086e2b69d0de6aa1d553c8d404b",
+    "duration_seconds": 22.704,
+    "sample_rate_hz": 24000,
+    "channels": 1,
+    "original_size_bytes": 363264,
+    "source_state": "AVAILABLE_AS_CURRENT_MANAGER_CHAT_ATTACHMENT_ONLY_NOT_YET_PUBLISHED_TO_AGENT_D_OR_GITHUB",
+    "narration_stem_48k_24s_sha256": "176200dc6014aff7323aaff94e3d5bac3d2049773809608fb7c2c20c6b25ed7c",
+    "manager_manifest": "yunex/video004/VOICEOVER_SOURCE_LOCK.json",
+    "transcript_state": "USER_SUPPLIED_TEXT_DIFFERENT_FROM_MASTER_BASE; VERIFY_BY_HUMAN_LISTEN",
+    "sentence_timing_state": "SILENCE_DETECTION_APPROXIMATE_CONFIRM_BY_HUMAN",
+    "motion_edit_state": "CURRENT_HIGH_SHOT_STARTS_AT_9_5S_BUT_NEW_HIGH_SPEECH_STARTS_AT_11_608S; RETIME_BEFORE_FULL_RENDER",
+    "film_end_seconds": 24
   }
 }
