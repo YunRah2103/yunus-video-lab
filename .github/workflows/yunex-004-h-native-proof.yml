@@ -1,0 +1,115 @@
+name: YUNEX 004 H native moving integration proof
+on:
+  push:
+    branches: [sol/y004-h-integration]
+    paths:
+      - 'yunex/src/video004/**'
+      - 'yunex/src/index.tsx'
+      - 'yunex/video004/reports/H/**'
+      - 'yunex/video004/audio/**'
+      - '.github/workflows/yunex-004-h-native-proof.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  source-tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: yunex/package-lock.json
+      - name: Canonical GLB bytes
+        run: echo '1c73fcb138c31e2b1d5ed126a2412074bb17f8e960b355436f28139bf518e1eb  cars/porsche-911-gt3-rs-992/model.glb' | sha256sum --check -
+      - run: npm ci --no-audit --no-fund
+        working-directory: yunex
+      - name: Compile and run native-source unit/QA suites
+        working-directory: yunex
+        run: |
+          npx esbuild src/video004/Video004.tsx --bundle --platform=browser --packages=external --format=esm --jsx=automatic --outfile=/tmp/y004-h-visual.js
+          npx esbuild src/index.tsx --bundle --platform=browser --packages=external --format=esm --jsx=automatic --outfile=/tmp/y004-h-root.js
+          npx tsx src/video004/motion/motion.test.ts
+          npx tsx src/video004/edit/editorial.test.ts
+          npx tsx src/video004/audio/audio.test.ts
+          npx tsx video004/reports/H/integration.test.ts
+          node --test src/video004/qa/*.test.mjs
+          npx tsx src/video004/qa/auditLive.ts --source "$GITHUB_SHA" --frames 720 --out /tmp/y004-h-drive-audit.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: Y004-H-AUDIT-720
+          path: /tmp/y004-h-drive-audit.json
+          retention-days: 21
+  moving-native:
+    needs: source-tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - {label: hook-macro, range: '60-119', expected: 60}
+          - {label: rear-macro, range: '90-149', expected: 60}
+          - {label: low-steering, range: '247-306', expected: 60}
+          - {label: matched-low-high, range: '312-371', expected: 60}
+          - {label: high-steering, range: '372-431', expected: 60}
+          - {label: roadside-driving, range: '432-551', expected: 120}
+          - {label: active-exit, range: '567-686', expected: 120}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: yunex/package-lock.json
+      - name: Native FFmpeg tools
+        run: |
+          sudo apt-get -o Acquire::Retries=2 update -qq
+          sudo apt-get -o Acquire::Retries=2 install -y -qq ffmpeg
+          ffprobe -version | head -1
+      - name: Preserve canonical GLB geometry
+        run: |
+          echo '1c73fcb138c31e2b1d5ed126a2412074bb17f8e960b355436f28139bf518e1eb  cars/porsche-911-gt3-rs-992/model.glb' | sha256sum --check -
+          cp cars/porsche-911-gt3-rs-992/model.glb yunex/public/model.glb
+      - run: |
+          npm ci --no-audit --no-fund
+          npx remotion browser ensure
+        working-directory: yunex
+      - name: Native Remotion Porsche shot and full decoder
+        working-directory: yunex
+        env:
+          NODE_OPTIONS: --require=./fix-network.cjs
+          RANGE: ${{ matrix.range }}
+          LABEL: ${{ matrix.label }}
+          EXPECTED: ${{ matrix.expected }}
+        run: |
+          set -euo pipefail
+          DIR="out/y004-h/$LABEL"
+          mkdir -p "$DIR"
+          OUT="$DIR/$LABEL.mp4"
+          npx remotion render src/index.tsx YUNEX-004 "$OUT" --frames="$RANGE" --gl=swangle --concurrency=1 --codec=h264 --pixel-format=yuv420p --crf=18 --scale=1 --timeout=180000 --muted
+          ffprobe -v error -count_frames -select_streams v:0 -show_entries stream=codec_name,pix_fmt,width,height,r_frame_rate,nb_read_frames -show_entries format=duration -of json "$OUT" > "$DIR/ffprobe.json"
+          python3 - "$DIR/ffprobe.json" "$EXPECTED" <<'PY'
+          import json,sys
+          j=json.load(open(sys.argv[1]))
+          s=j['streams'][0]
+          assert s['codec_name']=='h264' and s['pix_fmt']=='yuv420p',s
+          assert s['width']==1080 and s['height']==1920 and s['r_frame_rate']=='30/1',s
+          assert int(s['nb_read_frames'])==int(sys.argv[2]),s
+          assert abs(float(j['format']['duration'])-int(sys.argv[2])/30)<0.08,j
+          print('NATIVE FRAME/FORMAT/DURATION PASS')
+          PY
+          ffmpeg -nostdin -v error -xerror -i "$OUT" -f null -
+          echo FULL_DECODER_PASS > "$DIR/decoder-result.txt"
+          echo "$GITHUB_SHA" > "$DIR/source-sha.txt"
+          echo "$RANGE" > "$DIR/frames-inclusive.txt"
+          (cd "$DIR" && sha256sum "$LABEL.mp4" > SHA256SUMS)
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: Y004-H-NATIVE-${{ matrix.label }}
+          path: yunex/out/y004-h/${{ matrix.label }}/
+          retention-days: 21
