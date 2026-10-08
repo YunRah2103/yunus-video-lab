@@ -36,7 +36,7 @@
   "nativeProofs": {
     "runId": 37769701749,
     "expectedJobs": 11,
-    "passesConfirmed": 6,
+    "passesConfirmed": 8,
     "format": {
       "codec": "h264",
       "pixelFormat": "yuv420p",
@@ -91,13 +91,13 @@
         "framesInclusive": "247-306",
         "expectedFrameCount": 60,
         "artifactName": "Y004-H-C-NATIVE-low-247-306",
-        "artifactId": null,
-        "mediaSha256": null,
+        "artifactId": 11548522472,
+        "mediaSha256": "e28296c45485177fd02c8f2c338653f8450ff14c3fd7e8670f481f3ae1b833cb",
         "sourceSha": "1e2ab54e77090ec9c95c119488bc87d7ab7a45ba",
-        "validation": "PENDING_NATIVE_RENDER",
+        "validation": "STRICT_NATIVE_MP4_AND_LOCAL_DECODER_PASS",
         "jobId": 113286094616,
-        "jobStatus": "in_progress",
-        "jobConclusion": null
+        "jobStatus": "completed",
+        "jobConclusion": "success"
       },
       {
         "name": "low-gap-307-311",
@@ -157,13 +157,13 @@
         "framesInclusive": "552-566",
         "expectedFrameCount": 15,
         "artifactName": "Y004-H-C-NATIVE-roadside-gap-552-566",
-        "artifactId": null,
-        "mediaSha256": null,
+        "artifactId": 11548412328,
+        "mediaSha256": "9bd321e4a5d8997a2463ad5fea2efd63cbcdc164337035fa67f266e7ca7b7836",
         "sourceSha": "1e2ab54e77090ec9c95c119488bc87d7ab7a45ba",
-        "validation": "PENDING_NATIVE_RENDER",
+        "validation": "STRICT_NATIVE_MP4_AND_LOCAL_DECODER_PASS",
         "jobId": 113286094819,
-        "jobStatus": "in_progress",
-        "jobConclusion": null
+        "jobStatus": "completed",
+        "jobConclusion": "success"
       },
       {
         "name": "exit-567-596",
@@ -194,7 +194,7 @@
     ],
     "jobsQueuedOrRunning": 11,
     "jobIdsAllConfirmed": true,
-    "pendingNative": 5
+    "pendingNative": 3
   },
   "oldSourceEvidence": {
     "sourceSha": "f5cbdf2f6c96aa5ac2e5c184a048f49700037f55",
