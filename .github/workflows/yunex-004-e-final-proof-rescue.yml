@@ -1,0 +1,93 @@
+name: YUNEX 004 E failed-gap-only recovery (manual)
+on:
+  workflow_dispatch:
+    inputs:
+      segment:
+        description: Previously failed H evidence segment to rescue; never rerender active/successful H jobs
+        required: true
+        type: choice
+        options:
+          - rear-wheel-macro-84-149
+          - active-exit-597-686
+permissions:
+  contents: read
+  actions: read
+env:
+  SOURCE: 1e2ab54e77090ec9c95c119488bc87d7ab7a45ba
+jobs:
+  failed-gap-only:
+    runs-on: ubuntu-latest
+    timeout-minutes: 110
+    steps:
+      - name: Do not duplicate a live or successful original job
+        env:
+          GH_TOKEN: ${{ github.token }}
+          SELECTED: ${{ inputs.segment }}
+        run: |
+          set -euo pipefail
+          gh api repos/${{ github.repository }}/actions/runs/37781451513/jobs?per_page=100 > /tmp/h-jobs.json
+          python3 - <<'PY'
+          import json,os
+          needle=os.environ['SELECTED']
+          jobs=[j for j in json.load(open('/tmp/h-jobs.json'))['jobs'] if needle in j['name']]
+          assert len(jobs)==1,f'cannot uniquely identify original job for {needle}: {len(jobs)}'
+          j=jobs[0]
+          assert j['status']=='completed',f'Original H job {j["id"]} still {j["status"]}; do not duplicate'
+          assert j['conclusion'] in ('failure','cancelled','timed_out'),f'Original H job {j["id"]} is {j["conclusion"]}; no rerender authorized'
+          print(f'RECOVERY AUTHORIZED only for failed original job {j["id"]} ({needle})')
+          PY
+      - uses: actions/checkout@v4
+        with:
+          ref: 1e2ab54e77090ec9c95c119488bc87d7ab7a45ba
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: yunex/package-lock.json
+      - name: Verify exact immutable film source, model, and prepare native rendering
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$SOURCE"
+          echo '1c73fcb138c31e2b1d5ed126a2412074bb17f8e960b355436f28139bf518e1eb  cars/porsche-911-gt3-rs-992/model.glb' | sha256sum --check -
+          cp cars/porsche-911-gt3-rs-992/model.glb yunex/public/model.glb
+          sudo apt-get -o Acquire::Retries=2 update -qq
+          sudo apt-get -o Acquire::Retries=2 install -y -qq ffmpeg
+          cd yunex
+          npm ci --no-audit --no-fund
+          npx remotion browser ensure
+      - name: Render only failed segment and run unweakened H native normalization
+        working-directory: yunex
+        env:
+          NODE_OPTIONS: --require=./fix-network.cjs
+          SELECTED: ${{ inputs.segment }}
+        run: |
+          set -euo pipefail
+          case "$SELECTED" in
+            rear-wheel-macro-84-149) RANGE=84-149; FRAMES=66 ;;
+            active-exit-597-686) RANGE=597-686; FRAMES=90 ;;
+            *) echo 'INVALID SEGMENT' >&2; exit 2 ;;
+          esac
+          OUTDIR="out/y004-e-rescue/$SELECTED"
+          mkdir -p "$OUTDIR"
+          RAW="$OUTDIR/$SELECTED-raw.mp4"
+          npx remotion render src/index.tsx YUNEX-004 "$RAW" --frames="$RANGE" --gl=swangle --concurrency=1 --codec=h264 --pixel-format=yuv420p --crf=18 --scale=1 --timeout=180000 --muted
+          bash video004/reports/H/normalize-native-proof.sh "$RAW" "$OUTDIR" "$SELECTED" "$RANGE" "$FRAMES" "$SOURCE"
+          ffmpeg -nostdin -v error -xerror -i "$OUTDIR/$SELECTED.mp4" -an -vf 'scale=96:54:flags=fast_bilinear,format=gray' -f framemd5 "$OUTDIR/decoded-frame-hashes.md5"
+          python3 - "$OUTDIR/decoded-frame-hashes.md5" "$FRAMES" <<'PY'
+          from pathlib import Path
+          import sys
+          lines=[line.strip().split(',') for line in Path(sys.argv[1]).read_text().splitlines() if line.strip() and not line.startswith('#')]
+          hashes=[l[-1].strip() for l in lines]
+          assert len(hashes)==int(sys.argv[2]),'decoded sampled frames mismatch'
+          assert all(a!=b for a,b in zip(hashes,hashes[1:])),'adjacent identical decoded frames'
+          print('NATIVE TEMPORAL INTEGRITY PASS')
+          PY
+          printf 'Agent E failed-only recovery, corrected film %s, original range %s, GitHub run %s\n' "$SOURCE" "$RANGE" "$GITHUB_RUN_ID" > "$OUTDIR/E_RESCUE_PROVENANCE.txt"
+          rm "$RAW"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: Y004-E-RESCUE-${{ inputs.segment }}
+          path: yunex/out/y004-e-rescue/${{ inputs.segment }}/
+          retention-days: 30
