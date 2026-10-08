@@ -1,8 +1,8 @@
 {
-  "schemaVersion": 2,
+  "schemaVersion": 3,
   "project": "YUNEX-004",
   "owner": "Agent H",
-  "status": "ALL_11_CORRECTED_SOURCE_NATIVE_PROOFS_PASS_PENDING_INDEPENDENT_F_VISUAL_REVIEW",
+  "status": "ORIGINAL_11_PASS_TWO_EXACT_SOURCE_GAP_RENDERS_IN_PROGRESS_F_GATE_HOLD",
   "exactFilmSourceSha": "1e2ab54e77090ec9c95c119488bc87d7ab7a45ba",
   "sourceIntegration": {
     "agentCCommit": "8039e03db2d2a774c4a4f3ff9639b8148eb69707",
@@ -36,7 +36,7 @@
   },
   "nativeProofs": {
     "runId": 37769701749,
-    "expectedJobs": 11,
+    "expectedJobs": 13,
     "passesConfirmed": 11,
     "format": {
       "codec": "h264",
@@ -63,7 +63,8 @@
         "archiveSha256VerifiedLocally": true,
         "independentFfprobeVerifiedLocally": true,
         "githubFullDecoderResult": "PASS",
-        "artifactUrl": "https://github.com/YunRah2103/yunus-video-lab/actions/runs/37769701749/artifacts/11547392900"
+        "artifactUrl": "https://github.com/YunRah2103/yunus-video-lab/actions/runs/37769701749/artifacts/11547392900",
+        "runId": 37769701749
       },
       {
         "name": "opening-tail-60-83",
@@ -80,7 +81,23 @@
         "archiveSha256VerifiedLocally": true,
         "independentFfprobeVerifiedLocally": true,
         "githubFullDecoderResult": "PASS",
-        "artifactUrl": "https://github.com/YunRah2103/yunus-video-lab/actions/runs/37769701749/artifacts/11548180309"
+        "artifactUrl": "https://github.com/YunRah2103/yunus-video-lab/actions/runs/37769701749/artifacts/11548180309",
+        "runId": 37769701749
+      },
+      {
+        "name": "rear-wheel-macro-84-149",
+        "framesInclusive": "84-149",
+        "expectedFrameCount": 66,
+        "artifactName": "Y004-H-FINAL-GAP-rear-wheel-macro-84-149",
+        "artifactId": null,
+        "mediaSha256": null,
+        "sourceSha": "1e2ab54e77090ec9c95c119488bc87d7ab7a45ba",
+        "validation": "PENDING_NATIVE_MP4",
+        "jobId": 113325287977,
+        "jobStatus": "in_progress",
+        "jobConclusion": null,
+        "runId": 37781451513,
+        "mediaSource": "Exact immutable corrected film commit, not previous film evidence"
       },
       {
         "name": "low-full-150-246",
@@ -98,7 +115,8 @@
         "independentFfprobeVerifiedLocally": true,
         "githubFullDecoderResult": "PASS",
         "artifactUrl": "https://github.com/YunRah2103/yunus-video-lab/actions/runs/37769701749/artifacts/11549115114",
-        "visualChecks": "Midpoint original-source frame: uncut Porsche on racetrack and truthfully opposing FRONT CAR LEFT/REAR CAR RIGHT categories; independent F visual verdict pending."
+        "visualChecks": "Midpoint original-source frame: uncut Porsche on racetrack and truthfully opposing FRONT CAR LEFT/REAR CAR RIGHT categories; independent F visual verdict pending.",
+        "runId": 37769701749
       },
       {
         "name": "low-247-306",
@@ -115,7 +133,8 @@
         "archiveSha256VerifiedLocally": true,
         "independentFfprobeVerifiedLocally": true,
         "githubFullDecoderResult": "PASS",
-        "artifactUrl": "https://github.com/YunRah2103/yunus-video-lab/actions/runs/37769701749/artifacts/11548522472"
+        "artifactUrl": "https://github.com/YunRah2103/yunus-video-lab/actions/runs/37769701749/artifacts/11548522472",
+        "runId": 37769701749
       },
       {
         "name": "low-gap-307-311",
@@ -132,7 +151,8 @@
         "archiveSha256VerifiedLocally": true,
         "independentFfprobeVerifiedLocally": true,
         "githubFullDecoderResult": "PASS",
-        "artifactUrl": "https://github.com/YunRah2103/yunus-video-lab/actions/runs/37769701749/artifacts/11546544603"
+        "artifactUrl": "https://github.com/YunRah2103/yunus-video-lab/actions/runs/37769701749/artifacts/11546544603",
+        "runId": 37769701749
       },
       {
         "name": "match-312-371",
@@ -150,7 +170,8 @@
         "archiveSha256VerifiedLocally": true,
         "independentFfprobeVerifiedLocally": true,
         "githubFullDecoderResult": "PASS",
-        "artifactUrl": "https://github.com/YunRah2103/yunus-video-lab/actions/runs/37769701749/artifacts/11548552591"
+        "artifactUrl": "https://github.com/YunRah2103/yunus-video-lab/actions/runs/37769701749/artifacts/11548552591",
+        "runId": 37769701749
       },
       {
         "name": "high-372-431",
@@ -168,7 +189,8 @@
         "archiveSha256VerifiedLocally": true,
         "independentFfprobeVerifiedLocally": true,
         "githubFullDecoderResult": "PASS",
-        "artifactUrl": "https://github.com/YunRah2103/yunus-video-lab/actions/runs/37769701749/artifacts/11548576922"
+        "artifactUrl": "https://github.com/YunRah2103/yunus-video-lab/actions/runs/37769701749/artifacts/11548576922",
+        "runId": 37769701749
       },
       {
         "name": "roadside-432-551",
@@ -186,7 +208,8 @@
         "independentFfprobeVerifiedLocally": true,
         "githubFullDecoderResult": "PASS",
         "artifactUrl": "https://github.com/YunRah2103/yunus-video-lab/actions/runs/37769701749/artifacts/11548780809",
-        "visualChecks": "Native frames at 0.3, 2, 3.5 seconds: whole Porsche/wing inside portrait, grounded track driving and environmental parallax. Subject relatively small; F director review still needed."
+        "visualChecks": "Native frames at 0.3, 2, 3.5 seconds: whole Porsche/wing inside portrait, grounded track driving and environmental parallax. Subject relatively small; F director review still needed.",
+        "runId": 37769701749
       },
       {
         "name": "roadside-gap-552-566",
@@ -203,7 +226,8 @@
         "archiveSha256VerifiedLocally": true,
         "independentFfprobeVerifiedLocally": true,
         "githubFullDecoderResult": "PASS",
-        "artifactUrl": "https://github.com/YunRah2103/yunus-video-lab/actions/runs/37769701749/artifacts/11548412328"
+        "artifactUrl": "https://github.com/YunRah2103/yunus-video-lab/actions/runs/37769701749/artifacts/11548412328",
+        "runId": 37769701749
       },
       {
         "name": "exit-567-596",
@@ -220,7 +244,23 @@
         "archiveSha256VerifiedLocally": true,
         "independentFfprobeVerifiedLocally": true,
         "githubFullDecoderResult": "PASS",
-        "artifactUrl": "https://github.com/YunRah2103/yunus-video-lab/actions/runs/37769701749/artifacts/11547945616"
+        "artifactUrl": "https://github.com/YunRah2103/yunus-video-lab/actions/runs/37769701749/artifacts/11547945616",
+        "runId": 37769701749
+      },
+      {
+        "name": "active-exit-597-686",
+        "framesInclusive": "597-686",
+        "expectedFrameCount": 90,
+        "artifactName": "Y004-H-FINAL-GAP-active-exit-597-686",
+        "artifactId": null,
+        "mediaSha256": null,
+        "sourceSha": "1e2ab54e77090ec9c95c119488bc87d7ab7a45ba",
+        "validation": "PENDING_NATIVE_MP4",
+        "jobId": 113325287706,
+        "jobStatus": "in_progress",
+        "jobConclusion": null,
+        "runId": 37781451513,
+        "mediaSource": "Exact immutable corrected film commit, not previous film evidence"
       },
       {
         "name": "ending-687-719",
@@ -237,15 +277,18 @@
         "archiveSha256VerifiedLocally": true,
         "independentFfprobeVerifiedLocally": true,
         "githubFullDecoderResult": "PASS",
-        "artifactUrl": "https://github.com/YunRah2103/yunus-video-lab/actions/runs/37769701749/artifacts/11547991357"
+        "artifactUrl": "https://github.com/YunRah2103/yunus-video-lab/actions/runs/37769701749/artifacts/11547991357",
+        "runId": 37769701749
       }
     ],
     "jobsQueuedOrRunning": 0,
     "jobIdsAllConfirmed": true,
-    "pendingNative": 0,
-    "allJobsSuccessful": true,
-    "artifactIdsAndHashesVerified": true,
-    "validationSummary": "11/11 exact source SHA, MP4 SHA256SUMS checks, 1080x1920, 30fps, strict H.264 yuv420p with color_range=tv, exact frames, GitHub full -xerror decode PASS; two newly finished clips independently full decoded."
+    "pendingNative": 2,
+    "allJobsSuccessful": false,
+    "artifactIdsAndHashesVerified": false,
+    "validationSummary": "11/11 exact source SHA, MP4 SHA256SUMS checks, 1080x1920, 30fps, strict H.264 yuv420p with color_range=tv, exact frames, GitHub full -xerror decode PASS; two newly finished clips independently full decoded.",
+    "originalValidatedRunId": 37769701749,
+    "completionRunId": 37781451513
   },
   "oldSourceEvidence": {
     "sourceSha": "f5cbdf2f6c96aa5ac2e5c184a048f49700037f55",
@@ -256,5 +299,18 @@
     "agentFVisualApproval": false,
     "managerExactSourceLock": false,
     "agentGFullRenderStartedByH": false
+  },
+  "fullCoverage": {
+    "totalFrames": 720,
+    "framesPerSecond": 30,
+    "expectedUniqueCoveredFramesOnSuccess": 720,
+    "gapsBeforeThisRun": [
+      "84-149",
+      "597-686"
+    ],
+    "newFramesExpected": 156,
+    "proposedRangeAudit": "PASS_NO_MISSING_OR_OVERLAPPING_RANGES",
+    "actualAll13ClipsValidated": false,
+    "independentFVisualApproval": false
   }
 }
