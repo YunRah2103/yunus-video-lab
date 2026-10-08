@@ -10,7 +10,6 @@ on:
       - yunex/video004/TASKS.json
       - yunex/video004/release-prep/**
       - .github/workflows/yunex-004-i-gated-release.yml
-  workflow_dispatch:
 permissions:
   contents: read
   actions: read
@@ -39,7 +38,7 @@ jobs:
         run: echo "Branch workflow registered on $REF; I branch cannot run native film."
 
   locked-source-gate:
-    if: ${{ github.ref == 'refs/heads/sol/y004-rear-steering-manager' }}
+    if: ${{ github.ref == 'refs/heads/sol/y004-rear-steering-manager' && contains(github.event.head_commit.message, '[Y004-RELEASE-GO]') }}
     needs: branch-smoke
     runs-on: ubuntu-latest
     outputs:
