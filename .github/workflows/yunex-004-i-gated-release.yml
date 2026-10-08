@@ -1,0 +1,162 @@
+name: YUNEX 004 I gated branch release
+# An I-branch push runs only infrastructure tests. Manager branch can run a
+# locked final release only with independently validated F and Manager gates.
+on:
+  push:
+    branches:
+      - sol/y004-i-release-prep
+      - sol/y004-rear-steering-manager
+    paths:
+      - yunex/video004/TASKS.json
+      - yunex/video004/release-prep/**
+      - .github/workflows/yunex-004-i-gated-release.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+jobs:
+  branch-smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify release gate unit tests (never render)
+        run: |
+          set -euo pipefail
+          cd yunex/video004/release-prep
+          python3 -m unittest -v test_verify_gate.py
+      - name: Confirm branch-trigger is registered
+        env:
+          REF: ${{ github.ref }}
+        run: echo "Branch workflow registered on $REF; I branch cannot run native film."
+
+  locked-source-gate:
+    if: ${{ github.ref == 'refs/heads/sol/y004-rear-steering-manager' }}
+    needs: branch-smoke
+    runs-on: ubuntu-latest
+    outputs:
+      source_sha: ${{ steps.lock.outputs.source_sha }}
+      frame_count: ${{ steps.lock.outputs.frame_count }}
+      audio_path: ${{ steps.lock.outputs.audio_path }}
+      matrix: ${{ steps.matrix.outputs.matrix }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          path: control
+          persist-credentials: false
+      - name: Refuse release unless Manager and F authorize exact source
+        id: lock
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 control/yunex/video004/release-prep/verify_gate.py registry --registry control/yunex/video004/TASKS.json > /tmp/y004-release-lock.json
+          python3 - <<'PY'
+          import json, os
+          d=json.load(open('/tmp/y004-release-lock.json'))
+          with open(os.environ['GITHUB_OUTPUT'],'a') as f:
+              for k in ('source_sha','locked_frames','audio_path'):
+                  f.write(f"{'frame_count' if k=='locked_frames' else k}={d[k]}\n")
+          PY
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ steps.lock.outputs.source_sha }}
+          path: source
+          persist-credentials: false
+      - name: Full preflight on immutable source without native rendering
+        id: matrix
+        shell: bash
+        run: |
+          set -euo pipefail
+          sudo apt-get -o Acquire::Retries=2 update -qq
+          sudo apt-get -o Acquire::Retries=2 install -y -qq ffmpeg
+          python3 control/yunex/video004/release-prep/verify_gate.py source --registry control/yunex/video004/TASKS.json --source-root source
+          (cd source/yunex/video004/render && python3 -m unittest -v test_pipeline.py)
+          echo "matrix=$(python3 source/yunex/video004/render/pipeline.py matrix --frames 720 --chunk-size 20)" >> "$GITHUB_OUTPUT"
+
+  render:
+    needs: locked-source-gate
+    if: ${{ needs.locked-source-gate.result == 'success' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    strategy:
+      fail-fast: false
+      max-parallel: 12
+      matrix: ${{ fromJSON(needs.locked-source-gate.outputs.matrix) }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.locked-source-gate.outputs.source_sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: yunex/package-lock.json
+      - name: Verify Porsche model and prepare native renderer
+        env:
+          SOURCE_SHA: ${{ needs.locked-source-gate.outputs.source_sha }}
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$SOURCE_SHA"
+          test "$(sha256sum cars/porsche-911-gt3-rs-992/model.glb | cut -d' ' -f1)" = '1c73fcb138c31e2b1d5ed126a2412074bb17f8e960b355436f28139bf518e1eb'
+          cp cars/porsche-911-gt3-rs-992/model.glb yunex/public/model.glb
+      - run: npm ci --no-audit --no-fund
+        working-directory: yunex
+      - name: Render existing E native 20-frame chunk
+        working-directory: yunex
+        env:
+          SOURCE_SHA: ${{ needs.locked-source-gate.outputs.source_sha }}
+          PART: ${{ matrix.part }}
+          RANGE: ${{ matrix.frames }}
+          NODE_OPTIONS: --require=./fix-network.cjs
+        run: |
+          set -euo pipefail
+          mkdir -p out/y004-chunks
+          npx remotion render src/index.tsx YUNEX-004 "out/y004-chunks/chunk-$PART.mp4" --frames="$RANGE" --gl=swangle --concurrency=2 --codec=h264 --pixel-format=yuv420p --crf=14 --scale=1 --timeout=180000 --muted
+          echo "$SOURCE_SHA" > "out/y004-chunks/source-sha-$PART.txt"
+          sha256sum "out/y004-chunks/chunk-$PART.mp4" > "out/y004-chunks/chunk-$PART.sha256"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: y004-native-chunk-${{ matrix.part }}
+          path: yunex/out/y004-chunks/
+          retention-days: 21
+
+  package:
+    needs: [locked-source-gate, render]
+    if: ${{ needs.locked-source-gate.result == 'success' && needs.render.result == 'success' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.locked-source-gate.outputs.source_sha }}
+          path: source
+          persist-credentials: false
+      - uses: actions/download-artifact@v4
+        with:
+          run-id: ${{ github.run_id }}
+          github-token: ${{ github.token }}
+          pattern: y004-native-chunk-*
+          path: chunks
+          merge-multiple: true
+      - name: Use E pipeline unchanged for full source/codec checks, AAC mux and delivery
+        env:
+          SOURCE_SHA: ${{ needs.locked-source-gate.outputs.source_sha }}
+          AUDIO_PATH: ${{ needs.locked-source-gate.outputs.audio_path }}
+        run: |
+          set -euo pipefail
+          sudo apt-get -o Acquire::Retries=2 update -qq
+          sudo apt-get -o Acquire::Retries=2 install -y -qq ffmpeg
+          python3 source/yunex/video004/render/pipeline.py assemble chunks delivery/YUNEX-004-FINAL.mp4 --frames 720 --chunk-size 20 --source "$SOURCE_SHA" --audio "source/$AUDIO_PATH" --evidence delivery/evidence
+          python3 - <<'PY'
+          import json,os
+          from pathlib import Path
+          d=json.loads(Path('delivery/evidence/RELEASE_VALIDATION.json').read_text())
+          d.update({'workflow_run_id':os.environ['GITHUB_RUN_ID'],'workflow_attempt':os.environ['GITHUB_RUN_ATTEMPT'],
+                    'composition_id':'YUNEX-004','release_route':'agent-i-approved-branch-push'})
+          Path('delivery/RELEASE_METADATA.json').write_text(json.dumps(d,indent=2)+'\n')
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: YUNEX-004-FINAL-SINGLE-MASTER
+          path: delivery/
+          retention-days: 21
