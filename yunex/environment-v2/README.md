@@ -21,3 +21,9 @@ Sound is a restrained synthetic engine/road/wind demonstration bed. It is not cl
 `python3 environment-v2/make_sound.py public/circuit-v2-sound.wav` and stage original `cars/porsche-911-gt3-rs-992/model.glb` as `public/model.glb` before rendering. `npx remotion render src/index.tsx YUNEX-CIRCUIT-V2 out/showcase.mp4 --gl=swangle --concurrency=1 --codec=h264 --pixel-format=yuv420p --crf=16`.
 
 GitHub workflow builds native shot proofs first, then six disjoint 60-frame chunks, validates and assembles the final MP4 with AAC. Source SHAs and ranges accompany clips. Full decoder, exact count and adjacent-frame checks accompany delivery. Optical approval must follow inspection of actual output; successful source tests alone are insufficient.
+
+## Foliage asset
+
+`public/circuit-v2-oak-cluster.webp` is a generated photographic-style oak leaf-cluster alpha texture, created with the built-in image tool for this project. Prompt: irregular mature European oak foliage cluster, botanical photographic detail, transparent background and holes, no trunk/ground/sky/text, soft afternoon light. The original transparent PNG is retained separately; runtime WebP is a compressed alpha-preserving version. This raster texture is applied to real 3D canopy cluster cards; it does not replace the rendered scene with an image. Runtime asset SHA256: 0491a906a61458fcf6c56be8ff72b8a3d9be38e525d0aeb25d6e46a593bad1ec.
+
+Final polish: shorter varied trunks, verge grass, corrugated metal garage doors, window mullions, corrected sign orientation, blue procedural sky dome, graded paddock foundations and bump-mapped asphalt. Camera stays inside catch fencing in the side shot.

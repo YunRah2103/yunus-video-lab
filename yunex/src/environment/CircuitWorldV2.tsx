@@ -1,5 +1,6 @@
-import React,{useEffect,useLayoutEffect,useMemo,useRef} from 'react';
+import React,{useEffect,useLayoutEffect,useMemo,useRef,useState} from 'react';
 import {useThree} from '@react-three/fiber';
+import {staticFile,delayRender,continueRender,cancelRender} from 'remotion';
 import * as THREE from 'three';
 import {Surface} from '../video002/trackUpgrade/racetrack/Surface';
 import {Kerbs} from '../video002/trackUpgrade/racetrack/Kerbs';
@@ -17,14 +18,6 @@ const instances=(g:THREE.Group,geo:THREE.BufferGeometry,m:THREE.Material,items:I
  items.forEach((t,i)=>{dummy.position.set(...t.p);dummy.rotation.set(...(t.r??[0,0,0]));dummy.scale.set(...t.s);dummy.updateMatrix();o.setMatrixAt(i,dummy.matrix);if(t.c)o.setColorAt(i,c.set(t.c));});o.instanceMatrix.needsUpdate=true;if(o.instanceColor)o.instanceColor.needsUpdate=true;o.castShadow=shadow;o.receiveShadow=true;o.computeBoundingSphere();g.add(o);return o;
 };
 const canvasTexture=(width:number,height:number,draw:(c:CanvasRenderingContext2D)=>void)=>{const canvas=document.createElement('canvas');canvas.width=width;canvas.height=height;draw(canvas.getContext('2d')!);const t=new THREE.CanvasTexture(canvas);t.colorSpace=THREE.SRGBColorSpace;t.anisotropy=4;return t;};
-const leafTexture=(seed:number)=>canvasTexture(256,256,c=>{
- const r=rngFor(seed);c.clearRect(0,0,256,256);
- // Irregular individual leaf silhouettes, open holes, shaded branch interiors.
- for(let i=0;i<420;i++){
-  const a=r()*Math.PI*2,rad=Math.sqrt(r()),x=128+Math.cos(a)*rad*113,y=128+Math.sin(a)*rad*108;
-  const size=3+r()*9;c.save();c.translate(x,y);c.rotate(r()*6.28);c.fillStyle=['#607d3f','#36542b','#7c914d','#496e32','#9b9e60'][i%5];c.beginPath();c.ellipse(0,0,size,size*.46,0,0,Math.PI*2);c.fill();c.restore();
- }
-});
 const groundTexture=(seed:number)=>canvasTexture(512,512,c=>{
  const r=rngFor(seed);c.fillStyle='#899557';c.fillRect(0,0,512,512);
  for(let i=0;i<28000;i++){const x=r()*512,y=r()*512;c.fillStyle=['#b7b286','#708645','#93a45b','#aab275','#a09565'][i%5];c.globalAlpha=.18+r()*.45;c.fillRect(x,y,1+r()*4,1+r()*7);}c.globalAlpha=1;
@@ -37,10 +30,10 @@ const buildTerrain=(g:THREE.Group,seed:number)=>{
  for(let i=0;i<a.count;i++){const x=a.getX(i),z=a.getZ(i);a.setY(i,terrainY(x,z));const n=.5+.23*Math.sin(x*.039+z*.026)+.12*Math.sin(z*.13-x*.16);color.set('#b5ba88').lerp(new THREE.Color('#75885b'),n);colors.push(color.r,color.g,color.b);}
  geo.setAttribute('color',new THREE.Float32BufferAttribute(colors,3));geo.computeVertexNormals();const t=groundTexture(seed);t.wrapS=t.wrapT=THREE.RepeatWrapping;t.repeat.set(52,52);const m=new THREE.MeshStandardMaterial({map:t,vertexColors:true,color:'#ffffff',roughness:1});const o=new THREE.Mesh(geo,m);o.receiveShadow=true;g.add(o);
 };
-const buildForest=(g:THREE.Group,seed:number)=>{
+const buildForest=(g:THREE.Group,seed:number,foliage:THREE.Texture)=>{
  const r=rngFor(seed+1),trunks:Item[]=[],branches:Item[]=[],leaves:Item[]=[];
  for(const t of forestLayout(seed)){
-  const th=t.height*.66;trunks.push({p:[t.x,t.y+th/2,t.z],s:[.18,th,.18],c:'#57483a'});
+  const th=t.height*.50;trunks.push({p:[t.x,t.y+th/2,t.z],s:[.18,th,.18],c:'#57483a'});
   for(const side of [-1,1])branches.push({p:[t.x+side*.45,t.y+th*.78,t.z],s:[.08,t.width*.5,.08],r:[.1,t.phase,side*.8],c:'#504331'});
   // 9 crossed leaf clusters per tree; variation in silhouette, height and autumn tint.
   for(let k=0;k<9;k++){
@@ -51,11 +44,15 @@ const buildForest=(g:THREE.Group,seed:number)=>{
  }
  instances(g,new THREE.CylinderGeometry(.8,1,1,6),mat('#ffffff'),trunks,true);
  instances(g,new THREE.CylinderGeometry(.5,.8,1,5),mat('#ffffff'),branches);
- const t=leafTexture(seed),m=new THREE.MeshStandardMaterial({map:t,alphaTest:.42,side:THREE.DoubleSide,roughness:1,color:'#ffffff'});
+ const t=foliage,m=new THREE.MeshStandardMaterial({map:t,alphaTest:.42,side:THREE.DoubleSide,roughness:1,color:'#ffffff'});
  instances(g,new THREE.PlaneGeometry(1,1),m,leaves,false);
  // Near verges get bushes and grass rather than only regularly spaced trunks.
  const shrubs:Item[]=[];for(let i=0;i<300;i++){const z=-132+r()*264,side=i%2?-1:1,x=sampleTrackAtLocalZ(z).center[0]+side*(9+r()*3);if(x< -9&&z>9&&z<28)continue;for(let k=0;k<2;k++)shrubs.push({p:[x,terrainY(x,z)+.38,z],s:[.8+r()*1.3,.7+r()*.65,1],r:[0,k*Math.PI/2+r(),0],c:'#d4e3aa'});}
  instances(g,new THREE.PlaneGeometry(1,1),m,shrubs);
+ const blades=new THREE.BufferGeometry();blades.setAttribute('position',new THREE.Float32BufferAttribute([-.04,0,0,.04,0,0,0,.34,.05,0,0,-.04,0,0,.04,.05,.28,0],3));blades.computeVertexNormals();
+ const grass:Item[]=[];for(let i=0;i<1800;i++){const z=-135+r()*270,side=i%2?-1:1,x=sampleTrackAtLocalZ(z).center[0]+side*(8.7+r()*5);if(x< -9&&z>9&&z<28)continue;grass.push({p:[x,terrainY(x,z)+.01,z],s:[.8+r(),.45+r()*.9,.8+r()],r:[0,r()*6.28,0],c:i%5?'#7c9351':'#b8aa70'});}
+ instances(g,blades,new THREE.MeshStandardMaterial({color:'#ffffff',side:THREE.DoubleSide,roughness:1}),grass);
+
 };
 const buildFurniture=(g:THREE.Group)=>{
  const rails:Item[]=[],posts:Item[]=[],fences:Item[]=[];const wire=wireTexture();wire.wrapS=wire.wrapT=THREE.RepeatWrapping;wire.repeat.set(9,7);
@@ -78,15 +75,32 @@ const buildFurniture=(g:THREE.Group)=>{
  box(g,[30,.12,-10],[28,.25,23],mat('#5b6260'));
  box(g,[33,2.0,-10],[15,4,17],mat('#b9b6a5'));box(g,[33,4.12,-10],[16,.24,18],roof);
  for(let z=-16;z<=-4;z+=6){box(g,[25.45,1.55,z],[.09,2.8,4.4],mat('#3f534c'));box(g,[25.38,2.3,z],[.08,.9,3.5],glass);}
- board(g,[25.35,3.6,-10],[.12,.75,13],'YUNEX','PADDOCK / EAST LOOP',Math.PI/2);
+ board(g,[25.35,3.6,-10],[13,.75,.12],'YUNEX','PADDOCK / EAST LOOP',Math.PI/2);
+ // Metal cladding, framed glazing and sectional garage-door ribs.
+ const cladding=mat('#8d9b92',.55,.45),trim=mat('#273d34',.5,.3);
+ for(let z=-18.2;z<-1.8;z+=.72)box(g,[25.48,2,z],[.028,3.85,.025],cladding);
+ for(const z of [-16,-10,-4]){
+  for(let j=0;j<10;j++)box(g,[25.35,.25+j*.28,z],[.08,.025,4.3],cladding);
+  for(const dz of [-2.3,2.3])box(g,[25.3,1.55,z+dz],[.16,2.9,.11],trim);
+  box(g,[25.3,3.04,z],[.16,.11,4.7],trim);
+ }
+ box(g,[25.3,.16,-10],[1.8,.11,18],stone);
+
  box(g,[26,3.0,25],[5,6,5],stone);box(g,[26,6.4,25],[6,1.9,6],glass);box(g,[26,7.5,25],[6.8,.22,6.8],roof);
+ for(const dx of [-3,-1,1,3])for(const dz of [-3,3])box(g,[26+dx,6.4,25+dz],[.08,1.95,.09],steel);
+ for(const dz of [-1,1])for(const dx of [-3,3])box(g,[26+dx,6.4,25+dz],[.09,1.95,.08],steel);
+ box(g,[26,5.42,25],[6.15,.12,6.15],steel);
+
  for(let k=0;k<5;k++){box(g,[27+k*.8,.5+k*.45,-42],[1.1,.45,18],mat(k%2?'#64766b':'#889480'));for(let j=0;j<9;j++)box(g,[27+k*.8,.84+k*.45,-49+j*1.7],[.4,.1,.55],mat(j%3?'#a4c565':'#d9ddd0'));}
- box(g,[29,4.5,-42],[8,.18,21],roof);for(const z of [-51,-33])for(const x of [25,33])box(g,[x,2.3,z],[.15,4.6,.15],steel);
+ box(g,[29,4.5,-42],[8,.18,21],roof);
+ for(let z=-51;z<=-33;z+=3)box(g,[29,4.3,z],[8,.12,.12],steel);
+ box(g,[25,2.75,-42],[.09,.08,18],steel);
+for(const z of [-51,-33])for(const x of [25,33])box(g,[x,2.3,z],[.15,4.6,.15],steel);
  // Track bridge creates a recognisable landmark and foreground parallax.
  const z=-27,center=sampleTrackAtLocalZ(z).center[0];
  for(const x of [center-8.6,center+8.6]){box(g,[x,2.7,z],[.4,5.4,.5],steel);box(g,[x,.2,z],[1,.4,1],stone);}
  box(g,[center,5.5,z],[17.6,.45,.45],steel);board(g,[center,5.04,z],[15.5,.9,.18],'YUNEX','CIRCUIT / WOODLAND SECTOR');
- for(const z of [-62,-46,42,65]){const x=sampleTrackAtLocalZ(z).barrierLeft[0]-.7;box(g,[x,.65,z],[.16,1.3,.2],steel);board(g,[x,.9,z],[.09,1,1.7],String(z===42?50:z===65?100:z===-46?150:200),'BRAKING',Math.PI/2);}
+ for(const z of [-62,-46,42,65]){const x=sampleTrackAtLocalZ(z).barrierLeft[0]-.7;box(g,[x,.65,z],[.16,1.3,.2],steel);board(g,[x,.9,z],[1.7,1,.09],String(z===42?50:z===65?100:z===-46?150:200),'BRAKING',Math.PI/2);}
  // Lived-in safety equipment and spectator-area objects.
  for(let i=0;i<10;i++)box(g,[-10.8,.32,24+i*.6],[.7,.64,.56],mat(i%2?'#434e42':'#a4bb70'));
  for(const z of [-34,-18]){box(g,[17,.4,z],[1.4,.8,.8],mat('#40544a'));box(g,[17,.84,z],[1.5,.1,.95],roof);}
@@ -95,7 +109,7 @@ const buildSkyDome=(g:THREE.Group)=>{
  const material=new THREE.ShaderMaterial({side:THREE.BackSide,depthWrite:false,uniforms:{},vertexShader:`varying vec3 vDir;void main(){vDir=(modelMatrix*vec4(position,0.0)).xyz;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.0);}`,fragmentShader:`varying vec3 vDir;void main(){vec3 d=normalize(vDir);float h=pow(max(d.y,0.0),0.45);vec3 col=mix(vec3(0.82,0.85,0.81),vec3(0.31,0.56,0.77),h);float cloud=max(0.0,sin(d.x*29.0+d.z*14.0)+sin(d.z*46.0-d.x*21.0)-0.9)*smoothstep(0.06,0.4,d.y)*(1.0-smoothstep(0.55,0.9,d.y));col=mix(col,vec3(0.9,0.9,0.85),cloud*0.16);gl_FragColor=vec4(col,1.0);}`});
  material.toneMapped=false;const dome=new THREE.Mesh(new THREE.SphereGeometry(350,32,16),material);dome.renderOrder=-100;g.add(dome);
 };
-const buildWorld=(seed:number)=>{const g=new THREE.Group();g.name='YUNEX_CIRCUIT_ENVIRONMENT_V2';buildSkyDome(g);buildTerrain(g,seed);buildForest(g,seed);buildFurniture(g);return g;};
+const buildWorld=(seed:number,foliage:THREE.Texture)=>{const g=new THREE.Group();g.name='YUNEX_CIRCUIT_ENVIRONMENT_V2';buildSkyDome(g);buildTerrain(g,seed);buildForest(g,seed,foliage);buildFurniture(g);return g;};
 const skyTexture=()=>{
  const w=512,h=256,data=new Uint8Array(w*h*4);
  for(let y=0;y<h;y++)for(let x=0;x<w;x++){
@@ -108,17 +122,23 @@ const skyTexture=()=>{
  const t=new THREE.DataTexture(data,w,h);t.colorSpace=THREE.SRGBColorSpace;t.mapping=THREE.EquirectangularReflectionMapping;t.needsUpdate=true;return t;
 };
 export const CircuitWorldV2:React.FC<{carPose:{position:V;rotation?:V};seed?:number}>=({carPose,seed=CIRCUIT_SEED})=>{
- const {gl,scene}=useThree(),world=useMemo(()=>buildWorld(seed),[seed]),sky=useMemo(skyTexture,[]),contact=useMemo(createContactShadowTexture,[]);const key=useRef<THREE.DirectionalLight>(null),target=useRef<THREE.Object3D>(null);
+ const {gl,scene}=useThree();const [foliage,setFoliage]=useState<THREE.Texture|null>(null);const [leafHandle]=useState(()=>delayRender('Loading natural oak alpha asset'));const leafContinued=useRef(false);
+ const world=useMemo(()=>foliage?buildWorld(seed,foliage):null,[seed,foliage]),sky=useMemo(skyTexture,[]),contact=useMemo(createContactShadowTexture,[]);
+ useEffect(()=>{let live=true;new THREE.TextureLoader().load(staticFile('circuit-v2-oak-cluster.webp'),t=>{if(!live){t.dispose();return;}t.colorSpace=THREE.SRGBColorSpace;t.anisotropy=4;setFoliage(t);},undefined,cancelRender);return()=>{live=false;};},[]);
+ useEffect(()=>{if(world&&!leafContinued.current){leafContinued.current=true;continueRender(leafHandle);}},[world,leafHandle]);
+ useEffect(()=>()=>{foliage?.dispose();},[foliage]);useEffect(()=>()=>{sky.dispose();contact.dispose();},[sky,contact]);const key=useRef<THREE.DirectionalLight>(null),target=useRef<THREE.Object3D>(null);
  useLayoutEffect(()=>{
-  const bg=scene.background,env=scene.environment,fog=scene.fog,exposure=gl.toneMappingExposure,tone=gl.toneMapping;const p=new THREE.PMREMGenerator(gl),e=p.fromEquirectangular(sky);
+  const bg=scene.background,env=scene.environment,fog=scene.fog,exposure=gl.toneMappingExposure,tone=gl.toneMapping,oldEnvIntensity=scene.environmentIntensity,oldShadow=gl.shadowMap.enabled,oldShadowType=gl.shadowMap.type;const p=new THREE.PMREMGenerator(gl),e=p.fromEquirectangular(sky);
+  const asphalt=scene.getObjectByName('RacingSurface_Asphalt') as THREE.Mesh|undefined;
+  if(asphalt){const road=asphalt.material as THREE.MeshStandardMaterial;road.color.set('#e0e2de');road.bumpMap=road.map;road.bumpScale=.007;road.roughness=.95;road.needsUpdate=true;}
   scene.background=sky;scene.environment=e.texture;scene.environmentIntensity=.58;scene.fog=new THREE.Fog('#c7d2c6',110,380);gl.toneMapping=THREE.ACESFilmicToneMapping;gl.toneMappingExposure=.92;gl.shadowMap.enabled=true;gl.shadowMap.type=THREE.PCFSoftShadowMap;
-  return()=>{scene.background=bg;scene.environment=env;scene.fog=fog;gl.toneMappingExposure=exposure;gl.toneMapping=tone;e.dispose();p.dispose();};
+  return()=>{scene.background=bg;scene.environment=env;scene.fog=fog;scene.environmentIntensity=oldEnvIntensity;gl.shadowMap.enabled=oldShadow;gl.shadowMap.type=oldShadowType;gl.toneMappingExposure=exposure;gl.toneMapping=tone;e.dispose();p.dispose();};
  },[gl,scene,sky]);
  useLayoutEffect(()=>{if(key.current&&target.current){const [x,y,z]=carPose.position;target.current.position.set(x,y+.2,z);key.current.position.set(x-22,y+32,z-14);key.current.target=target.current;target.current.updateMatrixWorld();key.current.updateMatrixWorld();}},[carPose]);
- useEffect(()=>()=>{const geometries=new Set<THREE.BufferGeometry>(),materials=new Set<THREE.Material>(),textures=new Set<THREE.Texture>();world.traverse(o=>{const m=o as THREE.Mesh;if(m.isMesh){geometries.add(m.geometry);for(const a of Array.isArray(m.material)?m.material:[m.material]){materials.add(a);const b=a as THREE.MeshStandardMaterial;if(b.map)textures.add(b.map);}}});for(const t of textures)t.dispose();for(const m of materials)m.dispose();for(const g of geometries)g.dispose();sky.dispose();contact.dispose();},[world,sky,contact]);
+ useEffect(()=>()=>{const geometries=new Set<THREE.BufferGeometry>(),materials=new Set<THREE.Material>(),textures=new Set<THREE.Texture>();world?.traverse(o=>{const m=o as THREE.Mesh;if(m.isMesh){geometries.add(m.geometry);for(const a of Array.isArray(m.material)?m.material:[m.material]){materials.add(a);const b=a as THREE.MeshStandardMaterial;if(b.map&&b.map!==foliage)textures.add(b.map);}}});for(const t of textures)t.dispose();for(const m of materials)m.dispose();for(const g of geometries)g.dispose();},[world,foliage]);
  return <>
   <group position={TRACK_LAYOUT_CONFIG.rootPosition} rotation={[0,Math.PI,0]}>
-   <Surface quality="final" seed={seed}/><Kerbs quality="final" seed={seed}/><Runoff quality="final" seed={seed}/><primitive object={world}/>
+   <Surface quality="final" seed={seed}/><Kerbs quality="final" seed={seed}/><Runoff quality="final" seed={seed}/>{world&&<primitive object={world}/>}
   </group>
   <hemisphereLight args={['#b5d2e1','#3a4428',.78]}/><object3D ref={target}/>
   <directionalLight ref={key} color="#fff0cb" intensity={3.1} castShadow shadow-mapSize-width={2048} shadow-mapSize-height={2048} shadow-camera-left={-24} shadow-camera-right={24} shadow-camera-top={24} shadow-camera-bottom={-24} shadow-camera-near={.2} shadow-camera-far={95} shadow-bias={-.00012} shadow-normalBias={.018}/>

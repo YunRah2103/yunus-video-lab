@@ -1,10 +1,10 @@
-name: YUNEX reusable circuit environment V2 refined
+name: YUNEX reusable circuit environment V2 natural foliage and finish
 on:
   push:
     branches: [sol/yunex-circuit-environment-v2]
     paths: [.github/workflows/yunex-circuit-environment-v2.yml]
   workflow_dispatch:
-permissions: {contents: read, actions: write}
+permissions: {contents: read, actions: read}
 concurrency:
   group: yunex-circuit-v2-lookdev
   cancel-in-progress: true
@@ -13,15 +13,13 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 45
     steps:
-      - name: Stop superseded first look-development run
-        env: {GH_TOKEN: "${{ github.token }}"}
-        run: gh api -X POST repos/${{ github.repository }}/actions/runs/37832595879/cancel || echo "Earlier run already stopped/completed or cancellation unavailable"
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with: {node-version: '22', cache: npm, cache-dependency-path: yunex/package-lock.json}
       - name: Verify original Porsche and setup
         run: |
           echo '1c73fcb138c31e2b1d5ed126a2412074bb17f8e960b355436f28139bf518e1eb  cars/porsche-911-gt3-rs-992/model.glb' | sha256sum --check -
+          echo '0491a906a61458fcf6c56be8ff72b8a3d9be38e525d0aeb25d6e46a593bad1ec  yunex/public/circuit-v2-oak-cluster.webp' | sha256sum --check -
           cp cars/porsche-911-gt3-rs-992/model.glb yunex/public/model.glb
           python3 yunex/environment-v2/make_sound.py yunex/public/circuit-v2-sound.wav
           cd yunex
@@ -66,6 +64,7 @@ jobs:
       - name: Setup verified assets and native renderer
         run: |
           echo '1c73fcb138c31e2b1d5ed126a2412074bb17f8e960b355436f28139bf518e1eb  cars/porsche-911-gt3-rs-992/model.glb' | sha256sum --check -
+          echo '0491a906a61458fcf6c56be8ff72b8a3d9be38e525d0aeb25d6e46a593bad1ec  yunex/public/circuit-v2-oak-cluster.webp' | sha256sum --check -
           cp cars/porsche-911-gt3-rs-992/model.glb yunex/public/model.glb
           python3 yunex/environment-v2/make_sound.py yunex/public/circuit-v2-sound.wav
           sudo apt-get -qq update && sudo apt-get -qq install -y ffmpeg
