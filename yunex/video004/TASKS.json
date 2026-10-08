@@ -158,8 +158,8 @@
         "yunex/video004/audio/y004-approved-cedar-24s.m4a (single exact SHA exception, not existing D files)",
         ".github/workflows/yunex-004-i-*.yml (strict namespacing)"
       ],
-      "status": "NOT_STARTED_AWAIT_USER_CHAT",
-      "input_sha": null,
+      "status": "DISPATCHED_READY_FOR_INDEPENDENT_RELEASE_PREP",
+      "input_sha": "1b4b85e00df75b4508625ff17363547641e62018",
       "output_sha": null,
       "proof": null,
       "accepted": false
@@ -234,5 +234,6 @@
     "i_cannot_modify_y004_timeline": true,
     "i_cannot_edit_e_renderer": true,
     "qa_rule": "Manager combine accepted H+I outputs into one immutable source then F verifies EXACT merged SHA"
-  }
+  },
+  "i_dispatch_sha": "1b4b85e00df75b4508625ff17363547641e62018"
 }
