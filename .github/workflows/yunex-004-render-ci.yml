@@ -1,0 +1,43 @@
+name: YUNEX 004 E native render tooling smoke
+on:
+  push:
+    branches:
+      - sol/y004-e-render
+      - sol/y004-rear-steering-manager
+    paths:
+      - 'yunex/video004/render/**'
+      - '.github/workflows/yunex-004-*.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  native-smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify environment and GLB
+        run: |
+          set -euo pipefail
+          python3 --version
+          ffmpeg -version | head -1
+          ffprobe -version | head -1
+          test "$(sha256sum cars/porsche-911-gt3-rs-992/model.glb | awk '{print $1}')" = '1c73fcb138c31e2b1d5ed126a2412074bb17f8e960b355436f28139bf518e1eb'
+          test -f yunex/fix-network.cjs
+          test -f yunex/src/index.tsx
+      - name: Execute 1080x1920 native mixed-range fixture and negative tests
+        working-directory: yunex/video004/render
+        env:
+          Y004_SMOKE_EVIDENCE_DIR: out/smoke
+        run: |
+          set -euo pipefail
+          python3 -m unittest -v test_pipeline.py 2>&1 | tee out-tests.log
+          python3 pipeline.py matrix --frames 720 --chunk-size 20 > out/smoke/matrix-720.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: Y004-E-NATIVE-TOOLING-SMOKE
+          path: |
+            yunex/video004/render/out/smoke/
+            yunex/video004/render/out-tests.log
+          retention-days: 30
