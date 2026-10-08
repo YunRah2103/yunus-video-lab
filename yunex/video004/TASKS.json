@@ -1,6 +1,6 @@
 {
   "phase": "Y004-REAR-STEERING-01",
-  "phase_status": "I_RELEASE_PREP_IN_PARALLEL_H_FINAL_INTEGRATION_F_VISUAL_QA_G_RENDER_RELEASE_PENDING",
+  "phase_status": "H_SOURCE_QA_PASS_H_NATIVE_PIXEL_FORMAT_FAILURE_AND_PROOF_COVERAGE_PENDING_I_WORKFLOW_PASS_AAC_BINARY_NOT_GIT_F_NATIVE_QA_FAIL_G_BLOCKED",
   "manager_branch": "sol/y004-rear-steering-manager",
   "master_handoff_sha": "2522f1379712f7ccbeca68d350dfa592a1f6ff97",
   "source_base_sha": "451728dcbc8e36cc9f54fb94e00bdefbdf068f51",
@@ -104,10 +104,10 @@
         "yunex/src/video004/qa/**",
         "yunex/video004/reports/F/**"
       ],
-      "status": "HARNESS_45_PASS_NATIVE_QA_BLOCKED",
+      "status": "INDEPENDENT_720F_AUTOMATED_SOURCE_QA_PASS_NATIVE_VISUAL_RELEASE_FAIL_INSUFFICIENT_EVIDENCE",
       "input_sha": "bf2f0996f4176791d5ac78d818090e8b429397ad",
-      "output_sha": "650cd0bdabaa127103ab214a1c44eb1c86ebb0aa",
-      "proof": null,
+      "output_sha": "44b8d3913375bf75c33294752d448b103889596a",
+      "proof": "Native visual QA FAIL evidence insufficiency, not observed defect. Same H source f5cbdf2f6c96aa5ac2e5c184a048f49700037f55; report reports/F/H_INTEGRATED_NATIVE_VISUAL_QA.md. Exact-source 0-59 and 687-719 proof missing.",
       "accepted": false
     },
     {
@@ -125,10 +125,10 @@
         ".github/workflows/yunex-004-h-*.yml",
         "yunex/public/y004-final-mix.m4a (exact Agent D approved file)"
       ],
-      "status": "DISPATCHED_READY_FOR_INTEGRATION",
+      "status": "INTEGRATION_CODE_AND_720F_SOURCE_TEST_PASS_NATIVE_PROOFS_IN_PROGRESS_ONE_JOB_FAILED_YUVJ420P",
       "input_sha": "5914ddcabaeec4b14ff5e3ca6bcbaf4e6e71a1bb",
-      "output_sha": null,
-      "proof": null,
+      "output_sha": "dc61fa75382e2a0e8d2d9d8bfebd0a363ea3988d",
+      "proof": "Exact integrated render source f5cbdf2f6c96aa5ac2e5c184a048f49700037f55. CI run 37761847924 source-test PASS job 113259913020; 720-frame audit artifact 11542213067. high-steering 60f MP4 emitted artifact 11543208304 but validation FAILED due pix_fmt yuvj420p.",
       "accepted": false
     },
     {
@@ -158,10 +158,10 @@
         "yunex/video004/audio/y004-approved-cedar-24s.m4a (single exact SHA exception, not existing D files)",
         ".github/workflows/yunex-004-i-*.yml (strict namespacing)"
       ],
-      "status": "DISPATCHED_READY_FOR_INDEPENDENT_RELEASE_PREP",
+      "status": "GATED_WORKFLOW_PUSH_CI_PASS_BINARY_AUDIO_STILL_NOT_COMMITTED",
       "input_sha": "1b4b85e00df75b4508625ff17363547641e62018",
-      "output_sha": null,
-      "proof": null,
+      "output_sha": "213f2bb06d4720c3ee9a363110158b36b64cfaf1",
+      "proof": "Branch gated workflow run 37763821232 success, source AAC Library SHA a2f5dc284ce923a4d6803b66c2d45a1d3502a2be0024c8e3b1d2658c5bdb1e51 verified at 753974 bytes. GitHub repo audio bytes not published. See reports/I/RELEASE_READY.md.",
       "accepted": false
     }
   ],
@@ -176,7 +176,7 @@
   ],
   "rule": "Only Manager updates this registry. Branch creation does not mean specialist execution started.",
   "progress_as_of": "2026-10-08",
-  "progress_notes": "Manager actual Porsche low/high 24-frame clips rendered at source 4749c48f7d350801ccc6462a7530225d6eadfc66 and uploaded as artifacts 11539213814/11539213630, but the jobs failed post-render because ffprobe was missing. Patched workflow on Manager branch to provision ffmpeg/ffprobe; corrected run 37755997906 queued. Need ffprobe, full decode, visual review before accepting. Agent D pushed new effects-only provisional 24s bed but cannot produce Cedar narration without fresh approved source; code SHA f46875dc7f6a730257a4b045298f76717a93a090.\n2026-10-08 new user-supplied Cedar take duration 22.704 s SHA db75bbbe6aa468062b300004390f23f254679086e2b69d0de6aa1d553c8d404b; 720f duration locked. Agent D still needs raw file access and transcript/cue validation. Existing A segment boundary 285f (9.5s) misaligned to spoken HIGH at 11.608s; target high cut about 333f (11.1s) requires native reproof.\n2026-10-08 follow-up: corrected native Porsche smoke run 37755997906 completed SUCCESS (3/3 low/high/macro jobs, artifacts 11541125305 / 11540133822 / 11540927524). D audio actual Cedar verified and 24s final AAC SHA a2f5dc284ce923a4d6803b66c2d45a1d3502a2be0024c8e3b1d2658c5bdb1e51 on Agent D full remote SHA 9567f6b2efa901d3667d084eedbbca9c98943c36. Film remains blocked by 9.5s->11.1s retime, native visual human QA and F acceptance, render source not pinned.",
+  "progress_notes": "Manager actual Porsche low/high 24-frame clips rendered at source 4749c48f7d350801ccc6462a7530225d6eadfc66 and uploaded as artifacts 11539213814/11539213630, but the jobs failed post-render because ffprobe was missing. Patched workflow on Manager branch to provision ffmpeg/ffprobe; corrected run 37755997906 queued. Need ffprobe, full decode, visual review before accepting. Agent D pushed new effects-only provisional 24s bed but cannot produce Cedar narration without fresh approved source; code SHA f46875dc7f6a730257a4b045298f76717a93a090.\n2026-10-08 new user-supplied Cedar take duration 22.704 s SHA db75bbbe6aa468062b300004390f23f254679086e2b69d0de6aa1d553c8d404b; 720f duration locked. Agent D still needs raw file access and transcript/cue validation. Existing A segment boundary 285f (9.5s) misaligned to spoken HIGH at 11.608s; target high cut about 333f (11.1s) requires native reproof.\n2026-10-08 follow-up: corrected native Porsche smoke run 37755997906 completed SUCCESS (3/3 low/high/macro jobs, artifacts 11541125305 / 11540133822 / 11540927524). D audio actual Cedar verified and 24s final AAC SHA a2f5dc284ce923a4d6803b66c2d45a1d3502a2be0024c8e3b1d2658c5bdb1e51 on Agent D full remote SHA 9567f6b2efa901d3667d084eedbbca9c98943c36. Film remains blocked by 9.5s->11.1s retime, native visual human QA and F acceptance, render source not pinned.\n2026-10-08 11:30 UK check: H branch dc61fa75382e2a0e8d2d9d8bfebd0a363ea3988d, tested H source f5cbdf2f6c96aa5ac2e5c184a048f49700037f55, native workflow 37761847924 in_progress. High-steering job 113260048019 rendered all 60 frames but failed strict pixel format check: yuvj420p; artifact 11543208304 not accepted. F 44b8d3913375bf75c33294752d448b103889596a explicitly FAIL/BLOCKED on native visual evidence, reports missing opening 0–59 and final 687–719. Agent I 213f2bb06d4720c3ee9a363110158b36b64cfaf1 completed gated workflow CI run 37763821232 SUCCESS (branch-trigger test), actual approved 24s AAC still not in Git repo. Do not release G.",
   "integration": {
     "source_overlay_sha": "6f9297612648ce6f14a0fa8efbfb3532ab041e30",
     "provisional_visual_sha": "ca43545411e651495f70ca92d177786c0e264eec",
@@ -205,7 +205,11 @@
         "name": "Y004-MANAGER-NATIVE-rear-macro",
         "frame_range": "108-131"
       }
-    ]
+    ],
+    "H_exact_720f_source_sha": "f5cbdf2f6c96aa5ac2e5c184a048f49700037f55",
+    "H_native_proof_run_id": 37761847924,
+    "native_pixel_format_failure": "high-steering job 113260048019: rendered 60/60 frames and uploaded artifact 11543208304 but ffprobe pix_fmt=yuvj420p, validator correctly rejected (expected true TV-range yuv420p). Correct workflow via explicit normalization/limited-range encode; do not weaken validator.",
+    "H_native_coverage_gap": "F audit: missing native moving proofs for opening frames 0–59 and ending frames 687–719, plus other skipped transitions; no independent visual QA pass."
   },
   "voiceover": {
     "source_sha256": "db75bbbe6aa468062b300004390f23f254679086e2b69d0de6aa1d553c8d404b",
@@ -235,5 +239,8 @@
     "i_cannot_edit_e_renderer": true,
     "qa_rule": "Manager combine accepted H+I outputs into one immutable source then F verifies EXACT merged SHA"
   },
-  "i_dispatch_sha": "1b4b85e00df75b4508625ff17363547641e62018"
+  "i_dispatch_sha": "1b4b85e00df75b4508625ff17363547641e62018",
+  "pre_render_qa_status": "BLOCKED",
+  "pre_render_qa_evidence": null,
+  "i_release_launch_authorized": false
 }
