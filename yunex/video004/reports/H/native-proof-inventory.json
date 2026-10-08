@@ -36,7 +36,7 @@
   "nativeProofs": {
     "runId": 37769701749,
     "expectedJobs": 11,
-    "passesConfirmed": 5,
+    "passesConfirmed": 6,
     "format": {
       "codec": "h264",
       "pixelFormat": "yuv420p",
@@ -130,13 +130,14 @@
         "framesInclusive": "372-431",
         "expectedFrameCount": 60,
         "artifactName": "Y004-H-C-NATIVE-high-372-431",
-        "artifactId": null,
-        "mediaSha256": null,
+        "artifactId": 11548576922,
+        "mediaSha256": "3784fa26ef1d3829df7003cfdac4918bd3ae1aeb81caa53f3d87f615cb0fd56a",
         "sourceSha": "1e2ab54e77090ec9c95c119488bc87d7ab7a45ba",
-        "validation": "PENDING_NATIVE_RENDER",
+        "validation": "STRICT_NATIVE_MP4_AND_LOCAL_DECODER_PASS",
         "jobId": 113286094581,
-        "jobStatus": "in_progress",
-        "jobConclusion": null
+        "jobStatus": "completed",
+        "jobConclusion": "success",
+        "visualChecks": "Aligned CAR RIGHT on actual turn, CENTRED at frame397 when wheels straight; no yaw exaggeration"
       },
       {
         "name": "roadside-432-551",
@@ -193,7 +194,7 @@
     ],
     "jobsQueuedOrRunning": 11,
     "jobIdsAllConfirmed": true,
-    "pendingNative": 6
+    "pendingNative": 5
   },
   "oldSourceEvidence": {
     "sourceSha": "f5cbdf2f6c96aa5ac2e5c184a048f49700037f55",
