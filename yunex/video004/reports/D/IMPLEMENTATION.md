@@ -28,3 +28,30 @@ Only D-exclusive paths changed. Manager owns registry, composition, timeline, re
 4. Manager integrates D overlay after A/C accepted sources, F views real native moving Porsche with muted and voiced sound. No real Y004 car/render was attempted or approved by D.
 
 **Verdict: IMPLEMENTATION PUSHED / UNIT-TESTED / REFERENCE MOVING VIDEO AVAILABLE; REQUIRED NEW VO AND REMOTION-NATIVE VIDEO NOT COMPLETE.**
+
+
+---
+
+## Agent D continuation: approved VO generation attempted / source gate
+
+**Date:** 8 October 2026. Checked exact source branch and latest Manager integration registry. Manager recognizes D code but explicitly marks `CODE_PUSHED_NEW_MEASURED_VO_BLOCKED`. Checked accessible Library audio filenames: old Cedar MP3s from 3 and 6 Oct, earlier Alloy files and Y003 isolated voice/mix. No Y004 rear-steering Cedar script recording available. No installed/connected OpenAI FM Cedar synth action is available. Discovered optional external narrator services, but they are not connected or approved as equivalent and cannot replace Cedar without user approval. No Y003 voice was reused.
+
+### Actually produced
+
+- Generated new 24.000s audio-only **procedural effects bed**, 30fps/720-frame provisional reference; AAC 48 kHz stereo, 582089 bytes. Engine harmonic motion, road/wind and gently panned pass. No speech, no borrowed sound recordings.
+- Sound artifact: `sandbox:/mnt/data/y004-bed-24s-PROVISIONAL.m4a`, SHA256 `960b4dddecd55051a1df66e0c4e6ffde94feda6f8190cff786160b4281f36ee6`. Built twice byte-for-byte identical. FFmpeg full decode PASS, ffprobe AAC stereo 48 kHz 24.000s, volumedetect peak -34.4 dBFS, mean -42.7 dBFS. The file is accessible through the user chat sandbox and can also be reproduced from committed `yunex/video004/audio/build-bed.py`. It is NOT a GitHub workflow artifact.
+- Implemented `yunex/video004/audio/finalize-recording.py`: requires newly approved source SHA256, declared speaker/rights, exact transcript and five real measured sentence timestamps; refuses old Y003 Cedar SHA; produces isolated 48k stereo WAV, ducked reference mix, decoder/peak checks and actual output hashes when a verified take exists.
+- Hardened low-level `prepare-vo-mix.sh` to reject the old Cedar audio SHA before conversion.
+- Manifest status accurately names incomplete VO and production gates.
+
+### Checks conducted now
+- Existing TS audio test: PASS (fixture cues only).
+- Existing TS editorial test: PASS.
+- Python provenance and timestamp gate tests: PASS 8 checks, including explicitly rejected older Cedar hash, wrong SHA, missing/overlong cues, absent file.
+- Shell syntax / absent-source negative gate: PASS (exit code 3).
+- AAC bed repeated output SHA256: identical; 48k stereo/24s verification, full decode and peak PASS.
+
+### Precisely blocked (not claimed complete)
+**New approved Y004 Cedar recording missing**. The five sentences cannot be measured without the real speech file, therefore *source audio hash, measured sentence boundaries, isolated narrated WAV, final speech + bed mix, production locked frames and VO acceptance remain pending*. A TTS substitute would require explicit user approval and access to a connected service. Required smallest action: user generate/export a fresh five-sentence Y004 Cedar MP3 from OpenAI FM and provide it to Agent D. No old words or tone can stand in.
+
+**Overall status: CODE AND PROVISIONAL EFFECTS DONE; VOICE + MEASURED FINAL MIX BLOCKED.**
