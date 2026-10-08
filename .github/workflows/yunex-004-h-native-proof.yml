@@ -36,7 +36,8 @@ jobs:
           npx tsx src/video004/audio/audio.test.ts
           npx tsx video004/reports/H/integration.test.ts
           node --test src/video004/qa/*.test.mjs
-          npx tsx src/video004/qa/auditLive.ts --source "$GITHUB_SHA" --frames 720 --out /tmp/y004-h-drive-audit.json
+          npx esbuild src/video004/qa/auditLive.ts --bundle --platform=node --format=esm --outfile=/tmp/y004-h-drive-audit.mjs
+          node /tmp/y004-h-drive-audit.mjs --source "$GITHUB_SHA" --frames 720 --out /tmp/y004-h-drive-audit.json
       - uses: actions/upload-artifact@v4
         if: always()
         with:
