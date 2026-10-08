@@ -23,7 +23,16 @@ jobs:
         run: |
           set -euo pipefail
           cd yunex/video004/release-prep
+          python3 -m py_compile verify_gate.py import_approved_audio.py test_verify_gate.py
           python3 -m unittest -v test_verify_gate.py
+          if [[ "$GITHUB_REF" == 'refs/heads/sol/y004-i-release-prep' ]]; then
+            if python3 verify_gate.py registry --registry ../TASKS.json; then
+              echo 'ERROR: I branch pending registry must not authorize render' >&2
+              exit 1
+            else
+              echo 'PASS: current Manager registry correctly denies release'
+            fi
+          fi
       - name: Confirm branch-trigger is registered
         env:
           REF: ${{ github.ref }}
