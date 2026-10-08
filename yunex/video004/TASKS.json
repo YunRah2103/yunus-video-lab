@@ -1,13 +1,13 @@
 {
   "phase": "Y004-REAR-STEERING-01",
-  "phase_status": "MANAGER_ACTUAL_NATIVE_PROOFS_RENDERED_VALIDATION_RETRY_IN_PROGRESS_AUDIO_MISSING",
+  "phase_status": "NATIVE_THREE_MODE_MOVING_SMOKE_RENDER_PASS_AND_D_AUDIO_PASS_INTEGRATED_VISUAL_QA_STILL_PENDING",
   "manager_branch": "sol/y004-rear-steering-manager",
   "master_handoff_sha": "2522f1379712f7ccbeca68d350dfa592a1f6ff97",
   "source_base_sha": "451728dcbc8e36cc9f54fb94e00bdefbdf068f51",
   "model_sha256": "1c73fcb138c31e2b1d5ed126a2412074bb17f8e960b355436f28139bf518e1eb",
   "dispatch_sha": "bf2f0996f4176791d5ac78d818090e8b429397ad",
   "dispatch_branch_base_sha": "bf2f0996f4176791d5ac78d818090e8b429397ad",
-  "voiceover_status": "USER_CEDAR_MP3_SHA_AND_22_704S_VERIFIED_MANAGER_TIMING_LOCK_720_FRAMES_AGENT_D_ASSET_TRANSFER_AND_FINAL_MIX_PENDING",
+  "voiceover_status": "AGENT_D_ACTUAL_APPROVED_CEDAR_24S_AAC_AND_WAV_DELIVERED_SOURCE_HASHED_MIX_PASS_FILM_SYNC_PENDING",
   "fps": 30,
   "target_frames_provisional": 720,
   "locked_frames": 720,
@@ -73,10 +73,10 @@
         "yunex/video004/reports/D/**",
         "yunex/public/y004-*"
       ],
-      "status": "PROCEDURAL_AUDIO_BED_COMPLETED_NEW_APPROVED_CEDAR_VO_MISSING",
+      "status": "NEW_CEDAR_VOICE_VERIFIED_24S_ISOLATED_AND_FINAL_AAC_MIX_PASS_AWAIT_FILM_INTEGRATION",
       "input_sha": "bf2f0996f4176791d5ac78d818090e8b429397ad",
-      "output_sha": "f46875dc7f6a730257a4b045298f76717a93a090",
-      "proof": null,
+      "output_sha": "9567f6b2efa901d3667d084eedbbca9c98943c36",
+      "proof": "Agent D report CEDAR_AUDIO_RELEASE.md; real source SHA db75bbbe6aa468062b300004390f23f254679086e2b69d0de6aa1d553c8d404b; 24s AAC SHA a2f5dc284ce923a4d6803b66c2d45a1d3502a2be0024c8e3b1d2658c5bdb1e51; local decoding PASS. No human semantic audition documented.",
       "accepted": false
     },
     {
@@ -122,19 +122,36 @@
   ],
   "rule": "Only Manager updates this registry. Branch creation does not mean specialist execution started.",
   "progress_as_of": "2026-10-08",
-  "progress_notes": "Manager actual Porsche low/high 24-frame clips rendered at source 4749c48f7d350801ccc6462a7530225d6eadfc66 and uploaded as artifacts 11539213814/11539213630, but the jobs failed post-render because ffprobe was missing. Patched workflow on Manager branch to provision ffmpeg/ffprobe; corrected run 37755997906 queued. Need ffprobe, full decode, visual review before accepting. Agent D pushed new effects-only provisional 24s bed but cannot produce Cedar narration without fresh approved source; code SHA f46875dc7f6a730257a4b045298f76717a93a090.\n2026-10-08 new user-supplied Cedar take duration 22.704 s SHA db75bbbe6aa468062b300004390f23f254679086e2b69d0de6aa1d553c8d404b; 720f duration locked. Agent D still needs raw file access and transcript/cue validation. Existing A segment boundary 285f (9.5s) misaligned to spoken HIGH at 11.608s; target high cut about 333f (11.1s) requires native reproof.",
+  "progress_notes": "Manager actual Porsche low/high 24-frame clips rendered at source 4749c48f7d350801ccc6462a7530225d6eadfc66 and uploaded as artifacts 11539213814/11539213630, but the jobs failed post-render because ffprobe was missing. Patched workflow on Manager branch to provision ffmpeg/ffprobe; corrected run 37755997906 queued. Need ffprobe, full decode, visual review before accepting. Agent D pushed new effects-only provisional 24s bed but cannot produce Cedar narration without fresh approved source; code SHA f46875dc7f6a730257a4b045298f76717a93a090.\n2026-10-08 new user-supplied Cedar take duration 22.704 s SHA db75bbbe6aa468062b300004390f23f254679086e2b69d0de6aa1d553c8d404b; 720f duration locked. Agent D still needs raw file access and transcript/cue validation. Existing A segment boundary 285f (9.5s) misaligned to spoken HIGH at 11.608s; target high cut about 333f (11.1s) requires native reproof.\n2026-10-08 follow-up: corrected native Porsche smoke run 37755997906 completed SUCCESS (3/3 low/high/macro jobs, artifacts 11541125305 / 11540133822 / 11540927524). D audio actual Cedar verified and 24s final AAC SHA a2f5dc284ce923a4d6803b66c2d45a1d3502a2be0024c8e3b1d2658c5bdb1e51 on Agent D full remote SHA 9567f6b2efa901d3667d084eedbbca9c98943c36. Film remains blocked by 9.5s->11.1s retime, native visual human QA and F acceptance, render source not pinned.",
   "integration": {
     "source_overlay_sha": "6f9297612648ce6f14a0fa8efbfb3532ab041e30",
     "provisional_visual_sha": "ca43545411e651495f70ca92d177786c0e264eec",
     "registered_composition": "YUNEX-004-VISUAL-PROVISIONAL",
     "test_workflow": "YUNEX 004 Manager integration preflight",
     "test_run_id": 37753848162,
-    "preflight_status": "IN_PROGRESS",
-    "visual_moving_proof": "CLIPS_RENDERED_NOT_YET_VALIDATED_OR_REVIEWED",
+    "preflight_status": "PASS_GITHUB_RUN_37753848162",
+    "visual_moving_proof": "LOW_HIGH_REAR_MACRO_24_FRAME_NATIVE_GITHUB_ACTIONS_SUCCESS_NOT_YET_HUMAN_REVIEWED",
     "source_accepted": false,
     "original_render_run_id": 37753976721,
     "corrected_native_proof_run_id": 37755997906,
-    "validation_issue": "Original native job produced 24/24 low/high frames but ffprobe binary absent, code corrected"
+    "validation_issue": "FIXED: FFmpeg/ffprobe provisioned and all three native smoke jobs passed; still pending human visual review and narration-synced reshoot.",
+    "proof_artifacts": [
+      {
+        "id": 11541125305,
+        "name": "Y004-MANAGER-NATIVE-low-mode",
+        "frame_range": "200-223"
+      },
+      {
+        "id": 11540133822,
+        "name": "Y004-MANAGER-NATIVE-high-mode",
+        "frame_range": "327-350"
+      },
+      {
+        "id": 11540927524,
+        "name": "Y004-MANAGER-NATIVE-rear-macro",
+        "frame_range": "108-131"
+      }
+    ]
   },
   "voiceover": {
     "source_sha256": "db75bbbe6aa468062b300004390f23f254679086e2b69d0de6aa1d553c8d404b",
