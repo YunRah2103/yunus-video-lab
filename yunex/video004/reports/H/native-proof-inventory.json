@@ -36,7 +36,7 @@
   "nativeProofs": {
     "runId": 37769701749,
     "expectedJobs": 11,
-    "passesConfirmed": 1,
+    "passesConfirmed": 3,
     "format": {
       "codec": "h264",
       "pixelFormat": "yuv420p",
@@ -65,13 +65,13 @@
         "framesInclusive": "60-83",
         "expectedFrameCount": 24,
         "artifactName": "Y004-H-C-NATIVE-opening-tail-60-83",
-        "artifactId": null,
-        "mediaSha256": null,
+        "artifactId": 11548180309,
+        "mediaSha256": "3b35f8c16c577bf9048db038bd17983704ce8c8d43be880d0cf434ec1f3e54d6",
         "sourceSha": "1e2ab54e77090ec9c95c119488bc87d7ab7a45ba",
-        "validation": "PENDING_NATIVE_RENDER",
+        "validation": "STRICT_NATIVE_MP4_AND_LOCAL_DECODER_PASS",
         "jobId": 113286094583,
-        "jobStatus": "in_progress",
-        "jobConclusion": null
+        "jobStatus": "completed",
+        "jobConclusion": "success"
       },
       {
         "name": "low-full-150-246",
@@ -169,13 +169,13 @@
         "framesInclusive": "567-596",
         "expectedFrameCount": 30,
         "artifactName": "Y004-H-C-NATIVE-exit-567-596",
-        "artifactId": null,
-        "mediaSha256": null,
+        "artifactId": 11547945616,
+        "mediaSha256": "db467b8d7d0352c619c5e03934c9f0bffe70fb7e893a72d1a346084e179fea84",
         "sourceSha": "1e2ab54e77090ec9c95c119488bc87d7ab7a45ba",
-        "validation": "PENDING_NATIVE_RENDER",
+        "validation": "STRICT_NATIVE_MP4_AND_LOCAL_DECODER_PASS",
         "jobId": 113286094636,
-        "jobStatus": "in_progress",
-        "jobConclusion": null
+        "jobStatus": "completed",
+        "jobConclusion": "success"
       },
       {
         "name": "ending-687-719",
@@ -193,7 +193,7 @@
     ],
     "jobsQueuedOrRunning": 11,
     "jobIdsAllConfirmed": true,
-    "pendingNative": 10
+    "pendingNative": 8
   },
   "oldSourceEvidence": {
     "sourceSha": "f5cbdf2f6c96aa5ac2e5c184a048f49700037f55",
