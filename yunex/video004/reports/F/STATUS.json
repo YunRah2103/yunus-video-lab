@@ -63,124 +63,155 @@
     "yunex/video004/reports/F/STATUS.json"
   ],
   "requiresIndependentReReviewAfterProofs": true,
-  "decision": "CORRECTED_11_NATIVE_VISUAL_PASS_RELEASE_HOLD_156_FRAMES_NOT_EVIDENCED",
+  "decision": "FINAL_13_NATIVE_PRE_RENDER_VISUAL_PASS_FINAL_AUDIO_MP4_QA_PENDING",
   "latestAssessment": {
-    "phase": "Y004-REAR-STEERING-01",
-    "assessment": "H_CORRECTED_SOURCE_11_ACTUAL_NATIVE_MP4_INDEPENDENT_REVIEW",
-    "reviewedAt": "2026-10-08",
-    "exactCorrectedSourceSha": "1e2ab54e77090ec9c95c119488bc87d7ab7a45ba",
-    "runId": 37769701749,
-    "sourceAuditArtifactId": 11547123669,
-    "actualNativeMovingClipsIndependentlyReviewed": 11,
-    "independentMediaValidation": {
-      "pass": true,
-      "shaSourceChecks": 11,
-      "sha256Checks": 11,
-      "fullDecoderChecks": 11,
-      "correctFrameCounts": 11,
-      "frameRates": "30/1",
-      "dimensions": "1080x1920",
-      "codec": "H.264",
-      "pixelFormat": "yuv420p",
-      "colorRange": "tv",
-      "allMovingWithZeroIdenticalAdjacentFrames": true
-    },
-    "exactSourceArtifactIds": [
-      11547392900,
-      11548180309,
-      11549115114,
-      11548522472,
-      11546544603,
-      11548552591,
-      11548576922,
-      11548780809,
-      11548412328,
-      11547945616,
-      11547991357
-    ],
-    "exactSourceFramesCovered": 564,
-    "filmFrames": 720,
-    "exactSourceUncoveredRangesInclusive": [
-      [
-        84,
-        149
-      ],
-      [
-        597,
-        686
-      ]
-    ],
-    "visualCorrectionReview": "PASS",
-    "correctionDetails": [
+    "assessment": "FINAL_13_NATIVE_PROOF_VISUAL_QA",
+    "date": "2026-10-08",
+    "verdict": "PASS",
+    "exactSourceSha": "1e2ab54e77090ec9c95c119488bc87d7ab7a45ba",
+    "newSourceExactArtifacts": [
       {
+        "label": "rear-wheel-macro-84-149",
+        "workflowRunId": 37781451513,
+        "id": 11556411461,
         "frames": [
-          272,
-          336,
-          397
-        ],
-        "result": "PASS",
-        "description": "Visible truthful front/rear steering labels with correctly opposing vs aligned vs centred responses"
-      },
-      {
-        "frames": [
-          0,
-          35,
-          59,
-          432,
-          497,
-          551
-        ],
-        "result": "PASS",
-        "description": "Full Porsche and wing visible during sustained opening and roadside driving; no old crop"
-      },
-      {
-        "frames": [
-          150,
-          200,
-          246,
-          307,
-          311,
-          552,
-          560,
-          566
-        ],
-        "result": "PASS",
-        "description": "Previously unreviewed low-speed teaching and transition bridge footage checked"
-      },
-      {
-        "frames": [
-          567,
-          578,
-          596,
-          687,
-          719
-        ],
-        "result": "PASS",
-        "description": "Approaching trackside Porsche and final active moving payoff checked"
-      }
-    ],
-    "confirmedNewBlockingVisualDefects": [],
-    "unresolvedRequiredEvidence": [
-      {
-        "framesInclusive": [
           84,
           149
         ],
-        "reason": "No corrected-source rear macro MP4, caliper nonspin/stability cannot be independently reconfirmed visually at exact SHA"
+        "count": 66,
+        "mp4Sha256": "11e8f97a9b7c6ba219812bd8682089b67140305231a0698588beb3bd14c67f1d",
+        "visual": "PASS"
       },
       {
-        "framesInclusive": [
+        "label": "active-exit-597-686",
+        "workflowRunId": 37781451513,
+        "id": 11555685474,
+        "frames": [
           597,
           686
         ],
-        "reason": "No corrected-source middle-exit MP4, 90-frame pass/chase handover not independently rechecked"
+        "count": 90,
+        "mp4Sha256": "e95a2cf3c092703334e2bedffc7a8628be02357c1a8619b2432eeb14c4637b97",
+        "visual": "PASS"
       }
     ],
-    "completeAudioFilmAuditioned": false,
-    "exactSourceReviewStatus": "CORRECTED_PROOF_VISUAL_PASS_FULL_SOURCE_EVIDENCE_HOLD",
-    "overallPreRenderReleaseGate": "FAIL_EVIDENCE_HOLD",
-    "approvedFullRender": false,
-    "reportPath": "yunex/video004/reports/F/H_CORRECTED_37769701749_INDEPENDENT_QA.md",
-    "productionFilesChanged": false
+    "old11CorrectedSourceReviewedSha": "a09bbc8ffa1a186a2040fd8c8bbf35bd1690b33b",
+    "exactSourceBoundaryPairsChecked": [
+      [
+        83,
+        84
+      ],
+      [
+        149,
+        150
+      ],
+      [
+        596,
+        597
+      ],
+      [
+        686,
+        687
+      ]
+    ],
+    "boundaryResult": "PASS",
+    "rearWheelWobble": "NO_BLOCKING_DEFECT_OBSERVED",
+    "rearCaliper": "NO_VISIBLE_COSPINS_OR_DETACHMENT_IN_RENDERED_FRAMES_SUBDEGREE_GEOMETRIC_RELATION_NOT_MEASURABLE_FROM_2D",
+    "groundContact": "PASS_VISUAL",
+    "exitMotionParallax": "PASS_VISUAL",
+    "activeExitCameraCutFrame": 650,
+    "significantVisualBlockers": [],
+    "fullCoverageTechnicalAudit": {
+      "agent": "E",
+      "runId": 37793698852,
+      "artifactId": 11557582041,
+      "clips": 13,
+      "frames": 720,
+      "missing": 0,
+      "overlaps": 0,
+      "identicalAdjacentDecodedFrames": 0,
+      "result": "PASS"
+    },
+    "originalManagerRegistryCommit": "469b77420547ddcb9fef2fbb46c619afb94cae4b",
+    "scope": "PRE_RENDER_VISUAL_ONLY",
+    "fullMP4AudioMuxedReview": "NOT_AVAILABLE_NOT_REVIEWED",
+    "finalMasterQA": "PENDING_FULL_MASTER",
+    "managerRenderAuthorization": "NOT_GRANTED_BY_F",
+    "report": "yunex/video004/reports/F/FINAL_13_NATIVE_INDEPENDENT_VISUAL_QA.md"
+  },
+  "finalIndependentVisualQA": {
+    "assessment": "FINAL_13_NATIVE_PROOF_VISUAL_QA",
+    "date": "2026-10-08",
+    "verdict": "PASS",
+    "exactSourceSha": "1e2ab54e77090ec9c95c119488bc87d7ab7a45ba",
+    "newSourceExactArtifacts": [
+      {
+        "label": "rear-wheel-macro-84-149",
+        "workflowRunId": 37781451513,
+        "id": 11556411461,
+        "frames": [
+          84,
+          149
+        ],
+        "count": 66,
+        "mp4Sha256": "11e8f97a9b7c6ba219812bd8682089b67140305231a0698588beb3bd14c67f1d",
+        "visual": "PASS"
+      },
+      {
+        "label": "active-exit-597-686",
+        "workflowRunId": 37781451513,
+        "id": 11555685474,
+        "frames": [
+          597,
+          686
+        ],
+        "count": 90,
+        "mp4Sha256": "e95a2cf3c092703334e2bedffc7a8628be02357c1a8619b2432eeb14c4637b97",
+        "visual": "PASS"
+      }
+    ],
+    "old11CorrectedSourceReviewedSha": "a09bbc8ffa1a186a2040fd8c8bbf35bd1690b33b",
+    "exactSourceBoundaryPairsChecked": [
+      [
+        83,
+        84
+      ],
+      [
+        149,
+        150
+      ],
+      [
+        596,
+        597
+      ],
+      [
+        686,
+        687
+      ]
+    ],
+    "boundaryResult": "PASS",
+    "rearWheelWobble": "NO_BLOCKING_DEFECT_OBSERVED",
+    "rearCaliper": "NO_VISIBLE_COSPINS_OR_DETACHMENT_IN_RENDERED_FRAMES_SUBDEGREE_GEOMETRIC_RELATION_NOT_MEASURABLE_FROM_2D",
+    "groundContact": "PASS_VISUAL",
+    "exitMotionParallax": "PASS_VISUAL",
+    "activeExitCameraCutFrame": 650,
+    "significantVisualBlockers": [],
+    "fullCoverageTechnicalAudit": {
+      "agent": "E",
+      "runId": 37793698852,
+      "artifactId": 11557582041,
+      "clips": 13,
+      "frames": 720,
+      "missing": 0,
+      "overlaps": 0,
+      "identicalAdjacentDecodedFrames": 0,
+      "result": "PASS"
+    },
+    "originalManagerRegistryCommit": "469b77420547ddcb9fef2fbb46c619afb94cae4b",
+    "scope": "PRE_RENDER_VISUAL_ONLY",
+    "fullMP4AudioMuxedReview": "NOT_AVAILABLE_NOT_REVIEWED",
+    "finalMasterQA": "PENDING_FULL_MASTER",
+    "managerRenderAuthorization": "NOT_GRANTED_BY_F",
+    "report": "yunex/video004/reports/F/FINAL_13_NATIVE_INDEPENDENT_VISUAL_QA.md"
   }
 }
