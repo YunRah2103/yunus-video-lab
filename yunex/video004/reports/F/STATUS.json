@@ -1,0 +1,67 @@
+{
+  "phase": "Y004-REAR-STEERING-01",
+  "role": "F",
+  "branch": "sol/y004-f-qa",
+  "sourceDispatchSha": "bf2f0996f4176791d5ac78d818090e8b429397ad",
+  "productionBaseSha": "451728dcbc8e36cc9f54fb94e00bdefbdf068f51",
+  "automatedQa": {
+    "status": "HARNESS_PASS_FIXTURES_ONLY",
+    "suites": {
+      "driveAndGuides": {
+        "passed": 15,
+        "failed": 0
+      },
+      "deliveryMetadata": {
+        "passed": 18,
+        "failed": 0
+      },
+      "nativeProofGates": {
+        "passed": 12,
+        "failed": 0
+      }
+    },
+    "totalPassed": 45,
+    "totalFailed": 0,
+    "execution": "Executed current committed test bodies against current F modules in a JavaScript test runtime; real Node-runner integration pending.",
+    "nativeCliSyntax": "PASS",
+    "liveIntegratedSampler": "BLOCKED_NOT_INTEGRATED"
+  },
+  "nativePreRenderVisualQa": {
+    "status": "BLOCKED",
+    "actualNativeClipsViewed": 0,
+    "matchedMutedReview": false,
+    "reason": "No accepted A/B/C/Manager native moving clips accessible to independent F review."
+  },
+  "nativeFinalMediaQa": {
+    "status": "BLOCKED",
+    "finalMasterViewed": false,
+    "sourceSha": null,
+    "artifactId": null,
+    "fullDecoderTested": false,
+    "reason": "Manager immutable render-source SHA and genuine E final master not yet provided."
+  },
+  "creativeApproval": false,
+  "remoteDependencySnapshots": {
+    "A": "8ba8678a9a98d5abd5b1b61bd800c5e90b95dc83",
+    "B": "4febfd0e1a4bae8d55823f1ffa2171acf94cbc4b",
+    "C": "3dff36327bf04a7bee7b5927b0185a43eba68673",
+    "D": "d96b5731a3584d294d54465034c70a3928e7271a",
+    "E": "c2fe1a31b6b55ea6bb68d9b697ad7ddf1540efd8",
+    "Manager": "3fb63792f1b085be79a4fdb7103762bc65d1266c"
+  },
+  "qaOwnedFiles": [
+    "yunex/src/video004/qa/driveAudit.mjs",
+    "yunex/src/video004/qa/driveAudit.test.mjs",
+    "yunex/src/video004/qa/deliveryAudit.mjs",
+    "yunex/src/video004/qa/deliveryAudit.test.mjs",
+    "yunex/src/video004/qa/verifyMedia.mjs",
+    "yunex/src/video004/qa/auditLive.ts",
+    "yunex/src/video004/qa/proofGate.mjs",
+    "yunex/src/video004/qa/proofGate.test.mjs",
+    "yunex/src/video004/qa/README.md",
+    "yunex/video004/reports/F/PREFLIGHT_QA.md",
+    "yunex/video004/reports/F/STATUS.json"
+  ],
+  "requiresIndependentReReviewAfterProofs": true,
+  "decision": "BLOCKED_NATIVE_PROOFS_AND_FINAL_RENDER"
+}
