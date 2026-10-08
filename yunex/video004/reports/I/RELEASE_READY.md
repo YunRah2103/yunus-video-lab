@@ -63,3 +63,77 @@ The Manager push release **has not been exercised**, because doing so before fin
 5. G verifies actual completed final MP4 and F independently checks final audiovisual export before Master review.
 
 **Delivery verdict:** Branch CI launch infrastructure **PASS**, real Cedar source inspection **PASS**, remote byte publication **NOT DONE**, full native release **correctly BLOCKED**.
+
+## Final Agent I retry: authenticated binary publication (8 October 2026)
+
+**Remote binary status: NOT PUBLISHED.** The GitHub contents request for
+`yunex/video004/audio/y004-approved-cedar-24s.m4a` on this branch still returned HTTP 404.
+The pre-existing release-launch workflow is already passing, and this update does not
+rebuild or modify it.
+
+Actual binary-capable transport check:
+- The local terminal has Git 2.47.3 but no `gh` executable, no GitHub token,
+  no credential helper, and no Git credentials available.
+- A non-mutating `git ls-remote https://github.com/YunRah2103/yunus-video-lab.git`
+  failed: `Could not resolve host: github.com`. Therefore local `git push`
+  cannot deliver the file from this runtime.
+- The connected GitHub connector can create a Git blob from caller-supplied
+  complete Base64 bytes, but has no supported parameter for the materialized
+  Library/container binary path; the connector-side execution environment cannot
+  read the local file. No fake or partial Git blob was attempted.
+- **Stop here on unsupported binary paths.** No unapproved Manager push,
+  H/G code edits or native render took place.
+
+**Independent patch restoration test (PASS)**
+
+- Approved original: `/Video Projects/YUNEX 004/Agent D/YUNEX_004_Cedar_final_mix_24s_48k_stereo.m4a`
+- Verified original size: **753,974 bytes**
+- Original SHA256: `a2f5dc284ce923a4d6803b66c2d45a1d3502a2be0024c8e3b1d2658c5bdb1e51`
+- Portable patch: conversation download `YUNEX_004_Agent_I_approved_audio.patch`
+- Patch SHA256: `4b7cc0b0b4fc3bd51c775a45b1ff7163c39fc6f26ddf8a5ae06773c40aff42c3`
+- `git apply --check` in a clean temporary repository: **PASS**
+- `git apply`, then binary compare against original: **EXACT MATCH**
+- Restored path: `yunex/video004/audio/y004-approved-cedar-24s.m4a`
+- Restored SHA256: `a2f5dc284ce923a4d6803b66c2d45a1d3502a2be0024c8e3b1d2658c5bdb1e51`
+- `ffprobe`: **AAC, 48000 Hz, stereo, 24.000000 seconds**
+- Full `ffmpeg -xerror -err_detect explode` decode: **PASS**
+
+### Minimal authorised Windows PowerShell publication
+
+Download the provided **portable Git patch** from the Agent I chat into
+your Downloads folder; Git for Windows must be installed and authorised to push
+this repository. Open PowerShell and run:
+
+```powershell
+git clone https://github.com/YunRah2103/yunus-video-lab.git
+cd yunus-video-lab
+git switch -c sol/y004-i-release-prep --track origin/sol/y004-i-release-prep
+
+$patch = Join-Path $env:USERPROFILE "Downloads\YUNEX_004_Agent_I_approved_audio.patch"
+git apply --check "$patch"
+if ($LASTEXITCODE -ne 0) { throw "Patch does not apply cleanly" }
+git apply "$patch"
+if ($LASTEXITCODE -ne 0) { throw "Audio patch application failed" }
+
+$audio = "yunex/video004/audio/y004-approved-cedar-24s.m4a"
+$expected = "a2f5dc284ce923a4d6803b66c2d45a1d3502a2be0024c8e3b1d2658c5bdb1e51"
+$actual = (Get-FileHash $audio -Algorithm SHA256).Hash.ToLowerInvariant()
+if ($actual -ne $expected) { throw "WRONG AUDIO HASH: $actual" }
+
+git add -- "$audio"
+git commit -m "Y004: publish exact approved Cedar AAC"
+git push origin HEAD:sol/y004-i-release-prep
+git rev-parse HEAD
+```
+
+The expected SHA256 must match **exactly** before committing. The last
+command prints the **new full remote SHA only if push succeeds**; verify it
+with `git ls-remote origin refs/heads/sol/y004-i-release-prep`. If the
+clone already exists, use your existing authorised checkout and
+`git switch sol/y004-i-release-prep` instead. Do not merge or trigger
+the final render here; Manager must take the exact committed audio into
+the final source, obtain F PASS, and authorize the gated release.
+
+**Conclusion:** The audio is **byte-perfect and locally recoverable**,
+but is **not on the remote branch**. The only outstanding Agent I release
+step is an authorised binary-capable Git push by the user/local machine.
