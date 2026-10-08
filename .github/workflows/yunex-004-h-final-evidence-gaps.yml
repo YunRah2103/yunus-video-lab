@@ -1,0 +1,81 @@
+name: YUNEX 004 H final 156-frame evidence completion
+on:
+  push:
+    branches: [sol/y004-h-integration]
+    paths: ['.github/workflows/yunex-004-h-final-evidence-gaps.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+env:
+  FILM_SOURCE_SHA: 1e2ab54e77090ec9c95c119488bc87d7ab7a45ba
+jobs:
+  gap-only-native:
+    name: Exact-source native ${{ matrix.label }} ${{ matrix.range }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 110
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - {label: rear-wheel-macro-84-149, range: '84-149', expected: 66}
+          - {label: active-exit-597-686, range: '597-686', expected: 90}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: 1e2ab54e77090ec9c95c119488bc87d7ab7a45ba
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: yunex/package-lock.json
+      - name: Verify exact film source and immutable GLB; install FFmpeg and Remotion
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$FILM_SOURCE_SHA"
+          printf '%s\n' "Exact immutable native composition $FILM_SOURCE_SHA"
+          echo '1c73fcb138c31e2b1d5ed126a2412074bb17f8e960b355436f28139bf518e1eb  cars/porsche-911-gt3-rs-992/model.glb' | sha256sum --check -
+          cp cars/porsche-911-gt3-rs-992/model.glb yunex/public/model.glb
+          sudo apt-get -o Acquire::Retries=2 update -qq
+          sudo apt-get -o Acquire::Retries=2 install -y -qq ffmpeg
+          cd yunex
+          npm ci --no-audit --no-fund
+          npx remotion browser ensure
+      - name: Render ONLY requested native source frames; normalize, strict gate and check duplicates
+        working-directory: yunex
+        env:
+          NODE_OPTIONS: --require=./fix-network.cjs
+          LABEL: ${{ matrix.label }}
+          RANGE: ${{ matrix.range }}
+          EXPECTED: ${{ matrix.expected }}
+        run: |
+          set -euo pipefail
+          mkdir -p "out/y004-h-final-gaps/$LABEL"
+          OUTDIR="out/y004-h-final-gaps/$LABEL"
+          RAW="$OUTDIR/$LABEL-raw.mp4"
+          npx remotion render src/index.tsx YUNEX-004 "$RAW" --frames="$RANGE" --gl=swangle --concurrency=1 --codec=h264 --pixel-format=yuv420p --crf=18 --scale=1 --timeout=180000 --muted
+          bash video004/reports/H/normalize-native-proof.sh "$RAW" "$OUTDIR" "$LABEL" "$RANGE" "$EXPECTED" "$FILM_SOURCE_SHA"
+          ffmpeg -nostdin -v error -xerror -i "$OUTDIR/$LABEL.mp4" -an -vf "scale=96:54:flags=fast_bilinear,format=gray" -f framemd5 "$OUTDIR/decoded-frame-hashes.md5"
+          python3 - "$OUTDIR/decoded-frame-hashes.md5" "$EXPECTED" "$RANGE" <<'PY'
+          from pathlib import Path
+          import sys,json
+          path=Path(sys.argv[1]);n=int(sys.argv[2]);rg=sys.argv[3]
+          lines=[s.strip().split(',') for s in path.read_text().splitlines() if s.strip() and not s.startswith('#')]
+          hashes=[s[-1].strip() for s in lines]
+          assert len(hashes)==n,(len(hashes),n)
+          repeated=[i for i in range(1,len(hashes)) if hashes[i]==hashes[i-1]]
+          assert not repeated,('adjacent full-decoded sampled frames duplicated',repeated)
+          result={"sourceFramesInclusive":rg,"decodedFrameCount":len(hashes),"adjacentDuplicateFramePairs":0,"decodeVerification":"PASS"}
+          Path(path.parent/'temporal-integrity.json').write_text(json.dumps(result,indent=2)+'\n')
+          print(result)
+          PY
+          ffprobe -v error -show_entries stream=codec_name,pix_fmt,color_range,color_space,color_primaries,color_transfer,r_frame_rate,nb_frames,nb_read_frames,width,height -show_entries format=duration -of json "$OUTDIR/$LABEL.mp4" > "$OUTDIR/final-video-metadata.json"
+          ffmpeg -nostdin -v error -xerror -i "$OUTDIR/$LABEL.mp4" -vf "select='eq(n,0)+eq(n,trunc(($EXPECTED-1)/2))+eq(n,$EXPECTED-1)'" -vsync vfr "$OUTDIR/sample-%02d.jpg"
+          printf 'IMMUTABLE FILM SOURCE %s\nORIGINAL FRAMES %s\nRENDERED FRAMES %s\n' "$FILM_SOURCE_SHA" "$RANGE" "$EXPECTED" >> "$OUTDIR/provenance.txt"
+          rm "$RAW"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: Y004-H-FINAL-GAP-${{ matrix.label }}
+          path: yunex/out/y004-h-final-gaps/${{ matrix.label }}/
+          retention-days: 30
