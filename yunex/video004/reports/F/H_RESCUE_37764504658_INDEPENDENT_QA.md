@@ -75,3 +75,12 @@ All nine: H.264, strict **yuv420p with color_range=tv**, bt709 metadata, **1080x
 - **Master creative approval:** never claimed.
 
 This report changes only Agent F-owned `yunex/video004/reports/F/**`. No other agent's production code was edited.
+
+
+## Independent reconciliation with H's final nine-proof inventory (2026-10-08)
+
+The H `native-proof-inventory.json` published at H report commit `943475571faa53217397404bb9e750359d66cfcd` was fetched independently. Its nine artifact IDs, frame ranges, required counts, full `mp4Sha256` values and `exactFilmSourceSha` match this report, including the opening and final ending clips. A further independent reread of the **actual nine local MP4s** rechecked each video against its ZIP's `SHA256SUMS`, its embedded `source-sha.txt`, and independently counted FFprobe frames: **9/9 match**, each strict H.264/yuv420p, 1080×1920, 30/1. No outdated provisional clip was substituted.
+
+Re-examined full-size decoded **low-steering relative frame 25 (film 272)**, **high-steering relative frame 25 (film 397)**, opening contact at film 0/12/24/36/48/59, rear-macro wheel details at relative 0/10/20/30/40/50 and all nine shot contact sequences. The principal blocking visual finding remains: green and white wheel-direction reference lines are extremely faint, near-coincident in the explanation shots, and the actual low-vs-high rear yaw difference is not independently understandable without text. No clear physical wheel wobble or caliper detachment is visible in these samples; caliper non-spin remains partially occluded. The opening and roadside tracking clips remain repeatedly cropped. The final ending remains active and moving.
+
+**Final independent verdict unchanged: NATIVE MEDIA TECHNICAL PASS; VISUAL RELEASE FAIL.** This is based on genuine reviewed MP4 frames, *not* the older insufficient-evidence report. The H inventory's `NATIVE_EVIDENCE_9_OF_9_PASS` is correctly interpreted as technical export success only. The proof clips are muted and still omit 117 film frames, so there is no claimed whole-film real-time audiovisual viewing. H/C should first make true-angle guide distinction visible at normal 9:16 scale and reshoot affected matched low/high footage; H should improve overlong silhouette crop, supply missing 150–246 coverage and confirm the problematic cut neighborhoods. Only F can reapprove from **new exact-source moving artifacts** after source changes.
