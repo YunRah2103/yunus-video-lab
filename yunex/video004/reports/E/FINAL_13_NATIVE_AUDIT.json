@@ -1,0 +1,209 @@
+{
+  "project": "YUNEX-004",
+  "auditor": "Agent E",
+  "technicalResult": "PASS",
+  "scope": "13 actual corrected-source native silent MP4 proof clips, not F visual approval or G master release",
+  "filmSourceSha": "1e2ab54e77090ec9c95c119488bc87d7ab7a45ba",
+  "managerTaskRegistrySha": "1194dadae1e9a8183035432ed9147c2b175fff28",
+  "evidence": {
+    "auditWorkflowRunId": 37793698852,
+    "auditJobId": 113367482800,
+    "auditArtifactId": 11557582041,
+    "runPage": "https://github.com/YunRah2103/yunus-video-lab/actions/runs/37793698852",
+    "auditFile": "report/E_ACTUAL_MP4_AUDIT.json",
+    "auditFileSha256": "02840a492a2f53953879c74878b635d19b370c68cd242c1c35ded9f90983bacb",
+    "priorRunId": 37769701749,
+    "recoveredGapRunId": 37781451513
+  },
+  "coverage": {
+    "inclusiveStart": 0,
+    "inclusiveEnd": 719,
+    "totalFrames": 720,
+    "verifiedFrames": 720,
+    "missingFrames": 0,
+    "overlaps": 0,
+    "clipCount": 13,
+    "contiguous": true,
+    "coverageResult": "PASS"
+  },
+  "perClipMedia": {
+    "resolution": "1080x1920",
+    "fps": "30/1",
+    "codec": "h264",
+    "pixelFormat": "yuv420p",
+    "range": "tv",
+    "oneVideoZeroAudioStreams": true,
+    "decodedFrames": "EXACT",
+    "checksum": "MATCH_SHA256SUMS",
+    "fullDecode": "PASS",
+    "clipLocalTimestampContinuity": "PASS",
+    "adjacentDuplicateGrey96x54DecodedFrames": 0,
+    "temporalMotion": "PASS"
+  },
+  "tests": {
+    "negativeUnitTestsPassed": 5,
+    "fullNativeClipsPassed": 13
+  },
+  "actualVideoLocalReview": {
+    "rearWheelMacro": "Sampled original MP4 frames 84/117/149; rim spokes visibly rotate, brake disc/caliper remains in wheel region without co-spin, tyre in asphalt contact and rim centred; precise caliper mechanical attachment not independently measurable from 2D frames",
+    "exitContinuation": "Sampled actual MP4 throughout 597-686; moving car, track and environment parallax, no apparent freeze or ungrounded drift",
+    "seams": {
+      "83->84": "intentional wide-to-wheel macro cut",
+      "149->150": "intentional wheel-macro-to-elevated teaching cut",
+      "596->597": "continuous front three-quarter driving position",
+      "686->687": "continuous rear-quarter driving position"
+    },
+    "visualAuthority": "F alone"
+  },
+  "release": {
+    "FVisualApproval": "PENDING",
+    "managerFinalSourceGate": "PENDING",
+    "iApprovedAudioGitRemote": "PENDING_UNVERIFIED",
+    "agentGFullMaster": "NOT_STARTED_BY_E"
+  },
+  "clips": [
+    {
+      "label": "opening-0-59",
+      "framesInclusive": "0-59",
+      "first": 0,
+      "last": 59,
+      "decodedFrames": 60,
+      "artifactId": 11547392900,
+      "mp4Sha256": "3c6e61fdad18b478a2cf0cd232a6cd0fd2a40576f864994bf2b02656f55abfce",
+      "runId": 37769701749,
+      "jobId": 113286094691
+    },
+    {
+      "label": "opening-tail-60-83",
+      "framesInclusive": "60-83",
+      "first": 60,
+      "last": 83,
+      "decodedFrames": 24,
+      "artifactId": 11548180309,
+      "mp4Sha256": "3b35f8c16c577bf9048db038bd17983704ce8c8d43be880d0cf434ec1f3e54d6",
+      "runId": 37769701749,
+      "jobId": 113286094583
+    },
+    {
+      "label": "rear-wheel-macro-84-149",
+      "framesInclusive": "84-149",
+      "first": 84,
+      "last": 149,
+      "decodedFrames": 66,
+      "artifactId": 11556411461,
+      "mp4Sha256": "11e8f97a9b7c6ba219812bd8682089b67140305231a0698588beb3bd14c67f1d",
+      "runId": 37781451513,
+      "jobId": 113325287977
+    },
+    {
+      "label": "low-full-150-246",
+      "framesInclusive": "150-246",
+      "first": 150,
+      "last": 246,
+      "decodedFrames": 97,
+      "artifactId": 11549115114,
+      "mp4Sha256": "4f7d4afdbc9928290b95f76ec8e72ba9b0b1f1fc4947d4437d5282f3e66d34fd",
+      "runId": 37769701749,
+      "jobId": 113286094733
+    },
+    {
+      "label": "low-247-306",
+      "framesInclusive": "247-306",
+      "first": 247,
+      "last": 306,
+      "decodedFrames": 60,
+      "artifactId": 11548522472,
+      "mp4Sha256": "e28296c45485177fd02c8f2c338653f8450ff14c3fd7e8670f481f3ae1b833cb",
+      "runId": 37769701749,
+      "jobId": 113286094616
+    },
+    {
+      "label": "low-gap-307-311",
+      "framesInclusive": "307-311",
+      "first": 307,
+      "last": 311,
+      "decodedFrames": 5,
+      "artifactId": 11546544603,
+      "mp4Sha256": "442de4943a49d76dd5f22771cdba61dd5b93e6de8ce19a85e563783187dcb9fc",
+      "runId": 37769701749,
+      "jobId": 113286094638
+    },
+    {
+      "label": "match-312-371",
+      "framesInclusive": "312-371",
+      "first": 312,
+      "last": 371,
+      "decodedFrames": 60,
+      "artifactId": 11548552591,
+      "mp4Sha256": "588c834db8f098861358eb47c141de443fba7a656350e2d176dcbb999ff12467",
+      "runId": 37769701749,
+      "jobId": 113286094727
+    },
+    {
+      "label": "high-372-431",
+      "framesInclusive": "372-431",
+      "first": 372,
+      "last": 431,
+      "decodedFrames": 60,
+      "artifactId": 11548576922,
+      "mp4Sha256": "3784fa26ef1d3829df7003cfdac4918bd3ae1aeb81caa53f3d87f615cb0fd56a",
+      "runId": 37769701749,
+      "jobId": 113286094581
+    },
+    {
+      "label": "roadside-432-551",
+      "framesInclusive": "432-551",
+      "first": 432,
+      "last": 551,
+      "decodedFrames": 120,
+      "artifactId": 11548780809,
+      "mp4Sha256": "9aab859a39dd916890f5a5acdd7e8b7d9ea5cb21a1a905df2eb80b59462b0953",
+      "runId": 37769701749,
+      "jobId": 113286094661
+    },
+    {
+      "label": "roadside-gap-552-566",
+      "framesInclusive": "552-566",
+      "first": 552,
+      "last": 566,
+      "decodedFrames": 15,
+      "artifactId": 11548412328,
+      "mp4Sha256": "9bd321e4a5d8997a2463ad5fea2efd63cbcdc164337035fa67f266e7ca7b7836",
+      "runId": 37769701749,
+      "jobId": 113286094819
+    },
+    {
+      "label": "exit-567-596",
+      "framesInclusive": "567-596",
+      "first": 567,
+      "last": 596,
+      "decodedFrames": 30,
+      "artifactId": 11547945616,
+      "mp4Sha256": "db467b8d7d0352c619c5e03934c9f0bffe70fb7e893a72d1a346084e179fea84",
+      "runId": 37769701749,
+      "jobId": 113286094636
+    },
+    {
+      "label": "active-exit-597-686",
+      "framesInclusive": "597-686",
+      "first": 597,
+      "last": 686,
+      "decodedFrames": 90,
+      "artifactId": 11555685474,
+      "mp4Sha256": "e95a2cf3c092703334e2bedffc7a8628be02357c1a8619b2432eeb14c4637b97",
+      "runId": 37781451513,
+      "jobId": 113325287706
+    },
+    {
+      "label": "ending-687-719",
+      "framesInclusive": "687-719",
+      "first": 687,
+      "last": 719,
+      "decodedFrames": 33,
+      "artifactId": 11547991357,
+      "mp4Sha256": "17f3b228f9577d9960f8dc89821dbdc57d65e15385858616afe05614181d5e0c",
+      "runId": 37769701749,
+      "jobId": 113286094692
+    }
+  ]
+}
