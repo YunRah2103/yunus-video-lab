@@ -1,6 +1,6 @@
 # YUNEX 004 — Agent H final integration and evidence
 
-**Status:** SOURCE/720-FRAME AUDIT PASS; STRICT LIMITED-RANGE RECOVERY IN PROGRESS; SIX RECOVERED NATIVE PROOFS PASSED; INDEPENDENT F VISUAL PASS PENDING. Do not release Agent G yet.
+**Status:** SOURCE/720-FRAME AUDIT PASS; STRICT LIMITED-RANGE RECOVERY IN PROGRESS; SEVEN RECOVERED NATIVE PROOFS PASSED; INDEPENDENT F VISUAL PASS PENDING. Do not release Agent G yet.
 
 ## Immutable film source
 - Tested source commit: `f5cbdf2f6c96aa5ac2e5c184a048f49700037f55`.
@@ -49,7 +49,7 @@ A dedicated **video export** correction is pushed:
 - The verifier remains strict; it checks exactly H.264, **`pix_fmt=yuv420p`, `color_range=tv`**, 1080×1920, 30/1, exact inclusive frame counts and matched runtime. FFmpeg `-xerror` full-decode and SHA256 also required. Before correction, decoder could work but pixel-format release gate correctly failed.
 - New 9-job [recovery run 37764504658](https://github.com/YunRah2103/yunus-video-lab/actions/runs/37764504658), workflow commit `908a61bd52344f607f7d6a031b7e2b0c9e7e9ab3`. Seven existing RAW clips are retrieved from the immutable run above and **transcoded only; not rerendered**. Two new source-pinned native jobs render **opening 0–59** (60 frames) and **ending 687–719** (33 frames) and normalize/validate those clips.
 - Every proof checks out the *same* approved film-source SHA `f5cbdf2f6c96aa5ac2e5c184a048f49700037f55`. Source animation/car/track/editorial unchanged; H's new commits are solely independent proof infrastructure and documentation.
-- Five of six successful native recovered MP4s were downloaded locally for extra independent FFprobe/full-decode checks; high, low and matched clips additionally had actual frame/contact-sheet visual checks (no inference from source-only audit).
+- Six successful limited-range MP4s were downloaded locally for extra independent FFprobe/full-decode checks; high, low and matched clips additionally had actual frame/contact-sheet visual checks (no inference from source-only audit).
 
 | Shot | Inclusive frames | Original raw proof artifact (run 37761847924) | Final limited-range evidence (run 37764504658) | State |
 |---|---|---|---|---|
@@ -61,7 +61,7 @@ A dedicated **video export** correction is pushed:
 | Roadside drive | 432–551 | 11543862511 | **11543912279** | Strict MP4/decoder PASS |
 | Active drive ending | 567–686 | 11543881922 | **11544021689** | Strict MP4/decoder PASS |
 | **Opening coverage** | **0–59** | New exact-source native rendering | PENDING | 60-frame range rendering |
-| **Final-frame coverage** | **687–719** | New exact-source native rendering | PENDING | 33-frame range rendering |
+| **Final-frame coverage** | **687–719** | New exact-source native render | **11543723429** | Strict 33-frame MP4/decoder PASS; actual final frame visually inspected |
 
 Full source audit retained: **11542213067**, 720/720 automated PASS (not equivalent to native moving visual approval).
 
