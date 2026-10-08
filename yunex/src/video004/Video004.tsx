@@ -14,6 +14,7 @@ import {createY004RearSteerRig} from './rig';
 import {resolveY004CameraPose,y004VerticalFovDegrees} from './camera';
 import {resolveY004Guides} from './guides';
 import {Yunex004EditLayer} from './edit';
+import {Y004SteeringGuidesOverlay} from './guides/SteeringOverlay';
 import {Y004_FPS} from './contracts';
 import {Y004_EDIT_WINDOWS,y004FrameState} from './timeline';
 
@@ -35,12 +36,15 @@ const ThreeScene:React.FC<{frame:number}>=({frame})=>{
  const rig=useMemo(()=>model?createY004RearSteerRig(model):null,[model]);
  const art=useMemo(()=>{
   const output:THREE.Line[]=[];
+  // The corrected 2D overlay draws true-angle front/rear rays on explanation shots.
+  // Suppress duplicate 3D primitives there, while preserving macro and hook guides.
+  if(state.motion.segmentId==='low-explain'||state.motion.segmentId==='high-explain')return output;
   for(const guide of guides){
    output.push(line(guide.anchorWorld,guide.neutralEndWorld,0xf1eadc,.68));
    output.push(line(guide.anchorWorld,guide.steeredEndWorld,0xbddb78,.97));
   }
   return output;
- },[guides]);
+ },[guides,state.motion.segmentId]);
  useEffect(()=>()=>{
   for(const item of art){
    item.geometry.dispose();
@@ -109,6 +113,7 @@ export const Yunex004Visual:React.FC=()=>{
    gl={{antialias:true,alpha:false,preserveDrawingBuffer:true}} shadows>
    <ThreeScene frame={frame}/>
   </ThreeCanvas>
+  <Y004SteeringGuidesOverlay/>
   <Yunex004EditLayer windows={Y004_EDIT_WINDOWS}/>
  </AbsoluteFill>;
 };

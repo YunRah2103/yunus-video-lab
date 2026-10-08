@@ -26,9 +26,10 @@ const MATCHED: CameraSpec = {
 };
 const SPECS: Record<Exclude<Y004SegmentId, 'trackside-exit'>, CameraSpec> = {
   'low-hook': {
-    from: [4.45, 1.32, -6.15], to: [4.08, 1.19, -5.58],
-    lookFrom: [0.64, 0.49, -1.08], lookTo: [0.70, 0.46, -0.89],
-    lensFrom: 32, lensTo: 35, near: 0.07, far: 200,
+    // More of the front, rear wing and rear wheel remains in portrait through frame 59.
+    from: [6.40, 2.00, -10.40], to: [6.10, 1.87, -9.70],
+    lookFrom: [0.18, 0.68, -0.18], lookTo: [0.18, 0.64, 0.04],
+    lensFrom: 25.5, lensTo: 25.0, near: 0.07, far: 200,
   },
   'rear-macro': {
     from: [2.70, 0.89, -3.37], to: [2.53, 0.81, -3.01],
@@ -38,9 +39,10 @@ const SPECS: Record<Exclude<Y004SegmentId, 'trackside-exit'>, CameraSpec> = {
   'low-explain': MATCHED,
   'high-explain': MATCHED,
   'high-drive': {
-    from: [6.25, 1.93, -4.74], to: [5.82, 1.74, -5.75],
-    lookFrom: [0.06, 0.59, 0.14], lookTo: [0.02, 0.59, 0.46],
-    lensFrom: 30, lensTo: 33, near: 0.07, far: 220,
+    // F-004-02: maintain real roadside tracking, not a prolonged clipped car.
+    from: [7.80, 2.48, -9.80], to: [7.55, 2.35, -10.60],
+    lookFrom: [0.02, 0.66, 0.12], lookTo: [0.00, 0.65, 0.18],
+    lensFrom: 27, lensTo: 28, near: 0.07, far: 220,
   },
 };
 export const Y004_EXIT_EDITORIAL_CUT_PROGRESS = 0.54 as const;

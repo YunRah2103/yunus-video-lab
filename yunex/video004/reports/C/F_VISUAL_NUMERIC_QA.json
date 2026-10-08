@@ -1,0 +1,43 @@
+{
+  "project": "YUNEX-004",
+  "agent": "C",
+  "releaseGate": "NOT-APPROVED_NEEDS-H-NATIVE-PROOFS-F-REVIEW",
+  "priorFilmAnimationSha": "f5cbdf2f6c96aa5ac2e5c184a048f49700037f55",
+  "correctionBranch": "sol/y004-c-camera-guides",
+  "correctiveCodeCommit": "8039e03db2d2a774c4a4f3ff9639b8148eb69707",
+  "verifiedTests": {
+    "testSystem": "Pure V8 equivalent of fetched camera, guide and overlay geometry TypeScript (types stripped only); physical motion fixture using P03 source wheel centres",
+    "cameraAndGuideSamples": {
+      "passed": 30,
+      "total": 30,
+      "failures": []
+    },
+    "zeroYawIntegrity": {
+      "front": "CENTRED",
+      "rear": "CENTRED",
+      "liveTurning": false,
+      "passed": true
+    },
+    "geometry": {
+      "originalSteerInputsUntouched": true,
+      "angleProof": "per-guide audit true at all 30 samples",
+      "noWheelOrTrackWrites": true
+    },
+    "silhouetteProxy": {
+      "type": "8 conservative projected source-local box corners (±1.15m X; -2.55/+2.55m Z; Y 0.16-1.65m) NOT actual GLB pixel evidence",
+      "openingRangeNormalizedX": "approximately -0.62..+0.94 over shot progress 0..1",
+      "roadsideRangeNormalizedX": "approximately -0.69..+0.92 over shot progress 0..1",
+      "caveat": "Camera target and lens approximated in math: final approval needs native playback"
+    }
+  },
+  "unexecuted": [
+    "full repository TypeScript/esbuild compile",
+    "GitHub Actions native Remotion render",
+    "FFmpeg video decode",
+    "frame 272/336/397 visual playback",
+    "full 720f final video"
+  ],
+  "requiredHIntegration": "import Y004SteeringGuidesOverlay from ./guides/SteeringOverlay and render after ThreeCanvas before Yunex004EditLayer; merge C owned modules only; run owner fixtures + new source-pinned H native clips",
+  "qaOwner": "F",
+  "version": "F-004-01,F-004-02"
+}
