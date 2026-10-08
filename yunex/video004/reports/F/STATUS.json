@@ -63,5 +63,72 @@
     "yunex/video004/reports/F/STATUS.json"
   ],
   "requiresIndependentReReviewAfterProofs": true,
-  "decision": "BLOCKED_NATIVE_PROOFS_AND_FINAL_RENDER"
+  "decision": "BLOCKED_EXACT_H_NATIVE_MOVING_EVIDENCE",
+  "latestAssessment": {
+    "target": "H integrated native moving visual QA",
+    "date": "2026-10-08",
+    "integratedSourceSha": "f5cbdf2f6c96aa5ac2e5c184a048f49700037f55",
+    "HBranch": "sol/y004-h-integration",
+    "workflowRunId": 37761847924,
+    "sourceTestsJobId": 113259913020,
+    "exactSourceAuditArtifactId": 11542213067,
+    "actualIntegratedSourceAutomatedAudit": {
+      "pass": true,
+      "framesReviewed": 720,
+      "lowActive": 328,
+      "highActive": 101,
+      "maxRearSteerDeg": 1,
+      "maxTyreGroundErrorM": 1.033005948836152e-8,
+      "deterministic": true,
+      "regressionTestsPassed": 45,
+      "regressionTestsFailed": 0
+    },
+    "nativeProofRunStatusAtAssessment": "IN_PROGRESS",
+    "nativeClipArtifactIdsAtAssessment": [],
+    "expectedClips": [
+      "hook-macro",
+      "rear-macro",
+      "low-steering",
+      "matched-low-high",
+      "high-steering",
+      "roadside-driving",
+      "active-exit"
+    ],
+    "plannedUncoveredRangesInclusive": [
+      [
+        0,
+        59
+      ],
+      [
+        150,
+        246
+      ],
+      [
+        307,
+        311
+      ],
+      [
+        552,
+        566
+      ],
+      [
+        687,
+        719
+      ]
+    ],
+    "plannedUniqueCoveredFrames": 510,
+    "sourceOnlyPass": true,
+    "actualNativeMovingClipsViewed": 0,
+    "opticalCaliperGroundingSteeringQA": "NOT_REVIEWED",
+    "realTimeNarrationSync": "NOT_REVIEWED",
+    "nativeVisualReleaseGate": "FAIL_EVIDENCE_INSUFFICIENT",
+    "finalRenderApproval": false,
+    "report": "yunex/video004/reports/F/H_INTEGRATED_NATIVE_VISUAL_QA.md",
+    "blockers": [
+      "Missing exact-H-source native moving proof artifacts",
+      "No independently viewed muted low/high moving video",
+      "Current seven proof ranges omit opening 0-59 and final 687-719",
+      "No narration-synced complete video playback"
+    ]
+  }
 }
