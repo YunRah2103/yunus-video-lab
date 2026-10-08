@@ -10,7 +10,7 @@ env:
   OLD_RUN: '37761847924'
 jobs:
   reuse-existing:
-    name: Normalize ${{ matrix.label } ( ${{ matrix.range } )
+    name: Normalize ${{ matrix.label }} ( ${{ matrix.range }} )
     runs-on: ubuntu-latest
     timeout-minutes: 90
     strategy:
@@ -34,8 +34,8 @@ jobs:
           path: h-helper
       - name: Verify original locked source and install FFmpeg
         env:
-          GH_TOKEN: ${{ github.token }
-          GH_REPO: ${{ github.repository }
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
         run: |
           set -euo pipefail
           test "$(git rev-parse HEAD)" = "$FILM_SOURCE"
@@ -44,10 +44,10 @@ jobs:
           sudo apt-get -o Acquire::Retries=2 install -y -qq ffmpeg
       - name: Retrieve original raw MP4 once published
         env:
-          GH_TOKEN: ${{ github.token }
-          GH_REPO: ${{ github.repository }
-          LABEL: ${{ matrix.label }
-          RANGE: ${{ matrix.range }
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          LABEL: ${{ matrix.label }}
+          RANGE: ${{ matrix.range }}
         run: |
           set -euo pipefail
           mkdir -p raw-evidence
@@ -63,20 +63,20 @@ jobs:
           if test -f raw-evidence/frames-inclusive.txt; then test "$(cat raw-evidence/frames-inclusive.txt)" = "$RANGE"; fi
       - name: Normalize video and validate strict limited-range H264
         env:
-          LABEL: ${{ matrix.label }
-          RANGE: ${{ matrix.range }
-          FRAMES: ${{ matrix.frames }
+          LABEL: ${{ matrix.label }}
+          RANGE: ${{ matrix.range }}
+          FRAMES: ${{ matrix.frames }}
         run: |
           bash h-helper/yunex/video004/reports/H/normalize-native-proof.sh "raw-evidence/$LABEL.mp4" "normalized/$LABEL" "$LABEL" "$RANGE" "$FRAMES" "$FILM_SOURCE"
           echo "Original source run $OLD_RUN, normalized original raw file, not rerendered" >> "normalized/$LABEL/provenance.txt"
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: Y004-H-LIMITED-${{ matrix.label }
-          path: normalized/${{ matrix.label }/
+          name: Y004-H-LIMITED-${{ matrix.label }}
+          path: normalized/${{ matrix.label }}/
           retention-days: 30
   cover-boundaries:
-    name: Native missing ${{ matrix.label } ( ${{ matrix.range } )
+    name: Native missing ${{ matrix.label }} ( ${{ matrix.range }} )
     runs-on: ubuntu-latest
     timeout-minutes: 65
     strategy:
@@ -113,9 +113,9 @@ jobs:
         working-directory: yunex
         env:
           NODE_OPTIONS: --require=./fix-network.cjs
-          LABEL: ${{ matrix.label }
-          RANGE: ${{ matrix.range }
-          FRAMES: ${{ matrix.frames }
+          LABEL: ${{ matrix.label }}
+          RANGE: ${{ matrix.range }}
+          FRAMES: ${{ matrix.frames }}
         run: |
           set -euo pipefail
           mkdir -p "out/y004-h-boundary/$LABEL"
@@ -127,6 +127,6 @@ jobs:
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: Y004-H-BOUNDARY-${{ matrix.label }
-          path: yunex/out/y004-h-boundary/${{ matrix.label }/
+          name: Y004-H-BOUNDARY-${{ matrix.label }}
+          path: yunex/out/y004-h-boundary/${{ matrix.label }}/
           retention-days: 30
