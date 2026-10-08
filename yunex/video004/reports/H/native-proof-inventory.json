@@ -36,7 +36,7 @@
   "nativeProofs": {
     "runId": 37769701749,
     "expectedJobs": 11,
-    "passesConfirmed": 4,
+    "passesConfirmed": 5,
     "format": {
       "codec": "h264",
       "pixelFormat": "yuv420p",
@@ -52,13 +52,13 @@
         "framesInclusive": "0-59",
         "expectedFrameCount": 60,
         "artifactName": "Y004-H-C-NATIVE-opening-0-59",
-        "artifactId": null,
-        "mediaSha256": null,
+        "artifactId": 11547392900,
+        "mediaSha256": "3c6e61fdad18b478a2cf0cd232a6cd0fd2a40576f864994bf2b02656f55abfce",
         "sourceSha": "1e2ab54e77090ec9c95c119488bc87d7ab7a45ba",
-        "validation": "PENDING_NATIVE_RENDER",
+        "validation": "STRICT_NATIVE_MP4_AND_LOCAL_DECODER_PASS",
         "jobId": 113286094691,
-        "jobStatus": "in_progress",
-        "jobConclusion": null
+        "jobStatus": "completed",
+        "jobConclusion": "success"
       },
       {
         "name": "opening-tail-60-83",
@@ -193,7 +193,7 @@
     ],
     "jobsQueuedOrRunning": 11,
     "jobIdsAllConfirmed": true,
-    "pendingNative": 7
+    "pendingNative": 6
   },
   "oldSourceEvidence": {
     "sourceSha": "f5cbdf2f6c96aa5ac2e5c184a048f49700037f55",
