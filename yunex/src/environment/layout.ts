@@ -12,13 +12,13 @@ export const terrainY=(x:number,z:number)=>{
 export type Tree={x:number;z:number;y:number;height:number;width:number;phase:number;warm:boolean};
 export const forestLayout=(seed=CIRCUIT_SEED)=>{
  const r=rngFor(seed);const trees:Tree[]=[];
- for(const side of [-1,1])for(let i=0;i<88;i++){
-  const z=-146+r()*292;const s=sampleTrackAtLocalZ(z);const lateral=13+r()*37;
+ for(const side of [-1,1])for(let i=0;i<190;i++){
+  const z=-146+r()*292;const s=sampleTrackAtLocalZ(z);const lateral=13+r()*51;
   const x=s.center[0]+side*lateral;
   // The paddock and marshal hut need clear, credible footprints.
   if(x>17&&x<46&&z>-62&&z<35)continue;
   if(x< -9&&x> -19&&z>9&&z<28)continue;
-  trees.push({x,z,y:terrainY(x,z),height:6.3+r()*6.8,width:3.8+r()*3.8,phase:r()*6.28,warm:r()>.8});
+  trees.push({x,z,y:terrainY(x,z),height:8.2+r()*7.8,width:5.1+r()*5.2,phase:r()*6.28,warm:r()>.8});
  }
  return trees;
 };

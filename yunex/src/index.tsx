@@ -23,6 +23,7 @@ const TrackFilmOpening=()=> <TrackFilmSegment variant="opening"/>;
 const TrackFilmFinal=()=> <TrackFilmSegment variant="final"/>;
 const Root=()=> <>
  <Composition id="YUNEX-CIRCUIT-V2" component={CircuitShowcase} width={1080} height={1920} fps={30} durationInFrames={SHOWCASE_FRAMES}/>
+ <Composition id="YUNEX-CIRCUIT-V3" component={CircuitShowcase} width={1080} height={1920} fps={30} durationInFrames={SHOWCASE_FRAMES}/>
  <Composition id="YUNEX-004-CINEMATIC" component={Yunex004Release} defaultProps={{variant:"cinematic",cached:true}} width={1080} height={1920} fps={30} durationInFrames={720}/>
  <Composition id="YUNEX-004-DYNAMIC" component={Yunex004Release} defaultProps={{variant:"dynamic",cached:true}} width={1080} height={1920} fps={30} durationInFrames={720}/>
  <Composition id="YUNEX-004" component={Yunex004Visual} width={1080} height={1920} fps={30} durationInFrames={Y004_FINAL_FRAMES}/>
