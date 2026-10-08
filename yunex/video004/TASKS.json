@@ -1,6 +1,6 @@
 {
   "phase": "Y004-REAR-STEERING-01",
-  "phase_status": "NATIVE_THREE_MODE_MOVING_SMOKE_RENDER_PASS_AND_D_AUDIO_PASS_INTEGRATED_VISUAL_QA_STILL_PENDING",
+  "phase_status": "G_H_ROLES_DISPATCH_IN_PROGRESS_H_TO_INTEGRATE_THEN_F_PROOF_PASS_THEN_G_FINAL_RENDER",
   "manager_branch": "sol/y004-rear-steering-manager",
   "master_handoff_sha": "2522f1379712f7ccbeca68d350dfa592a1f6ff97",
   "source_base_sha": "451728dcbc8e36cc9f54fb94e00bdefbdf068f51",
@@ -109,16 +109,52 @@
       "output_sha": "650cd0bdabaa127103ab214a1c44eb1c86ebb0aa",
       "proof": null,
       "accepted": false
+    },
+    {
+      "id": "H",
+      "role": "Final visual integration and narration sync",
+      "branch": "sol/y004-h-integration",
+      "handoff": "yunex/video004/H_INTEGRATION_HANDOFF.md",
+      "owns": [
+        "yunex/src/video004/Video004.tsx",
+        "yunex/src/video004/timeline.ts",
+        "yunex/src/video004/contracts.ts",
+        "yunex/src/index.tsx",
+        "yunex/src/video004/motion/sampler.ts (STAGING cutoffs only)",
+        "yunex/video004/reports/H/**",
+        ".github/workflows/yunex-004-h-*.yml",
+        "yunex/public/y004-final-mix.m4a (exact Agent D approved file)"
+      ],
+      "status": "NOT_STARTED_WAITING_USER_CHAT",
+      "input_sha": null,
+      "output_sha": null,
+      "proof": null,
+      "accepted": false
+    },
+    {
+      "id": "G",
+      "role": "Final source-locked native render and master delivery",
+      "branch": "sol/y004-g-render",
+      "handoff": "yunex/video004/G_RENDER_HANDOFF.md",
+      "owns": [
+        "yunex/video004/reports/G/**",
+        "yunex/video004/delivery/** (text reports and metadata only)",
+        ".github/workflows/yunex-004-g-*.yml (only if needed; no workflow duplication)"
+      ],
+      "status": "NOT_STARTED_BLOCKED_UNTIL_H_INTEGRATION_AND_F_PREFLIGHT",
+      "input_sha": null,
+      "output_sha": null,
+      "proof": null,
+      "accepted": false
     }
   ],
   "required_gates": [
-    "A/B actual driving/rig native moving proof",
-    "C muted matched camera/cues evidence",
-    "D measured new Y004 VO, timing and mix",
-    "Manager integrated native short proof",
-    "F pre-render moving visual PASS",
-    "immutable render source SHA and E full native delivery",
-    "F final QA; Manager delivery to Master"
+    "H retimes actual video to approved 22.704s Cedar, integrates D and registers YUNEX-004 @720f",
+    "H native moving hook, low/high matched sequence, rear macro, driving and active exit proofs from same source",
+    "F independent real native pre-render QA PASS at H exact SHA",
+    "Manager reviews H+F, pins immutable H source in TASKS.json and publishes QA evidence",
+    "G reuses E native pipeline on pinned H SHA, muxes exact D AAC and publishes one finished 720f master",
+    "F independent final MP4 technical/audio QA, then Master creative review"
   ],
   "rule": "Only Manager updates this registry. Branch creation does not mean specialist execution started.",
   "progress_as_of": "2026-10-08",
@@ -166,5 +202,6 @@
     "sentence_timing_state": "SILENCE_DETECTION_APPROXIMATE_CONFIRM_BY_HUMAN",
     "motion_edit_state": "CURRENT_HIGH_SHOT_STARTS_AT_9_5S_BUT_NEW_HIGH_SPEECH_STARTS_AT_11_608S; RETIME_BEFORE_FULL_RENDER",
     "film_end_seconds": 24
-  }
+  },
+  "ownership_exception": "Manager explicitly delegates central Y004 visual integration files to H exclusively, excluding TASKS.json, which Manager still owns. G owns final render dispatch/delivery, reusing E tooling; no broad source edits."
 }

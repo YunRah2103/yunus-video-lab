@@ -42,3 +42,20 @@ Premium ~20–24 s 1080x1920 30 fps 9:16. Hook rear wheel within 0–2.8 s; shor
 - 992 GT3 RS press kit: https://newsroom.porsche.com/dam/jcr:46a23375-e7ee-4507-a577-d9761b784d33/992%20911%20GT3%20RS%20Press%20Kit%201.pdf
 
 Everything beyond the directional low/high principle, including exactly 1° cap, local path staging, and cinematic speeds, is an illustrative YUNEX production choice.
+
+
+## Explicit final-delivery H/G delegation (8 October 2026)
+The original contract said Manager alone changes central Y004 files. For this narrowly defined final stage, **Manager grants Agent H exclusive write ownership of**:
+- `yunex/src/video004/Video004.tsx`, `timeline.ts`, `contracts.ts`, and `yunex/src/index.tsx`;
+- ONLY the Y004 `STAGING` shot-boundary constants of `yunex/src/video004/motion/sampler.ts` (not four-wheel kinematics);
+- `yunex/video004/reports/H/**` and its own `.github/workflows/yunex-004-h-*.yml`;
+- one new EXACT Agent D-approved audio file `yunex/public/y004-final-mix.m4a` if the current release mechanism requires repo-local bytes. Confirm SHA; do not modify D's authoritative source/report.
+Manager stays sole registry owner (`yunex/video004/TASKS.json`) and single authority to pin render source and pre-render PASS. Avoid concurrent Manager central edits until H completes; H pushes ONLY `sol/y004-h-integration`, NOT Manager directly.
+
+**Agent G** owns full native render orchestration/delivery and only `yunex/video004/reports/G/**`, `yunex/video004/delivery/**` for small text manifests, and optionally newly named `.github/workflows/yunex-004-g-*.yml` if indispensable. G MUST reuse Agent E’s working render modules/workflow unchanged, using H/Manager-approved immutable source. No rendering of Y003, no substitute 4-frame fixture, no output claimed without one complete playable MP4.
+
+Sequence: **H integration → F independent moving visual approval → Manager immutable render source / release gate → G full native render+mux/validation → F finished MP4 QA → Master creative decision**.
+
+Audio: approved D branch `9567f6b2efa901d3667d084eedbbca9c98943c36`, source MP3 SHA256 `db75bbbe6aa468062b300004390f23f254679086e2b69d0de6aa1d553c8d404b`, final AAC 24s SHA256 `a2f5dc284ce923a4d6803b66c2d45a1d3502a2be0024c8e3b1d2658c5bdb1e51`; available via Library `/Video Projects/YUNEX 004/Agent D/YUNEX_004_Cedar_final_mix_24s_48k_stereo.m4a`, per D report. No WAV or M4A file should be assumed to live in GitHub until actual bytes+hash confirmed.
+
+Recent corrected native smoke run `37755997906` SUCCESS at older source `51bef69dcde7323dd56f6120b1bc6551e8d5efd3`, showing LOW, HIGH, REAR MACRO 24-frame clips; those do NOT prove correct retimed narration, nor replace complete running visual QA. Earlier manager high shot starts 285f (9.5s), but actual s3 voice starts ~11.608s. H changes high start to about 333f (11.1s) and reproofs. 720 @30 frames is already Manager-locked from actual recorded 22.704 s Cedar.

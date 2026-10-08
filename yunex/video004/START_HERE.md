@@ -1,5 +1,5 @@
 # YUNEX 004 — START HERE
-**Active phase:** Y004-REAR-STEERING-01 — PRODUCE, NOT APPROVED.
+**Active phase:** Y004-REAR-STEERING-01 — H integration and G final rendering, NOT APPROVED.
 
 This page is the only active entry point for Y004. Older Y003/y002 directions are historical. The authoritative creative brief is [MANAGER_IMPLEMENTATION_HANDOFF.md](MANAGER_IMPLEMENTATION_HANDOFF.md), published on remote `sol/y004-rear-steering-manager` at `2522f1379712f7ccbeca68d350dfa592a1f6ff97`.
 
@@ -8,7 +8,7 @@ This page is the only active entry point for Y004. Older Y003/y002 directions ar
 - Initial Master handoff SHA: `2522f1379712f7ccbeca68d350dfa592a1f6ff97`.
 - Porsche GLB SHA256: `1c73fcb138c31e2b1d5ed126a2412074bb17f8e960b355436f28139bf518e1eb`.
 - Y004 Manager/integration branch: `sol/y004-rear-steering-manager`.
-- Manager has created dispatch docs and separate specialist branches, but **no Y004 implementation/visual/native render has passed QA yet**.
+- A–F code has progressed; native THREE moving smoke tests passed run 37755997906 (technical render only). Agent D approved Cedar mix is ready. F independent real moving QA and full native movie are NOT approved.
 
 ## Read in order
 1. This START_HERE.
@@ -20,13 +20,19 @@ This page is the only active entry point for Y004. Older Y003/y002 directions ar
 ## Operating discipline
 Every specialist is a separate normal ChatGPT chat manually opened by the user, **not** a spawned sub-agent. Do not treat agent-start or acceptance as automatic. Each agent works in an isolated branch from the same dispatch commit (inspect current branch HEAD); reports actual implementation, proof, tests and **full verified remote SHA**. Manager alone integrates approved changes and edits central composition, timing, registry and existing shared production modules. No cross-owner writes without prior Manager scope.
 
-The 24 s / 720-frame envelope is **provisional** until newly recorded VO is measured. The supplied script is 59 words (~23.6 s at 150 spoken words/min excluding pause variation). D measures real audio before Manager locks final integer frame count; other agents implement portable frame-driven APIs, not hard-code final export length.
+The user-supplied actual Y004 Cedar file has been measured at **22.704 s**; Manager has locked **720 frames at 30fps (24.000s)**, with D's approved new transcript, timing and audio. See VOICEOVER_SOURCE_LOCK.json, VOICEOVER_INTEGRATION_UPDATE.md and Agent D branch report. The old 59-word script is superseded.
 
 ## Gates
 1. A motion/low-high driving kinematics and B rear upright/caliper mechanical proof.
 2. C matched mode framing plus wheel-anchored restrained direction guides; D measured VO, cue/edit/audio proof.
 3. Manager composes and runs low/high/rear macro/driving native short proofs; F independent QA must accept.
-4. Manager publishes immutable `render_source_sha`; E full 1080×1920 30 fps native render/mux/validate. Never mix chunks from different source SHAs.
-5. F final independent QA; Manager delivers actual playable MP4 to Master. No claim of Master creative approval before viewing.
+4. **Agent H** (central integration delegate) fixes current audio/motion edit mismatch, registers final composition and submits new native short moving proof. **Agent F** checks it.
+5. Manager publishes immutable H render source + pre-render F PASS in registry; **Agent G** reuses E's strict tooling to run full 720-frame 1080×1920 render/mux/validate.
+6. Agent F independently checks finished movie; Manager returns playable one-master MP4 to Master for creative review, not automatic approval.
 
 No external numerical threshold/steering-angle claim, no larger-than-1° illustrative rear steering without Master escalation, no stationary chassis turntable, no ungrounded drifting, no duplicate A/B MP4 uploads.
+
+## Late-stage separate agents
+- H — integrate and retime: `H_INTEGRATION_HANDOFF.md`, branch `sol/y004-h-integration`.
+- G — locked native render and delivery: `G_RENDER_HANDOFF.md`, branch `sol/y004-g-render`.
+- Existing F stays independent proof/final QA; Agent E's rendering tooling stays reusable, no role replacement or duplicated renderer.
