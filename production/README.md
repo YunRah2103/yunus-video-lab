@@ -29,7 +29,7 @@ python production/media-bridge/bridge.py --help
 python production/tools/handoff.py path/to/reviewed-handoff.json
 ```
 
-Use a **real registered YUNEX composition ID**; `YUNEX-001` is only an example of the currently registered existing main composition. Python render and benchmark wrappers run npm commands with working directory `yunex/`. Optional workflow_dispatch tools are available after their workflow YAML is present on the default branch; PR CI can run on this branch.
+Use a **real registered YUNEX composition ID**. On `main`, `YUNEX-001` requires approved original media that is not committed (e.g. `public/opening.mp4`); the CI smoke therefore uses the already registered `RotationPlate` composition and temporarily stages a copy of the tracked Porsche model **inside the runner only**, leaving the asset untouched. Python render and benchmark wrappers run npm commands with working directory `yunex/`. Optional workflow_dispatch tools are available after their workflow YAML is present on the default branch; PR CI can run on this branch.
 
 ## Explicit exclusions and coexistence
 

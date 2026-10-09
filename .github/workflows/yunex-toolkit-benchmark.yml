@@ -4,7 +4,7 @@ on:
     inputs:
       composition:
         type: string
-        default: YUNEX-001
+        default: RotationPlate
         required: true
       frames:
         type: string
@@ -33,6 +33,8 @@ jobs:
       - run: |
           sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg
           (cd yunex && npm ci --no-audit --no-fund)
+          mkdir -p yunex/public
+          if [ ! -e yunex/public/model.glb ]; then cp cars/porsche-911-gt3-rs-992/model.glb yunex/public/model.glb; fi
       - name: Actual measured CPU WebGL native renders
         shell: bash
         env:

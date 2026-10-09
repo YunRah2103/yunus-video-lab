@@ -50,6 +50,6 @@
 
 ## Verification policy
 
-The integration CI runs Python unit tests, Python compile checks, browser JS syntax checks, builds an empty media catalogue, and renders/decode-checks two native frames of the **unchanged existing** YUNEX composition. Optional heavyweight creative software tests require manual dispatch. No CI passing should be claimed as visual or engineering certification without reviewing its actual artifacts.
+The integration CI runs Python unit tests, Python compile checks, browser JS syntax checks, builds an empty media catalogue, and renders/decode-checks two native frames of the **unchanged, registered** `RotationPlate` Porsche composition, temporarily staging the tracked Porsche GLB inside a CI runner because the default branch omits source footage required by `YUNEX-001`. Optional heavyweight creative software tests require manual dispatch. No CI passing should be claimed as visual or engineering certification without reviewing its actual artifacts.
 
 For future feature branches use the imported tools by cherry-picking/merging this PR after the owner has reviewed it. Do not automatically merge into `main`.

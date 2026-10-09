@@ -67,8 +67,12 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          mkdir -p out/toolkit
-          python production/tools/render.py --composition YUNEX-001 --mode preview --output out/toolkit/yunex-native-2f.mp4 --start 0 --end 1 --scale 0.2 --concurrency 1
+          mkdir -p out/toolkit yunex/public
+          # Main does not commit the video footage for YUNEX-001. Stage the already
+          # tracked Porsche GLB only inside this ephemeral runner; do not modify it.
+          test -s cars/porsche-911-gt3-rs-992/model.glb
+          if [ ! -e yunex/public/model.glb ]; then cp cars/porsche-911-gt3-rs-992/model.glb yunex/public/model.glb; fi
+          python production/tools/render.py --composition RotationPlate --mode preview --output out/toolkit/yunex-native-2f.mp4 --start 0 --end 1 --scale 0.2 --concurrency 1
           python production/tools/quality.py video out/toolkit/yunex-native-2f.mp4 --fps 30 --frames 2 --report out/toolkit/native-qa.json
       - uses: actions/upload-artifact@v4
         if: always()

@@ -147,12 +147,13 @@ jobs:
       - name: Test TypeScript + browser + two original WebGL frames
         run: |
           set -euo pipefail
-          mkdir -p toolkit/out
+          mkdir -p toolkit/out yunex/public
+          if [ ! -e yunex/public/model.glb ]; then cp cars/porsche-911-gt3-rs-992/model.glb yunex/public/model.glb; fi
           (cd yunex && npx remotion compositions src/index.tsx --gl=swangle > ../toolkit/out/compositions.txt)
           /tmp/browser-venv/bin/python toolkit/smoke/playwright_ui.py
           (cd yunex && npx remotion compositions src/index.tsx --gl=swangle > ../toolkit/out/compositions.txt)
-          grep -q 'YUNEX-001' toolkit/out/compositions.txt
-          (cd yunex && npx remotion render src/index.tsx YUNEX-001 ../toolkit/out/remotion-smoke.mp4 --frames=0-1 --scale=0.25 --codec=h264 --pixel-format=yuv420p --gl=swangle --concurrency=1)
+          grep -q 'RotationPlate' toolkit/out/compositions.txt
+          (cd yunex && npx remotion render src/index.tsx RotationPlate ../toolkit/out/remotion-smoke.mp4 --frames=0-1 --scale=0.25 --codec=h264 --pixel-format=yuv420p --gl=swangle --concurrency=1)
           ffmpeg -v error -xerror -i toolkit/out/remotion-smoke.mp4 -f null -
           ffprobe -v error -select_streams v:0 -show_entries stream=codec_name,nb_frames,width,height -of json toolkit/out/remotion-smoke.mp4 | tee toolkit/out/remotion-probe.json
       - name: Upload existing stack proof
