@@ -1,0 +1,54 @@
+name: YUNEX toolkit - optional Remotion performance benchmark
+on:
+  workflow_dispatch:
+    inputs:
+      composition:
+        type: string
+        default: RotationPlate
+        required: true
+      frames:
+        type: string
+        default: '12'
+        required: true
+      concurrency_levels:
+        type: choice
+        options: ['1', '1,2', '1,2,3']
+        default: '1,2'
+        required: true
+permissions:
+  contents: read
+jobs:
+  benchmark:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: yunex/package-lock.json
+      - run: |
+          sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg
+          (cd yunex && npm ci --no-audit --no-fund)
+          mkdir -p yunex/public
+          if [ ! -e yunex/public/model.glb ]; then cp cars/porsche-911-gt3-rs-992/model.glb yunex/public/model.glb; fi
+      - name: Actual measured CPU WebGL native renders
+        shell: bash
+        env:
+          COMP: ${{ inputs.composition }}
+          FRAMES: ${{ inputs.frames }}
+          LEVELS: ${{ inputs.concurrency_levels }}
+          NODE_OPTIONS: --require=./fix-network.cjs
+        run: |
+          set -euo pipefail
+          python production/tools/benchmark.py --composition "$COMP" --frames "$FRAMES" --scale 0.25 --levels "$LEVELS" --rounds 1 --output out/toolkit/benchmark
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: yunex-toolkit-benchmark-${{ github.run_id }}
+          path: out/toolkit/benchmark/
+          retention-days: 14
+          if-no-files-found: warn
