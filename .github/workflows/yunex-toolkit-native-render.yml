@@ -1,0 +1,71 @@
+name: YUNEX toolkit - opt-in native render and decode QA
+on:
+  workflow_dispatch:
+    inputs:
+      composition:
+        description: Existing registered YUNEX Remotion composition ID
+        required: true
+        default: YUNEX-001
+        type: string
+      start_frame:
+        description: First frame inclusive
+        required: true
+        default: '0'
+        type: string
+      end_frame:
+        description: Last frame inclusive, maximum 1800 frames
+        required: true
+        default: '2'
+        type: string
+      mode:
+        description: Lower-resolution preview or native final resolution
+        required: true
+        type: choice
+        options: [preview, final]
+        default: preview
+permissions:
+  contents: read
+jobs:
+  render-qa:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: yunex/package-lock.json
+      - name: Set up reproducible existing YUNEX runtime
+        run: |
+          sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg
+          cd yunex && npm ci --no-audit --no-fund
+      - name: Render authorised existing composition without source edits
+        shell: bash
+        env:
+          COMP: ${{ inputs.composition }}
+          START: ${{ inputs.start_frame }}
+          END: ${{ inputs.end_frame }}
+          MODE: ${{ inputs.mode }}
+          NODE_OPTIONS: --require=./fix-network.cjs
+        run: |
+          set -euo pipefail
+          [[ "$COMP" =~ ^[A-Za-z][A-Za-z0-9_-]{0,80}$ ]] || exit 1
+          [[ "$START" =~ ^[0-9]+$ && "$END" =~ ^[0-9]+$ ]] || exit 1
+          (( 10#$END >= 10#$START && 10#$END - 10#$START < 1800 )) || exit 1
+          SCALE=0.25
+          if [[ "$MODE" == final ]]; then SCALE=1; fi
+          mkdir -p out/toolkit/native
+          python production/tools/render.py --composition "$COMP" --mode "$MODE" --start "$START" --end "$END" --scale "$SCALE" --concurrency 1 --output out/toolkit/native/proof.mp4
+          EXPECTED=$((10#$END - 10#$START + 1))
+          python production/tools/quality.py video out/toolkit/native/proof.mp4 --fps 30 --frames "$EXPECTED" --report out/toolkit/native/validation.json
+          python production/tools/quality.py samples out/toolkit/native/proof.mp4 out/toolkit/native/samples --times 0
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: yunex-toolkit-render-${{ github.run_id }}
+          path: out/toolkit/native/
+          retention-days: 21
+          if-no-files-found: warn

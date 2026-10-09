@@ -1,0 +1,40 @@
+name: YUNEX toolkit - licensed media bridge
+on:
+  workflow_dispatch:
+    inputs:
+      request_file:
+        description: Committed rights-cleared production/media-bridge/requests/<slug>.json
+        required: true
+        type: string
+permissions:
+  contents: read
+jobs:
+  ingest:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install FFmpeg and image tools
+        run: |
+          sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg
+          python -m pip install -r production/requirements-qa.txt
+      - name: Rights-declared source validation, download and visual proof
+        shell: bash
+        env:
+          REQUEST: ${{ inputs.request_file }}
+        run: |
+          set -euo pipefail
+          [[ "$REQUEST" =~ ^production/media-bridge/requests/[a-z0-9-]+\.json$ ]] || exit 1
+          test -f "$REQUEST"
+          python production/media-bridge/bridge.py --request "$REQUEST" --output out/toolkit/media
+      - uses: actions/upload-artifact@v4
+        with:
+          name: yunex-media-bridge-${{ github.run_id }}
+          path: out/toolkit/media/
+          retention-days: 14
+          if-no-files-found: error
